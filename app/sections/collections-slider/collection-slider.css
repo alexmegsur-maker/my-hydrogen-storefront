@@ -1,0 +1,11 @@
+.activeCollection{
+  background:var(--activeColSldColor);
+  color:var(--activeColSldBg);
+}
+.caption-lg{
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+.swiper-slide{
+  width: auto;
+}

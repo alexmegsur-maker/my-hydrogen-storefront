@@ -1,0 +1,36 @@
+.progressAnimation{
+  animation: progressBar calc(var(--animationTime) + 200ms) linear ;
+}
+
+.showPrevSlide{
+  animation: showPartialVideoLeft 500ms linear forwards;
+}
+.showNextSlide{
+  animation: showPartialVideoRight 500ms linear forwards;
+}
+
+@keyframes progressBar{
+  0%{
+    transform:scaleX(0);
+  }
+  100%{
+    transform:scaleX(1);
+  }
+}
+
+@keyframes showPartialVideoLeft{
+  0%{
+    transform:translateX(0)
+  }
+  100%{
+    transform:translateX(200px)
+  }
+}
+@keyframes showPartialVideoRight{
+  0%{
+    transform:translateX(0)
+  }
+  100%{
+    transform:translateX(-200px)
+  }
+}
