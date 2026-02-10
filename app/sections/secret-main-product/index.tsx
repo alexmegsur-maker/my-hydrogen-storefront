@@ -6,12 +6,11 @@ import ProductMediaSecret from "~/components/product-secret/product-media-secret
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { isCombinedListing } from "~/utils/combined-listings";
-import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import "./secret-main-product.css"
 import Dialog from "~/components/dialog";
 import { useInfoSecret } from "~/stores/infoSecretStore";
 import { useCurrentProduct } from "~/stores/currentProduct";
-import type { CurrentProduct } from "~/types/currentProduct";
+import { createCurProVar } from "~/routes/collections/utils";
 
 interface ProductInformationData
   extends Omit<ProductMediaProps, "selectedVariant" | "media"> {
@@ -24,12 +23,19 @@ type Imagen={
   height?:number;
 }
 
-
+export type MediaRequest ={
+  id:string;
+  image:Imagen;
+  mediaContentType:string;
+  previewImage:Imagen;
+}
 export type PageRequest ={
   id:string;
   body:HTMLElement;
 }
-
+type Images360 = {
+  previewImage:Imagen;
+}
 
 export default function SecretProductInformation(
   props: ProductInformationData & SectionProps,
@@ -47,7 +53,7 @@ export default function SecretProductInformation(
     ...rest
   } = props;
   const { product } = useLoaderData<typeof productRouteLoader>();
-  const [currentProduct,setCurrentProduct] = useState(product)
+  const [currentProduct,setCurrentProduct] = useState(null)
   const combinedListing = isCombinedListing(currentProduct);
   const [extraMedia,setExtraMedia] = useState([])
   const [logo,setLogo]=useState(null)
@@ -57,9 +63,10 @@ export default function SecretProductInformation(
   const [isDialogOpen,setIsDialogOpen]=useState(false)
 
   const setInfoSecret = useInfoSecret((state)=>state.setComponents)
+  const infoSecret = useInfoSecret((state)=>state.infoSecret)
   const updatePage=useInfoSecret((state)=>state.setUpdatePage)
   const setProduct= useCurrentProduct((state)=>state.setProduct)
-  const producto= useCurrentProduct((state)=>state.currentProduct)
+  const productStore= useCurrentProduct((state)=>state.currentProduct)
 
   const handleLoad=(event)=>{
     const iframe= event.target;
@@ -83,114 +90,69 @@ export default function SecretProductInformation(
   } 
 
   useEffect(()=>{
-    if(window.innerWidth){
-      setSizeDialog({x:window.innerWidth*0.7,y:window.innerHeight*0.9})
+    if(typeof window !=='undefined'){
+      
+      if(window.innerWidth){
+        setSizeDialog({x:window.innerWidth*0.7,y:window.innerHeight*0.9})
+      }
+      const auxProd= createCurProVar(product)
+      if(productStore?.id !== auxProd?.id){
+        setProduct(auxProd)
+      }
+      setCurrentProduct(product)
     }
-  },[])
-1
-  
+
+  },[product])
+
   useEffect(()=>{
-    console.log("currentProduct",currentProduct)
-    let options = currentProduct.options.map((elm)=>{
-      let optionValues= elm.optionValues.map((elm2)=>{
-        return({name:elm2.name})
-      })
-      return(
-        {
-          name:elm.name,
-          optionValues:optionValues
+    if(currentProduct){
+      if(currentProduct.imagenes360){
+        
+        let imagenes = currentProduct.imagenes360?.references?.nodes || currentProduct.imagenes360 
+        
+        if(imagenes){
+          setExtraMedia(imagenes)
         }
-      )
-    })
-    let firstVar = currentProduct.selectedOrFirstAvailableVariant 
-
-    let img360 = currentProduct.variants.nodes[0].imagenes360
-    let logo = currentProduct.variants.nodes[0].logoMetafield
-    let page = currentProduct.variants.nodes[0].pageMetafield
-    let list =currentProduct.variants.nodes[0].videosMetafield
-
-    let actualProduct = {
-      id:currentProduct.id,
-      title:currentProduct.title,
-      vendor:currentProduct.vendor,
-      handle:currentProduct.handle,
-      description:currentProduct.description,
-      featuredImage:{
-        url:currentProduct.featuredImage.url,
-        altText:currentProduct.featuredImage.altText,
-      },
-      media:currentProduct.media,
-      options:options,
-      firstAvailableVariant:{
-        id:firstVar.id,
-        title:firstVar.title,
-        availableForSale:firstVar.availableForSale,
-        price:firstVar.price,
-        sku:firstVar.sku,
-        selectedOptions:firstVar.selectedOptions,
-        quantityAvailable:firstVar.quantityAvailable
-      },
-      selectedVariant:{
-        id:firstVar.id,
-        title:firstVar.title,
-        availableForSale:firstVar.availableForSale,
-        price:firstVar.price,
-        sku:firstVar.sku,
-        selectedOptions:firstVar.selectedOptions,
-        quantityAvailable:firstVar.quantityAvailable
-      },
-      imagenes360:img360? img360.references.nodes:null,
-      logo:logo? logo.reference:null,
-      page:page? page.reference:null,
-      listVideos: list ?  list.references.nodes.map((el)=>{return el.sources[0].url}):[]
-    } as CurrentProduct
-// debes borrar esto y cambiar sus referencias y continuar con el useCurrent y poner aqui la peticion de collectionList y hacer las modificaciones necesarias
-      
-      setProduct(actualProduct)
-      
-      if(currentProduct.variants.nodes[0].imagenes360){
-        let imagenes = currentProduct.variants.nodes[0].imagenes360.references.nodes
-        setExtraMedia(imagenes)
-
-        console.log("imagenes360",imagenes)
       }else{
         setExtraMedia(null)
       }
-      
-      if(currentProduct.variants.nodes[0].logoMetafield){
-        setLogo(currentProduct.variants.nodes[0].logoMetafield.reference)
-        console.log("logo",currentProduct.variants.nodes[0].logoMetafield.reference)
         
+      if(currentProduct.logoMetafield){
+        setLogo(currentProduct.logoMetafield.reference)
       }else{
         setLogo(null)
       }
-      
-      if(currentProduct.variants.nodes[0].pageMetafield){
-        setPage(currentProduct.variants.nodes[0].pageMetafield.reference)
-        console.log("page",currentProduct.variants.nodes[0].pageMetafield.reference)
+        
+      const pagina =currentProduct.pageMetafield || currentProduct.page 
+      if(pagina){
+        setPage(currentProduct.pageMetafield?.reference || currentProduct.page)
       }else{
         setPage(null)
       }
 
-      const videosMetafield = currentProduct.variants.nodes[0].videosMetafield
-      
-      if(videosMetafield){
-        let listVideos = videosMetafield.references.nodes.map((el)=> {return el.sources[0].url} ) as string[]
-        console.log("listVideos",listVideos)
-        setVideos(listVideos)
+      const videosMetafield = currentProduct.videosMetafield 
+      const listadoVideos = currentProduct.listVideos
+      if(videosMetafield || listadoVideos){
+        let listVideos = videosMetafield?.references?.nodes?.map((el)=> {return el.sources[0].url} ) as string[] || listadoVideos
+        if(listVideos){
+          setVideos(listVideos)
+        }
       }else{
         setVideos([])
       }
 
-    setInfoSecret({
-      title:currentProduct.title,
-      handle:currentProduct.handle,
-      description:currentProduct.description,
-      showPage:page != null ? true:false,
-      showPageFun:()=>setIsDialogOpen(true)
-    })
-  },[currentProduct])
-
+      const newInfo = {
+        title:currentProduct.title,
+        handle:currentProduct.handle,
+        description:currentProduct.description,
+        showPage:page != null ? true:false,
+        showPageFun:()=>setIsDialogOpen(true)
+      }
+      if(infoSecret?.handle !== newInfo.handle ){
+        setInfoSecret(newInfo)
+      }
+    }
+  },[currentProduct,page])
 
   useEffect(()=>{
     if(page){
@@ -201,30 +163,30 @@ export default function SecretProductInformation(
   },[page])
 
   useEffect(()=>{
-    console.log("productoIndex",producto)
-  },[producto])
-  
+    if(productStore!=null){
+      setCurrentProduct(productStore)
+    }
+  },[productStore])
 
-  const { handle } = currentProduct;
   return (
     <Section ref={ref}  {...rest} overflow="unset" >
       <div className="lg:flex grid grid-cols-1 ">
         <ProductMediaSecret
-          key = { handle }
+          key = { currentProduct?.handle }
           media = {
-            combinedListing && producto?.featuredImage? [
+            combinedListing && currentProduct?.featuredImage? [
               {
                 __typename:"MediaImage",
-                id:producto.featuredImage.id,
+                id:currentProduct.featuredImage.id,
                 mediaContentType:"IMAGE",
-                alt:producto.featuredImage.altText,
-                previewImage:producto.featuredImage,
-                image:producto.featuredImage,
+                alt:currentProduct.featuredImage.altText,
+                previewImage:currentProduct.featuredImage,
+                image:currentProduct.featuredImage,
               },
-              ...(producto?.media?.nodes || []),
-            ]: producto?.media?.nodes || []
+              ...(currentProduct?.media?.nodes || []),
+            ]: currentProduct?.media?.nodes || []
           }
-          view360={producto?.imagenes360}
+          view360={extraMedia}
           logo={logo}
           mediaVideos={videos}
           />
@@ -249,7 +211,6 @@ export default function SecretProductInformation(
             >
           </iframe>
         </Dialog>
-        
       }
     </Section>
   );
@@ -272,7 +233,9 @@ export const schema = createSchema({
     "mp--atc-buttons",
     "mp--collapsible-details",
     "secret-info",
-    "variant-secret"
+    "variant-secret",
+    "price-section",
+    "crosssell"
   ],
   limit: 1,
   enabledOn: {

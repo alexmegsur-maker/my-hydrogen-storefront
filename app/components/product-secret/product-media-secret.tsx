@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import type { MediaFragment } from "storefront-api.generated";
 import { FreeMode, Navigation, Thumbs, Zoom } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import type { MediaRequest } from "~/sections/secret-main-product";
 import { useMousePosition } from "~/utils/mouse-position";
 import MiniatureSlide from "./miniature-slide";
-import type { MediaProduct, MediaRequest } from "~/types/currentProduct";
 
 export interface ProductMediaSecretProps{
-  media:MediaProduct[],
+  media:MediaFragment[],
   view360:[]|MediaRequest[],
   logo:MediaRequest,
   mediaVideos:string[],
@@ -58,7 +58,9 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
   }
 
   useEffect(()=>{
-    setImage360(view360[0])
+    if(view360){
+      setImage360(view360[0])
+    }
   },[view360])
 
   return (
@@ -155,8 +157,8 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                                 fill="none"
                               >
                                 <path
-                                  fill-rule="evenodd"
-                                  clip-rule="evenodd"
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
                                   d="M5.46967 2.46967C5.76256 2.17678 6.23744 2.17678 6.53033 2.46967L12.0607 8L6.53033 13.5303C6.23744 13.8232 5.76256 13.8232 5.46967 13.5303C5.17678 13.2374 5.17678 12.7626 5.46967 12.4697L9.93934 8L5.46967 3.53033C5.17678 3.23744 5.17678 2.76256 5.46967 2.46967Z"
                                   fill="currentColor"
                                 ></path>
@@ -180,8 +182,8 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                                 fill="none"
                               >
                                 <path
-                                  fill-rule="evenodd"
-                                  clip-rule="evenodd"
+                                  fillRule="evenodd"
+                                  clipRule="evenodd"
                                   d="M10.5303 2.46967C10.2374 2.17678 9.76256 2.17678 9.46967 2.46967L3.93934 8L9.46967 13.5303C9.76256 13.8232 10.2374 13.8232 10.5303 13.5303C10.8232 13.2374 10.8232 12.7626 10.5303 12.4697L6.06066 8L10.5303 3.53033C10.8232 3.23744 10.8232 2.76256 10.5303 2.46967Z"
                                   fill="currentColor"
                                 ></path>
@@ -196,7 +198,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
               </div>
             </div>
             <div className="flex items-center justify-center z-10 flex-none flex min-h-[70px] xl:min-h-[110px] sticky bottom-0 bg-black e2e-section-slider-thumbnail">
-              {view360.length > 0 && (
+              {view360?.length > 0 && (
                 <div
                   data-context="pdp-360switch"
                   className="absolute right-[32px] bottom-[140px] z-[100] outline-none"
@@ -258,8 +260,8 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                         fill="none"
                       >
                         <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
                           d="M10.5303 2.46967C10.2374 2.17678 9.76256 2.17678 9.46967 2.46967L3.93934 8L9.46967 13.5303C9.76256 13.8232 10.2374 13.8232 10.5303 13.5303C10.8232 13.2374 10.8232 12.7626 10.5303 12.4697L6.06066 8L10.5303 3.53033C10.8232 3.23744 10.8232 2.76256 10.5303 2.46967Z"
                           fill="currentColor"
                         ></path>
@@ -278,8 +280,8 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                         fill="none"
                       >
                         <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
                           d="M5.46967 2.46967C5.76256 2.17678 6.23744 2.17678 6.53033 2.46967L12.0607 8L6.53033 13.5303C6.23744 13.8232 5.76256 13.8232 5.46967 13.5303C5.17678 13.2374 5.17678 12.7626 5.46967 12.4697L9.93934 8L5.46967 3.53033C5.17678 3.23744 5.17678 2.76256 5.46967 2.46967Z"
                           fill="currentColor"
                         ></path>
@@ -288,8 +290,8 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                   </div>
                 </Swiper>
               </div>
-              {mediaVideos.length > 0 && <div className="mx-5 h-[2px] w-[30px] bg-gray-500"></div>}
-              {mediaVideos.length > 0 && (
+              {mediaVideos?.length > 0 && <div className="mx-5 h-[2px] w-[30px] bg-gray-500"></div>}
+              {mediaVideos?.length > 0 && (
                 <div className="w-[15%] max-w-[240px] mx-5 e2e-section-video-gallery-thumbnail">
                   <div className="slick-slider slick-initialized" dir="ltr">
                     <div className="slick-list">
@@ -305,7 +307,8 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                         {mediaVideos.map((elm,index)=>{
                           return (
                             <div
-                              data-index={index}
+                            
+                              key={index}
                               className="slick-slide slick-active"
                               aria-hidden="false"
                               style={{ outline: "none", width: "101px" }}
@@ -334,7 +337,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                                     <svg
                                       stroke="currentColor"
                                       fill="currentColor"
-                                      stroke-width="0"
+                                      strokeWidth="0"
                                       viewBox="0 0 448 512"
                                       className="text-white"
                                       height="1em"

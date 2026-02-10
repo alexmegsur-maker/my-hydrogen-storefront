@@ -1,8 +1,8 @@
 
 import {data} from "react-router";
 import type { ActionFunction, LoaderFunctionArgs } from "react-router";
-import { COLLECTION_BY_IDS_QUERY } from "~/graphql/collection";
-import type { CollectionByIdsQuery} from "storefront-api.generated";
+import { COLLECTION_BY_IDS_SECRET_QUERY } from "~/graphql/collection";
+import type { CollectionsByIdsQuery} from "storefront-api.generated";
 
 interface ActionBody{
   ids:string[];
@@ -22,7 +22,7 @@ export const action:ActionFunction = async({request,context}:LoaderFunctionArgs)
   
   if(ids){
     const result=
-      await context.storefront.query<CollectionByIdsQuery>(COLLECTION_BY_IDS_QUERY,{
+      await context.storefront.query<CollectionsByIdsQuery>(COLLECTION_BY_IDS_SECRET_QUERY,{
         variables:{
           ids:ids
         }

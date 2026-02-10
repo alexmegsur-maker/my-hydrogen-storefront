@@ -50,6 +50,12 @@ export const schema = createSchema({
     {
       group:"Color",
       inputs:[
+        {
+          type:'text',
+          label:'color',
+          name:'color',
+          defaultValue:'#fff',
+        },
       ]
     }
   ],childTypes:["color_elm"]

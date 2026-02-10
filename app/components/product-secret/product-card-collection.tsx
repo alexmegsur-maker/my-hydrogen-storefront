@@ -1,33 +1,48 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import type { ProductQuery } from "storefront-api.generated";
+import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
+import { createCurProVar } from "~/routes/collections/utils";
 import type { ProductNode, RequestVariant } from "~/sections/secret-main-product/variants-secret";
 import { useCurrentProduct } from "~/stores/currentProduct";
 
+interface tooltipProps{
+  tooltipColor:string,
+  tooltipBgColor:string,
+  tooltipTSize:string,
+  tooltipTWeight:string,
+  tooltipSubTSize:string,
+  tooltipSubTWeight:string
+}
+
 interface ProductCardProps{
-  producto:ProductNode;
+  product:ProductNode;
   variante:RequestVariant;
+  tooltipProps:tooltipProps;
+}
+
+interface ApiResponseProduct{
+  result:ProductQuery
+  ok:boolean;
+  errorMessage?:string;
 }
 
 function ProductCardCollection(props:ProductCardProps){
-  const {producto,variante }=props
-  const[showToolTip,setShowToolTip] = useState(false)
-  const container=useRef(null)
-  const toolTip=useRef(null)
-  const show = useRef(null)
-  const border = useRef(null)
-  const [pos,setPos]=useState(false)
-  const currentProd= useCurrentProduct(state=>state.currentProduct)
+  const { product,variante ,tooltipProps} = props;
+  const[showToolTip,setShowToolTip] = useState(false);
+  const container = useRef(null);
+  const toolTip = useRef(null);
+  const show = useRef(null);
+  const [pos,setPos] = useState(false);
+  const isSelected = useCurrentProduct(state=>state.currentProduct?.id===product.id);
+  const setCurrent = useCurrentProduct(state=>state.setProduct);
+  const getApiUrl = usePrefixPathWithLocale(`api/product-secret`);
 
   useGSAP(()=>{
-    show.current = gsap.from(toolTip.current,{opacity:0,duration:0.5,display:"none"})
-    if(currentProd.id === producto.id){
-      gsap.to(border.current,{
-        borderColor:"#3790b0"
-      })
-    }
+    show.current = gsap.from(toolTip.current,{opacity:0,duration:0.5,display:"none",paused:true})
   },{scope:container.current})
-  
+
   useEffect(()=>{
     if(showToolTip){
       let heigthPage = window.innerHeight * 0.6
@@ -36,21 +51,43 @@ function ProductCardCollection(props:ProductCardProps){
         setPos(true)
       }else{
         setPos(false)
-
       }
-      console.log("heigthPage:",heigthPage,"- containePosition:",containerPosition)
       show.current.play()
     }else{
       show.current.reverse()
     }
   },[showToolTip])
   
+  const setProduct = useCallback(async()=>{
+    if (isSelected) return
+    const startsUrl = window.location.href.split("products")[0] + "products/"
+    const newUrl = startsUrl+product.handle
+    const nextState = {additionalInformation:'Updated the URL with JS'}
+    window.history.pushState(nextState,'',newUrl)
+    window.history.replaceState(nextState,'',newUrl)
+
+    try{
+      const res = await fetch(getApiUrl,{
+        method:"POST",
+        body:JSON.stringify({handle:product.handle})
+      })
+      const data = await res.json() as ApiResponseProduct
+      if(data.ok){
+        const prod = createCurProVar(data.result)
+        setCurrent(prod)
+      }
+    }catch(err){
+      console.log("Error loading product:",err)
+    }
+    
+  },[product.handle,isSelected,setCurrent,getApiUrl])
 
   return (
     <div ref={container} 
-      className="relative"
+      className="relative cursor-pointer"
       onMouseEnter={()=>setShowToolTip((state)=>state == false && true)}
       onMouseLeave={()=>setShowToolTip((state)=>state == true && false)}
+      onClick={setProduct}
       >
       <div
         data-testid="e2e-card-variant"
@@ -73,19 +110,17 @@ function ProductCardCollection(props:ProductCardProps){
           </div>
         </div>
         <div 
-          ref={border}
-          id="chair-M07-E24DI-ATLMP1R"
-          data-testid="e2e-button-variant-2"
-          className="flex border-solid rounded overflow-hidden aspect-3/4 relative cursor-pointer e2e-button-variant relative w-full h-full border border-[#A1A1AA] hover:border-[#A72A2F]  opacity-100"
-          data-sku="M07-E24DI-ATLMP1R"
-          data-state="closed"
+          className="flex border-solid rounded overflow-hidden aspect-3/4 relative cursor-pointer e2e-button-variant relative w-full h-full border  hover:border-[#A72A2F]  opacity-100"
+          style={{
+            borderColor:isSelected || showToolTip  ? "#3790b0": "#A1A1AA"
+          }}
         >
           <div className="h-full w-full">
             <img
               loading="lazy"
               alt="Thumbnail of Secretlab TITAN Evo Secretlab for Automobili Lamborghini Pinnacle Superleggera"
               className="object-cover scale-200 top-[30%] absolute"
-              src={producto.featuredImage.url}
+              src={product?.featuredImage?.url}
             />
           </div> 
         </div>
@@ -99,18 +134,35 @@ function ProductCardCollection(props:ProductCardProps){
                 height:0,
                 borderLeft:"5px solid transparent",
                 borderRight:"5px solid transparent",
-                borderBottom:"6px solid black",
+                borderBottom:`6px solid ${tooltipProps.tooltipBgColor}`  ,
                 rotate: pos && "180deg"
                 
               }}
             ></span>
-            <div className="bg-black text-center  rounded-lg">
-              <div className="py-[8px] px-[16px] flex flex-col text-white">
-                <span className="text-[14px] font-bold">
-                  {variante.nombre ? variante.nombre.value:producto.title}
+            <div 
+              className=" text-center  rounded-lg"
+              style={{
+                backgroundColor:tooltipProps.tooltipBgColor
+              }}
+              >
+              <div className="py-[8px] px-[16px] flex flex-col">
+                <span 
+                  style={{
+                    color:tooltipProps.tooltipColor,
+                    fontSize:tooltipProps.tooltipTSize,
+                    fontWeight:tooltipProps.tooltipTWeight,
+                  }}
+                >
+                  {product.nombre ? product.nombre.value : product.title}
                 </span>
-                <span className="text-[14px]">
-                  {variante.tooltip && variante.tooltip.value}
+                <span 
+                  style={{
+                    color:tooltipProps.tooltipColor,
+                    fontSize:tooltipProps.tooltipSubTSize,
+                    fontWeight:tooltipProps.tooltipSubTWeight,
+                  }}
+                >
+                  {product.tooltip && product.tooltip?.value}
                 </span>
               </div>
             </div>
@@ -120,4 +172,5 @@ function ProductCardCollection(props:ProductCardProps){
     </div>
   )
 }
+
 export default ProductCardCollection

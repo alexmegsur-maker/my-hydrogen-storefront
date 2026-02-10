@@ -47,72 +47,99 @@ export const PRODUCT_QUERY = `#graphql
       selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {
         ...ProductVariant
       }
-      variants(first:1){
-        nodes{
-          logoMetafield:metafield(namespace:"custom",key:"logo") {
-            key
-            value
-            reference{
-              ... on Media{
-                previewImage{
-                  altText  
-                  url
-                }
-              }
+      logoMetafield:metafield(namespace:"custom",key:"logo") {
+        key
+        value
+        reference{
+          ... on Media{
+            previewImage{
+              altText  
+              url
             }
           }
-          imagenes360:metafield(namespace:"custom",key:"imagen360") {
-            key
-            value
-            references(first:50){
-              nodes{
-                ... on Media{
-                  previewImage{
-                    altText  
-                    url
-                  }
-                }
-              }
-            }
-          }
-          videosMetafield:metafield(namespace:"custom",key:"videos"){
-            id
-            type
-            references(first:2){
-              nodes{
-                ... on Video{
-                  id
-                  alt
-                  sources{
-                    url
-                  }
-                }
-              }
-            }
-          }
-          pageMetafield:metafield(namespace:"custom",key:"page"){
-            id
-            type
-            value
-            reference{
-              ... on Page{
-                id
-                title
-                body
-                onlineStoreUrl
+        }
+      }
+      imagenes360:metafield(namespace:"custom",key:"imagen360") {
+        key
+        value
+        references(first:50){
+          nodes{
+            ... on Media{
+              previewImage{
+                altText  
+                url
               }
             }
           }
         }
+      }
+      videosMetafield:metafield(namespace:"custom",key:"videos"){
+        id
+        type
+        references(first:2){
+          nodes{
+            ... on Video{
+              id
+              alt
+              sources{
+                url
+              }
+            }
+          }
+        }
+      }
+      pageMetafield:metafield(namespace:"custom",key:"page"){
+        id
+        type
+        value
+        reference{
+          ... on Page{
+            id
+            title
+            body
+            onlineStoreUrl
+          }
+        }
+      }
+      nombre:metafield(namespace:"custom",key:"name_style_secret"){
+        id
+        value
+      }
+      tooltip:metafield(namespace:"custom",key:"tooltip"){
+        id
+        value
+      }
+      variants(first:10){
+        nodes{
+          id
+          quantityAvailable
+          availableForSale
+          selectedOptions{
+            name
+            value
+          }
+          price{
+            amount
+            currencyCode
+          }
+          compareAtPrice{
+            amount
+            currencyCode
+          }
+          tooltip:metafield(namespace:"custom",key:"tooltip"){
+            id
+            value
+          }
+        } 
       }
       adjacentVariants(selectedOptions: $selectedOptions) {
         ...ProductVariant
       }
       # Check if the product is a bundle
       isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {
-        ...on ProductVariant {
+        ...on ProductVariant { 
           requiresComponents
-          components(first: 100) {
+          components(first: 100) { 
              nodes {
                 productVariant {
                   ...ProductVariant

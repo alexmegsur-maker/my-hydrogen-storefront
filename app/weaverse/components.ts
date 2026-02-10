@@ -84,6 +84,11 @@ import * as ColorElm from "~/sections/header-edit/color"
 import * as SecretProductMain from "~/sections/secret-main-product"
 import * as SecretInfo from "~/sections/secret-main-product/principal-info"
 import * as SecretVariant from "~/sections/secret-main-product/variants-secret"
+import * as PriceSecret from  "~/sections/secret-main-product/price-section"
+import * as Crosssell from  "~/sections/secret-main-product/crosssell"
+import * as CrosssellContainer from  "~/sections/secret-main-product/crosssell/container"
+import * as CrosssellProduct from  "~/sections/secret-main-product/crosssell/product"
+
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -175,5 +180,9 @@ export const components: HydrogenComponent[] = [
   ColorElm,
   SecretProductMain,
   SecretInfo,
-  SecretVariant
+  SecretVariant,
+  PriceSecret,
+  Crosssell,
+  CrosssellContainer,
+  CrosssellProduct,
 ];

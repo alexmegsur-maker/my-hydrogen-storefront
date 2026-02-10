@@ -22,6 +22,12 @@ export const schema = createSchema({
     {
       group:"General",
       inputs:[
+        {
+          type:'switch',
+          label:'show',
+          name:'show',
+          defaultValue:true,
+        },
       ]
     }
   ],childTypes:['text-left','general','banner','image-link','text-top','product-top','register_color']

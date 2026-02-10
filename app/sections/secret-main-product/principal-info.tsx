@@ -130,7 +130,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
                 {pathnames.map((name,index)=>{
                   const routeTo= `${pathnames.slice(0,index+1).join('/')}`;
                   return(
-                    <>
+                    <div key={index}>
                       <span> / </span>
                       {index === pathnames.length - 1 ? (
                         <span 
@@ -144,7 +144,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
                       ):(
                         <Link to={ `/${routeTo}`}>{ name == info.handle ? info.title : name}</Link>
                       )}
-                    </>
+                    </div>
                   )
                 })}
               </div>

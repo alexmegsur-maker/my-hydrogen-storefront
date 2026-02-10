@@ -1,5 +1,5 @@
-export const COLLECTION_BY_IDS_QUERY = `#graphql
-  query CollectionsByIds($ids:[ID!]!){
+export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
+  query CollectionsByIdslist($ids:[ID!]!){
     nodes(ids: $ids){
       ... on Collection{
         id
@@ -10,15 +10,82 @@ export const COLLECTION_BY_IDS_QUERY = `#graphql
           altText
           url      
         }
+        filtro:metafield(namespace:"custom",key:"filtro"){
+          id
+          value
+        }
         products(first:20){
           edges{
             node{
               id
               title
+              handle
               availableForSale
               featuredImage{
                 altText
                 url
+              }
+              logoMetafield:metafield(namespace:"custom",key:"logo") {
+                key
+                value
+                reference{
+                  ... on Media{
+                    previewImage{
+                      altText  
+                      url
+                    }
+                  }
+                }
+              }
+              imagenes360:metafield(namespace:"custom",key:"imagen360") {
+                key
+                value
+                references(first:50){
+                  nodes{
+                    ... on Media{
+                      previewImage{
+                        altText  
+                        url
+                      }
+                    }
+                  }
+                }
+              }
+              videosMetafield:metafield(namespace:"custom",key:"videos"){
+                id
+                type
+                references(first:2){
+                  nodes{
+                    ... on Video{
+                      id
+                      alt
+                      sources{
+                        url
+                      }
+                    }
+                  }
+                }
+              }
+              pageMetafield:metafield(namespace:"custom",key:"page"){
+                id
+                type
+                value
+                reference{
+                  ... on Page{
+                    id
+                    title
+                    body
+                    onlineStoreUrl
+                  }
+                }
+              }
+              nombre:metafield(namespace:"custom",key:"name_style_secret"){
+                id  
+                value
+              }
+              tooltip:metafield(namespace:"custom",key:"tooltip"){
+                id
+                value
               }
               variants(first:1){
                 edges{
@@ -36,11 +103,11 @@ export const COLLECTION_BY_IDS_QUERY = `#graphql
                       amount
                       currencyCode
                     }
-                    nombre:metafield(namespace:"custom",key:"name_style_secret"){
-                      id  
+                    tooltip:metafield(namespace:"custom",key:"tooltip"){
+                      id
                       value
                     }
-                    tooltip:metafield(namespace:"custom",key:"tooltip"){
+                    material:metafield(namespace:"custom",key:"material"){
                       id
                       value
                     }

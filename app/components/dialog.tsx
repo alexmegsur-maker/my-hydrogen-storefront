@@ -50,7 +50,7 @@ function Dialog(props:DialogProps){
   return(
     <dialog
       ref={dialogRef}
-      className={`${className} z-11 flex flex-col transition-500`}
+      className={`${className} z-11 flex flex-col duration-300 transition-all ease-in-out`}
       style={{
         opacity:show ? 1 : 0,
       }}
@@ -62,7 +62,7 @@ function Dialog(props:DialogProps){
             aria-label="Cerrar" 
             className="border-solid border rounded-full p-2 m-2 "
             >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>

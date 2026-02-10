@@ -29,6 +29,7 @@ export interface selectedVariant{
   price:Price;
   sku:string;
   selectedOptions:selectedOptions[];
+  compareAtPrice:Price;
   quantityAvailable:number;
 }
 
@@ -55,11 +56,35 @@ export interface MediaProduct{
   previewImage?:Image;
   image?:Image;
 }
-export type MediaRequest ={
+
+export interface Imag360Metafield extends Metafield{
+  references:MediaProduct
+}
+export interface LogoMetafield extends Metafield{
+  reference:Image;
+}
+
+export interface Metafield{
+  id?:string;
+  type?:string;
+  value?:string;
+  key?:string;
+}
+
+export interface PageMetafield extends Metafield{
+  reference:Page
+}
+
+export interface Variants {
   id:string;
-  image:Image;
-  mediaContentType:string;
-  previewImage:Image;
+  nombre?:Metafield;
+  quantityAvailable:number;
+  availableForSale:boolean;
+  compareAtPrice:Price;
+  sku:string;
+  selectedOptions:selectedOptions[];
+  price:Price
+  tooltip:Metafield;
 }
 
 export interface CurrentProduct{
@@ -71,15 +96,19 @@ export interface CurrentProduct{
   featuredImage:Image;
   media?:{nodes:MediaProduct[]}
   options:optionCurrent[];
+  variants:{nodes:Variants[]}
   firstAvailableVariant:selectedVariant | null;
-  selectedVariant:selectedVariant | null;
-  imagenes360:MediaRequest[]|[];
+  selectedVariant:Variants | null;
+  imagenes360:MediaProduct[];
   logo:Image;
   page:Page;
   listVideos:string[];
+  nombre:string;
+  tooltip:Metafield;
 }
 
 export interface CurrentProdcutStore{
   currentProduct:CurrentProduct,
   setProduct:(newProduct:CurrentProduct)=>void
+  setVariant:(newVariant:Variants)=>void
 }

@@ -12,3 +12,16 @@ export function hasOnlyDefaultVariant(
   }
   return false;
 }
+  
+
+export function checkPrice (price:string){
+  if(price.includes(".")) {
+    let split =price.split(".")
+    if(split[1]=="0"){
+     return split[0] 
+    }else{
+      return price
+    }
+  }
+
+}
