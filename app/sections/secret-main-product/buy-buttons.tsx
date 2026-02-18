@@ -3,78 +3,78 @@ import { createSchema } from "@weaverse/hydrogen";
 function BuyButtons() {
   return (
     <>
-      <div className="st-colour-surface-lightest-grey e2e-section-order-summary  tw-border-solid tw-border-0 tw-border-b st-colour-border-medium-grey">
+      <div className="colour-surface-lightegrey e2e-section-order-summary  border-solid border-0 border-b colour-border-medium-grey">
         <div>
-          <div className="tw-pt-4 lg:tw-pt-8 tw-px-4 lg:tw-px-8">
-            <div className="tw-grid tw-grid-cols-9 tw-mb-4">
-              <div className="tw-col-span-6">
-                <div className="st-body-lg st-colour-text-primary tw-font-bold">
+          <div className="pt-4 lg:pt-8 px-4 lg:px-8">
+            <div className="grid grid-cols-9 mb-4">
+              <div className="col-span-6">
+                <div className="body-lg colour-text-primary font-bold">
                   Secretlab MAGNUS Pro
                 </div>
               </div>
             </div>
-            <div className="tw-grid tw-grid-cols-9 tw-mb-4">
-              <div className="tw-col-span-6">
-                <div className="st-label-normal st-colour-text-primary tw-font-bold">
+            <div className="grid grid-cols-9 mb-4">
+              <div className="col-span-6">
+                <div className="label-normal colour-text-primary font-bold">
                   Black
                 </div>
-                <div className="st-label-normal st-colour-text-primary tw-font-bold">
+                <div className="label-normal colour-text-primary font-bold">
                   1500 mm (L) x 700 mm (A)
                 </div>
-                <div className="st-colour-text-secondary st-label-sm">
+                <div className="colour-text-secondary label-sm">
                   Enchufe Tipo F
                 </div>
               </div>
-              <div className="tw-text-right st-label-lg tw-pt-1 st-colour-text-tertiary">
+              <div className="text-right label-lg pt-1 colour-text-tertiary">
                 x1
               </div>
-              <div className="tw-col-span-2 tw-text-right st-label-lg tw-pt-1">
+              <div className="col-span-2 text-right label-lg pt-1">
                 849 €
               </div>
             </div>
-            <div className="tw-uppercase st-label-normal st-colour-text-tertiary tw-font-bold tw-mb-2">
+            <div className="uppercase label-normal colour-text-tertiary font-bold mb-2">
               Alfombrillas de escritorio
             </div>
-            <div className="tw-grid tw-grid-cols-9 st-label-normal">
-              <div className="tw-col-span-6 tw-font-bold">
+            <div className="grid grid-cols-9 label-normal">
+              <div className="col-span-6 font-bold">
                 <div>Stealth</div>
               </div>
-              <div className="tw-text-right st-label-lg st-colour-text-tertiary">
+              <div className="text-right label-lg colour-text-tertiary">
                 x1
               </div>
-              <div className="tw-col-span-2 st-label-lg tw-text-right tw-flex tw-justify-end tw-gap-1">
+              <div className="col-span-2 label-lg text-right flex justify-end gap-1">
                 <div>79 €</div>
               </div>
             </div>
-            <div className="tw-grid tw-grid-cols-9 st-colour-text-emphasis st-label-normal tw-font-bold">
-              <div className="tw-col-span-6">
+            <div className="grid grid-cols-9 colour-text-emphasis label-normal font-bold">
+              <div className="col-span-6">
                 Paquete MAGPAD™ + Descuento de la oferta
               </div>
-              <div className="tw-text-right"></div>
-              <div className="tw-col-span-2 tw-text-right tw-flex tw-justify-end tw-gap-1 st-label-lg tw-font-bold tw-mt-[2px]">
+              <div className="text-right"></div>
+              <div className="col-span-2 text-right flex justify-end gap-1 label-lg font-bold mt-[2px]">
                 <div>-79 €</div>
               </div>
             </div>
-            <hr className="tw-my-4 st-colour-border-medium-grey" />
+            <hr className="my-4 colour-border-medium-grey" />
           </div>
         </div>
-        <div className="tw-px-4 lg:tw-px-8 tw-pb-4 lg:tw-pb-8">
-          <div className="tw-grid tw-grid-cols-9 tw-body-normal tw-items-center">
-            <div className="tw-col-span-7 tw-text-right"></div>
-            <div className="tw-col-span-2 tw-text-right st-colour-text-tertiary st-label-lg">
-              <div className="tw-line-through">928 €</div>
+        <div className="px-4 lg:px-8 pb-4 lg:pb-8">
+          <div className="grid grid-cols-9 body-normal items-center">
+            <div className="col-span-7 text-right"></div>
+            <div className="col-span-2 text-right colour-text-tertiary label-lg">
+              <div className="line-through">928 €</div>
             </div>
-            <div className="tw-col-span-7 tw-text-right st-colour-text-secondary st-label-lg">
+            <div className="col-span-7 text-right colour-text-secondary label-lg">
               Precio de venta
             </div>
-            <div className="tw-col-span-2 tw-text-right tw-flex tw-justify-end tw-gap-1">
-              <div className="st-label-lg tw-font-bold">849 €</div>
+            <div className="col-span-2 text-right flex justify-end gap-1">
+              <div className="label-lg font-bold">849 €</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="st-body-xs tw-font-normal e2e-section-finance st-colour-text-primary tw-px-4 lg:tw-px-8 tw-py-3 lg:tw-py-4">
+      <div className="body-xs font-normal e2e-section-finance colour-text-primary px-4 lg:px-8 py-3 lg:py-4">
         <div
           className="financing"
           data-total-price="849"
@@ -85,7 +85,7 @@ function BuyButtons() {
             href="#"
             data-financing-modal-react="true"
             data-react-total="849"
-            className="hover:tw-underline focus:tw-underline hover:st-colour-link-primary-hover focus:st-colour-link-primary-hover"
+            className="hover:underline focus:underline hover:colour-link-primary-hover focus:colour-link-primary-hover"
           >
             Saber más
           </a>
@@ -94,14 +94,14 @@ function BuyButtons() {
 
       <button
         data-context="pdp-addtocart"
-        data-color="st-colour-buttons-primary-default hover:st-colour-buttons-primary-hover"
-        className="tw-flex tw-gap-2 tw-items-center tw-justify-center tw-text-center tw-p-5 tw-uppercase tw-text-white st-text-cta-small tw-font-bold tw-w-full tw-border-none e2e-button-confirm-selection tw-cursor-pointer st-colour-buttons-primary-default hover:st-colour-buttons-primary-hover add-to-cart e2e-button-add-to-cart ab-feature-shop-now-magnus ab-add-to-cart-magnus-pro desks-addtocart"
+        data-color="colour-buttons-primary-default hover:colour-buttons-primary-hover"
+        className="flex gap-2 items-center justify-center text-center p-5 uppercase text-white text-cta-small font-bold w-full border-none e2e-button-confirm-selection cursor-pointer colour-buttons-primary-default hover:colour-buttons-primary-hover add-to-cart e2e-button-add-to-cart ab-feature-shop-now-magnus ab-add-to-cart-magnus-pro desks-addtocart"
       >
         <div
           data-context="pdp-addtocart"
-          className="tw-w-full tw-flex tw-gap-2 tw-items-center tw-justify-center tw-text-center [&amp;_*]:tw-pointer-events-none"
+          className="w-full flex gap-2 items-center justify-center text-center [&amp;_*]:pointer-events-none"
         >
-          <div className="st-colour-icons-on-colour">
+          <div className="colour-icons-on-colour">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
