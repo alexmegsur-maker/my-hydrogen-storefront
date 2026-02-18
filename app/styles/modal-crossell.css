@@ -1,0 +1,3 @@
+.thumbs-swiper  .swiper-slide-thumb-active img  {
+  border-color: var(--activeColor);
+}

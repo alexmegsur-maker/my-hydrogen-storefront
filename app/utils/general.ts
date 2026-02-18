@@ -43,3 +43,16 @@ return {};
 export function truncate(str:string,number:number){
   return str.split(" ").splice(0,number).join(" ")
 }
+
+export function setFecha(fecha:string,abreviation:boolean = false ){
+  let meses=["Enero","Febrero","Marzo","Abril","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+  let mesesAbr=["Ene","Feb","Mar","Abr","Jun","Jul","Ago","Sept","Oct","Nov","Dic"]
+  let e= fecha.split("-")
+  if(abreviation){
+
+    let correct =`${e[2]} ${mesesAbr[parseInt(e[1])-1]} ${e[0]}`
+    return correct
+  }
+  let correct =`${e[2]} ${meses[parseInt(e[1])-1]} ${e[0]}`
+  return correct
+}

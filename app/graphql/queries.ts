@@ -101,6 +101,14 @@ export const PRODUCT_QUERY = `#graphql
           }
         }
       }
+      especificaciones:metafield(namespace:"custom",key:"especificaciones"){
+        id
+        value
+      }
+      fechaReserva:metafield(namespace:"custom",key:"fecha_recepcion"){
+        id
+        value
+      }
       nombre:metafield(namespace:"custom",key:"name_style_secret"){
         id
         value

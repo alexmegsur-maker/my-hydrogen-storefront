@@ -235,7 +235,8 @@ export const schema = createSchema({
     "secret-info",
     "variant-secret",
     "price-section",
-    "crosssell"
+    "crosssell",
+    "buy-buttons",
   ],
   limit: 1,
   enabledOn: {

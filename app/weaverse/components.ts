@@ -88,7 +88,9 @@ import * as PriceSecret from  "~/sections/secret-main-product/price-section"
 import * as Crosssell from  "~/sections/secret-main-product/crosssell"
 import * as CrosssellContainer from  "~/sections/secret-main-product/crosssell/container"
 import * as CrosssellProduct from  "~/sections/secret-main-product/crosssell/product"
-
+import * as CrosssellHelperSelector from  "~/sections/secret-main-product/crosssell/helper-selector"
+import * as CrosssellHelpOption from  "~/sections/secret-main-product/crosssell/help-option"
+import * as BuyButtons from "~/sections/secret-main-product/buy-buttons"
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -185,4 +187,7 @@ export const components: HydrogenComponent[] = [
   Crosssell,
   CrosssellContainer,
   CrosssellProduct,
+  CrosssellHelperSelector,
+  CrosssellHelpOption,
+  BuyButtons
 ];

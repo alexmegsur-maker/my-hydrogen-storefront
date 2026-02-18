@@ -33,7 +33,7 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                     previewImage{
                       altText  
                       url
-                    }
+                    } 
                   }
                 }
               }

@@ -578,9 +578,9 @@ function VariantSecret( props:VariantSecretProps){
   },[showFilter])
 
 
-  useEffect(()=>{
-    console.log("collections",collections)
-  },[collections])
+  // useEffect(()=>{
+  //   console.log("collections",collections)
+  // },[collections])
 
   const toogleFilter=()=>{
     if(showFilter){
