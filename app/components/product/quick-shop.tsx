@@ -42,7 +42,7 @@ export function QuickShop({
   const [selectedVariant, setSelectedVariant] =
     useState<ProductVariantFragment>(product?.selectedOrFirstAvailableVariant);
 
-  return (
+  return ( 
     <div className="bg-background">
       <div
         className={clsx(
@@ -53,11 +53,11 @@ export function QuickShop({
         <ProductMedia
           mediaLayout="slider"
           media={product?.media.nodes}
-          selectedVariant={selectedVariant}
+          selectedVariant={selectedVariant} 
           showThumbnails={false}
         />
         <div className="flex flex-col justify-start gap-5 py-6 pr-5">
-          <div className="space-y-4">
+          <div className="space-y-4"> 
             <ProductBadges
               product={product}
               selectedVariant={selectedVariant}

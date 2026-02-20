@@ -100,6 +100,7 @@ export interface CurrentProduct{
   firstAvailableVariant:selectedVariant | null;
   selectedVariant:Variants | null;
   imagenes360:MediaProduct[];
+  tags?:string[];
   logo:Image;
   page:Page;
   listVideos:string[];

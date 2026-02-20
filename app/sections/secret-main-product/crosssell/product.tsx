@@ -53,6 +53,7 @@ function CrossellProduct(props:CrossProductProps) {
         description:product.description,
         media:media,
         especificaciones:product.especificaciones?.value,
+        variantId:product.variants.nodes[0].id,
         price:product.variants.nodes[0].price.amount,
         comparePrice:product.variants.nodes[0].compareAtPrice?.amount,
         available:product.variants.nodes[0].availableForSale,

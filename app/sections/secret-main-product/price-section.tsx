@@ -380,6 +380,7 @@ function PriceSection(props:PriceSectionProps){
                     .
                     <button
                       onClick={()=>setIsDialogOpen(true)}
+                      id="paypal-button-popup"
                       className="hover:underline focus:underline hover:st-colour-link-primary-hover focus:st-colour-link-primary-hover"
                       style={{
                         fontSize:paySize,
@@ -574,7 +575,6 @@ export const schema = createSchema({
           },
           defaultValue:'600',
         },
-
       ]
     },
     {

@@ -14,6 +14,7 @@ export interface CrossellProduct{
   comparePrice?:string;
   tooltip?:string;
   available:boolean;
+  variantId:string;
   inventory:number;
   fecha:string;
   fechaReserva?:string;
@@ -27,6 +28,7 @@ export interface CrossellSelected{
 
 export interface CrossellObject {
   id:string;
+  title:string;
   products:CrossellProduct[];
   selecteds:CrossellSelected[];
 }

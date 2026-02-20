@@ -93,6 +93,7 @@ export function createCurProVar(prod){
       selectedOptions:firstSelect .selectedOptions,
       tooltip:firstSelect .tooltip,
     },
+    tags:prod.tags,
     nombre:prod.nombre?.value||null,
     tooltip:prod.tooltip?.value||null,
     imagenes360:img360?.references?.nodes || [],

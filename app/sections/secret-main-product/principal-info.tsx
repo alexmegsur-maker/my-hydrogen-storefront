@@ -18,6 +18,7 @@ interface PrincipalInfoProps{
   breadColor:string;
   breadResalColor:string;
   resalt:string;
+  title?:string;
   tSize:string;
   tColor:string;
   tAlignment:"left"|"center"|"right"|"justify";
@@ -65,6 +66,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
   breadColor,
   breadResalColor,
   resalt,
+  title,
   tSize,
   tColor,
   tAlignment,
@@ -157,6 +159,8 @@ function  PrincipalInfo(props:PrincipalInfoProps){
           </div>
 
           <h2
+            id="product-title"
+            data-title = {title?title:info.title}
             style={{
               fontSize:tSize,
               color:tColor,
@@ -167,7 +171,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
               fontFamily:tFamily
             }}
           >
-            {info.title}
+            {title? title : info.title}
           </h2>
           <p
             style={{
@@ -347,6 +351,11 @@ export const schema = createSchema({
     {
       group:"title",
       inputs:[
+        {
+          type:'text',
+          label:'title',
+          name:'title',
+        },
         {
           type:'text',
           label:'size',
