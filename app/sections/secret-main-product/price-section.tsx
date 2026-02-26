@@ -280,7 +280,7 @@ function PriceSection(props:PriceSectionProps){
                   <div 
                     className="col-span-5 text-[#2b2b2b] ml-2.5 lg:ml-0"
                     style={{
-                      fontSize:pSize,
+                      fontSize:"14px",
                       ...selectorPaddingMargin("padding",iPaddingSelect,iPaddingText),
                       ...selectorPaddingMargin("margin",iMarginSelect,iMarginText),
                     }}
