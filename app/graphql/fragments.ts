@@ -96,6 +96,14 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
         height
       }
     }
+    nombre:metafield(namespace:"custom",key:"name_style_secret"){
+      id  
+      value
+    }
+    tooltip:metafield(namespace:"custom",key:"tooltip"){
+      id
+      value
+    }
     options {
       ...ProductOption
     }

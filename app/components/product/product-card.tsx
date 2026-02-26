@@ -209,6 +209,7 @@ export function ProductCard({
             prefetch="intent"
             className="inline-block font-bold"
           >
+            asdfasdfsadfasdf
             <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
               {product.title}
             </RevealUnderline>

@@ -91,6 +91,8 @@ import * as CrosssellProduct from  "~/sections/secret-main-product/crosssell/pro
 import * as CrosssellHelperSelector from  "~/sections/secret-main-product/crosssell/helper-selector"
 import * as CrosssellHelpOption from  "~/sections/secret-main-product/crosssell/help-option"
 import * as BuyButtons from "~/sections/secret-main-product/buy-buttons"
+import * as TrustSignals from "~/sections/secret-main-product/trust-signals"
+import * as SignalsItem from "~/sections/secret-main-product/signal"
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -189,5 +191,7 @@ export const components: HydrogenComponent[] = [
   CrosssellProduct,
   CrosssellHelperSelector,
   CrosssellHelpOption,
-  BuyButtons
+  BuyButtons,
+  TrustSignals,
+  SignalsItem
 ];

@@ -510,7 +510,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'tFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -596,7 +596,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'vFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -689,7 +689,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'iFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -786,7 +786,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'toolFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
       ]
     },
@@ -833,7 +833,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'pFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -901,7 +901,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'payFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -976,7 +976,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'mFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',

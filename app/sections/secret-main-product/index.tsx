@@ -61,7 +61,6 @@ export default function SecretProductInformation(
   const [videos,setVideos]=useState([])
   const[sizeDialog,setSizeDialog]= useState({x:300,y:300})
   const [isDialogOpen,setIsDialogOpen]=useState(false)
-
   const setInfoSecret = useInfoSecret((state)=>state.setComponents)
   const infoSecret = useInfoSecret((state)=>state.infoSecret)
   const updatePage=useInfoSecret((state)=>state.setUpdatePage)
@@ -220,23 +219,12 @@ export const schema = createSchema({
   type: "secret-product",
   title: "Main product secret",
   childTypes: [
-    "mp--breadcrumb",
-    "mp--badges",
-    "mp--vendor",
-    "mp--title",
-    "mp--prices",
-    "judgeme-stars-rating",
-    "mp--summary",
-    "mp--bundled-variants",
-    "mp--variant-selector",
-    "mp--quantity-selector",
-    "mp--atc-buttons",
-    "mp--collapsible-details",
     "secret-info",
     "variant-secret",
     "price-section",
     "crosssell",
     "buy-buttons",
+    "trust-signal",
   ],
   limit: 1,
   enabledOn: {

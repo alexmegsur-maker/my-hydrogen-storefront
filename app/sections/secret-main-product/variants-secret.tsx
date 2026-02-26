@@ -734,7 +734,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (title)',
           name:'tFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -830,7 +830,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (variant)',
           name:'varFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.variants ==true
         },
         {
@@ -944,7 +944,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (variant selected)',
           name:'svarFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.variants ==true
         },
         {
@@ -990,7 +990,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (variant selected subtitle)',
           name:'svarSubFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.variants ==true
         },
         {
@@ -1039,7 +1039,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (variant)',
           name:'defVarFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1143,7 +1143,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (variant selected)',
           name:'defsVarFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'heading',
@@ -1184,7 +1184,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (variant selected subtitle)',
           name:'defsVarSubFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'heading',
@@ -1233,7 +1233,7 @@ export const schema = createSchema({
           type:'text',
           label:'nav font Family',
           name:'navFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'heading',
@@ -1243,7 +1243,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family nav',
           name:'filterFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'color',
@@ -1424,7 +1424,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'sProdTFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1509,7 +1509,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family ',
           name:'sProdSubTFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1594,7 +1594,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family (price)',
           name:'sProdPriceFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1685,7 +1685,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'buttonFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1781,7 +1781,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'defNavFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'heading',
@@ -1813,7 +1813,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family ',
           name:'defTFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1898,7 +1898,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family ',
           name:'defsTFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1989,7 +1989,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family ',
           name:'defButtonFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',

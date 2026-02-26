@@ -160,7 +160,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'tFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',

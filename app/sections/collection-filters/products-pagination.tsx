@@ -22,17 +22,75 @@ import {
   isCombinedListing,
 } from "~/utils/combined-listings";
 import { getAppliedFilterLink } from "./filter-utils";
+import ProductCardSecret from "~/components/product-secret/product-card-secret";
+
+export interface cardStylesProps {
+  bgColor:string;
+  rounded:number;
+  uppercase:boolean;
+  tColor:string;
+  thColor:string;
+  tSize:string;
+  tFamily:string;
+  tAlignment:"left"|"center"|"right";
+  tPaddingSelect:string;
+  tPaddingText:string;
+  tMarginSelect:string;
+  tMarginText:string;
+  tWeight:string;
+  vColor:string;
+  vSize:number;
+  vAlignment:"left"|"center"|"right";
+  vPaddingSelect:string;
+  vPaddingText:string;
+  vMarginSelect:string;
+  vMarginText:string;
+  pColor:string;
+  pSize:string;
+  pFamily:string;
+  pAlignment:"left"|"center"|"right";
+  pPaddingSelect:string;
+  pPaddingText:string;
+  pMarginSelect:string;
+  pMarginText:string;
+  pWeight:string;
+  showName:boolean;
+  nColor:string;
+  nSize:string;
+  nFamily:string;
+  nAlignment:"left"|"center"|"right";
+  nPaddingSelect:string;
+  nPaddingText:string;
+  nMarginSelect:string;
+  nMarginText:string;
+  nWeight:string;
+  showTool:boolean;
+  toolColor:string;
+  toolSize:string;
+  toolFamily:string;
+  toolAlignment:"left"|"center"|"right";
+  toolPaddingSelect:string;
+  toolPaddingText:string;
+  toolMarginSelect:string;
+  toolMarginText:string;
+  toolWeight:string;
+}
+
 
 export function ProductsPagination({
   gridSizeDesktop: desktopCols = 3,
   gridSizeMobile: mobileCols = 1,
   loadPrevText,
   loadMoreText,
+  cardStyles = null,
+  gap
 }: {
   gridSizeDesktop: number;
   gridSizeMobile: number;
   loadPrevText: string;
   loadMoreText: string;
+  cardStyles?:cardStylesProps 
+  gap?:number 
 }) {
   const { collection, appliedFilters } = useLoaderData<
     CollectionQuery & {
@@ -44,6 +102,10 @@ export function ProductsPagination({
   const location = useLocation();
   const { pathname } = location;
   const { ref, inView } = useInView();
+
+  useEffect(()=>{
+    console.log("collection",collection)
+  },[])
 
   return (
     <div className="grow space-y-6">
@@ -107,6 +169,8 @@ export function ProductsPagination({
                 </PreviousLink>
               )}
               <ProductsLoadedOnScroll
+                cardStyles={cardStyles}
+                gap={gap}
                 nodes={nodes}
                 inView={inView}
                 nextPageUrl={nextPageUrl}
@@ -139,12 +203,13 @@ interface ProductsLoadedOnScrollProps {
   nextPageUrl: string;
   hasNextPage: boolean;
   state: any;
+  cardStyles?:cardStylesProps;
+  gap?:number;
 }
 
 function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
-  const { nodes, inView, nextPageUrl, hasNextPage, state } = props;
+  const { nodes, inView, nextPageUrl, hasNextPage, state,cardStyles,gap } = props;
   const navigate = useNavigate();
-
   useEffect(() => {
     if (inView && hasNextPage) {
       navigate(nextPageUrl, {
@@ -158,9 +223,12 @@ function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
   return (
     <div
       className={clsx([
-        "w-full gap-x-4 gap-y-6 lg:gap-y-10",
+        "w-full",
         "grid grid-cols-(--cols-mobile) lg:grid-cols-(--cols-desktop)",
       ])}
+      style={{
+        gap:`${gap}px`
+      }}
     >
       {nodes
         .filter(
@@ -171,7 +239,8 @@ function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
             ),
         )
         .map((product: ProductCardFragment) => (
-          <ProductCard key={product.id} product={product} />
+          // <ProductCard key={product.id} product={product} />
+          <ProductCardSecret key={product.id} product={product} cardStyles={cardStyles} />
         ))}
     </div>
   );

@@ -537,7 +537,7 @@ function BuyButtons(props:BuyButtonsProps) {
             <ShopPayButton 
               width="1px"  
               variantIdsAndQuantities={idsVariants} 
-              storeDomain={storeDomain}
+              storeDomain={storeDomain} 
               className="shopPayButton opacity-0 absolute top-0 z-0 "
             />
             
@@ -616,7 +616,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'tFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -711,7 +711,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'cFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -807,7 +807,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'vFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -901,7 +901,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'qFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -995,7 +995,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'pFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -1089,7 +1089,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'dFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -1135,7 +1135,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'totalTFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -1229,7 +1229,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'totalFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showResume ==true
         },
         {
@@ -1330,7 +1330,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'fFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showPayOptions ==true
         },
         {
@@ -1434,7 +1434,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'acFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'select',
@@ -1529,7 +1529,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'bnFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
           condition:(data)=>data.showBuyNow ==true
         },
         {

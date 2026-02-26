@@ -11,20 +11,34 @@ import { RevealUnderline } from "~/components/reveal-underline";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/tooltip";
 import { cn } from "~/utils/cn";
 import { isLightColor, isValidColor } from "~/utils/misc";
-import { OPTIONS_AS_SWATCH } from "./product-option-values";
+import { OPTIONS_AS_SWATCH } from "../product/product-option-values";
 import { useColorTheme } from "~/hooks/useHeaderConfig";
 import { useEffect } from "react";
+import { selectorPaddingMargin } from "~/utils/general";
 
-export function ProductCardOptions({
+interface VariantStylesProps{
+  vColor:string;
+  vSize:number;
+  vAlignment:"left"|"center"|"right";
+  vPaddingSelect:string;
+  vPaddingText:string;
+  vMarginSelect:string;
+  vMarginText:string;
+}
+
+export function ProductCardOptionsSecret({
   product,
   selectedVariant,
   setSelectedVariant,
   className,
+  variantStyles,
 }: {
   product: ProductCardFragment;
   selectedVariant: ProductVariantFragment;
   setSelectedVariant: (variant: ProductVariantFragment) => void;
   className?: string;
+  variantStyles:VariantStylesProps
+
 }) {
   const { pcardShowOptionValues, pcardOptionToShow, pcardMaxOptionValues } =
     useThemeSettings();
@@ -47,16 +61,22 @@ export function ProductCardOptions({
   const asSwatch = OPTIONS_AS_SWATCH.includes(pcardOptionToShow);
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-1 pt-1", className)}>
+    <div 
+      className={cn("flex flex-wrap items-center gap-1 pt-1", className)}
+      style={{
+        justifyContent:variantStyles.vAlignment,
+        ...selectorPaddingMargin("padding",variantStyles.vPaddingSelect,variantStyles.vPaddingText),
+        ...selectorPaddingMargin("margin",variantStyles.vMarginSelect,variantStyles.vMarginText)
+      }}
+      >
       {optionValues
         ?.slice(0, pcardMaxOptionValues)
         .map(({ name, swatch, firstSelectableVariant }) => {
           if (asSwatch) {
             const colorCheck = colorsTheme.find((e)=>e.identifier === name.toLowerCase())
-            
             const color = colorCheck.colors.length>1 ? `linear-gradient(125deg, ${colorCheck.colors[0]} 50%, ${colorCheck.colors[1]} 50%)`:colorCheck.colors[0]
-
             const swatchColor = color ? color : "#fff";
+            
             return (
               <Tooltip key={name}>
                 <TooltipTrigger>
@@ -67,6 +87,12 @@ export function ProductCardOptions({
                       "border border-transparent transition-all",
                       selectedValue === name ? "border-gray-800 p-0.5" : "p-0",
                     )}
+                    style={{
+                      borderColor:variantStyles.vColor,
+                      borderWidth:"1px",
+                      width:`${variantStyles.vSize}px`,
+                      height:`${variantStyles.vSize}px`
+                    }}
                     onClick={() => {
                       setSelectedVariant(firstSelectableVariant);
                     }}
@@ -80,8 +106,11 @@ export function ProductCardOptions({
                       />
                     ) : (
                       <span
-                        className= "entra aqui inline-block h-full w-full rounded-full text-[0px] border border-line-subtle"
-                        style={{ background: swatchColor }}
+                        className= "entra aqui inline-block h-full w-full rounded-full text-[0px] border border-transparent"
+                        style={{ 
+                          background: swatchColor, 
+                          borderWidth:"1px"
+                        }}
                       >
                         {name}
                       </span>

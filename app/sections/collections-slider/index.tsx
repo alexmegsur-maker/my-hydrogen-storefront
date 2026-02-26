@@ -648,7 +648,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'tFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
 
       ]
@@ -685,7 +685,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'sFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'switch',
@@ -832,7 +832,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'cTFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'heading',
@@ -867,7 +867,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'cDFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'heading',
@@ -947,7 +947,7 @@ export const schema = createSchema({
           type:'text',
           label:'font size',
           name:'pageFont',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
 
       ]
@@ -983,7 +983,7 @@ export const schema = createSchema({
           type:'text',
           label:'font family',
           name:'collectionFont',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
 
       ]

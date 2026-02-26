@@ -1,7 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 @import "swiper/css/bundle" layer(base);
 @import "tailwindcss" source("../../app");
 @plugin "@tailwindcss/typography";
-
 @theme {
   --font-cabin: Cabin Variable, ui-sans-serif, system-ui, sans-serif;
   --font-serif: Arial, IBMPlexSerif, Palatino, ui-serif;

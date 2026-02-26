@@ -340,7 +340,7 @@ export const schema = createSchema({
           type:'text',
           label:'Font family',
           name:'tFontFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
         {
           type:'heading',
@@ -463,7 +463,7 @@ export const schema = createSchema({
           type:'text',
           label:'Font family',
           name:'pFontFamily',
-          defaultValue:'Monserrat',
+          defaultValue:'Montserrat',
         },
       ]
     },
