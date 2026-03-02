@@ -209,8 +209,8 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
             {checkPrice(firstVariant.price.amount)}€
           </div>
         </div>
-      </div>
-    </div>
+      </div>  
+    </div> 
   )
 }
 

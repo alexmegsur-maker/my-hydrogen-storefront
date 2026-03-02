@@ -225,6 +225,7 @@ export const schema = createSchema({
     "crosssell",
     "buy-buttons",
     "trust-signal",
+    "variants-blacklyte"
   ],
   limit: 1,
   enabledOn: {

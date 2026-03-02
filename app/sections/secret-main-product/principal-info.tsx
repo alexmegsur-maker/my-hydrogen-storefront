@@ -1,6 +1,8 @@
+import { JudgemePreviewBadge } from "@judgeme/shopify-hydrogen"
 import { createSchema } from "@weaverse/hydrogen"
 import { useEffect } from "react"
 import { Link, useLocation } from "react-router"
+import { useCurrentProduct } from "~/stores/currentProduct"
 import { useInfoSecret } from "~/stores/infoSecretStore"
 import { selectorPaddingMargin, truncate } from "~/utils/general"
 
@@ -29,6 +31,7 @@ interface PrincipalInfoProps{
   tWeight:string;
   dSize:string;
   tFamily:string;
+  descText:string;
   dColor:string;
   dAlignment:"left"|"center"|"right"|"justify";
   dPaddingSelect:string;
@@ -53,11 +56,12 @@ interface PrincipalInfoProps{
 }
 
 function  PrincipalInfo(props:PrincipalInfoProps){
-  const {bread,
+  const {
+  bread,
   stars,
   pageView,
   separator,
-  space,
+  space, 
   paddingSelect,
   paddingText,
   marginSelect,
@@ -76,6 +80,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
   tMarginText,
   tWeight,
   tFamily,
+  descText,
   dSize,
   dColor,
   dAlignment,
@@ -100,10 +105,12 @@ function  PrincipalInfo(props:PrincipalInfoProps){
   } = props
 
   const info = useInfoSecret((state)=>state.infoSecret)
+  const product = useCurrentProduct((state)=>state.currentProduct)
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x)=>x)
+  const idProduct=product?.id?.split('/').pop();
 
-  if(info){
+  if(info && product){
     
     return(
       <section
@@ -151,10 +158,12 @@ function  PrincipalInfo(props:PrincipalInfoProps){
                 })}
               </div>
             }
-            {stars && 
-              <div>
-                {/* reseñas queda pendiente hasta que se ponga en marcha */}
+            {stars && idProduct &&(
+              <div className="judgeme-stars-wrapper">
+                <JudgemePreviewBadge id={idProduct} template=""/>
+                {/* <JudgemeStarsApi productId={idProduct}/> */}
               </div>
+              )
             }
           </div>
 
@@ -184,7 +193,8 @@ function  PrincipalInfo(props:PrincipalInfoProps){
               fontFamily:dFamily
             }}
           >
-            {truncate(info.description,41)}
+            
+            {descText && descText!="" ? descText : truncate(info.description,41)}
           </p>
           {info.showPage &&
             pageView &&
@@ -456,6 +466,11 @@ export const schema = createSchema({
     {
       group:"description",
       inputs:[
+        {
+          type:'textarea',
+          label:'description text',
+          name:'descText',
+        },
         {
           type:'text',
           label:'size',

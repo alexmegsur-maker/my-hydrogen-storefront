@@ -164,7 +164,7 @@ function CrossellProduct(props:CrossProductProps) {
                   <svg
                     stroke="currentColor"
                     fill="currentColor"
-                    stroke-width="0"
+                    strokeWidth="0"
                     viewBox="0 0 512 512"
                     color="#FFFFFF"
                     height="1em"
@@ -301,8 +301,8 @@ function CrossellProduct(props:CrossProductProps) {
                         fill="none"
                       >
                         <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
                           d="M7.27574 7.27571C7.67575 7.27571 8.72431 7.2757 8.72431 7.2757L13.7943 7.27571C14.1943 7.27571 14.5185 7.59998 14.5185 7.99999C14.5185 8.4 14.1943 8.72427 13.7943 8.72427H8.72431C8.3243 8.72427 7.27574 8.72427 7.27574 8.72427H2.20579C1.80578 8.72427 1.48151 8.4 1.48151 7.99999C1.48151 7.59998 1.80578 7.27571 2.20579 7.27571H7.27574Z"
                           fill="currentColor"
                         ></path>
@@ -337,8 +337,8 @@ function CrossellProduct(props:CrossProductProps) {
                         fill="none"
                       >
                         <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
+                          fillRule="evenodd"
+                          clipRule="evenodd"
                           d="M8.00003 1.48148C8.40003 1.48148 8.72431 1.80575 8.72431 2.20576V7.27571H13.7943C14.1943 7.27571 14.5185 7.59999 14.5185 7.99999C14.5185 8.4 14.1943 8.72428 13.7943 8.72428H8.72431V13.7942C8.72431 14.1942 8.40003 14.5185 8.00003 14.5185C7.60002 14.5185 7.27575 14.1942 7.27575 13.7942V8.72428H2.20579C1.80578 8.72428 1.48151 8.4 1.48151 7.99999C1.48151 7.59999 1.80578 7.27571 2.20579 7.27571H7.27575V2.20576C7.27575 1.80575 7.60002 1.48148 8.00003 1.48148Z"
                           fill="currentColor"
                         ></path>
@@ -389,20 +389,20 @@ function CrossellProduct(props:CrossProductProps) {
                       <path
                         d="M13.25 7.5C13.25 10.6756 10.6756 13.25 7.5 13.25C4.32436 13.25 1.75 10.6756 1.75 7.5C1.75 4.32436 4.32436 1.75 7.5 1.75C10.6756 1.75 13.25 4.32436 13.25 7.5Z"
                         stroke={productStyle?.btnc}
-                        stroke-width="1.5"
-                        stroke-linecap="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
                       ></path>
                       <path
                         d="M5 7.5H10"
                         stroke={productStyle?.btnc}
-                        stroke-width="1.5"
-                        stroke-linecap="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
                       ></path>
                       <path
                         d="M7.5 5L7.5 10"
                         stroke={productStyle?.btnc}
-                        stroke-width="1.5"
-                        stroke-linecap="round"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
                       ></path>
                     </svg>
                   </div>

@@ -93,6 +93,7 @@ import * as CrosssellHelpOption from  "~/sections/secret-main-product/crosssell/
 import * as BuyButtons from "~/sections/secret-main-product/buy-buttons"
 import * as TrustSignals from "~/sections/secret-main-product/trust-signals"
 import * as SignalsItem from "~/sections/secret-main-product/signal"
+import * as VariantBlackLyte from  "~/sections/secret-main-product/blacklyte-variant"
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -193,5 +194,6 @@ export const components: HydrogenComponent[] = [
   CrosssellHelpOption,
   BuyButtons,
   TrustSignals,
-  SignalsItem
+  SignalsItem,
+  VariantBlackLyte
 ];

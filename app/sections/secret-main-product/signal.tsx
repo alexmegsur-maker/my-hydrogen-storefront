@@ -48,9 +48,18 @@ function Signal(props:SignalProps){
         gap:`${space}px`
       }}
     > 
-        <div>
+        <div style={{
+          
+        }}>
           {svg?.url && 
-            <img src={svg.url} alt={svg.altText} width={size} height={size}/>
+            <img 
+            src={svg.url} 
+            alt={svg.altText} 
+            style={{
+              width:`${size}px`,
+              height:`${size}px`}}
+            />
+            
           }
         </div>
 

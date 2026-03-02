@@ -32,6 +32,7 @@ import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
 import { DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
+import {useJudgeme} from '@judgeme/shopify-hydrogen'
 
 export type RootLoader = typeof loader;
 
@@ -51,6 +52,7 @@ export const links: LinksFunction = () => {
 
 export async function loader(args: LoaderFunctionArgs) {
   // Start fetching non-critical data without blocking time to first byte
+  const {context}= args
   const deferredData = loadDeferredData(args);
 
   // Await the critical data required to render initial state of the page
@@ -59,6 +61,12 @@ export async function loader(args: LoaderFunctionArgs) {
   return {
     ...deferredData,
     ...criticalData,
+    judgeme: {
+      shopDomain: context.env.JUDGEME_SHOP_DOMAIN,
+      publicToken: context.env.JUDGEME_PUBLIC_TOKEN,
+      cdnHost: context.env.JUDGEME_CDN_HOST,
+      delay: 500,
+    },
   };
 }
 
@@ -100,6 +108,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const { topbarHeight, topbarText } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
+  
+  if(data?.judgeme?.publicToken){
+    useJudgeme(data?.judgeme)
+  }
+
   if (
     location.pathname === "/subrequest-profiler" ||
     location.pathname === "/graphiql"
@@ -108,13 +121,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
   return (
     <html lang={locale.language}>
-      <head>
+      <head> 
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
         <Meta />
         <Links />
-        <GlobalStyle />
+        <GlobalStyle /> 
       </head>
       <body
         style={
@@ -131,6 +144,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             shop={data.shop}
             consent={data.consent}
           >
+        
             <TooltipProvider disableHoverableContent>
               <div
                 className="flex min-h-screen flex-col"
@@ -158,6 +172,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <GlobalLoading />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
+
       </body>
     </html>
   );
