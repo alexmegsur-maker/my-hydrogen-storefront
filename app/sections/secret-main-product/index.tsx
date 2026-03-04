@@ -100,7 +100,7 @@ export default function SecretProductInformation(
       }
       setCurrentProduct(product)
     }
-
+    console.log("index product",product)
   },[product])
 
   useEffect(()=>{
@@ -225,7 +225,8 @@ export const schema = createSchema({
     "crosssell",
     "buy-buttons",
     "trust-signal",
-    "variants-blacklyte"
+    "variants-blacklyte",
+    "price-blacklyte"
   ],
   limit: 1,
   enabledOn: {

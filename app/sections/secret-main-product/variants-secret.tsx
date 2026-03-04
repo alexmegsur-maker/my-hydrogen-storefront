@@ -64,7 +64,7 @@ export interface RequestCollection{
   id:string;
   handle:string;
   title:string;
-  description:string;
+  description:string; 
   image:RequestImage;
   products:{edges:RequestProduct[]};
   filtro:FiltroMetafield;
@@ -75,7 +75,7 @@ interface ApiResponseCollection{
   ok:boolean;
   errorMessage?:string;
 }
-
+ 
 interface ApiResponseMateriales{
   result:GetMaterialsQuery;
   ok:boolean;

@@ -13,12 +13,14 @@ interface tooltipProps{
   tooltipTSize:string,
   tooltipTWeight:string,
   tooltipSubTSize:string,
-  tooltipSubTWeight:string
+  tooltipSubTWeight:string,
 }
 
 interface ProductCardProps{
   product:ProductNode;
   variante:RequestVariant;
+  selectColor?:string;
+  rounded?:number;
   tooltipProps:tooltipProps;
 }
 
@@ -29,7 +31,7 @@ interface ApiResponseProduct{
 }
 
 function ProductCardCollection(props:ProductCardProps){
-  const { product,variante ,tooltipProps} = props;
+  const { product,variante ,tooltipProps,selectColor,rounded} = props;
   const[showToolTip,setShowToolTip] = useState(false);
   const container = useRef(null);
   const toolTip = useRef(null);
@@ -98,21 +100,12 @@ function ProductCardCollection(props:ProductCardProps){
             <div className="track-magnifier-icon"></div>
           </div>
         </div>
-        <div className="absolute top-[-5px] left-[0] z-[2] w-full">
-          <div className="flex">
-            <div className="flex-1">
-              <div className="flex flex-wrap e2e-section-status">
-                <span className="uppercase flex gap-1 items-center justify-center w-fit   colour-text-on-colour-primary text-tag-sm p-[2px] lg:p-1 colour-tag-black  rounded-tl-[4px]  rounded-tr-[4px] rounded-br-[4px] ">
-                  Nuevo
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        
         <div 
-          className="flex border-solid rounded overflow-hidden aspect-3/4 relative cursor-pointer e2e-button-variant relative w-full h-full border  hover:border-[#A72A2F]  opacity-100"
+          className="flex border-solid overflow-hidden aspect-3/4 relative cursor-pointer e2e-button-variant relative w-full h-full border  hover:border-[#A72A2F]  opacity-100"
           style={{
-            borderColor:isSelected || showToolTip  ? "#3790b0": "#A1A1AA"
+            borderColor:isSelected || showToolTip  ?   selectColor ? selectColor :"#3790b0":"#A1A1AA",
+            borderRadius:rounded? `${rounded}px`:"10px"
           }}
         >
           <div className="h-full w-full">

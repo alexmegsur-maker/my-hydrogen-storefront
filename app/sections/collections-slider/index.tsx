@@ -242,8 +242,6 @@ function CollectionSlider(props:CollectionSliderProps) {
       setVisibleSlides(1)
     }
 
-    console.log("collection",collections)
-
   },[])
   
   useEffect(()=>{

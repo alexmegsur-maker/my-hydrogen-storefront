@@ -158,13 +158,6 @@ function  PrincipalInfo(props:PrincipalInfoProps){
                 })}
               </div>
             }
-            {stars && idProduct &&(
-              <div className="judgeme-stars-wrapper">
-                <JudgemePreviewBadge id={idProduct} template=""/>
-                {/* <JudgemeStarsApi productId={idProduct}/> */}
-              </div>
-              )
-            }
           </div>
 
           <h2
@@ -196,6 +189,12 @@ function  PrincipalInfo(props:PrincipalInfoProps){
             
             {descText && descText!="" ? descText : truncate(info.description,41)}
           </p>
+          {stars && idProduct &&(
+            <div className="judgeme-stars-wrapper">
+              <JudgemePreviewBadge id={idProduct} template=""/>
+            </div>
+            )
+          }
           {info.showPage &&
             pageView &&
               <div 
@@ -304,6 +303,7 @@ export const schema = createSchema({
           type:'text',
           label:'Padding text',
           name:'paddingText',
+          defaultValue:'24px 32px'
         },
         {
           type:'select',
