@@ -577,11 +577,6 @@ function VariantSecret( props:VariantSecretProps){
     }
   },[showFilter])
 
-
-  // useEffect(()=>{
-  //   console.log("collections",collections)
-  // },[collections])
-
   const toogleFilter=()=>{
     if(showFilter){
       setOverflowActive(true)

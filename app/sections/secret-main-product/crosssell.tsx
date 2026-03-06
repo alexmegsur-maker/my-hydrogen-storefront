@@ -3,6 +3,9 @@ import { selectorPaddingMargin } from "~/utils/general";
 import ModalCrossellProduct from "./crosssell/modal";
 
 interface CrosssellProps extends HydrogenComponentProps {
+  bgColor:string;
+  borderColor:string;
+  showBorder:boolean;
   paddingSelect:string;
   paddingText:string;
   marginSelect:string;
@@ -64,12 +67,13 @@ interface CrosssellProps extends HydrogenComponentProps {
   eCMarginSelect:string;
   eCMarginText:string;
   eCWeight:string;
-          
-    
 }
 
 function Crosssell(props: CrosssellProps) {
   const {  
+    bgColor,
+    borderColor,
+    showBorder,
     paddingSelect,
     paddingText,
     marginSelect,
@@ -137,11 +141,12 @@ function Crosssell(props: CrosssellProps) {
   return (
     <>
       <div 
-        className="flex flex-col bg-[#f3f4f6] text-[#181817] border-0 border-b-[1px] border-solid border-r-0 border-[#181817]"
+        className="flex flex-col "
         style={{
+          background:bgColor,
           ...selectorPaddingMargin("padding",paddingSelect,paddingText),
           ...selectorPaddingMargin("margin",marginSelect,marginText),
-
+          borderBottom:showBorder && `1px solid ${borderColor}`
         }}
       >
         <h3 
@@ -221,18 +226,31 @@ export default Crosssell;
 export const schema = createSchema({
   type: "crosssell",
   title: "crosssell",
-  childTypes: ["crossell-container","helper-selector"],
-  presets:{
-    children:[
-      {type:"helper-selector"},
-      {type:"crossell-container"}
-    ]
-  },
+  childTypes: ["crossell-container","helper-selector","crossell-blacktyle"],
   settings: [
     {
       group: "general",
       inputs: [
-         {
+        {
+          type:'color',
+          label:'background color',
+          name:'bgColor',
+          defaultValue:'#FFFFFF',
+        },
+        {
+          type:'switch',
+          label:'showBorder',
+          name:'showBorder',
+          defaultValue:false,
+        },
+        {
+          type:'color',
+          label:'border color',
+          name:'borderColor',
+          defaultValue:'#000000',
+          condition: (data: CrosssellProps) => data.showBorder === true,
+        },
+        {
           type:'select',
           label:'Padding type',
           name:'paddingSelect',

@@ -95,6 +95,7 @@ import * as TrustSignals from "~/sections/secret-main-product/trust-signals"
 import * as SignalsItem from "~/sections/secret-main-product/signal"
 import * as VariantBlackLyte from  "~/sections/secret-main-product/blacklyte/blacklyte-variant"
 import * as PriceBlackLyte from  "~/sections/secret-main-product/blacklyte/blacklyte-price"
+import * as CrossellBlackLyte from  "~/sections/secret-main-product/blacklyte/blacklyte-crossell"
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -197,5 +198,6 @@ export const components: HydrogenComponent[] = [
   TrustSignals,
   SignalsItem,
   VariantBlackLyte,
-  PriceBlackLyte
+  PriceBlackLyte,
+  CrossellBlackLyte
 ];

@@ -134,10 +134,7 @@ function BuyButtons(props:BuyButtonsProps) {
         if(baseButton && baseButton.shadowRoot){
           const link = baseButton.shadowRoot.querySelector("#shop-pay-button-link")
           if(link){
-            console.log("Botón encontrado, haciendo clic...")
             link.click()
-          }else{
-            console.log("No se encontró el link dentro del segundo shadowRoot")
           }
         }
       }
@@ -201,7 +198,6 @@ function BuyButtons(props:BuyButtonsProps) {
     setComparePrice(newCompare)
     setIdsVariants(newIds)
     setCartIdsVariants(newCartIds)
-      console.log("currentprod",currentProd)
   }, [crossell,currentProd]);
 
   return (
@@ -237,11 +233,17 @@ function BuyButtons(props:BuyButtonsProps) {
                         ...selectorPaddingMargin("margin",props.vMarginSelect,props.vMarginText),
                       }}
                     >
-                      <span>{currentProd?.nombre}</span> {currentProd?.variants.nodes.length > 1 && currentProd.selectedVariant.selectedOptions.map((element)=>{
-                        if(currentProd.nombre){
-                          return ` - ${element.value}`
+                      <span>{currentProd?.nombre}</span> {currentProd?.variants.nodes.length > 1 && currentProd.selectedVariant.selectedOptions.map((element,index,array)=>{
+                        if(currentProd?.nombre && index == 0){
+                          return ` | ${element.value}`
                         }
-                        return `${element.value}`
+                        if(!currentProd?.nombre ){
+                          if(index ==0){
+
+                            return `${element.value}`
+                          }
+                        }
+                        return ` | ${element.value}`
                       })}
                     </div>
                     <div className="flex gap-1 mt-2">

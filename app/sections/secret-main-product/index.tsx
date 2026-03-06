@@ -100,7 +100,6 @@ export default function SecretProductInformation(
       }
       setCurrentProduct(product)
     }
-    console.log("index product",product)
   },[product])
 
   useEffect(()=>{

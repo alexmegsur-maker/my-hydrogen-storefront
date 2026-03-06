@@ -64,12 +64,12 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
   },[view360])
 
   return (
-    <div className="transition-all flex-none w-[70vw]"> 
-      <div className="bottom-0 h-full w-[70vw]">
+    <div className="transition-all flex-none w-full md:w-[70vw]"> 
+      <div className="bottom-0 md:h-full w-full md:w-[70vw] ">
         <div className="w-[100%] relative h-full bg-white left-0 transition-all duration-100 border-r border-t-0 border-l-0 border-b-0 border-solid border-[#A1A1AA] e2e-section-product-slider">
           <div
-            className="sticky flex flex-col duration-100 transition-all"
-            style={{ top: "0px", height: "calc(0px + 100vh)" }}
+            className="sticky flex flex-col duration-100 transition-all h-[50%] md:h-[100vh]"
+            style={{ top: "0px" }}
           >
             {logo && (
               <div className="absolute rounded-br-[13px] bg-black/70 st-colour-border-dark-grey border-solid border-b-[1px] border-r-[1px] border border-l-0 border-t-0 text-white z-10 flex items-center gap-3 px-3 py-2">
@@ -91,7 +91,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                   (
                     <div className="e2e-product-turntable relative">
                       <Swiper className="ms-0 absolute top-0">
-                        <SwiperSlide style={{width: "1343px"}}>
+                        <SwiperSlide className="w-full">
                           <div className="bg-[#fff] tw-text-center swiper-zoom-container">
                             <img 
                               ref={img360Ref} 
@@ -99,7 +99,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                               src={image360?.previewImage?.url} 
                               alt={image360?.previewImage?.altText} 
                               style={{
-                                height: "calc(0px + 90vh)", 
+                                height: "calc(0px + 100vh)", 
                                 maxHeight: "calc(-130px + 100vh)",
                                 scale:zoom? "2" : "1",
                                 transform:zoom ?`translate3d(${position.x}px,${position.y}px,0)`:"translate3d(0,0,0)"
@@ -115,7 +115,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                   )
                   :
                   (
-                    <div className="h-full">
+                    <div className="h-[50%] md:h-full">
                       <Swiper 
                         onSwiper={setPrincipalSwiper}
                         thumbs={{swiper:thumbsSwiper}}
@@ -128,15 +128,13 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                         {media.map((elm)=>{
                           return(
                             <SwiperSlide
-                              className="w-full h-full relative"
-                              style={{ width: "1343px" }}
+                              className="w-full h-[50vh] md:h-full relative"
                             >
                               <img
                                 loading="lazy"
                                 src={elm.previewImage.url}
                                 alt={elm.previewImage.altText}
-                                className="w-[100%] object-cover m-0 aspect-[1.5] transition duration-1000 ease-in-out"
-                                style={{ height: "calc(-110px + 100vh)" }}
+                                className="w-[100%] h-[100%] object-cover m-0 aspect-[2.5] md:aspect-[1.5] transition duration-1000 ease-in-out"
                               />
                             </SwiperSlide>
                           )
@@ -147,8 +145,8 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                             onClick={nextSlide}
                             >
                             <div
-                              className="border-rounded-full flex items-center justify-content st-colour-icons-on-colour "
-                              style={{ width: "24px", height: "24px" }}
+                              className="border-rounded-full w-[16px] h-[16px] md:w-[24px] md:h-[24px] flex items-center justify-content st-colour-icons-on-colour "
+
                             >
                               <svg
                                 style={{ width: "24px", height: "24px" }}
@@ -166,14 +164,13 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                             </div>
                           </button>
                         </div>
-                        <div className="transition-all absolute top-[calc(50%-24px)] transform translate-x-1/2 translate-y-1/2 z-10 prevarrow">
+                        <div className="transition-all absolute top-[calc(50%-24px)] transform md:translate-x-1/2 translate-y-1/2 z-10 prevarrow">
                           <button 
                             className="group box-border flex gap-2 items-center justify-center w-fit rounded-full cursor-pointer bg-black text-white hover:bg-stone-500 p-2.5 border-transparent border-0 ml-8"
                             onClick={prevSlide}
                             >
                             <div
-                              className="border-rounded-full flex items-center justify-content st-colour-icons-on-colour "
-                              style={{ width: "24px", height: "24px" }}
+                              className="border-rounded-full w-[16px] h-[16px] md:w-[24px] md:h-[24px] flex items-center justify-content st-colour-icons-on-colour "
                             >
                               <svg
                                 style={{ width: "24px", height: "24px" }}
@@ -201,7 +198,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
               {view360?.length > 0 && (
                 <div
                   data-context="pdp-360switch"
-                  className="absolute right-[32px] bottom-[140px] z-[100] outline-none"
+                  className="absolute right-[32px] bottom-[140px] z-[100] hidden md:flex  outline-none"
                   onClick={show360}
                 >
                   <button
@@ -219,7 +216,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                   </button>
                 </div>
               )}
-              <div className="mx-5 max-w-[550px] w-[50%] xl:max-w-[600px] xxl:max-w-[700px] xl:w-[70%] e2e-section-image-gallery-thumbnail">
+              <div className="mx-5 md:max-w-[550px] w-[80%] md:w-[50%] xl:max-w-[600px] xxl:max-w-[700px] xl:w-[70%] e2e-section-image-gallery-thumbnail">
                 <Swiper
                  onSwiper={setThumbsSwiper}
                  slidesPerView={5}
@@ -290,9 +287,9 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
                   </div>
                 </Swiper>
               </div>
-              {mediaVideos?.length > 0 && <div className="mx-5 h-[2px] w-[30px] bg-gray-500"></div>}
+              {mediaVideos?.length > 0 && <div className="mx-5 h-[2px] w-[30px] bg-gray-500 hidden md:block"></div>}
               {mediaVideos?.length > 0 && (
-                <div className="w-[15%] max-w-[240px] mx-5 e2e-section-video-gallery-thumbnail">
+                <div className="w-[15%] max-w-[240px] mx-5 hidden md:block">
                   <div className="slick-slider slick-initialized" dir="ltr">
                     <div className="slick-list">
                       <div

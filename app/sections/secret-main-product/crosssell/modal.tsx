@@ -157,7 +157,7 @@ function ModalCrossellProduct(props:modalProps) {
                 <div className="w-full relative">
                   <Swiper 
                     className=" h-[50vh] flex items-center relative rounded-[4px] border border-solid border-[#DEE2E6] "
-                    navigation={true}
+                    // navigation={true}
                     thumbs={{swiper:thumbsSwiper}}
                     modules={[FreeMode,Navigation,Thumbs]}
                     >
@@ -176,38 +176,7 @@ function ModalCrossellProduct(props:modalProps) {
                       )
                     })
                     }
-                    <button className="outline-none bg-transparent px-0 absolute top-0 h-full border-none z-10 md:flex items-center transition-all left-0 ps-4 opacity-[0.15] md:pointer-events-none">
-                      <svg
-                        className="stroke-[#000000] hover:stroke-[#a72a2f] "
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                      >
-                        <path
-                          d="M13.3337 18.3333L5.00041 9.99998L13.3337 1.66665"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                        ></path>
-                      </svg>
-                    </button>
-                    <button className="outline-none bg-transparent px-0 absolute top-0 h-full border-none z-10 md:flex items-center transition-all right-0 pe-4 opacity-1">
-                      <svg
-                        className="stroke-[#000000] hover:stroke-[#a72a2f] rotate-180"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                      >
-                        <path
-                          d="M13.3337 18.3333L5.00041 9.99998L13.3337 1.66665"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                        ></path>
-                      </svg>
-                    </button>
+                   
                   </Swiper>
 
                   <Swiper 

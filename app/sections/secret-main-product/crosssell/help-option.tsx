@@ -90,7 +90,6 @@ function HelpOption(props: HelpOptionProps) {
     if(option.current){
       let parent =option.current.parentElement.dataset.selectedcolor
       setSelectColor(parent)
-      console.log("parent",parent)
     }
   },[option.current])
 

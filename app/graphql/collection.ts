@@ -21,6 +21,14 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
               title
               handle
               availableForSale
+              options(first:5){
+                id
+                name
+                optionValues{
+                  id
+                  name
+                }
+              }
               featuredImage{
                 altText
                 url
@@ -87,7 +95,7 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                 id
                 value
               }
-              variants(first:1){
+              variants(first:10){
                 edges{
                   node{
                     id
