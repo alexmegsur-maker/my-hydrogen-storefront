@@ -191,6 +191,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
           </p>
           {stars && idProduct &&(
             <div className="judgeme-stars-wrapper">
+              {idProduct}
               <JudgemePreviewBadge id={idProduct} template=""/>
             </div>
             )
