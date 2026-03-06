@@ -18,6 +18,9 @@ declare global {
     // declare additional Env parameter use in the fetch handler and Remix loader context here
     PUBLIC_GOOGLE_GTM_ID: string;
     JUDGEME_PRIVATE_API_TOKEN: string;
+    JUDGEME_PUBLIC_TOKEN: string;
+    JUDGEME_SHOP_DOMAIN: string;
+    JUDGEME_CDN_HOST: string;
     CUSTOM_COLLECTION_BANNER_METAFIELD: string;
     METAOBJECT_COLORS_TYPE: string;
     KLAVIYO_PRIVATE_API_TOKEN: string;
@@ -58,5 +61,6 @@ declare module "react-router" {
 declare global {
   interface Window {
     dataLayer: any[];
+    jdgm:any;
   }
 }

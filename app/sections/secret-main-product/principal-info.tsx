@@ -110,6 +110,23 @@ function  PrincipalInfo(props:PrincipalInfoProps){
   const pathnames = location.pathname.split('/').filter((x)=>x)
   const idProduct=product?.id?.split('/').pop();
 
+  useEffect(() => {
+  // Función para inicializar
+  const initJudgeme = () => {
+    if (window.jdgm) {
+      window.jdgm.cache = {};
+      window.jdgm.initializeWidgets();
+    }
+  };
+
+  // Ejecutar inmediatamente
+  initJudgeme();
+
+  // Opcional: Re-intentar brevemente por si el script aún carga
+  const timer = setTimeout(initJudgeme, 500);
+  return () => clearTimeout(timer);
+}, [idProduct]);
+
   if(info && product){
     
     return(
