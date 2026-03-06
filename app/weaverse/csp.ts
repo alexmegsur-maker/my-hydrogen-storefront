@@ -27,10 +27,19 @@ export function getWeaverseCsp(
       "cdn.alireviews.io",
       "cdn.jsdelivr.net",
       "*.alicdn.com",
+      "*.judge.me",
+      "cdn.judge.me",
       ...weaverseHosts,
     ],
-    connectSrc: ["vimeo.com", "*.google-analytics.com", ...weaverseHosts],
-    styleSrc: weaverseHosts,
+    connectSrc: [
+      "vimeo.com", 
+      "*.google-analytics.com",
+      "*.judge.me",
+      "cdn.judge.me",
+      , ...weaverseHosts],
+    styleSrc: [...weaverseHosts,"*.judge.me","cdn.judge.me"],
+    scriptSrc:["*.judge.me","cdn.judge.me"],
+    imgSrc:["*.judge.me","cdn.judge.me"],
     frameAncestors:isDesignMode ? ["*"]:["'self'","*.shopify.com","*.myshopify.com"]
   };
   return updatedCsp;

@@ -68,7 +68,7 @@ function ProductMediaSecret(props:ProductMediaSecretProps) {
       <div className="bottom-0 md:h-full w-full md:w-[70vw] ">
         <div className="w-[100%] relative h-full bg-white left-0 transition-all duration-100 border-r border-t-0 border-l-0 border-b-0 border-solid border-[#A1A1AA] e2e-section-product-slider">
           <div
-            className="sticky flex flex-col duration-100 transition-all h-[50%] md:h-[100vh]"
+            className="sticky flex flex-col duration-100 transition-all h-[50%] md:h-[100%]"
             style={{ top: "0px" }}
           >
             {logo && (
