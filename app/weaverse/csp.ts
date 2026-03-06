@@ -37,7 +37,7 @@ export function getWeaverseCsp(
       "*.judge.me",
       "cdn.judge.me",
       , ...weaverseHosts],
-    styleSrc: [...weaverseHosts,"*.judge.me","cdn.judge.me","'unsafe-inline'"],
+    styleSrc: [...weaverseHosts,"*.judge.me","cdn.judge.me","'unsafe-inline'","'unsafe-eval'" ],
     scriptSrc:["'unsafe-inline'","*.judge.me","cdn.judge.me"],
     imgSrc:["*.judge.me","cdn.judge.me","data:"],
     frameAncestors:isDesignMode ? ["*"]:["'self'","*.shopify.com","*.myshopify.com"]
