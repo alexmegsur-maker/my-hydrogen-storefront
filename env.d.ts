@@ -23,6 +23,9 @@ declare global {
     KLAVIYO_PRIVATE_API_TOKEN: string;
     PUBLIC_SHOPIFY_INBOX_SHOP_ID: string;
     WEAVERSE_HOST?: string;
+    JUDGEME_SHOP_DOMAIN:string;
+    JUDGEME_PUBLIC_TOKEN:string;
+    JUDGEME_CDN_HOST:string;
   }
 }
 

@@ -108,10 +108,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const { topbarHeight, topbarText } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
-  
-  if(data?.judgeme?.publicToken){
-    useJudgeme(data?.judgeme)
-  }
+  console.log(data?.judgeme)
+  useJudgeme(data?.judgeme)
 
   if (
     location.pathname === "/subrequest-profiler" ||
