@@ -1314,6 +1314,25 @@ export type ProductQuery = {
   };
 };
 
+export type ReservaQueryVariables =StorefrontAPI.Exact<{
+  handle:StorefrontAPI.Scalars['String']['input']
+}>
+export type ReservaQuery={
+  product?:StorefrontAPI.Maybe<
+  {
+    total?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+    >;
+    vendido?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+    >;
+    fecha?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+    >;
+  }
+  >
+}
+
 export type MediaImagesByIdsQueryVariables = StorefrontAPI.Exact<{
   ids:
     | Array<StorefrontAPI.Scalars['ID']['input']>

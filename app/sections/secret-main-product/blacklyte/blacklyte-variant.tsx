@@ -127,36 +127,36 @@ function BlacklyteVariants(props: BlacklyteVariantsProps) {
   }, [collections, getApiUrl]);
 
   useEffect(() => {
-    let optionsAux = [];
-    if (collectionsData) {
-      optionsList.forEach((e) => {
-        let check = optionsAux.find(
-          (el) => el.name.toLowerCase() === e.name.toLowerCase(),
-        );
-        if (!check) {
-          let op = {
-            name: e.name,
-            values: e.optionValues.flatMap((j) => j.name),
-          };
-          optionsAux.push(op);
-        } else {
-          e.optionValues.forEach((value) => {
-            let aux = check.values.find(
-              (i) => i.toLowerCase() === value.name.toLowerCase(),
-            );
-            if (!aux) {
-              let op = {
-                name: e.name,
-                values: [...check.values, value.name],
-              };
-              optionsAux.push(op);
-            }
+    if (collectionsData && products?.length > 0) {
+      // 1. Usamos un objeto para agrupar valores por nombre de opción
+      const optionsMap = {};
+
+      products.forEach((prod) => {
+        prod.node.options.forEach((opt) => {
+          const name = opt.name;
+          // Ignoramos "Title" de una vez aquí si lo deseas
+          if (name === "Title") return;
+
+          if (!optionsMap[name]) {
+            optionsMap[name] = new Set(); // Set garantiza valores únicos automáticamente
+          }
+
+          opt.optionValues.forEach((val) => {
+            optionsMap[name].add(val.name);
           });
-        }
+        });
       });
-      setOptions(optionsAux);
+
+      // 2. Convertimos el Map a la estructura de array que necesitas
+      const formattedOptions = Object.keys(optionsMap).map((name) => ({
+        name: name,
+        values: Array.from(optionsMap[name]),
+      }));
+
+      setOptions(formattedOptions);
     }
   }, [collectionsData]);
+
 
   useEffect(()=>{
     let productsSelected = products.map((elm)=>{

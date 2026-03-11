@@ -1,0 +1,207 @@
+.m-button-reserve{
+  background-color:var(--reservebbc);
+  color:var(--reservebc);
+  padding-block:.8rem;
+  text-align:center;
+  border-radius:var(--reservebbr);
+  font-size:var(--reservebfs);
+}
+
+  .m-button-reserve:hover{
+    background-color:var(--reservebbch);
+    color:var(--reservebch);
+    cursor:pointer;
+  }
+  .fecha{
+    font-size:15px;
+    margin-bottom:1rem;
+  }
+
+  .resalt{
+    color:#F59E0B;
+    font-weight:600;
+    }
+
+    .instock-pulse {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+
+    .icon--pulsing {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+  .reserva-progress {
+    font-family: 'Montserrat';
+  }
+  .progress-bar {
+    background-color: #fbbe49;
+    display: block;
+    height: 22px;
+    width: 100%;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+  .porcentaje {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    z-index: 20;
+    font-weight: 700;
+  }
+
+  .progress-bar > div {
+    height: 100%;
+  }
+  .m-quantity__button{
+    display:none; 
+  }
+  .m-quantity{
+    width: 70px;
+  }
+
+  .sold { 
+    z-index: 10;
+    height: 100%;
+    top: 0;
+    position: absolute;
+    background-color: #dddddd;
+    box-shadow: inset 2px 0px 5px 0px gray;
+  }
+
+  .text-reserva{
+    font-weight:var(--reservatrfw);
+  }
+
+  .shopify-payment-button__button--branded{
+    display:none !important;
+  }
+
+  .shopify-payment-button__more-options{
+    display:none;
+    
+  }
+  
+  .reserva_button_shopi  {
+    width: 1px;
+    overflow: hidden;
+    height: 1px ;
+    font-size: 1px ;
+    padding: 0 ;
+    opacity: 0;
+  }
+
+  .wave {
+    width: 160%;
+    clip-path: polygon(
+      100% 99.5%,
+      0% 99.5%,
+      0% 67.35%,
+      0.92% 56.16%,
+      1.654% 39.65%,
+      2.558% 24.52%,
+      4.004% 17.67%,
+      5.588% 15.41%,
+      6.892% 20.51%,
+      8.142% 26.83%,
+      9.544% 34.88%,
+      11.17% 46.19%,
+      12.546% 56.16%,
+      13.968% 63.09%,
+      15.494% 67.34%,
+      16.814% 70.65%,
+      18.48% 70.65%,
+      20% 67.35%,
+
+      20.92% 56.16%,
+      21.654% 39.65%,
+      22.558% 24.52%,
+      24.004% 17.67%,
+      25.588% 15.41%,
+      26.892% 20.51%,
+      28.142% 26.83%,
+      29.544% 34.88%,
+      31.17% 46.19%,
+      32.546% 56.16%,
+      33.968% 63.09%,
+      35.494% 67.34%,
+      36.814% 70.65%,
+      38.48% 70.65%,
+      40% 67.35%,
+
+      40.92% 56.16%,
+      41.654% 39.65%,
+      42.558% 24.52%,
+      44.004% 17.67%,
+      45.588% 15.41%,
+      46.892% 20.51%,
+      48.142% 26.83%,
+      49.544% 34.88%,
+      51.17% 46.19%,
+      52.546% 56.16%,
+      53.968% 63.09%,
+      55.494% 67.34%,
+      56.814% 70.65%,
+      58.48% 70.65%,
+      60% 67.35%,
+
+      60.92% 56.16%,
+      61.654% 39.65%,
+      62.558% 24.52%,
+      64.004% 17.67%,
+      65.588% 15.41%,
+      66.892% 20.51%,
+      68.142% 26.83%,
+      69.544% 34.88%,
+      71.17% 46.19%,
+      72.546% 56.16%,
+      73.968% 63.09%,
+      75.494% 67.34%,
+      76.814% 70.65%,
+      78.48% 70.65%,
+      80% 67.35%,
+
+      80.92% 56.16%,
+      81.654% 39.65%,
+      82.558% 24.52%,
+      84.004% 17.67%,
+      85.588% 15.41%,
+      86.892% 20.51%,
+      88.142% 26.83%,
+      89.544% 34.88%,
+      91.17% 46.19%,
+      92.546% 56.16%,
+      93.968% 63.09%,
+      95.494% 67.34%,
+      96.814% 70.65%,
+      98.48% 70.65%,
+      100% 67.35%
+    );
+
+    background-color: #f4a72c;
+    background-size: 50px 50px;
+    animation: wave 1s linear infinite;
+  }
+  @keyframes wave {
+    0% {
+      transform: translate(0%);
+    }
+    100% {
+      transform: translate(-20%);
+    }
+  }
+  @media (min-width: 700px) {
+    .wave {
+      width: 122%;
+    }
+    .progress-bar {
+      height: 25px;
+      border-radius: 8px;
+    }
+  }

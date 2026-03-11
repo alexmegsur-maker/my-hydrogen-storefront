@@ -52,45 +52,48 @@ export function ProductCardOptions({
         ?.slice(0, pcardMaxOptionValues)
         .map(({ name, swatch, firstSelectableVariant }) => {
           if (asSwatch) {
+            if(colorsTheme){
             const colorCheck = colorsTheme.find((e)=>e.identifier === name.toLowerCase())
-            
-            const color = colorCheck.colors.length>1 ? `linear-gradient(125deg, ${colorCheck.colors[0]} 50%, ${colorCheck.colors[1]} 50%)`:colorCheck.colors[0]
+            console.log("colorCheck",colorCheck)
 
-            const swatchColor = color ? color : "#fff";
-            return (
-              <Tooltip key={name}>
-                <TooltipTrigger>
-                  <button
-                    type="button"
-                    className={cn(
-                      "flex aspect-square size-4.5 rounded-full",
-                      "border border-transparent transition-all",
-                      selectedValue === name ? "border-gray-800 p-0.5" : "p-0",
-                    )}
-                    onClick={() => {
-                      setSelectedVariant(firstSelectableVariant);
-                    }}
-                  >
-                    {swatch?.image?.previewImage ? (
-                      <Image
-                        data={swatch.image.previewImage}
-                        className="h-full w-full rounded-full object-cover object-center"
-                        width={200}
-                        sizes="auto"
-                      />
-                    ) : (
-                      <span
-                        className= "entra aqui inline-block h-full w-full rounded-full text-[0px] border border-line-subtle"
-                        style={{ background: swatchColor }}
-                      >
-                        {name}
-                      </span>
-                    )}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent sideOffset={6}>{name}</TooltipContent>
-              </Tooltip>
-            );
+              const color = colorCheck.colors.length>1 ? `linear-gradient(125deg, ${colorCheck.colors[0]} 50%, ${colorCheck.colors[1]} 50%)`:colorCheck.colors[0]
+              const swatchColor = color ? color : "#fff";
+              return (
+                <Tooltip key={name}>
+                  <TooltipTrigger>
+                    <button
+                      type="button"
+                      className={cn(
+                        "flex aspect-square size-4.5 rounded-full",
+                        "border border-transparent transition-all",
+                        selectedValue === name ? "border-gray-800 p-0.5" : "p-0",
+                      )}
+                      onClick={() => {
+                        setSelectedVariant(firstSelectableVariant);
+                      }}
+                    >
+                      {swatch?.image?.previewImage ? (
+                        <Image
+                          data={swatch.image.previewImage}
+                          className="h-full w-full rounded-full object-cover object-center"
+                          width={200}
+                          sizes="auto"
+                        />
+                      ) : (
+                        <span
+                          className= "entra aqui inline-block h-full w-full rounded-full text-[0px] border border-line-subtle"
+                          style={{ background: swatchColor }}
+                        >
+                          {name}
+                        </span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent sideOffset={6}>{name}</TooltipContent>
+                </Tooltip>
+              );
+            }
+            
           }
           return (
             <Button

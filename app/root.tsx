@@ -108,7 +108,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const { topbarHeight, topbarText } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
-  console.log(data?.judgeme)
   useJudgeme(data?.judgeme)
 
   if (

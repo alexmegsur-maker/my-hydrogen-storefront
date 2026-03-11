@@ -36,7 +36,14 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
   switch (cartFormAction) {
     case CartForm.ACTIONS.LinesAdd:
-      result = await cart.addLines(inputs.lines as CartLineInput[]);
+      const isBuyNow = formData.get('buyNow')==='true'
+      if(isBuyNow){
+        result = await cart.create({
+          lines:inputs.lines as CartLineInput[]
+        });
+      }else{
+        result = await cart.addLines(inputs.lines as CartLineInput[]);
+      }
       break;
     case CartForm.ACTIONS.LinesUpdate:
       result = await cart.updateLines(inputs.lines as CartLineUpdateInput[]);
@@ -103,6 +110,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
   }
 
   const { cart: cartResult, errors, userErrors } = result || {};
+  
+  if(formData.get('buyNow')==='true'&& result?.cart?.checkoutUrl){
+    return redirect(result.cart.checkoutUrl,{headers});
+  }
 
   return data({ cart: cartResult, userErrors, errors }, { status, headers });
 }

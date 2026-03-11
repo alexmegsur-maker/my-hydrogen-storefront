@@ -35,6 +35,10 @@ export function AddToCartButton({
   analytics?: unknown;
   [key: string]: any;
 }) {
+  useEffect(()=>{
+    console.log("lines",lines)
+
+  },[lines])
   return (
     <CartForm
       route="/cart"
@@ -85,6 +89,7 @@ function AddToCartButtonContent({
   return (
     <AddToCartAnalytics fetcher={fetcher}>
       <input type="hidden" name="analytics" value={JSON.stringify(analytics)} />
+
       <Button
         type="submit"
         className={cn(
@@ -130,7 +135,7 @@ function usePageAnalytics({ hasUserConsent }: { hasUserConsent: boolean }) {
   }, [matches, hasUserConsent]);
 }
 
-function AddToCartAnalytics({
+export function AddToCartAnalytics({
   fetcher,
   children,
 }: {
