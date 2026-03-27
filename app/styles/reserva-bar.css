@@ -205,3 +205,12 @@
       border-radius: 8px;
     }
   }
+  /*  esto es para reservaBar main product j */
+  @keyframes scanner-light{
+    0%{
+      transform: translateX(-150%);
+    }
+    100%{
+      transform: translateX(300%);
+    }
+  }

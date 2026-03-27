@@ -1,15 +1,17 @@
 import { createSchema } from "@weaverse/hydrogen"
 import type{HydrogenComponentProps} from "@weaverse/hydrogen"
+import { Section } from "~/components/section";
 
 function HeaderEdit(props:HydrogenComponentProps){
   const {
     children,
+    ...rest
   }=props;
 
   return (
-    <>
+    <Section {...rest}>
     {children}
-    </>
+    </Section>
   )
 }
 

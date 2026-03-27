@@ -1,5 +1,6 @@
 import {createSchema} from "@weaverse/hydrogen"
 import { useEffect } from "react";
+import { Section } from "~/components/section";
 import { useShopMenu } from "~/hooks/use-shop-menu";
 import { useComponentStore } from "~/stores/headerDataStore";
 import type {HeaderTopProductProps} from "~/types/header"
@@ -125,6 +126,7 @@ function ProductTopHeader(props:TopProductHeaderProps){
     mbDMarginSelect,
     mbDMargin,
     mbDWeight,
+    ...rest
     } = props;
  
   const addComponent = useComponentStore((state)=>state.addComponent);
@@ -257,9 +259,7 @@ function ProductTopHeader(props:TopProductHeaderProps){
       addComponent(productTop);
     }
   },[])
-  return(
-    <></>
-  )
+  return(<Section {...rest}/>)
 }
 export default ProductTopHeader
 

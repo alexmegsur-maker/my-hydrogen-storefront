@@ -96,6 +96,14 @@ import * as SignalsItem from "~/sections/secret-main-product/signal"
 import * as VariantBlackLyte from  "~/sections/secret-main-product/blacklyte/blacklyte-variant"
 import * as PriceBlackLyte from  "~/sections/secret-main-product/blacklyte/blacklyte-price"
 import * as CrossellBlackLyte from  "~/sections/secret-main-product/blacklyte/blacklyte-crossell"
+import * as ProductMainJ from "~/sections/main-product-j"
+import * as HeadProductMainJ from "~/sections/main-product-j/head"
+import * as ReservaBarProductMainJ from "~/sections/main-product-j/reserva-bar"
+import * as SelectorVariantProductMainJ from "~/sections/main-product-j/variant-selector"
+import * as FilterStep from "~/sections/main-product-j/filter-step"
+import * as FilterOption from "~/sections/main-product-j/filter-option"
+import * as CrossellProductJ from "~/sections/main-product-j/crossell"
+import * as BuyButtonsProductJ from "~/sections/main-product-j/buy-buttons"
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -199,5 +207,13 @@ export const components: HydrogenComponent[] = [
   SignalsItem,
   VariantBlackLyte,
   PriceBlackLyte,
-  CrossellBlackLyte
+  CrossellBlackLyte,
+  ProductMainJ,
+  HeadProductMainJ,
+  ReservaBarProductMainJ,
+  SelectorVariantProductMainJ,
+  FilterStep,
+  FilterOption,
+  CrossellProductJ,
+  BuyButtonsProductJ
 ];

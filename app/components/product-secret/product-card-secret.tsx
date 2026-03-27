@@ -62,10 +62,7 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
       }
     }
 
-    useEffect(()=>{
-      console.log("cardStyles",cardStyles)
-    },[]) 
-    
+ 
   return (
     <div
       style={{

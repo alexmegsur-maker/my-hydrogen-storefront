@@ -26,6 +26,7 @@ import {
 import { ProductCardOptions } from "./product-card-options";
 import { QuickShopTrigger } from "./quick-shop";
 import { VariantPrices } from "./variant-prices";
+import { JudgemePreviewBadge } from "@judgeme/shopify-hydrogen";
 
 export function ProductCard({
   product,
@@ -183,11 +184,13 @@ export function ProductCard({
           <div className="text-body-subtle uppercase">{product.vendor}</div>
         )}
         {pcardShowReviews && (
-          <JudgemeStarsRating
-            productHandle={product.handle}
-            ratingText="{{rating}} ({{total_reviews}} reviews)"
-            errorText=""
-          />
+          <JudgemePreviewBadge id={product.id} template=""/>
+          
+    // <JudgemeStarsRating
+          //   productHandle={product.handle}
+          //   ratingText="{{rating}} ({{total_reviews}} reviews)"
+          //   errorText=""
+          // />
         )}
         <div
           className={clsx(
@@ -209,7 +212,6 @@ export function ProductCard({
             prefetch="intent"
             className="inline-block font-bold"
           >
-            asdfasdfsadfasdf
             <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
               {product.title}
             </RevealUnderline>

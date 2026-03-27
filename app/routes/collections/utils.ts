@@ -53,7 +53,21 @@ export function createCurProVar(prod){
   })) || [];
 
   let firstVar = prod.selectedOrFirstAvailableVariant;
-  let firstSelect = prod.variants.nodes[0]
+  let firstSelect = null
+  if(prod.variants.nodes){
+    firstSelect = prod.variants.nodes[0]
+
+  }else{
+    firstSelect = prod.variants.edges[0].node
+  }
+  if(firstVar ==undefined){
+    firstVar=firstSelect
+  }
+
+  let variantformated = null
+  if(prod.variants.edges){
+    variantformated = prod.variants.edges.map((v)=>{return v.node})
+  }
   // 2. Extracción segura de Metafields
   let img360 = prod.imagenes360;
   let logo = prod.logoMetafield;
@@ -72,7 +86,7 @@ export function createCurProVar(prod){
     },
     options:options,
     media:prod.media,
-    variants:prod.variants,
+    variants:variantformated != null ? {nodes:variantformated} : prod.variants ,
     firstAvailableVariant:firstVar ? {
       id:firstVar.id,
       title:firstVar.title,
@@ -92,8 +106,11 @@ export function createCurProVar(prod){
       compareAtPrice:firstSelect.compareAtPrice,
       selectedOptions:firstSelect.selectedOptions,
       tooltip:firstSelect.tooltip,
+      fechaReserva:firstSelect.fechaReserva,
+      totalReserva:firstSelect.totalReserva,
+      pedidosReserva:firstSelect.pedidosReserva,
     },
-    tags:prod.tags,
+    tags:prod.tags? prod.tags : [],
     nombre:prod.nombre?.value||null,
     tooltip:prod.tooltip?.value||null,
     imagenes360:img360?.references?.nodes || [],

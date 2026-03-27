@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CollectionsByIdsQuery, GetMaterialsQuery } from "storefront-api.generated";
 import Variant from "~/components/product-secret/variant";
 import VariantCollections from "~/components/product-secret/variant-collections";
+import { Section } from "~/components/section";
 import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
@@ -359,6 +360,7 @@ function VariantSecret( props:VariantSecretProps){
   defButtonMarginSelect,
   defButtonMarginText,
   defButtonWeight,
+  ...rest
 } = props;
 
   const variantSecretProps={
@@ -588,7 +590,7 @@ function VariantSecret( props:VariantSecretProps){
   }
 
   return (
-    <div ref={container} className="w-full h-auto">
+    <Section {...rest} ref={container} className="w-full h-auto">
       <div 
         style={{
           ...selectorPaddingMargin("margin",marginSelect,marginText),
@@ -635,7 +637,7 @@ function VariantSecret( props:VariantSecretProps){
           }
         </div>
       </div>
-    </div>
+    </Section>
   );
 }
 

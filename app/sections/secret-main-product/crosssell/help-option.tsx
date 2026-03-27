@@ -1,9 +1,10 @@
-import { createSchema } from "@weaverse/hydrogen";
+import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
+import { Section } from "~/components/section";
 import { useCrossell } from "~/stores/crosssellStore";
 import { selectorPaddingMargin } from "~/utils/general";
 
-interface HelpOptionProps {
+interface HelpOptionProps extends HydrogenComponentProps {
   identification: string;
   title: string;
   description: string;
@@ -48,6 +49,7 @@ function HelpOption(props: HelpOptionProps) {
     dMarginSelect,
     dMarginText,
     dWeight,
+    ...rest
   } = props;
   const [check,setCheck]= useState(false)
   const [selectColor,setSelectColor]= useState('#000')
@@ -103,7 +105,7 @@ function HelpOption(props: HelpOptionProps) {
     }  },[crossellList?.selector,identification])
 
   return (
-    <div className=" text-left w-[calc(50%-5px)]" ref={option} >
+    <Section {...rest} className=" text-left w-[calc(50%-5px)]" ref={option} >
       <div
         className="absolute top-[-5px] left-[0] z-[2] w-full z-10"
         aria-haspopup="dialog"
@@ -175,7 +177,7 @@ function HelpOption(props: HelpOptionProps) {
           {description}
         </span>
       </button>
-    </div>
+    </Section>
   );
 }
 

@@ -1,3 +1,5 @@
+import { MEDIA_FRAGMENT } from "./fragments";
+
 export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
   query CollectionsByIdslist($ids:[ID!]!){
     nodes(ids: $ids){
@@ -20,6 +22,7 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
               id
               title
               handle
+              description
               availableForSale
               options(first:5){
                 id
@@ -95,6 +98,11 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                 id
                 value
               }
+              media(first: 50) {
+                nodes {
+                  ...Media
+                }
+              }
               variants(first:10){
                 edges{
                   node{
@@ -111,11 +119,27 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                       amount
                       currencyCode
                     }
+                    compareAtPrice{
+                      amount
+                      currencyCode
+                    }
                     tooltip:metafield(namespace:"custom",key:"tooltip"){
                       id
                       value
                     }
                     material:metafield(namespace:"custom",key:"material"){
+                      id
+                      value
+                    }
+                    fechaReserva:metafield(namespace:"custom",key:"fecha_reserva"){
+                      id
+                      value
+                    }
+                    totalReserva:metafield(namespace:"custom",key:"preventa_total"){
+                      id
+                      value
+                    }
+                    pedidosReserva:metafield(namespace:"custom",key:"preventa_pedidos"){
                       id
                       value
                     }
@@ -128,4 +152,5 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
       }
     }
   }
+  ${MEDIA_FRAGMENT}
 ` as const 

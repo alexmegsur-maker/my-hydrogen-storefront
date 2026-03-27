@@ -1,5 +1,6 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useState } from "react";
+import { Section } from "~/components/section";
 import { selectorPaddingMargin } from "~/utils/general";
 
 interface HelperSelectorProps extends HydrogenComponentProps{
@@ -35,11 +36,13 @@ function HelperSelector(props:HelperSelectorProps) {
     weight,
     bColor,
     bSize,
-    children
+    children,
+    ...rest
   }=props
   const [show, setShow] = useState(false);
   return (
-    <div 
+    <Section
+    {...rest}
     className="flex flex-col mt-3 p-2 lg:p-4 rounded-lg border-solid border-[1px]"
     style={{
       borderColor:borderColor,
@@ -104,7 +107,7 @@ function HelperSelector(props:HelperSelectorProps) {
       >
         {children}
       </div>
-    </div>
+    </Section>
   );
 }
 

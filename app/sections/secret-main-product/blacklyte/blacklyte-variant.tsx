@@ -2,6 +2,7 @@ import { createSchema, type WeaverseCollection } from "@weaverse/hydrogen";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { CollectionsByIdsQuery } from "storefront-api.generated";
 import ProductCardCollection from "~/components/product-secret/product-card-collection";
+import { Section } from "~/components/section";
 import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { useColorStore } from "~/sections/header-edit/registerColors";
 import { selectorPaddingMargin } from "~/utils/general";
@@ -73,6 +74,7 @@ function BlacklyteVariants(props: BlacklyteVariantsProps) {
     bMarginSelect,
     bMarginText,
     bWeight,
+    ...rest
   } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [collectionsData, setCollectionsData] = useState([]);
@@ -214,7 +216,7 @@ function BlacklyteVariants(props: BlacklyteVariantsProps) {
     );
   }
   return (
-    <div
+    <Section {...rest}
       style={{
         ...selectorPaddingMargin("padding", paddingSelect, paddingText),
         ...selectorPaddingMargin("margin", marginSelect, marginText),
@@ -453,7 +455,7 @@ function BlacklyteVariants(props: BlacklyteVariantsProps) {
           </div>
         </>
       )}
-    </div>
+    </Section>
   );
 }
 

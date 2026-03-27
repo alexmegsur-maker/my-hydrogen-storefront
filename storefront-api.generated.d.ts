@@ -315,7 +315,7 @@ export type CollectionsByIdslistQuery = {
           edges: Array<{
             node: Pick<
               StorefrontAPI.Product,
-              'id' | 'title' | 'handle' | 'availableForSale'
+              'id' | 'title' | 'handle' | 'description' | 'availableForSale'
             > & {
               options: Array<
                 Pick<StorefrontAPI.ProductOption, 'id' | 'name'> & {
@@ -374,6 +374,66 @@ export type CollectionsByIdslistQuery = {
               tooltip?: StorefrontAPI.Maybe<
                 Pick<StorefrontAPI.Metafield, 'id' | 'value'>
               >;
+              media: {
+                nodes: Array<
+                  | ({__typename: 'ExternalVideo'} & Pick<
+                      StorefrontAPI.ExternalVideo,
+                      'id' | 'embedUrl' | 'host' | 'mediaContentType' | 'alt'
+                    > & {
+                        previewImage?: StorefrontAPI.Maybe<
+                          Pick<
+                            StorefrontAPI.Image,
+                            'id' | 'url' | 'altText' | 'width' | 'height'
+                          >
+                        >;
+                      })
+                  | ({__typename: 'MediaImage'} & Pick<
+                      StorefrontAPI.MediaImage,
+                      'id' | 'mediaContentType' | 'alt'
+                    > & {
+                        image?: StorefrontAPI.Maybe<
+                          Pick<
+                            StorefrontAPI.Image,
+                            'id' | 'url' | 'width' | 'height'
+                          >
+                        >;
+                        previewImage?: StorefrontAPI.Maybe<
+                          Pick<
+                            StorefrontAPI.Image,
+                            'id' | 'url' | 'altText' | 'width' | 'height'
+                          >
+                        >;
+                      })
+                  | ({__typename: 'Model3d'} & Pick<
+                      StorefrontAPI.Model3d,
+                      'id' | 'mediaContentType' | 'alt'
+                    > & {
+                        sources: Array<
+                          Pick<StorefrontAPI.Model3dSource, 'mimeType' | 'url'>
+                        >;
+                        previewImage?: StorefrontAPI.Maybe<
+                          Pick<
+                            StorefrontAPI.Image,
+                            'id' | 'url' | 'altText' | 'width' | 'height'
+                          >
+                        >;
+                      })
+                  | ({__typename: 'Video'} & Pick<
+                      StorefrontAPI.Video,
+                      'id' | 'mediaContentType' | 'alt'
+                    > & {
+                        sources: Array<
+                          Pick<StorefrontAPI.VideoSource, 'mimeType' | 'url'>
+                        >;
+                        previewImage?: StorefrontAPI.Maybe<
+                          Pick<
+                            StorefrontAPI.Image,
+                            'id' | 'url' | 'altText' | 'width' | 'height'
+                          >
+                        >;
+                      })
+                >;
+              };
               variants: {
                 edges: Array<{
                   node: Pick<
@@ -391,10 +451,22 @@ export type CollectionsByIdslistQuery = {
                       StorefrontAPI.MoneyV2,
                       'amount' | 'currencyCode'
                     >;
+                    compareAtPrice?: StorefrontAPI.Maybe<
+                      Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+                    >;
                     tooltip?: StorefrontAPI.Maybe<
                       Pick<StorefrontAPI.Metafield, 'id' | 'value'>
                     >;
                     material?: StorefrontAPI.Maybe<
+                      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+                    >;
+                    fechaReserva?: StorefrontAPI.Maybe<
+                      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+                    >;
+                    totalReserva?: StorefrontAPI.Maybe<
+                      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+                    >;
+                    pedidosReserva?: StorefrontAPI.Maybe<
                       Pick<StorefrontAPI.Metafield, 'id' | 'value'>
                     >;
                   };
@@ -898,6 +970,61 @@ export type CartApiQueryFragment = Pick<
   >;
 };
 
+export type GetVariantsOptionsQueryVariables = StorefrontAPI.Exact<{
+  handle: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type GetVariantsOptionsQuery = {
+  metaobjects: {
+    edges: Array<{
+      node: Pick<StorefrontAPI.Metaobject, 'id' | 'handle'> & {
+        fields: Array<
+          Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
+            reference?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Metaobject, 'id' | 'handle'> & {
+                fields: Array<
+                  Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
+                    imagenes?: StorefrontAPI.Maybe<{
+                      edges: Array<{
+                        node: Pick<StorefrontAPI.MediaImage, 'id'> & {
+                          image?: StorefrontAPI.Maybe<
+                            Pick<StorefrontAPI.Image, 'url' | 'altText'>
+                          >;
+                        };
+                      }>;
+                    }>;
+                    metaobjetos?: StorefrontAPI.Maybe<{
+                      edges: Array<{
+                        node: Pick<
+                          StorefrontAPI.Metaobject,
+                          'id' | 'handle'
+                        > & {
+                          fields: Array<
+                            Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+                          >;
+                        };
+                      }>;
+                    }>;
+                  }
+                >;
+              }
+            >;
+            references?: StorefrontAPI.Maybe<{
+              edges: Array<{
+                node: Pick<StorefrontAPI.Metaobject, 'id' | 'handle'> & {
+                  fields: Array<
+                    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+                  >;
+                };
+              }>;
+            }>;
+          }
+        >;
+      };
+    }>;
+  };
+};
+
 export type GetMaterialsQueryVariables = StorefrontAPI.Exact<{
   [key: string]: never;
 }>;
@@ -1136,6 +1263,15 @@ export type ProductQuery = {
             tooltip?: StorefrontAPI.Maybe<
               Pick<StorefrontAPI.Metafield, 'id' | 'value'>
             >;
+            fechaReserva?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+            >;
+            totalReserva?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+            >;
+            pedidosReserva?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+            >;
           }
         >;
       };
@@ -1314,25 +1450,6 @@ export type ProductQuery = {
   };
 };
 
-export type ReservaQueryVariables =StorefrontAPI.Exact<{
-  handle:StorefrontAPI.Scalars['String']['input']
-}>
-export type ReservaQuery={
-  product?:StorefrontAPI.Maybe<
-  {
-    total?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
-    >;
-    vendido?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
-    >;
-    fecha?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
-    >;
-  }
-  >
-}
-
 export type MediaImagesByIdsQueryVariables = StorefrontAPI.Exact<{
   ids:
     | Array<StorefrontAPI.Scalars['ID']['input']>
@@ -1377,6 +1494,20 @@ export type PageByIdQueryVariables = StorefrontAPI.Exact<{
 
 export type PageByIdQuery = {
   node?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Page, 'id' | 'body'>>;
+};
+
+export type ProductReservaQueryVariables = StorefrontAPI.Exact<{
+  handle: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type ProductReservaQuery = {
+  product?: StorefrontAPI.Maybe<{
+    total?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'id' | 'value'>>;
+    vendido?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Metafield, 'id' | 'value'>
+    >;
+    fecha?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'id' | 'value'>>;
+  }>;
 };
 
 export type CustomerCreateMutationVariables = StorefrontAPI.Exact<{
@@ -3452,15 +3583,19 @@ interface GeneratedQueryTypes {
     return: SwatchesQuery;
     variables: SwatchesQueryVariables;
   };
-  '#graphql\n  query CollectionsByIdslist($ids:[ID!]!){\n    nodes(ids: $ids){\n      ... on Collection{\n        id\n        handle\n        title\n        description\n        image{\n          altText\n          url      \n        }\n        filtro:metafield(namespace:"custom",key:"filtro"){\n          id\n          value\n        }\n        products(first:20){\n          edges{\n            node{\n              id\n              title\n              handle\n              availableForSale\n              options(first:5){\n                id\n                name\n                optionValues{\n                  id\n                  name\n                }\n              }\n              featuredImage{\n                altText\n                url\n              }\n              logoMetafield:metafield(namespace:"custom",key:"logo") {\n                key\n                value\n                reference{\n                  ... on Media{\n                    previewImage{\n                      altText  \n                      url\n                    } \n                  }\n                }\n              }\n              imagenes360:metafield(namespace:"custom",key:"imagen360") {\n                key\n                value\n                references(first:50){\n                  nodes{\n                    ... on Media{\n                      previewImage{\n                        altText  \n                        url\n                      }\n                    }\n                  }\n                }\n              }\n              videosMetafield:metafield(namespace:"custom",key:"videos"){\n                id\n                type\n                references(first:2){\n                  nodes{\n                    ... on Video{\n                      id\n                      alt\n                      sources{\n                        url\n                      }\n                    }\n                  }\n                }\n              }\n              pageMetafield:metafield(namespace:"custom",key:"page"){\n                id\n                type\n                value\n                reference{\n                  ... on Page{\n                    id\n                    title\n                    body\n                    onlineStoreUrl\n                  }\n                }\n              }\n              nombre:metafield(namespace:"custom",key:"name_style_secret"){\n                id  \n                value\n              }\n              tooltip:metafield(namespace:"custom",key:"tooltip"){\n                id\n                value\n              }\n              variants(first:10){\n                edges{\n                  node{\n                    id\n                    title\n                    availableForSale\n                    sku\n                    quantityAvailable\n                    selectedOptions{\n                      name\n                      value\n                    }\n                    price{\n                      amount\n                      currencyCode\n                    }\n                    tooltip:metafield(namespace:"custom",key:"tooltip"){\n                      id\n                      value\n                    }\n                    material:metafield(namespace:"custom",key:"material"){\n                      id\n                      value\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query CollectionsByIdslist($ids:[ID!]!){\n    nodes(ids: $ids){\n      ... on Collection{\n        id\n        handle\n        title\n        description\n        image{\n          altText\n          url      \n        }\n        filtro:metafield(namespace:"custom",key:"filtro"){\n          id\n          value\n        }\n        products(first:20){\n          edges{\n            node{\n              id\n              title\n              handle\n              description\n              availableForSale\n              options(first:5){\n                id\n                name\n                optionValues{\n                  id\n                  name\n                }\n              }\n              featuredImage{\n                altText\n                url\n              }\n              logoMetafield:metafield(namespace:"custom",key:"logo") {\n                key\n                value\n                reference{\n                  ... on Media{\n                    previewImage{\n                      altText  \n                      url\n                    } \n                  }\n                }\n              }\n              imagenes360:metafield(namespace:"custom",key:"imagen360") {\n                key\n                value\n                references(first:50){\n                  nodes{\n                    ... on Media{\n                      previewImage{\n                        altText  \n                        url\n                      }\n                    }\n                  }\n                }\n              }\n              videosMetafield:metafield(namespace:"custom",key:"videos"){\n                id\n                type\n                references(first:2){\n                  nodes{\n                    ... on Video{\n                      id\n                      alt\n                      sources{\n                        url\n                      }\n                    }\n                  }\n                }\n              }\n              pageMetafield:metafield(namespace:"custom",key:"page"){\n                id\n                type\n                value\n                reference{\n                  ... on Page{\n                    id\n                    title\n                    body\n                    onlineStoreUrl\n                  }\n                }\n              }\n              nombre:metafield(namespace:"custom",key:"name_style_secret"){\n                id  \n                value\n              }\n              tooltip:metafield(namespace:"custom",key:"tooltip"){\n                id\n                value\n              }\n              media(first: 50) {\n                nodes {\n                  ...Media\n                }\n              }\n              variants(first:10){\n                edges{\n                  node{\n                    id\n                    title\n                    availableForSale\n                    sku\n                    quantityAvailable\n                    selectedOptions{\n                      name\n                      value\n                    }\n                    price{\n                      amount\n                      currencyCode\n                    }\n                    compareAtPrice{\n                      amount\n                      currencyCode\n                    }\n                    tooltip:metafield(namespace:"custom",key:"tooltip"){\n                      id\n                      value\n                    }\n                    material:metafield(namespace:"custom",key:"material"){\n                      id\n                      value\n                    }\n                    fechaReserva:metafield(namespace:"custom",key:"fecha_reserva"){\n                      id\n                      value\n                    }\n                    totalReserva:metafield(namespace:"custom",key:"preventa_total"){\n                      id\n                      value\n                    }\n                    pedidosReserva:metafield(namespace:"custom",key:"preventa_pedidos"){\n                      id\n                      value\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment Media on Media {\n    __typename\n    mediaContentType\n    alt\n    previewImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    ... on MediaImage {\n      id\n      image {\n        id\n        url\n        width\n        height\n      }\n    }\n    ... on Video {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on Model3d {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on ExternalVideo {\n      id\n      embedUrl\n      host\n    }\n  }\n\n': {
     return: CollectionsByIdslistQuery;
     variables: CollectionsByIdslistQueryVariables;
+  };
+  "#graphql\n  query GetVariantsOptions ($handle:String!) {\n    metaobjects(type: $handle, first: 10) {\n      edges {\n        node {\n          id\n          handle\n          fields {\n            key\n            value\n            # Para campos de referencia UNICA (como 'guia')\n            reference {\n              ... on Metaobject {\n                id\n                handle\n                fields {\n                  key\n                  value\n                  imagenes:references(first:10){\n                    edges{\n                      node{\n                        ... on MediaImage {\n                          id\n                          image {\n                            url\n                            altText\n                          }\n                        }\n                        \n                      }\n                    }\n                  }\n                  metaobjetos:references(first:10){\n                    edges{\n                      node{\n                        ... on Metaobject{\n                          id\n                          handle\n                          fields {\n                            key\n                            value\n                          }\n                        }\n                        \n                      }\n                    }\n                  }\n                }\n              }\n            }\n            # Para campos de LISTA de referencias (como 'material' o 'imagenes')\n            references(first: 10) {\n              edges {\n                node {\n                  ... on Metaobject {\n                    id\n                    handle\n                    fields {\n                      key\n                      value\n                    }\n                  } \n                  \n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n": {
+    return: GetVariantsOptionsQuery;
+    variables: GetVariantsOptionsQueryVariables;
   };
   '#graphql\n  query GetMaterials{\n    metaobjects(type:"material",first:10){\n      edges{\n        node{\n          id\n          handle\n          fields{\n            key\n            value\n            reference{\n              ... on MediaImage{\n                id\n                image{\n                  url\n                  altText\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: GetMaterialsQuery;
     variables: GetMaterialsQueryVariables;
   };
-  '#graphql\n  query product(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      id\n      title\n      vendor\n      handle\n      publishedAt\n      descriptionHtml\n      description\n      summary: description(truncateAt: 200)\n      encodedVariantExistence\n      encodedVariantAvailability\n      tags\n      featuredImage {\n        id\n        url\n        altText\n      }\n      priceRange {\n        minVariantPrice {\n          amount\n          currencyCode\n        }\n        maxVariantPrice {\n          amount\n          currencyCode\n        }\n      }\n      badges: metafields(identifiers: [\n        { namespace: "custom", key: "best_seller" }\n      ]) {\n        key\n        namespace\n        value\n      }\n      options {\n        ...ProductOption\n      }\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {\n        ...ProductVariant\n      }\n      logoMetafield:metafield(namespace:"custom",key:"logo") {\n        key\n        value\n        reference{\n          ... on Media{\n            previewImage{\n              altText  \n              url\n            }\n          }\n        }\n      }\n      imagenes360:metafield(namespace:"custom",key:"imagen360") {\n        key\n        value\n        references(first:50){\n          nodes{\n            ... on Media{\n              previewImage{\n                altText  \n                url\n              }\n            }\n          }\n        }\n      }\n      videosMetafield:metafield(namespace:"custom",key:"videos"){\n        id\n        type\n        references(first:2){\n          nodes{\n            ... on Video{\n              id\n              alt\n              sources{\n                url\n              }\n            }\n          }\n        }\n      }\n      pageMetafield:metafield(namespace:"custom",key:"page"){\n        id\n        type\n        value\n        reference{\n          ... on Page{\n            id\n            title\n            body\n            onlineStoreUrl\n          }\n        }\n      }\n      especificaciones:metafield(namespace:"custom",key:"especificaciones"){\n        id\n        value\n      }\n      fechaReserva:metafield(namespace:"custom",key:"fecha_recepcion"){\n        id\n        value\n      }\n      nombre:metafield(namespace:"custom",key:"name_style_secret"){\n        id\n        value\n      }\n      tooltip:metafield(namespace:"custom",key:"tooltip"){\n        id\n        value\n      }\n      variants(first:10){\n        nodes{\n          id\n          quantityAvailable\n          availableForSale\n          selectedOptions{\n            name\n            value\n          }\n          price{\n            amount\n            currencyCode\n          }\n          compareAtPrice{\n            amount\n            currencyCode\n          }\n          tooltip:metafield(namespace:"custom",key:"tooltip"){\n            id\n            value\n          }\n        } \n      }\n      adjacentVariants(selectedOptions: $selectedOptions) {\n        ...ProductVariant\n      }\n      # Check if the product is a bundle\n      isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {\n        ...on ProductVariant { \n          requiresComponents\n          components(first: 100) { \n             nodes {\n                productVariant {\n                  ...ProductVariant\n                }\n                quantity\n             }\n          }\n          groupedBy(first: 100) {\n            nodes {\n                id\n              }\n            }\n          }\n      }\n      media(first: 50) {\n        nodes {\n          ...Media\n        }\n      }\n      seo {\n        description\n        title\n      }\n    }\n    shop {\n      name\n      primaryDomain {\n        url\n      }\n      shippingPolicy {\n        body\n        handle\n      }\n      refundPolicy {\n        body\n        handle\n      }\n    }\n  }\n  #graphql\n  fragment Media on Media {\n    __typename\n    mediaContentType\n    alt\n    previewImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    ... on MediaImage {\n      id\n      image {\n        id\n        url\n        width\n        height\n      }\n    }\n    ... on Video {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on Model3d {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on ExternalVideo {\n      id\n      embedUrl\n      host\n    }\n  }\n\n  #graphql\n  fragment ProductOption on ProductOption {\n    name\n    optionValues {\n      name\n      firstSelectableVariant {\n        ...ProductVariant\n      }\n      swatch {\n        color\n        image {\n          previewImage {\n            url\n            altText\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    quantityAvailable\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    requiresComponents\n    components(first: 10) {\n      nodes {\n        productVariant {\n          id\n          title\n          product {\n            handle\n          }\n        }\n        quantity\n      }\n    }\n    groupedBy(first: 10) {\n      nodes {\n        id\n        title\n        product {\n          handle\n        }\n      }\n    }\n  }\n\n\n': {
+  '#graphql\n  query product(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      id\n      title\n      vendor\n      handle\n      publishedAt\n      descriptionHtml\n      description\n      summary: description(truncateAt: 200)\n      encodedVariantExistence\n      encodedVariantAvailability\n      tags\n      featuredImage {\n        id\n        url\n        altText\n      }\n      priceRange {\n        minVariantPrice {\n          amount\n          currencyCode\n        }\n        maxVariantPrice {\n          amount\n          currencyCode\n        }\n      }\n      badges: metafields(identifiers: [\n        { namespace: "custom", key: "best_seller" }\n      ]) {\n        key\n        namespace\n        value\n      }\n      options {\n        ...ProductOption\n      }\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {\n        ...ProductVariant\n      }\n      logoMetafield:metafield(namespace:"custom",key:"logo") {\n        key\n        value\n        reference{\n          ... on Media{\n            previewImage{\n              altText  \n              url\n            }\n          }\n        }\n      }\n      imagenes360:metafield(namespace:"custom",key:"imagen360") {\n        key\n        value\n        references(first:50){\n          nodes{\n            ... on Media{\n              previewImage{\n                altText  \n                url\n              }\n            }\n          }\n        }\n      }\n      videosMetafield:metafield(namespace:"custom",key:"videos"){\n        id\n        type\n        references(first:2){\n          nodes{\n            ... on Video{\n              id\n              alt\n              sources{\n                url\n              }\n            }\n          }\n        }\n      }\n      pageMetafield:metafield(namespace:"custom",key:"page"){\n        id\n        type\n        value\n        reference{\n          ... on Page{\n            id\n            title\n            body\n            onlineStoreUrl\n          }\n        }\n      }\n      especificaciones:metafield(namespace:"custom",key:"especificaciones"){\n        id\n        value\n      }\n      fechaReserva:metafield(namespace:"custom",key:"fecha_recepcion"){\n        id\n        value\n      }\n      nombre:metafield(namespace:"custom",key:"name_style_secret"){\n        id\n        value\n      }\n      tooltip:metafield(namespace:"custom",key:"tooltip"){\n        id\n        value\n      }\n      variants(first:10){\n        nodes{\n          id\n          quantityAvailable\n          availableForSale\n          selectedOptions{\n            name\n            value\n          }\n          price{\n            amount\n            currencyCode\n          }\n          compareAtPrice{\n            amount\n            currencyCode\n          }\n          tooltip:metafield(namespace:"custom",key:"tooltip"){\n            id\n            value\n          }\n          fechaReserva:metafield(namespace:"custom",key:"fecha_reserva"){\n            id\n            value\n          }\n          totalReserva:metafield(namespace:"custom",key:"preventa_total"){\n            id\n            value\n          }\n          pedidosReserva:metafield(namespace:"custom",key:"preventa_pedidos"){\n            id\n            value\n          }\n        } \n      }\n      adjacentVariants(selectedOptions: $selectedOptions) {\n        ...ProductVariant\n      }\n      # Check if the product is a bundle\n      isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {\n        ...on ProductVariant { \n          requiresComponents\n          components(first: 100) { \n             nodes {\n                productVariant {\n                  ...ProductVariant\n                }\n                quantity\n             }\n          }\n          groupedBy(first: 100) {\n            nodes {\n                id\n              }\n            }\n          }\n      }\n      media(first: 50) {\n        nodes {\n          ...Media\n        }\n      }\n      seo {\n        description\n        title\n      }\n    }\n    shop {\n      name\n      primaryDomain {\n        url\n      }\n      shippingPolicy {\n        body\n        handle\n      }\n      refundPolicy {\n        body\n        handle\n      }\n    }\n  }\n  #graphql\n  fragment Media on Media {\n    __typename\n    mediaContentType\n    alt\n    previewImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    ... on MediaImage {\n      id\n      image {\n        id\n        url\n        width\n        height\n      }\n    }\n    ... on Video {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on Model3d {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on ExternalVideo {\n      id\n      embedUrl\n      host\n    }\n  }\n\n  #graphql\n  fragment ProductOption on ProductOption {\n    name\n    optionValues {\n      name\n      firstSelectableVariant {\n        ...ProductVariant\n      }\n      swatch {\n        color\n        image {\n          previewImage {\n            url\n            altText\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    quantityAvailable\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    requiresComponents\n    components(first: 10) {\n      nodes {\n        productVariant {\n          id\n          title\n          product {\n            handle\n          }\n        }\n        quantity\n      }\n    }\n    groupedBy(first: 10) {\n      nodes {\n        id\n        title\n        product {\n          handle\n        }\n      }\n    }\n  }\n\n\n': {
     return: ProductQuery;
     variables: ProductQueryVariables;
   };
@@ -3475,6 +3610,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query PageById($id:ID!){\n    node(id:$id){\n      ... on Page{\n        id\n        body\n      }\n    }\n  }\n': {
     return: PageByIdQuery;
     variables: PageByIdQueryVariables;
+  };
+  '#graphql\n  query ProductReserva(\n    $handle: String!\n  ){\n    product(handle: $handle) {\n      \n      total:metafield(namespace:"custom",key:"preventa_total"){\n        id\n        value\n      }\n      vendido:metafield(namespace:"custom",key:"preventa_pedidos"){\n        id\n        value\n      }\n      fecha:metafield(namespace:"custom",key:"fecha_recepcion"){\n        id\n        value\n      }\n    }\n    \n  }\n': {
+    return: ProductReservaQuery;
+    variables: ProductReservaQueryVariables;
   };
   '#graphql\n  fragment PredictiveArticle on Article {\n    __typename\n    id\n    title\n    handle\n    blog {\n      handle\n    }\n    image {\n      url\n      altText\n      width\n      height\n    }\n    trackingParameters\n  }\n  fragment PredictiveCollection on Collection {\n    __typename\n    id\n    title\n    handle\n    image {\n      url\n      altText\n      width\n      height\n    }\n    trackingParameters\n  }\n  fragment PredictivePage on Page {\n    __typename\n    id\n    title\n    handle\n    trackingParameters\n  }\n  fragment PredictiveProduct on Product {\n    __typename\n    id\n    title\n    handle\n    trackingParameters\n    vendor\n    featuredImage {\n      url\n      altText\n      width\n      height\n    }\n    selectedOrFirstAvailableVariant(\n      selectedOptions: []\n      ignoreUnknownOptions: true\n      caseInsensitiveMatch: true\n    ) {\n      id\n      price {\n        amount\n        currencyCode\n      }\n      compareAtPrice {\n        amount\n        currencyCode\n      }\n      selectedOptions {\n        name\n        value\n      }\n    }\n  }\n  fragment PredictiveQuery on SearchQuerySuggestion {\n    __typename\n    text\n    styledText\n    trackingParameters\n  }\n  query predictiveSearch(\n    $country: CountryCode\n    $language: LanguageCode\n    $limit: Int!\n    $limitScope: PredictiveSearchLimitScope!\n    $searchTerm: String!\n    $types: [PredictiveSearchType!]\n  ) @inContext(country: $country, language: $language) {\n    predictiveSearch(\n      limit: $limit,\n      limitScope: $limitScope,\n      query: $searchTerm,\n      types: $types,\n    ) {\n      articles {\n        ...PredictiveArticle\n      }\n      collections {\n        ...PredictiveCollection\n      }\n      pages {\n        ...PredictivePage\n      }\n      products {\n        ...PredictiveProduct\n      }\n      queries {\n        ...PredictiveQuery\n      }\n    }\n  }\n': {
     return: PredictiveSearchQuery;

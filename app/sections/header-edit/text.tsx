@@ -1,5 +1,6 @@
 import {createSchema} from "@weaverse/hydrogen"
 import { useEffect } from "react";
+import { Section } from "~/components/section";
 import { useShopMenu } from "~/hooks/use-shop-menu";
 import { useComponentStore } from "~/stores/headerDataStore";
 import type {HeaderTextProps} from "~/types/header"
@@ -73,7 +74,9 @@ function TextHeader(props:TextHeaderProps){
     mbPPaddingText,
     mbPMarginSelect,
     mbPMarginText,
-    mbPWeight } = props;
+    mbPWeight,
+    ...rest
+  } = props;
  
   const addComponent = useComponentStore((state)=>state.addComponent);
   const components = useComponentStore((state)=>state.headerMenuItems);
@@ -156,9 +159,7 @@ function TextHeader(props:TextHeaderProps){
     }
 
   },[])
-  return(
-    <></>
-  )
+  return(<Section {...rest}/>)
 }
 export default TextHeader
 

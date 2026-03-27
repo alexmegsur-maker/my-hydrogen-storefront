@@ -1,0 +1,37 @@
+
+input[type=range] {  
+  width: 100%; 
+  background: rgba(255,255,255,0.1); 
+  height: 1px; 
+  outline: none; 
+}
+input[type=range]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+input[type=range]::-moz-focus-outer {
+  border: 0;
+}
+
+input[type=range]::-webkit-slider-thumb { 
+    -webkit-appearance: none; 
+    height: 10px; 
+    width: 30px; 
+    background: #FFF; 
+    cursor: pointer; 
+    box-shadow: 0 0 10px rgba(255,255,255,0.5); 
+}
+
+input[type="range" i]{
+  appearance:auto;
+  cursor:default;
+  color:light-dark(rgb(16,16,16),rgb(255,255,255));
+  padding:initial;
+  border:initial;
+  margin:2px;
+}
+.acc-faq-box strong{
+  color:var(--contentFColor);
+}
+@keyframes scanLineAnim { 0% { top: 0; } 100% { top: 100%; } }

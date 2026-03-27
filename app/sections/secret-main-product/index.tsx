@@ -167,7 +167,7 @@ export default function SecretProductInformation(
   },[productStore])
 
   return (
-    <Section ref={ref}  {...rest} overflow="unset" >
+    <Section ref={ref}  {...rest} >
       <div className="lg:flex grid grid-cols-1 ">
         <ProductMediaSecret
           key = { currentProduct?.handle }
@@ -249,7 +249,7 @@ export const schema = createSchema({
               { value: "4/3", label: "Landscape (4/3)" },
             ],
           },
-        },
+        }, 
         {
           type: "toggle-group",
           name: "mediaLayout",

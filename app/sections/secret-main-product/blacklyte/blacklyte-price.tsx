@@ -1,6 +1,7 @@
 import { createSchema } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
 import Dialog from "~/components/dialog";
+import { Section } from "~/components/section";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
 import { checkPrice } from "~/utils/product";
@@ -57,6 +58,7 @@ function BlacklytePrice(props:PriceBlacklyte) {
     payMarginSelect,
     payMarginText,
     payWeight,
+    ...rest
   }=props
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const dialog = useRef(null);
@@ -64,7 +66,7 @@ function BlacklytePrice(props:PriceBlacklyte) {
 
   if (producto) {
     return (
-      <>
+      <Section {...rest}>
         <div
           className="block"
           style={{
@@ -210,7 +212,7 @@ function BlacklytePrice(props:PriceBlacklyte) {
             </Dialog>
           </div>
         }
-      </>
+      </Section>
     );
   }
 }

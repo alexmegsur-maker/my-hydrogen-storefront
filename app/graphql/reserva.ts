@@ -1,5 +1,5 @@
 export const RESERVA_QUERY = `#graphql
-  query product(
+  query ProductReserva(
     $handle: String!
   ){
     product(handle: $handle) {

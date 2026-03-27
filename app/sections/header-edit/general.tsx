@@ -1,5 +1,6 @@
-import {createSchema} from "@weaverse/hydrogen"
+import {createSchema, type HydrogenComponentProps} from "@weaverse/hydrogen"
 import { useEffect } from "react";
+import { Section } from "~/components/section";
 import { useShopMenu } from "~/hooks/use-shop-menu";
 import { useComponentStore } from "~/stores/headerDataStore";
 import type {HeaderGeneralEditProps} from "~/types/header"
@@ -10,7 +11,7 @@ interface MenuItem{
   label:string;
 }
 
-interface GeneralProps extends HeaderGeneralEditProps{
+interface GeneralProps extends HeaderGeneralEditProps {
   identificador:string;
 }
 const list:Array<MenuItem> = []
@@ -74,6 +75,7 @@ function GeneralHeader(props:GeneralProps){
     mbSMarginSelect,
     mbSMargin,
     mbSWeight,  
+    ...rest
   } = props;
  
   const addComponent = useComponentStore((state)=>state.addComponent);
@@ -158,7 +160,7 @@ function GeneralHeader(props:GeneralProps){
 
   },[])
   return(
-    <></>
+    <Section {...rest}/>
   )
 }
 export default GeneralHeader

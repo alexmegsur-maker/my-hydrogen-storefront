@@ -54,7 +54,6 @@ export function ProductCardOptions({
           if (asSwatch) {
             if(colorsTheme){
             const colorCheck = colorsTheme.find((e)=>e.identifier === name.toLowerCase())
-            console.log("colorCheck",colorCheck)
 
               const color = colorCheck.colors.length>1 ? `linear-gradient(125deg, ${colorCheck.colors[0]} 50%, ${colorCheck.colors[1]} 50%)`:colorCheck.colors[0]
               const swatchColor = color ? color : "#fff";

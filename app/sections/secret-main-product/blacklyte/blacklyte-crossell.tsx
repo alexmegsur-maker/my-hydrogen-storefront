@@ -5,7 +5,7 @@ import {
   type WeaverseProduct,
 } from "@weaverse/hydrogen";
 import type { ProductQuery } from "storefront-api.generated";
-import type { SectionProps } from "~/components/section";
+import { Section, type SectionProps } from "~/components/section";
 import { PRODUCT_QUERY } from "~/graphql/queries";
 import type { ProductCrossellLoaderData } from "../crosssell/product";
 import { useEffect, useRef, useState } from "react";
@@ -152,6 +152,7 @@ function BlacklyteCrossell(props: BlacklyteCrossProps) {
     iPaddingText,
     iMarginSelect,
     iMarginText,
+    ...rest
   } = props;
   const product = loaderData?.product;
   const [check, setCheck] = useState(false);
@@ -238,7 +239,8 @@ function BlacklyteCrossell(props: BlacklyteCrossProps) {
 
   if (product) {
     return (
-      <div
+      <Section
+        {...rest}
         ref={crossell}
         className="flex w-full bg-stone-300 rounded-xl overflow-hidden relative p-3"
         style={{
@@ -399,7 +401,7 @@ function BlacklyteCrossell(props: BlacklyteCrossProps) {
             alt={imagen ? imagen.altText : product.featuredImage.altText}
           />
         </div>
-      </div>
+      </Section>
     );
   }
   return null;

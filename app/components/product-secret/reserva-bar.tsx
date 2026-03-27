@@ -40,14 +40,12 @@ function ReservaBar(props:ReservaBarProps) {
 
   useEffect(()=>{
     if(productHandle ){
-      console.log("productHandle",productHandle)
       const loadReservas= async()=>{
         const res = await fetch(getReservaUrl,{
           method:"POST",
           headers:{"content-Type":"application/json"},
           body:JSON.stringify({handle:productHandle})
         })
-        console.log("res",res)
         const data = await res.json() as ApiResponseReserva
         if(data.ok){
           setReserva(data.result.product)

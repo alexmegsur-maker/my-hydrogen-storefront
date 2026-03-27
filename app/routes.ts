@@ -29,6 +29,7 @@ export default hydrogenRoutes([
       route("image-id", "routes/api/image-by-id.ts"),
       route("collection", "routes/api/collection.ts"),
       route("reserva", "routes/api/reservas.ts"),
+      route("metaobject", "routes/api/variant-options.ts"),
       route("materials", "routes/api/materials.ts"),
       route("page-id", "routes/api/page.ts"),
       route("featured-products", "routes/api/featured-products.ts"),

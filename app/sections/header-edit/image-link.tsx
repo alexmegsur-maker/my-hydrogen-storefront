@@ -1,5 +1,6 @@
 import {createSchema} from "@weaverse/hydrogen"
 import { useEffect } from "react";
+import { Section } from "~/components/section";
 import { useShopMenu } from "~/hooks/use-shop-menu";
 import { useComponentStore } from "~/stores/headerDataStore";
 import type {HeaderImageLinkProps} from "~/types/header"
@@ -48,7 +49,8 @@ function ImageHeader(props:ImageHeaderProps){
     padding,
     marginSelect,
     margin,
-    customClass
+    customClass,
+    ...rest
     } = props;
  
   const addComponent = useComponentStore((state)=>state.addComponent);
@@ -103,9 +105,7 @@ function ImageHeader(props:ImageHeaderProps){
     }
 
   },[])
-  return(
-    <></>
-  )
+  return(<Section {...rest}/>)
 }
 export default ImageHeader
 

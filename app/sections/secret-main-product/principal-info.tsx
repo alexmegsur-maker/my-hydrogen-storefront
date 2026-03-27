@@ -2,6 +2,7 @@ import { JudgemePreviewBadge } from "@judgeme/shopify-hydrogen"
 import { createSchema } from "@weaverse/hydrogen"
 import { useEffect } from "react"
 import { Link, useLocation } from "react-router"
+import { Section } from "~/components/section"
 import { useCurrentProduct } from "~/stores/currentProduct"
 import { useInfoSecret } from "~/stores/infoSecretStore"
 import { selectorPaddingMargin, truncate } from "~/utils/general"
@@ -102,6 +103,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
   bFamily,
   bRadius,
   borderSize,
+  ...rest
   } = props
 
   const info = useInfoSecret((state)=>state.infoSecret)
@@ -113,7 +115,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
   if(info && product){
     
     return(
-      <section
+      <Section {...rest}
         style={{
           borderBottom:separator && "1px solid gray",
           ...selectorPaddingMargin('padding',paddingSelect,paddingText),
@@ -224,7 +226,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
               </div>
           }
         </div>
-      </section>
+      </Section>
     )
 
   }

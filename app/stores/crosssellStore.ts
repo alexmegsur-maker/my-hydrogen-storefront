@@ -190,7 +190,6 @@ export const useCrossell = create<CrosssellStore>((set)=>({
   },
   setSelector:(selector:string | null)=>{
     set((state)=>{
-      console.log("entra aqui",selector)
       if(!state.crossellObjects) return state
       return {
         crossellObjects:{
@@ -203,7 +202,6 @@ export const useCrossell = create<CrosssellStore>((set)=>({
   },
   setSelectorIds:(id:string,selector:string[] )=>{
     set((state)=>{
-      console.log("entra aqui",selector)
       if(!state.crossellObjects) return state
       if(state.crossellObjects.selectorIds.length>0){
         let selectors = state.crossellObjects.selectorIds.find((elm)=>elm.crossId==id)

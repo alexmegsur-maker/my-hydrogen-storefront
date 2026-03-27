@@ -19,6 +19,7 @@ import { Logo } from "./logo";
 import { DesktopMenu } from "./menu/desktop-menu";
 import { MobileMenu } from "./menu/mobile-menu";
 import { PredictiveSearchButton } from "./predictive-search";
+import {LanguageSelector} from "../LanguageSelector";
 
 const variants = cva("", {
   variants: {
@@ -104,6 +105,7 @@ export function Header() {
         <div className="z-1 flex items-center gap-1">
           <PredictiveSearchButton />
           <AccountLink className="relative flex h-8 w-8 items-center justify-center" />
+          <LanguageSelector/>
           <CartDrawer />
         </div>
       </div>

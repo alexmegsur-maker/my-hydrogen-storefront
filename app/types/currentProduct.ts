@@ -85,6 +85,9 @@ export interface Variants {
   selectedOptions:selectedOptions[];
   price:Price
   tooltip:Metafield;
+  fechaReserva?:Metafield;
+  totalReserva?:Metafield;
+  pedidosReserva?:Metafield;
 }
 
 export interface CurrentProduct{

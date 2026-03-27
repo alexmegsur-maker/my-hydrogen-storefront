@@ -1,0 +1,7 @@
+.mini-slider .swiper-slide{
+  width: fit-content !important;
+}
+
+.mini-slider .swiper-wrapper{
+  width: 85%;
+}

@@ -1,6 +1,7 @@
 import { createSchema } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
 import Dialog from "~/components/dialog";
+import { Section } from "~/components/section";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
 import { checkPrice } from "~/utils/product";
@@ -130,7 +131,8 @@ function PriceSection(props:PriceSectionProps){
     toolBgColor,
     toolColor,
     toolSize,
-    toolFamily
+    toolFamily,
+    ...rest
   } = props;
   const [showTooltip,setShowTooltip]=useState(false)
   const [isDialogOpen,setIsDialogOpen]=useState(false)
@@ -159,7 +161,7 @@ function PriceSection(props:PriceSectionProps){
    
   if(product){
     return (
-      <> 
+      <Section {...rest}> 
         <div 
           ref={priceSection}
           className="hidden lg:block p-4 lg:p-8 border-b border-l-0 border-r-0 border-solid st-colour-border-medium-grey e2e-section-order-info"
@@ -442,11 +444,11 @@ function PriceSection(props:PriceSectionProps){
             </div>
           </Dialog>
         </div>
-      </>
+      </Section>
     );
   }
   return(
-    <div className="hidden lg:block p-4 lg:p-8 border-b border-t border-l-0 border-r-0 border-solid st-colour-border-medium-grey e2e-section-order-info">
+    <Section {...rest} className="hidden lg:block p-4 lg:p-8 border-b border-t border-l-0 border-r-0 border-solid st-colour-border-medium-grey e2e-section-order-info">
         <div className="flex mt-2">
           <div className="flex-none"></div>
           <div className="flex-1">
@@ -481,7 +483,7 @@ function PriceSection(props:PriceSectionProps){
             </div>
           </div>
         </div>
-      </div>
+      </Section>
   )
 }
 export default PriceSection;

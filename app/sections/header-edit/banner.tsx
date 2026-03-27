@@ -1,5 +1,6 @@
 import {createSchema} from "@weaverse/hydrogen"
 import { useEffect } from "react";
+import { Section } from "~/components/section";
 import { useShopMenu } from "~/hooks/use-shop-menu";
 import { useComponentStore } from "~/stores/headerDataStore";
 import type {HeaderBannerProps} from "~/types/header"
@@ -129,7 +130,8 @@ function BannerHeader(props:BannerHeaderProps){
     mbBPadding,
     mbBMarginSelect,
     mbBMargin,
-    mbBWeight
+    mbBWeight,
+    ...rest
     } = props;
  
   const addComponent = useComponentStore((state)=>state.addComponent);
@@ -269,9 +271,7 @@ function BannerHeader(props:BannerHeaderProps){
     }
 
   },[])
-  return(
-    <></>
-  )
+return(<Section {...rest}/>)
 }
 export default BannerHeader
 

@@ -1,5 +1,6 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useMemo } from "react";
+import { Section } from "~/components/section";
 import { selectorPaddingMargin } from "~/utils/general";
 
 interface TrustSignalProps extends HydrogenComponentProps{
@@ -17,7 +18,8 @@ function TrustSignals(props:TrustSignalProps) {
     marginSelect,
     marginText,
     bgColor,
-    children
+    children,
+    ...rest
   }=props
 
   const style = useMemo(()=>({
@@ -26,11 +28,11 @@ function TrustSignals(props:TrustSignalProps) {
     ...selectorPaddingMargin("margin",marginSelect,marginText),
   }),[bgColor,paddingSelect,paddingText,marginSelect,marginText])
   return (
-    <div className="flex flex-col gap-4"
+    <Section {...rest} className="flex flex-col gap-4"
       style={style}
     >
       {children}
-    </div>
+    </Section>
   );
 }
 

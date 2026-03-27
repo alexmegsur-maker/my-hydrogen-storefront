@@ -2,6 +2,7 @@ import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import { useEffect } from "react"
 import { useColorStore } from "./registerColors";
 import { components } from "~/weaverse/components";
+import { Section } from "~/components/section";
 
 interface ColorProps extends HydrogenComponentProps{
   identifier:string;
@@ -15,7 +16,7 @@ function ColorElm(props:ColorProps){
    const colors = useColorStore((state)=>state.colors);
    const replace = useColorStore((state)=>state.replace)
   
-  const {identifier, has, color1,color2,children} = props
+  const {identifier, has, color1,color2,children,...rest} = props
   useEffect(()=>{
     const colorElm={
       identifier:identifier.toLowerCase(),
@@ -32,7 +33,7 @@ function ColorElm(props:ColorProps){
     }
 
   },[])
-  return(<></>)
+  return(<Section {...rest}/>)
 }
 export default ColorElm
 

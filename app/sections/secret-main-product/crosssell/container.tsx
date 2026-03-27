@@ -2,6 +2,7 @@ import { useGSAP } from "@gsap/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
+import { Section } from "~/components/section";
 import { useCrossell } from "~/stores/crosssellStore";
 import { selectorPaddingMargin } from "~/utils/general";
 
@@ -107,7 +108,7 @@ cardBWeight:string;
 }
 
 function CrossellContainer(props:crossellContainerProps) {
-  const {title, children}=props
+  const {title, children,...rest}=props
   const container = useRef(null)
   const show = useRef(null)
   const lateral = useRef(null)
@@ -263,7 +264,7 @@ function CrossellContainer(props:crossellContainerProps) {
   },[crossellList])
 
   return (
-    <div ref={container}>
+    <Section {...rest} ref={container}>
       <div
         data-context="pdp-chairs-fbt"
         data-testid="e2e-selector-frequently-bought-together"
@@ -542,7 +543,7 @@ function CrossellContainer(props:crossellContainerProps) {
           <span className="sr-only">Drawer overlay label</span>
         </label>
       </div>
-    </div>
+    </Section>
   );
 }
 export default CrossellContainer;

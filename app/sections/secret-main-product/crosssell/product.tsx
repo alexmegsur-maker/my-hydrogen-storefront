@@ -1,7 +1,7 @@
-import { createSchema, type ComponentLoaderArgs, type WeaverseProduct } from "@weaverse/hydrogen";
+import { createSchema, type ComponentLoaderArgs, type HydrogenComponentProps, type WeaverseProduct } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
 import type { ProductQuery } from "storefront-api.generated";
-import type { SectionProps } from "~/components/section";
+import { Section, type SectionProps } from "~/components/section";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import { PRODUCT_QUERY } from "~/graphql/queries";
 import ModalCrossellProduct from "./modal";
@@ -9,7 +9,7 @@ import { useCrossell } from "~/stores/crosssellStore";
 import type { CrossellProduct } from "~/types/crosssell";
 import { selectorPaddingMargin, setFecha } from "~/utils/general";
 
-interface CrossProductSettings {
+interface CrossProductSettings extends HydrogenComponentProps{
   producto:WeaverseProduct;
   title:string;
   showT:boolean;
@@ -21,7 +21,7 @@ interface CrossProductSettings {
 type CrossProductProps = SectionProps<ProductCrossellLoaderData> & CrossProductSettings;
 
 function CrossellProduct(props:CrossProductProps) {
-  const {loaderData,title,showT,description,showD,optionText} = props;
+  const {loaderData,title,showT,description,showD,optionText,...rest} = props;
   const changeVisibility = useCrossell(state=>state.changeVisibility)
   const setDialog = useCrossell(state=>state.setDialog)
   const crossellObject= useCrossell(state=>state.crossellObjects)
@@ -101,7 +101,7 @@ function CrossellProduct(props:CrossProductProps) {
 
   if(product && product.variants.nodes[0].availableForSale){  
     return (
-      <div ref={container}>
+      <Section {...rest} ref={container}>
         <div className="mb-8">
           {showT && 
             <div className="flex items-center">
@@ -411,7 +411,7 @@ function CrossellProduct(props:CrossProductProps) {
             </div>
           </div>
         </div>
-      </div>
+      </Section>
 
     );
   }

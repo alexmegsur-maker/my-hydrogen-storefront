@@ -1,5 +1,6 @@
 import { createSchema, type WeaverseImage } from "@weaverse/hydrogen"
 import { useMemo } from "react";
+import { Section } from "~/components/section";
 import { selectorPaddingMargin } from "~/utils/general";
 
 interface SignalProps{
@@ -32,6 +33,7 @@ function Signal(props:SignalProps){
     marginSelect,
     marginText,
     weight,
+    ...rest
   }=props
 
   const textStyle = useMemo(() => ({
@@ -43,7 +45,7 @@ function Signal(props:SignalProps){
     ...selectorPaddingMargin("margin", marginSelect, marginText),
   }), [color, tSize, family, weight, paddingSelect, paddingText, marginSelect, marginText]);
   return(
-    <div className="flex items-center"
+    <Section {...rest} className="flex items-center"
       style={{ 
         gap:`${space}px`
       }}
@@ -68,7 +70,7 @@ function Signal(props:SignalProps){
          style={textStyle}
          >
         </div>
-      </div>
+      </Section>
   )
 }
 

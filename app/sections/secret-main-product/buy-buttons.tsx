@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLoaderData, type FetcherWithComponents } from "react-router";
 import ReservaBar from "~/components/product-secret/reserva-bar";
 import { AddToCartAnalytics, AddToCartButton } from "~/components/product/add-to-cart-button";
+import { Section } from "~/components/section";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { useCrossell } from "~/stores/crosssellStore";
 import { useCurrentProduct } from "~/stores/currentProduct";
@@ -129,6 +130,7 @@ type variantIdsAndQuantities={
 
 
 function BuyButtons(props:BuyButtonsProps) {
+  const{...rest}=props
   const { product ,storeDomain } = useLoaderData<typeof productRouteLoader>();
   const currentProd = useCurrentProduct((state) => state.currentProduct);
   const crossell = useCrossell((state) => state.crossellObjects);
@@ -238,11 +240,10 @@ function BuyButtons(props:BuyButtonsProps) {
     setComparePrice(newCompare)
     setIdsVariants(newIds)
     setCartIdsVariants(newCartIds)
-    console.log("currentProd",currentProd)
   }, [crossell,currentProd]);
 
   return (
-    <>
+    <Section {...rest}>
       {props.showResume &&
         <div className="st-colour-surface-lightest-grey e2e-section-order-summary  border-solid border-0 border-b st-colour-border-medium-grey">
           <div>
@@ -538,8 +539,8 @@ function BuyButtons(props:BuyButtonsProps) {
                     fill="none"
                   >
                     <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
                       d="M4.75442 11.1547C4.87725 10.7363 5.03455 10.2087 5.17028 9.7797L6.12371 10.0813C5.99121 10.5002 5.83627 11.0197 5.71392 11.4364C5.70511 11.4664 5.69648 11.4959 5.68803 11.5247H13.7531C14.0292 11.5247 14.2531 11.7486 14.2531 12.0247C14.2531 12.3009 14.0292 12.5247 13.7531 12.5247H5.02252C4.86562 12.5247 4.71781 12.4511 4.62333 12.3258C4.52885 12.2006 4.49865 12.0382 4.54177 11.8873L4.55779 11.8315L4.60202 11.678C4.63977 11.5473 4.69288 11.3644 4.75442 11.1547Z"
                       fill="currentColor"
                     ></path>
@@ -548,14 +549,14 @@ function BuyButtons(props:BuyButtonsProps) {
                       fill="currentColor"
                     ></path>
                     <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
                       d="M3.38163 2.63593H0.969788V1.63593H3.77583C4.00702 1.63593 4.20807 1.79443 4.26202 2.01924L4.61899 3.50662H15C15.155 3.50662 15.3013 3.57855 15.396 3.70135C15.4907 3.82415 15.523 3.98392 15.4835 4.13387L13.9246 10.0577C13.8668 10.2774 13.6682 10.4305 13.4411 10.4305H5.64652C5.41533 10.4305 5.21428 10.272 5.16033 10.0472L3.38163 2.63593ZM4.85899 4.50662L6.04072 9.43048H13.0556L14.3514 4.50662H4.85899Z"
                       fill="currentColor"
                     ></path>
                     <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
                       d="M0.469788 2.13593C0.469788 1.85978 0.693645 1.63593 0.969788 1.63593H3.67853V2.63593H0.969788C0.693645 2.63593 0.469788 2.41207 0.469788 2.13593Z"
                       fill="currentColor"
                     ></path>
@@ -706,7 +707,7 @@ function BuyButtons(props:BuyButtonsProps) {
         </filter>
       </svg>
       
-    </>
+    </Section>
   );
 }
 export default BuyButtons;

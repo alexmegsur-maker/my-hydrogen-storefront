@@ -103,9 +103,6 @@ export function ProductsPagination({
   const { pathname } = location;
   const { ref, inView } = useInView();
 
-  useEffect(()=>{
-    console.log("collection",collection)
-  },[])
 
   return (
     <div className="grow space-y-6">

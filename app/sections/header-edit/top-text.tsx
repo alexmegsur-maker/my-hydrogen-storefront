@@ -1,5 +1,6 @@
 import {createSchema} from "@weaverse/hydrogen"
 import { useEffect } from "react";
+import { Section } from "~/components/section";
 import { useShopMenu } from "~/hooks/use-shop-menu";
 import { useComponentStore } from "~/stores/headerDataStore";
 import type {HeaderTopTextProps} from "~/types/header"
@@ -75,6 +76,7 @@ function TextTopHeader(props:TextTopHeaderProps){
     mbPMargin,
     mbPWeight,
     customClass,
+    ...rest
     } = props;
  
   const addComponent = useComponentStore((state)=>state.addComponent);
@@ -157,9 +159,7 @@ function TextTopHeader(props:TextTopHeaderProps){
       addComponent(textTop);
     }
   },[])
-  return(
-    <></>
-  )
+  return(<Section {...rest}/>)
 }
 export default TextTopHeader
 
@@ -594,7 +594,7 @@ export const schema = createSchema({
         {
           type:'range',
           label:'Container size',
-          name:'mbPConSize',
+          name:'mbContainerPSize',
           defaultValue:100,
           configs:{
             min:20,

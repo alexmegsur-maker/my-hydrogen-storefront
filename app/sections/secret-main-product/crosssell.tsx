@@ -1,6 +1,7 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { selectorPaddingMargin } from "~/utils/general";
 import ModalCrossellProduct from "./crosssell/modal";
+import { Section } from "~/components/section";
 
 interface CrosssellProps extends HydrogenComponentProps {
   bgColor:string;
@@ -135,11 +136,12 @@ function Crosssell(props: CrosssellProps) {
     eCMarginSelect,
     eCMarginText,
     eCWeight,
-    children
+    children,
+    ...rest
   } = props;
 
   return (
-    <>
+    <Section {...rest}>
       <div 
         className="flex flex-col "
         style={{
@@ -167,7 +169,7 @@ function Crosssell(props: CrosssellProps) {
         </div>
       </div>
 
-      <ModalCrossellProduct 
+      <ModalCrossellProduct {...rest}
         tColor={mtColor}
         tSize={mtSize}
         tFamily={mtFamily}
@@ -217,7 +219,7 @@ function Crosssell(props: CrosssellProps) {
         eCMarginText={eCMarginText}
         eCWeight={eCWeight}
       />
-    </>
+    </Section>
   );
 }
 

@@ -138,6 +138,18 @@ export const PRODUCT_QUERY = `#graphql
             id
             value
           }
+          fechaReserva:metafield(namespace:"custom",key:"fecha_reserva"){
+            id
+            value
+          }
+          totalReserva:metafield(namespace:"custom",key:"preventa_total"){
+            id
+            value
+          }
+          pedidosReserva:metafield(namespace:"custom",key:"preventa_pedidos"){
+            id
+            value
+          }
         } 
       }
       adjacentVariants(selectedOptions: $selectedOptions) {

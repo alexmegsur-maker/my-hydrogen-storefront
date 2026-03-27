@@ -1,6 +1,7 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import { useEffect } from "react";
 import {create} from 'zustand'
+import { Section } from "~/components/section";
 
 interface ColorStore{
   identifier: string;
@@ -32,11 +33,11 @@ export const  useColorStore = create<Store>((set)=>({
 }))
 
 function RegisterColor(props:HydrogenComponentProps){
-  const {children} = props
+  const {children,...rest} = props
   return(
-    <>
+    <Section {...rest}>
       {children}
-    </>
+    </Section>
   )
 }
 

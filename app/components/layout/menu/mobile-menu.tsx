@@ -80,9 +80,7 @@ function CollapsibleMenuItem({ item }: { item: SingleMenuItem }) {
   const hasEdit = components.find((elm)=>elm.heading == title)
   const hasTop = components.find((elm)=>elm.position === "top" && elm.heading === title)
    const hasRight = components.find((elm)=>elm.position === "right" && elm.heading === title)
-  useEffect(()=>{
-    console.log("hasTop",hasTop)
-  },[])
+
 
   if (!items?.length && hasEdit == undefined) {
     return (
@@ -122,15 +120,12 @@ function CollapsibleMenuItem({ item }: { item: SingleMenuItem }) {
         {components.map((data)=>{
           if(data.heading=== title ){
             if(data.type ==="textLeft"){
-              console.log("textLeft")
               return <TextHeader {...data} key={data.id}/>
             }
             if( data.type === "banner" ){
-              console.log("banner")
               return <BannerHeader {...data} key={data.id}/>
             }
             if( data.type === "imageLink"){
-              console.log("imageLink")
               return <ImageLinkHeader {...data} key={data.id} />
             }
           }

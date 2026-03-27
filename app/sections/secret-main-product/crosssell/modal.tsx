@@ -7,55 +7,57 @@ import { checkPrice } from "~/utils/product";
 import { useCrossell } from "~/stores/crosssellStore";
 import "~/styles/modal-crossell.css"
 import { selectorPaddingMargin, truncate } from "~/utils/general";
+import type { HydrogenComponentProps } from "@weaverse/hydrogen";
+import { Section } from "~/components/section";
 
-interface modalProps{
+interface modalProps extends HydrogenComponentProps{
   tColor:string;
   tSize:string;
   tFamily:string;
   tpaddingSelect:string;
-  tpaddingText:string;
+  tpaddingText?:string;
   tmarginSelect:string;
-  tmarginText:string;
+  tmarginText?:string;
   tWeight:string;
   dColor:string;
   dSize:string;
   dFamily:string;
   dpaddingSelect:string;
-  dpaddingText:string;
+  dpaddingText?:string;
   dmarginSelect:string;
-  dmarginText:string;
+  dmarginText?:string;
   dWeight:string;
   pColor:string;
   pSize:string;
   pFamily:string;
   ppaddingSelect:string;
-  ppaddingText:string;
+  ppaddingText?:string;
   pmarginSelect:string;
-  pmarginText:string;
+  pmarginText?:string;
   pWeight:string;
   bColor:string;
   bSize:string;
   bFamily:string;
   bpaddingSelect:string;
-  bpaddingText:string;
+  bpaddingText?:string;
   bmarginSelect:string;
-  bmarginText:string;
+  bmarginText?:string;
   bWeight:string;
   eTColor:string;
   eTSize:string;
   eTFamily:string;
   eTPaddingSelect:string;
-  eTPaddingText:string;
+  eTPaddingText?:string;
   eTMarginSelect:string;
-  eTMarginText:string;
+  eTMarginText?:string;
   eTWeight:string;
   eCColor:string;
   eCSize:string;
   eCFamily:string;
   eCPaddingSelect:string;
-  eCPaddingText:string;
+  eCPaddingText?:string;
   eCMarginSelect:string;
-  eCMarginText:string;
+  eCMarginText?:string;
   eCWeight:string;
 }
 
@@ -109,6 +111,7 @@ function ModalCrossellProduct(props:modalProps) {
     bmarginSelect,
     bmarginText,
     bWeight,
+    ...rest
   }=props
 
   const [thumbsSwiper,setThumbsSwiper]=useState(null)
@@ -132,7 +135,8 @@ function ModalCrossellProduct(props:modalProps) {
   const style={"--activeColor":"#3790b0"} as React.CSSProperties
 
   return (
-    <div
+    <Section
+      {...rest}
       className="fixed w-full h-full top-0 left-0 bg-black/50  flex  items-center justify-center"
       style={{
         zIndex:20,
@@ -326,7 +330,7 @@ function ModalCrossellProduct(props:modalProps) {
           </div>
         }
       </Dialog>
-    </div>
+    </Section>
   );
 }
 export default ModalCrossellProduct;

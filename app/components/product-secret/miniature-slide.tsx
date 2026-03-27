@@ -24,19 +24,15 @@ function MiniatureSlide (props:MiniatureSlideProps){
   }
 
   return(
-    <div ref={slide} className="flex cursor-pointer  max-w-[102px] e2e-button-gallery-thumbnail-0">
-      <div className="m-1 w-full">
+    <div ref={slide} className="flex cursor-pointer w-fit">
         <img
           loading="lazy"
           src={url}
           alt={alt}
-          width="240"
-          height="160"
-          className={`w-full h-[48px] max-w-[102px] xl:h-[85px] m-0 border-solid object-cover shadow bg-[#F2F2F2] transition duration-1000 ease-in-out  ${active?"opacity-100 border-white border-2":"opacity-50"}`}
+          className={`w-[60px] h-[60px] xl:h-[80px] xl:w-[80px] rounded m-0 border-solid object-cover shadow bg-[#F2F2F2] transition duration-1000 ease-in-out  ${active?"opacity-100 border-white border-2":"opacity-80"}`}
           onClick={showSlide}
         />
 
-      </div>
     </div>
   )
 }

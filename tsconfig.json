@@ -4,7 +4,7 @@
     "./**/*.ts",
     "./**/*.tsx",
     ".react-router/types/**/*"
-  ],
+, "app/sections/main-product-j"  ],
   "compilerOptions": {
     "rootDirs": [".", "./.react-router/types"],
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
