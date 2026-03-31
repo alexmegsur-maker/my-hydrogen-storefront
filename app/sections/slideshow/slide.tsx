@@ -66,11 +66,14 @@ export interface SlideProps
     OverlayAndBackgroundProps {
   ref: React.Ref<HTMLDivElement>;
   backgroundColor: string;
+  namebar:string;
+  contWidth:number;
 }
 
 export default function Slide(props: SlideProps) {
   const {
     ref,
+    contWidth,
     contentPosition,
     width,
     gap,
@@ -101,6 +104,9 @@ export default function Slide(props: SlideProps) {
       />
       <div
         className={variants({ contentPosition, width, gap, verticalPadding })}
+        style={{
+          width:window.innerWidth>600?`${contWidth}%`:"100%"
+        }}
       >
         {children}
       </div>
@@ -111,11 +117,29 @@ export default function Slide(props: SlideProps) {
 export const schema = createSchema({
   title: "Slide",
   type: "slideshow-slide",
-  childTypes: ["subheading", "heading", "paragraph", "button"],
+  childTypes: ["subheading", "heading", "paragraph", "button","group-buttons"],
   settings: [
     {
       group: "Slide",
       inputs: [
+        {
+          type:'text',
+          label:'name of option bar',
+          name:'namebar',
+          defaultValue:'texto',
+        },
+        {
+          type:'range',
+          label:'content width size',
+          name:'contWidth',
+          defaultValue:100,
+          configs:{
+            min:20,
+            max:100,
+            step:1,
+            unit:'%',
+          }
+        },
         {
           type: "position",
           label: "Content position",

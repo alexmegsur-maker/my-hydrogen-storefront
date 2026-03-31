@@ -5,14 +5,6 @@ import { cn } from "~/utils/cn";
 
 const variants = cva("subheading", {
   variants: {
-    size: {
-      base: "text-base",
-      large: "text-lg",
-    },
-    weight: {
-      normal: "font-normal",
-      medium: "font-medium",
-    },
     alignment: {
       left: "text-left",
       center: "text-center",
@@ -20,8 +12,6 @@ const variants = cva("subheading", {
     },
   },
   defaultVariants: {
-    size: "base",
-    weight: "normal",
     alignment: "center",
   },
 });
@@ -33,6 +23,11 @@ interface SubHeadingProps
   as?: "h4" | "h5" | "h6" | "div" | "p";
   color?: string;
   content: string;
+  size:string;
+  weight:string;
+  letter:number;
+  fontFamily:string;
+
 }
 
 function SubHeading(props: SubHeadingProps) {
@@ -44,6 +39,8 @@ function SubHeading(props: SubHeadingProps) {
     size,
     weight,
     alignment,
+    letter,
+    fontFamily,
     className,
     ...rest
   } = props;
@@ -52,8 +49,14 @@ function SubHeading(props: SubHeadingProps) {
       ref={ref}
       {...rest}
       data-motion="fade-up"
-      style={{ color }}
-      className={cn(variants({ size, weight, alignment, className }))}
+      style={{ 
+        color:color,
+        fontSize:size,
+        fontWeight:weight,
+        letterSpacing:letter > 0 ? `${letter}px`:"normal",
+        fontFamily:fontFamily,
+       }}
+      className={cn(variants({  alignment, className }))}
     >
       {content}
     </Tag>
@@ -97,29 +100,48 @@ export const schema = createSchema({
           label: "Text color",
         },
         {
-          type: "select",
-          name: "size",
-          label: "Text size",
-          configs: {
-            options: [
-              { value: "base", label: "Base" },
-              { value: "large", label: "Large" },
-            ],
-          },
-          defaultValue: "base",
+          type:'text',
+          label:'Text size',
+          name:'size',
+          defaultValue:'0.7rem',
         },
         {
-          type: "select",
-          name: "weight",
-          label: "Weight",
-          configs: {
-            options: [
-              { value: "normal", label: "Normal" },
-              { value: "medium", label: "Medium" },
-            ],
-          },
-          defaultValue: "normal",
+          type:'range',
+          label:'Letter spacing',
+          name:'letter',
+          defaultValue:2,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          }
         },
+        {
+          type:'select',
+          label:'Font weight',
+          name:'weight',
+          configs:{
+            options:[
+              {value:'100',label:'100'},
+              {value:'200',label:'200'},
+              {value:'300',label:'300'},
+              {value:'400',label:'400'},
+              {value:'500',label:'500'},
+              {value:'600',label:'600'},
+              {value:'700',label:'700'},
+              {value:'800',label:'800'},
+              {value:'900',label:'900'},
+            ]
+          },
+          defaultValue:'400',
+        },   
+        {
+          type:'text',
+          label:'font family',
+          name:'fontFamily',
+          defaultValue:'Montserrat',
+        }, 
         {
           type: "toggle-group",
           name: "alignment",

@@ -9,26 +9,13 @@ export interface ParagraphProps
   ref?: React.Ref<HTMLParagraphElement | HTMLDivElement>;
   as?: "p" | "div";
   content: string;
+  textSize:string;
   color?: string;
+  contWidth:number;
 }
 
 const variants = cva("paragraph", {
   variants: {
-    textSize: {
-      xs: "text-xs",
-      sm: "text-sm",
-      base: "",
-      lg: "text-lg",
-      xl: "text-xl",
-      "2xl": "text-2xl",
-      "3xl": "text-3xl",
-      "4xl": "text-4xl",
-      "5xl": "text-5xl",
-      "6xl": "text-6xl",
-      "7xl": "text-7xl",
-      "8xl": "text-8xl",
-      "9xl": "text-9xl",
-    },
     width: {
       full: "mx-auto w-full",
       narrow: "mx-auto w-full max-w-4xl md:w-1/2 lg:w-3/4",
@@ -41,7 +28,6 @@ const variants = cva("paragraph", {
   },
   defaultVariants: {
     width: "full",
-    textSize: "base",
   },
 });
 
@@ -54,6 +40,7 @@ function Paragraph(props: ParagraphProps) {
     textSize,
     color,
     alignment,
+    contWidth,
     className,
     ...rest
   } = props;
@@ -62,10 +49,14 @@ function Paragraph(props: ParagraphProps) {
       ref={ref}
       data-motion="fade-up"
       {...rest}
-      style={{ color }}
-      className={clsx(variants({ textSize, width, alignment, className }))}
+      className={clsx(variants({width, alignment, className }))}
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: content }}
+      style={{ 
+        color:color,
+        fontSize:textSize,
+        width:window.innerWidth>600?`${contWidth}%`:"100%" 
+      }}
     />
   );
 }
@@ -79,6 +70,18 @@ export const schema = createSchema({
     {
       group: "Paragraph",
       inputs: [
+        {
+          type:'range',
+          label:'container width',
+          name:'contWidth',
+          defaultValue:100,
+          configs:{
+            min:20,
+            max:100,
+            step:1,
+            unit:'%',
+          }
+        },
         {
           type: "richtext",
           name: "content",
@@ -106,27 +109,10 @@ export const schema = createSchema({
           label: "Text color",
         },
         {
-          type: "select",
+          type: "text",
           name: "textSize",
           label: "Text size",
-          configs: {
-            options: [
-              { value: "xs", label: "Extra small (text-xs)" },
-              { value: "sm", label: "Small (text-sm)" },
-              { value: "base", label: "Base (text-base)" },
-              { value: "lg", label: "Large (text-lg)" },
-              { value: "xl", label: "Extra large (text-xl)" },
-              { value: "2xl", label: "2x large (text-2xl)" },
-              { value: "3xl", label: "3x large (text-3xl)" },
-              { value: "4xl", label: "4x large (text-4xl)" },
-              { value: "5xl", label: "5x large (text-5xl)" },
-              { value: "6xl", label: "6x large (text-6xl)" },
-              { value: "7xl", label: "7x large (text-7xl)" },
-              { value: "8xl", label: "8x large (text-8xl)" },
-              { value: "9xl", label: "9x large (text-9xl)" },
-            ],
-          },
-          defaultValue: "base",
+          defaultValue: "1rem",
         },
         {
           type: "toggle-group",

@@ -8,40 +8,7 @@ import { cva } from "class-variance-authority";
 import type { CSSProperties } from "react";
 import { cn } from "~/utils/cn";
 
-const fontSizeVariants = cva("", {
-  variants: {
-    mobileSize: {
-      xs: "text-xs",
-      sm: "text-sm",
-      base: "text-base",
-      lg: "text-lg",
-      xl: "text-xl",
-      "2xl": "text-2xl",
-      "3xl": "text-3xl",
-      "4xl": "text-4xl",
-      "5xl": "text-5xl",
-      "6xl": "text-6xl",
-      "7xl": "text-7xl",
-      "8xl": "text-8xl",
-      "9xl": "text-9xl",
-    },
-    desktopSize: {
-      xs: "md:text-xs",
-      sm: "md:text-sm",
-      base: "md:text-base",
-      lg: "md:text-lg",
-      xl: "md:text-xl",
-      "2xl": "md:text-2xl",
-      "3xl": "md:text-3xl",
-      "4xl": "md:text-4xl",
-      "5xl": "md:text-5xl",
-      "6xl": "md:text-6xl",
-      "7xl": "md:text-7xl",
-      "8xl": "md:text-8xl",
-      "9xl": "md:text-9xl",
-    },
-  },
-});
+
 
 const variants = cva("heading", {
   variants: {
@@ -61,14 +28,7 @@ const variants = cva("heading", {
       "800": "font-extrabold",
       "900": "font-black",
     },
-    letterSpacing: {
-      tighter: "tracking-tighter",
-      tight: "tracking-tight",
-      normal: "",
-      wide: "tracking-wide",
-      wider: "tracking-wider",
-      widest: "tracking-widest",
-    },
+  
     alignment: {
       left: "text-left",
       center: "text-center",
@@ -78,14 +38,12 @@ const variants = cva("heading", {
   defaultVariants: {
     size: "default",
     weight: "400",
-    letterSpacing: "normal",
     alignment: "center",
   },
 });
 
 export interface HeadingProps
-  extends VariantProps<typeof variants>,
-    VariantProps<typeof fontSizeVariants> {
+  extends VariantProps<typeof variants>{
   ref?: React.Ref<HTMLHeadingElement>;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   content: string;
@@ -94,6 +52,9 @@ export interface HeadingProps
   minSize?: number;
   maxSize?: number;
   animate?: boolean;
+  mobileSize:string;
+  desktopSize:string;
+  letterSpacing:number;
 }
 
 function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
@@ -124,6 +85,7 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
       "--max-size": maxSize,
     } as CSSProperties;
   }
+
   if (animate) {
     rest["data-motion"] = "fade-up";
   }
@@ -131,10 +93,14 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     <Tag
       ref={ref}
       {...rest}
-      style={style}
+      style={{
+        ...style,
+        letterSpacing:letterSpacing>0 ? `${letterSpacing}px`:"normal"
+
+      }}
       className={cn(
-        size === "custom" && fontSizeVariants({ mobileSize, desktopSize }),
-        variants({ size, weight, letterSpacing, alignment, className }),
+        size === "custom" &&  `text-[${mobileSize}] md:text-[${desktopSize}]`,
+        variants({ size, weight, alignment, className }),
       )}
     >
       {content}
@@ -215,52 +181,18 @@ export const headingInputs: InspectorGroup["inputs"] = [
       'See how scale text works <a href="https://css-tricks.com/snippets/css/fluid-typography/" target="_blank" rel="noreferrer">here</a>.',
   },
   {
-    type: "select",
+    type: "text",
     name: "mobileSize",
     label: "Mobile text size",
+    defaultValue: "5rem",
     condition: (data: HeadingProps) => data.size === "custom",
-    configs: {
-      options: [
-        { value: "xs", label: "Extra small (text-xs)" },
-        { value: "sm", label: "Small (text-sm)" },
-        { value: "base", label: "Base (text-base)" },
-        { value: "lg", label: "Large (text-lg)" },
-        { value: "xl", label: "Extra large (text-xl)" },
-        { value: "2xl", label: "2x large (text-2xl)" },
-        { value: "3xl", label: "3x large (text-3xl)" },
-        { value: "4xl", label: "4x large (text-4xl)" },
-        { value: "5xl", label: "5x large (text-5xl)" },
-        { value: "6xl", label: "6x large (text-6xl)" },
-        { value: "7xl", label: "7x large (text-7xl)" },
-        { value: "8xl", label: "8x large (text-8xl)" },
-        { value: "9xl", label: "9x large (text-9xl)" },
-      ],
-    },
-    defaultValue: "3xl",
   },
   {
-    type: "select",
+    type: "text",
     name: "desktopSize",
     label: "Desktop text size",
+    defaultValue: "5rem",
     condition: (data: HeadingProps) => data.size === "custom",
-    configs: {
-      options: [
-        { value: "xs", label: "Extra small (text-xs)" },
-        { value: "sm", label: "Small (text-sm)" },
-        { value: "base", label: "Base (text-base)" },
-        { value: "lg", label: "Large (text-lg)" },
-        { value: "xl", label: "Extra large (text-xl)" },
-        { value: "2xl", label: "2x large (text-2xl)" },
-        { value: "3xl", label: "3x large (text-3xl)" },
-        { value: "4xl", label: "4x large (text-4xl)" },
-        { value: "5xl", label: "5x large (text-5xl)" },
-        { value: "6xl", label: "6x large (text-6xl)" },
-        { value: "7xl", label: "7x large (text-7xl)" },
-        { value: "8xl", label: "8x large (text-8xl)" },
-        { value: "9xl", label: "9x large (text-9xl)" },
-      ],
-    },
-    defaultValue: "5xl",
   },
   {
     type: "select",
@@ -282,20 +214,16 @@ export const headingInputs: InspectorGroup["inputs"] = [
     defaultValue: "400",
   },
   {
-    type: "select",
-    label: "Letter spacing",
-    name: "letterSpacing",
-    configs: {
-      options: [
-        { label: "Tighter (-0.05em)", value: "tighter" },
-        { label: "Tight (-0.025em)", value: "tight" },
-        { label: "Normal (Inherit)", value: "normal" },
-        { label: "Wide (0.025em)", value: "wide" },
-        { label: "Wider (0.05em)", value: "wider" },
-        { label: "Widest (0.1em)", value: "widest" },
-      ],
-    },
-    defaultValue: "normal",
+    type:'range',
+    label:'Letter spacing',
+    name:'letterSpacing',
+    defaultValue:2,
+    configs:{
+      min:0,
+      max:50,
+      step:1,
+      unit:'px',
+    }
   },
   {
     type: "toggle-group",

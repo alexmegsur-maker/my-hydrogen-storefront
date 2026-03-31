@@ -5,7 +5,7 @@ import {
   useThemeSettings,
 } from "@weaverse/hydrogen";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { HTMLAttributes } from "react";
+import { useState, type HTMLAttributes } from "react";
 import {
   Link as RemixLink,
   type LinkProps as RemixLinkProps,
@@ -13,6 +13,7 @@ import {
 } from "react-router";
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
+import { selectorPaddingMargin } from "~/utils/general";
 
 export const variants = cva(["inline-flex transition-colors"], {
   variants: {
@@ -70,6 +71,13 @@ export interface LinkStyles {
   backgroundColorHover: string;
   textColorHover: string;
   borderColorHover: string;
+  rounded:number;
+  size:string;
+  fontFamily:string;
+  weight:string;
+  letter:number;
+  paddingSelect:string;
+  paddingText:string;
 }
 
 export interface LinkData
@@ -148,16 +156,29 @@ export function Link(props: LinkProps) {
     textColorHover,
     backgroundColorHover,
     borderColorHover,
+    rounded,
+    size,
+    fontFamily,
+    weight,
+    letter,
+    paddingSelect,
+    paddingText,
     children,
     target,
     ...rest
   } = props;
   const { enableViewTransition } = useThemeSettings();
+  const [isHover,setIsHover]=useState(false)
   const href = useHrefWithLocale(to);
 
   if (variant === "custom") {
     style = {
       ...style,
+      borderRadius:`${rounded}px`,
+      letterSpacing:letter==0 ?'normal':`${letter}px`,
+      fontFamily:fontFamily,
+      fontSize:size,
+      fontWeight:weight,
       "--btn-text": textColor,
       "--btn-bg": backgroundColor,
       "--btn-border": borderColor,
@@ -178,10 +199,18 @@ export function Link(props: LinkProps) {
       ref={ref}
       viewTransition={enableViewTransition}
       to={href}
-      style={style}
+      onMouseEnter = {()=>setIsHover(true)}
+      onMouseLeave = {()=>setIsHover(false)}
+      style={{
+        ...style,
+        transform:isHover ? "translateY(-10%)":"unset",
+        ...selectorPaddingMargin("padding",paddingSelect,paddingText),
+        transition:"all 0.4s ease"
+      }}
       className={cn(variants({ variant }), className)}
       target={target !== undefined ? target : isExternal ? "_blank" : undefined}
       {...rest}
+      
     >
       {children || text}
     </RemixLink>
@@ -264,6 +293,89 @@ export const linkStylesInputs: InspectorGroup["inputs"] = [
     defaultValue: "#000",
     condition: (data: LinkData) => data.variant === "custom",
   },
+  {
+    type:'range',
+    label:'Letter spacing',
+    name:'letter',
+    defaultValue:0,
+    configs:{
+      min:0,
+      max:50,
+      step:1,
+      unit:'px',
+    },
+    condition: (data: LinkData) => data.variant === "custom",
+  },
+  {
+    type:'range',
+    label:'Border radius',
+    name:'rounded',
+    defaultValue:0,
+    configs:{
+      min:0,
+      max:200,
+      step:1,
+      unit:'px',
+    },
+    condition: (data: LinkData) => data.variant === "custom",
+  },
+  {
+    type:'text',
+    label:'Font size',
+    name:'size',
+    defaultValue:'0.8rem',
+  },
+  {
+    type:'text',
+    label:'Font family',
+    name:'fontFamily',
+    defaultValue:'Montserrat',
+    condition: (data: LinkData) => data.variant === "custom",
+  },
+  {
+    type:'select',
+    label:'Font weight',
+    name:'weight',
+    configs:{
+      options:[
+        {value:'100',label:'100'},
+        {value:'200',label:'200'},
+        {value:'300',label:'300'},
+        {value:'400',label:'400'},
+        {value:'500',label:'500'},
+        {value:'600',label:'600'},
+        {value:'700',label:'700'},
+        {value:'800',label:'800'},
+        {value:'900',label:'900'},
+      ]
+    },
+    defaultValue:'500',
+    condition: (data: LinkData) => data.variant === "custom",
+  },
+  {
+      type:'select',
+      label:'Padding type',
+      name:'paddingSelect',
+      configs:{
+        options:[
+          {value:'t',label:'Top'},
+          {value:'b',label:'Bottom'},
+          {value:'l',label:'Left'},
+          {value:'r',label:'Right'},
+          {value:'x',label:'Inline'},
+          {value:'y',label:'Block'},
+          {value:'a',label:'Custom'},
+        ]
+      },
+      defaultValue:'a',
+    },
+    {
+      type:'text',
+      label:'Padding text',
+      name:'paddingText',
+      defaultValue:"18px 40px"
+    },
+  
 ];
 
 export const linkInputs: InspectorGroup["inputs"] = [

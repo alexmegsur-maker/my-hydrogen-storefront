@@ -3,6 +3,7 @@ import {
   type HydrogenComponentProps,
   IMAGES_PLACEHOLDERS,
   useThemeSettings,
+  useChildInstances
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
@@ -13,6 +14,9 @@ import type { SlideshowArrowsProps } from "./arrows";
 import { Arrows } from "./arrows";
 import type { SlideshowDotsProps } from "./dots";
 import { Dots } from "./dots";
+import { Bar } from "./bar";
+import type { Swiper as SwiperType } from "swiper";
+import { useRef, useState } from "react";
 
 const variants = cva("group [&_.swiper]:h-full", {
   variants: {
@@ -57,6 +61,19 @@ export interface SlideshowData
   loop: boolean;
   autoRotate: boolean;
   changeSlidesEvery: number;
+  showBar:boolean;
+  barBgColor:string;
+  barColor:string;
+  barBgColorA:string;
+  barColorA:string;
+  borderColor:string;
+  borderColorA:string;
+  barSize:string;
+  barFamily:string;
+  barWeight:string;
+  barLetterSpacing:number;
+  barRounded:number;
+
 }
 
 export default function Slideshow(
@@ -78,9 +95,29 @@ export default function Slideshow(
     loop,
     autoRotate,
     changeSlidesEvery,
+    showBar,
+    barBgColor,
+    barColor,
+    barBgColorA,
+    barColorA,
+    borderColor,
+    borderColorA,
+    barSize,
+    barFamily,
+    barWeight,
+    barLetterSpacing,
+    barRounded,
     children = [],
     ...rest
   } = props;
+
+  const swiperRef=useRef<SwiperType|null>(null)
+  const [activeIndex,setActiveIndex]=useState(0)
+
+  const childInstances =useChildInstances()
+  const slideNames =childInstances.map(
+    (instance:any)=>instance.data?.namebar ??"Slide"
+  )
 
   const { enableTransparentHeader } = useThemeSettings();
 
@@ -94,6 +131,8 @@ export default function Slideshow(
       className={variants({ height, enableTransparentHeader })}
     >
       <Swiper
+        onSwiper={(swiper)=>{swiperRef.current=swiper}}
+        onSlideChange={(swiper)=>setActiveIndex(swiper.realIndex)}
         effect={effect}
         loop={loop}
         autoplay={autoRotate ? { delay: changeSlidesEvery * 1000 } : false}
@@ -123,11 +162,14 @@ export default function Slideshow(
           showDots ? Pagination : null,
         ].filter(Boolean)}
       >
-        {children.map((child, idx) => (
-          <SwiperSlide key={idx} className="bg-white">
-            {child}
-          </SwiperSlide>
-        ))}
+        {children.map((child, idx) =>{
+          return (
+            <SwiperSlide key={idx} className="bg-white">
+              {child}
+            </SwiperSlide>
+          )
+        })}
+        
         {showArrows && (
           <Arrows
             arrowsIcon={arrowsIcon}
@@ -138,6 +180,24 @@ export default function Slideshow(
           />
         )}
         {showDots && <Dots dotsPosition={dotsPosition} dotsColor={dotsColor} />}
+        {showBar && 
+          <Bar 
+            names={slideNames}
+            activeIndex={activeIndex}
+            onSelect={(idx)=>swiperRef.current?.slideToLoop(idx)}
+            barBgColor={barBgColor}
+            barColor={barColor}
+            barBgColorA={barBgColorA}
+            barColorA={barColorA}
+            borderColor={borderColor}
+            borderColorA={borderColorA}
+            barSize={barSize}
+            barFamily={barFamily}
+            barWeight={barWeight}
+            barLetterSpacing={barLetterSpacing}
+            barRounded={barRounded}
+            />
+        }
       </Swiper>
     </section>
   );
@@ -316,6 +376,120 @@ export const schema = createSchema({
           defaultValue: "light",
           condition: (data: SlideshowData) => data.showDots,
         },
+        {
+          type:'heading',
+          label:'Selector bar'
+        },
+        {
+          type:'switch',
+          label:'show selector bar',
+          name:'showBar',
+          defaultValue:true,
+          
+        },
+        {
+          type:'color',
+          label:'background color',
+          name:'barBgColor',
+          defaultValue:'#05050580',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'color',
+          label:'color',
+          name:'barColor',
+          defaultValue:'#71717A',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'color',
+          label:'background color selected',
+          name:'barBgColorA',
+          defaultValue:'#ffffff0d',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'color',
+          label:'color selected',
+          name:'barColorA',
+          defaultValue:'#FFFFFF',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'color',
+          label:'border color',
+          name:'borderColor',
+          defaultValue:'#ffffff14',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'color',
+          label:'border color selected',
+          name:'borderColorA',
+          defaultValue:'#ffffff26',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'text',
+          label:'font size',
+          name:'barSize',
+          defaultValue:'0.7rem',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'text',
+          label:'font family',
+          name:'barFamily',
+          defaultValue:'Montserrat',
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type: "select",
+          name: "barWeight",
+          label: "Weight",
+          configs: {
+            options: [
+              { value: "100", label: "100 - Thin" },
+              { value: "200", label: "200 - Extra Light" },
+              { value: "300", label: "300 - Light" },
+              { value: "400", label: "400 - Normal" },
+              { value: "500", label: "500 - Medium" },
+              { value: "600", label: "600 - Semi Bold" },
+              { value: "700", label: "700 - Bold" },
+              { value: "800", label: "800 - Extra Bold" },
+              { value: "900", label: "900 - Black" },
+            ],
+          },
+          defaultValue: "500",
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'range',
+          label:'Letter spacing',
+          name:'barLetterSpacing',
+          defaultValue:1,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          },
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        {
+          type:'range',
+          label:'border radius',
+          name:'barRounded',
+          defaultValue:100,
+          configs:{
+            min:0,
+            max:200,
+            step:1,
+            unit:'px',
+          },
+          condition: (data: SlideshowData) => data.showBar,
+        },
+        
       ],
     },
   ],
