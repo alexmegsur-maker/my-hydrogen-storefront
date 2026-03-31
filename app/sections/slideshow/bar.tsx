@@ -1,3 +1,5 @@
+import { useIsMobile } from "~/hooks/use-is-mobile";
+
 interface BarProps {
   names: string[];
   activeIndex: number;
@@ -32,6 +34,8 @@ export function Bar(props: BarProps) {
     barLetterSpacing,
     barRounded,
   }= props
+  const isMobile = useIsMobile(600);
+
   return (
     <div className="hero-pill-container absolute bottom-[3rem] left-[50%] -translate-x-[50%] z-[5]">
       <div className="phoenix-pill-menu flex gap-[4px]"
@@ -42,7 +46,7 @@ export function Bar(props: BarProps) {
           border:`1px solid ${borderColor}`,
           borderRadius:`${barRounded}px`,
           padding:"6px",
-          width:window.innerWidth > 600 ? "auto":"99dvw"
+          width:!isMobile ? "auto":"99dvw"
         }}
       >
         {names.map((name, idx) => {
@@ -60,14 +64,14 @@ export function Bar(props: BarProps) {
                 fontWeight:active ? barWeight :"400",
                 boxShadow:active ? `0 4px 15px ${barBgColorA}`:"unset",
                 borderRadius:`${barRounded}px`,
-                padding: window.innerWidth > 600?"10px 24px":"10px 10px",
+                padding: !isMobile?"10px 24px":"10px 10px",
                 fontFamily:barFamily,
                 letterSpacing:barLetterSpacing>0?`${barLetterSpacing}px`:"normal",
                 fontSize:barSize,
                 transition:"all 0.4s ease"
               }}
             >
-              { active && window.innerWidth > 600 &&
+              { active && !isMobile &&
                 <span 
                   className="inline-block w-[6px] h-[6px] "
                   style={{

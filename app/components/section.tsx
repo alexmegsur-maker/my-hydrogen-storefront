@@ -12,6 +12,7 @@ import { backgroundInputs } from "./background-image";
 import type { OverlayProps } from "./overlay";
 import { overlayInputs } from "./overlay";
 import { OverlayAndBackground } from "./overlay-and-background";
+import { selectorPaddingMargin } from "~/utils/general";
 
 export type BackgroundProps = BackgroundImageProps & {
   backgroundFor: "section" | "content";
@@ -29,6 +30,8 @@ export interface SectionProps<T = any>
   borderRadius?: number;
   containerClassName?: string;
   children?: React.ReactNode;
+  paddingSelect?:string;
+  paddingText?:string;
 }
 
 const variants = cva("relative", {
@@ -48,6 +51,7 @@ const variants = cva("relative", {
       small: "py-4 md:py-6 lg:py-8",
       medium: "py-8 md:py-12 lg:py-16",
       large: "py-12 md:py-24 lg:py-32",
+      custom:"",
     },
     gap: {
       0: "",
@@ -98,6 +102,8 @@ export function Section(props: SectionProps) {
     className,
     children,
     containerClassName,
+    paddingSelect,
+    paddingText,
     style = {},
     ...rest
   } = props;
@@ -110,12 +116,19 @@ export function Section(props: SectionProps) {
 
   const isBgForContent = backgroundFor === "content";
   const hasBackground = backgroundColor || backgroundImage || borderRadius > 0;
+  const estilo = verticalPadding != "custom" ? 
+    style 
+    :
+    {
+      ...style,
+      ...selectorPaddingMargin("padding",paddingSelect,paddingText)
+    }
 
   return (
     <Component
       ref={ref}
       {...rest}
-      style={style}
+      style={estilo}
       className={cn(
         variants({ padding: width, overflow, className }),
         hasBackground &&
@@ -178,9 +191,35 @@ export const layoutInputs: InspectorGroup["inputs"] = [
         { value: "small", label: "Small" },
         { value: "medium", label: "Medium" },
         { value: "large", label: "Large" },
+        { value: "custom", label:"Custom"},
       ],
     },
     defaultValue: "medium",
+  },
+  {
+    type:'select',
+    label:'Padding type',
+    name:'paddingSelect',
+    configs:{
+      options:[
+        {value:'t',label:'Top'},
+        {value:'b',label:'Bottom'},
+        {value:'l',label:'Left'},
+        {value:'r',label:'Right'},
+        {value:'x',label:'Inline'},
+        {value:'y',label:'Block'},
+        {value:'a',label:'Custom'},
+      ]
+    },
+    defaultValue:'a',
+    condition: (data: SectionProps )=> data.verticalPadding =="custom",
+    
+  },
+  {
+    type:'text',
+    label:'Padding text',
+    name:'paddingText',
+    condition: (data: SectionProps )=> data.verticalPadding =="custom",
   },
   {
     type: "range",

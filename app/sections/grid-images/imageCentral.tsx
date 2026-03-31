@@ -1,5 +1,6 @@
 import { createSchema, IMAGES_PLACEHOLDERS, type HydrogenComponentProps, type WeaverseImage } from "@weaverse/hydrogen"
 import { useEffect, useState } from "react";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface imageCentralProps extends HydrogenComponentProps {
   desktop:WeaverseImage;
@@ -12,11 +13,11 @@ interface imageCentralProps extends HydrogenComponentProps {
 function ImageCentral(props:imageCentralProps){
   const {desktop,mobile,radius,aspectContainer,aspect}=props
   const [image,setImage]=useState(desktop)
-  const [isMobile,setIsMobile] = useState(false)
+  const isMobile = useIsMobile(600);
+  
   useEffect(()=>{
-    if(window.innerWidth<700){
+    if(isMobile){
       setImage(mobile)
-      setIsMobile(true)
     }
   },[])
 

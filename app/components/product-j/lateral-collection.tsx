@@ -3,6 +3,7 @@ import type { HydrogenComponentProps } from "@weaverse/hydrogen"
 import gsap from "gsap";
 import type React from "react";
 import { useEffect, useRef, type CSSProperties } from "react";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import { selectorPaddingMargin } from "~/utils/general";
 
 interface LateralCollectionProps extends Partial<Omit<HydrogenComponentProps, "children">> {
@@ -21,6 +22,8 @@ export default function  LateralCollection (props:LateralCollectionProps){
   const {title,children,style,confirmBtn,show,close,sendProduct,estilos,buttonText} = props
   const container =useRef(null)
   const open =useRef(null)
+  const isMobile = useIsMobile(600);
+  
   useGSAP(()=>{
     open.current= gsap.from(container.current,{
       transform:"translateX(150%)",
@@ -64,7 +67,7 @@ export default function  LateralCollection (props:LateralCollectionProps){
           className="top-nav-sticky sticky flex items-center justify-between top-0 left-0 w-full backdrop-blur-md z-[15]"
           style={{
             backgroundColor:"#050505f2",
-            padding: window.innerWidth>600?"1.5rem 4rem":"1.5rem",
+            padding: !isMobile?"1.5rem 4rem":"1.5rem",
             borderBottom:"1px solid #ffffff08"
           }}
           >

@@ -1,6 +1,7 @@
 import { createSchema, IMAGES_PLACEHOLDERS, type HydrogenComponentProps, type WeaverseImage } from "@weaverse/hydrogen"
 import { useEffect, useState } from "react";
 import { Image } from "~/components/image";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface imagesSlideProps extends HydrogenComponentProps {
   reverse:boolean;
@@ -15,13 +16,8 @@ interface imagesSlideProps extends HydrogenComponentProps {
 
 function imagesSlide(props:imagesSlideProps){
   const {reverse,img1Desk,img1Mobile,img2Desk,img2Mobile,aspectContainer,radius1,radius2} = props
-  const [isMobile,setIsMobile]=useState(false)
+  const isMobile = useIsMobile(600);
 
-  useEffect(()=>{
-    if(window.innerWidth<700){
-      setIsMobile(true)
-    }
-  },[])
 
   return(
     <div 

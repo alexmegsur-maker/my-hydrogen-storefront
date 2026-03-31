@@ -5,6 +5,7 @@ import { selectorPaddingMargin, setFecha, truncate } from "~/utils/general";
 import type { CrossellProduct } from "~/types/crosssell";
 import { checkPrice } from "~/utils/product";
 import LateralCollection from "./lateral-collection";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface CrossellProductProps {
   producto: ProductQuery["product"];
@@ -181,6 +182,8 @@ export default function CrossellProduct(props: CrossellProductProps) {
   const addCrossell = useCrossell((state) => state.addCrossell);
   const addSelectedProduct = useCrossell((state) => state.addSelected);
   const resetSelecteds = useCrossell((state) => state.resetSelecteds);
+  const isMobile = useIsMobile(600);
+  
   useEffect(() => {
     const media = producto.media.nodes.map((elm) => {
       return { url: elm.previewImage.url, alt: elm.previewImage.altText };
@@ -391,7 +394,7 @@ export default function CrossellProduct(props: CrossellProductProps) {
           className="drawer-scroll-area overflow-y-auto"
           style={
             {
-              ...selectorPaddingMargin("padding",lcPaddingSelect,window.innerWidth>600?lcPaddingText:"1.5rem"),
+              ...selectorPaddingMargin("padding",lcPaddingSelect,!isMobile?lcPaddingText:"1.5rem"),
               ...selectorPaddingMargin("padding",lcMarginSelect,lcMarginText)
             }
           }

@@ -3,16 +3,19 @@ import {
   type HydrogenComponentProps,
   IMAGES_PLACEHOLDERS,
 } from "@weaverse/hydrogen";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface ColumnsWithImagesItemsProps extends HydrogenComponentProps {
   gap: number;
+  mbGap: number;
   maxColumns: number;
   widthContainer:number;
   ref?: React.Ref<HTMLDivElement>;
 }
 
 function ColumnsWithImagesItems(props: ColumnsWithImagesItemsProps) {
-  const { children, gap, maxColumns, widthContainer, ref, ...rest } = props;
+  const { children, gap,mbGap, maxColumns, widthContainer, ref, ...rest } = props;
+  const isMobile = useIsMobile(600);
 
   return (
     <div
@@ -20,9 +23,9 @@ function ColumnsWithImagesItems(props: ColumnsWithImagesItemsProps) {
       {...rest}
       className="flex flex-col sm:grid sm:grid-cols-12"
       style={{ 
-        width:`${widthContainer}%`,
+        width:!isMobile ? `${widthContainer}%`:"90%",
         justifySelf:"center",
-        gap: `${gap}px`,
+        gap: !isMobile ? `${gap}px`:`${mbGap}px`,
         gridTemplateColumns:`repeat(${maxColumns}, minmax(0,1fr))`
       }}
     >
@@ -78,6 +81,23 @@ export const schema = createSchema({
         },
       ],
     },
+    {
+      group:"mobile",
+      inputs:[
+        {
+          type: "range",
+          label: "Items gap",
+          name: "mbGap",
+          configs: {
+            min: 16,
+            max: 80,
+            step: 4,
+            unit: "px",
+          },
+          defaultValue: 20,
+        },
+      ]
+    }
   ],
   childTypes: ["column-with-image--item"],
   presets: {

@@ -6,6 +6,7 @@ import { useCurrentProduct } from "~/stores/currentProduct";
 import LateralCollection from "~/components/product-j/lateral-collection";
 import "~/styles/filter-option.css";
 import { renderRichText, selectorPaddingMargin } from "~/utils/general";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface FilterOptionProps extends HydrogenComponentProps {
   title: string;
@@ -296,7 +297,8 @@ export default function FilterOption(props: FilterOptionProps) {
   const optionsCurrent = currentProduct?.options.find(
     (e) => e.name.toLowerCase() === handle.toLowerCase(),
   );
-
+  const isMobile = useIsMobile(600);
+  
   useEffect(() => {
     if (variantOptions) {
       try {
@@ -536,7 +538,7 @@ export default function FilterOption(props: FilterOptionProps) {
             className="flex flex-col gap-[3rem] h-[100%]"
             style={{
               flexGrow: 1,
-              ...selectorPaddingMargin("padding",lcPaddingSelect,window.innerWidth>600?lcPaddingText:"1.5rem"),
+              ...selectorPaddingMargin("padding",lcPaddingSelect,!isMobile?lcPaddingText:"1.5rem"),
               ...selectorPaddingMargin("margin",lcMarginSelect,lcMarginText),
             }}
           >
@@ -851,7 +853,7 @@ export default function FilterOption(props: FilterOptionProps) {
         >
          <div className="drawer-scroll-area overflow-y-auto" 
           style={{
-            ...selectorPaddingMargin("padding",lcPaddingSelect,window.innerWidth>600?lcPaddingText:"1.5rem"),
+            ...selectorPaddingMargin("padding",lcPaddingSelect,!isMobile?lcPaddingText:"1.5rem"),
             ...selectorPaddingMargin("padding",lcMarginSelect,lcMarginText)
           }}
           >

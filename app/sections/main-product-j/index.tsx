@@ -6,6 +6,7 @@ import ProductMediaSecret from "~/components/product-secret/product-media-secret
 import type { ProductMediaProps } from "~/components/product/product-media";
 import { GlobalLoading } from "~/components/root/global-loading";
 import { Section, type SectionProps } from "~/components/section";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import { createCurProVar } from "~/routes/collections/utils";
 import  type {loader as productRouteLoader} from "~/routes/products/product";
 import { useCurrentProduct } from "~/stores/currentProduct";
@@ -34,18 +35,17 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
 
   const {product} = useLoaderData<typeof productRouteLoader>()
   const [currentProduct,setCurrentProduct] = useState(null)
-  const [screen,setScreen]=useState(0)
+
   const setProduct= useCurrentProduct((state)=>state.setProduct)
   const productStore = useCurrentProduct((state)=>state.currentProduct)
+  const isMobile = useIsMobile(600);
   
   useEffect(()=>{
     if(document){
-      console.log("document",document)
       const header = document.querySelector("header")
       header.style.display="none"
-      setScreen(window.innerWidth)
     }
-    console.log("product",product)
+
   },[])
  
   useEffect(()=>{
@@ -81,7 +81,7 @@ if(productStore){
           <div 
             className=" fixed md:sticky top-0 left-0 flex w-full items-center"
             style={{
-              padding: screen>600 ?"1.5rem 4rem":"1.5rem 2rem",
+              padding: !isMobile ?"1.5rem 4rem":"1.5rem 2rem",
               borderBottom:"1px solid #ffffff08",
               background:color,
               zIndex:10
@@ -91,7 +91,7 @@ if(productStore){
           </div>
           <div
             style={{ 
-              padding:screen>600 ? "3rem 4rem 0 4rem":"1.5rem 1.5rem 0 1.5rem"
+              padding:!isMobile ? "3rem 4rem 0 4rem":"1.5rem 1.5rem 0 1.5rem"
             }}>
             {children}
           </div>

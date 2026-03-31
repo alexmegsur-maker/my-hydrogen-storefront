@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { CollectionsByIdsQuery } from "storefront-api.generated";
 import LateralCollection from "~/components/product-j/lateral-collection";
 import { Section } from "~/components/section";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { createCurProVar } from "~/routes/collections/utils";
 import { useCurrentProduct } from "~/stores/currentProduct";
@@ -273,7 +274,8 @@ export default function SelectorVariant(props:SelectorVariantProps){
   const currentProduct = useCurrentProduct((state)=>state.currentProduct)
   const setProduct = useCurrentProduct((state)=>state.setProduct)
   const contenedor = useRef(null)
-
+  const isMobile = useIsMobile(600);
+  
   const openDrawer=(elm)=>{
     setCollection({
       title:elm.title,
@@ -495,7 +497,7 @@ export default function SelectorVariant(props:SelectorVariantProps){
           style={{
             flexGrow:1,
             overflowY:"auto",
-            ...selectorPaddingMargin("padding",lcPaddingSelect,window.innerWidth>600 ? lcPaddingText:"2rem 1.5rem 0px"),
+            ...selectorPaddingMargin("padding",lcPaddingSelect,!isMobile ? lcPaddingText:"2rem 1.5rem 0px"),
             ...selectorPaddingMargin("padding",lcMarginSelect,lcMarginText)
           }}
           >

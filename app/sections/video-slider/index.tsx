@@ -6,6 +6,7 @@ import "./video-slider.css"
 import { useSliderStore } from "./videoSliderStore";
 import Link from "~/components/link";
 import { Image } from "~/components/image";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface VideoSliderProps extends HydrogenComponentProps{
   color:string;
@@ -34,12 +35,10 @@ function VideoSlider(props:VideoSliderProps) {
   const [nextElm,setNextElm]=useState(sliderElements[1])
   const [active,setActive]=useState(false)
   const timeSwiper = time * 1000
-  const [windowWidth,setWindowWidth] = useState(0) 
+  const isMobile = useIsMobile(600);
   
-  useEffect(()=>{
-    setWindowWidth(window.innerWidth)
-  },[])
   
+
   useEffect(()=>{
     let next = sliderElements[currentElm+1]
     let prev = sliderElements[currentElm-1]
@@ -216,7 +215,7 @@ function VideoSlider(props:VideoSliderProps) {
                   background:sliderElements[currentElm].tgBgColor,
                   color:sliderElements[currentElm].tgColor,
                   borderRadius:sliderElements[currentElm].tgRadius,
-                  fontSize: windowWidth > 700 ? sliderElements[currentElm].tgSize:"18px",
+                  fontSize: !isMobile ? sliderElements[currentElm].tgSize:"18px",
                   fontFamily:sliderElements[currentElm].tgFamily
                 }}
                 >
@@ -229,7 +228,7 @@ function VideoSlider(props:VideoSliderProps) {
                   className="st-headline-1 st-colour-text-on-colour-primary text-center lg:text-left slider-content-shadow"
                   style={{
                     color:sliderElements[currentElm].tColor,
-                    fontSize:windowWidth > 700 ? sliderElements[currentElm].tSize:"30px",
+                    fontSize:!isMobile ? sliderElements[currentElm].tSize:"30px",
                     fontFamily:sliderElements[currentElm].tFamily,
                   }}
                   >
@@ -243,7 +242,7 @@ function VideoSlider(props:VideoSliderProps) {
                   className="mb-0 mt-1 lg:mt-2 st-body-lg st-colour-text-on-colour-primary text-center lg:text-left"
                   style={{
                     color:sliderElements[currentElm].dColor,
-                    fontSize:windowWidth > 700 ? sliderElements[currentElm].dSize : "18px",
+                    fontSize:!isMobile ? sliderElements[currentElm].dSize : "18px",
                     fontFamily:sliderElements[currentElm].dFamily
                   }}
                   >                  
@@ -260,7 +259,7 @@ function VideoSlider(props:VideoSliderProps) {
                     style={{
                       color:sliderElements[currentElm].bColor,
                       background:sliderElements[currentElm].bBgColor,
-                      fontSize:windowWidth > 700 ? sliderElements[currentElm].bSize : "14px",
+                      fontSize:!isMobile ? sliderElements[currentElm].bSize : "14px",
                       fontFamily:sliderElements[currentElm].bFamily,
                       borderRadius:sliderElements[currentElm].bRadius
                     }}
@@ -280,7 +279,7 @@ function VideoSlider(props:VideoSliderProps) {
               data-context="splash-paginationbar" 
               className="w-full max-h-[56px] rounded-full lg:py-3 lg:px-5 border-0 lg:border-[1px] border-solid  flex items-center"
               style={{
-                background:windowWidth > 700 ? bgColor : "transparent",
+                background:!isMobile ? bgColor : "transparent",
                 borderColor:borderColor,
                 color:color
               }}

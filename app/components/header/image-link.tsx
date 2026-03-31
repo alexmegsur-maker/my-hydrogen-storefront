@@ -4,6 +4,7 @@ import { selectorPaddingMargin } from "~/utils/general";
 import { Link } from "~/components/link";
 import type { WeaverseImage } from "@weaverse/hydrogen";
 import { Image } from "@shopify/hydrogen";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 type ImageLinkData ={
   img:WeaverseImage;
@@ -40,6 +41,8 @@ export function ImageLinkHeader(props:HeaderImageLinkProps){
     customClass,
     
   } = props;
+  const isMobile = useIsMobile(600);
+
  
   const [data, setData]= useState<ImageLinkData>(
     {
@@ -48,7 +51,6 @@ export function ImageLinkHeader(props:HeaderImageLinkProps){
       img3:img3,
     }
   )
-  const [screenWidth,setScreenWidth]=useState<number>(window.innerWidth)
 
   const linkStyle = {
     ...selectorPaddingMargin("padding",paddingSelect,padding),
@@ -56,20 +58,19 @@ export function ImageLinkHeader(props:HeaderImageLinkProps){
   } as CSSProperties
 
   const imgStyle={
-    height : screenWidth > 700 ? anchor == "height" ? `${size}px`:"auto": "auto",
-    width : screenWidth > 700? anchor == "width" ? `${size}px`:"auto":"auto",
+    height : !isMobile ? anchor == "height" ? `${size}px`:"auto": "auto",
+    width : !isMobile? anchor == "width" ? `${size}px`:"auto":"auto",
     
   } as CSSProperties
 
   useEffect(()=>{
-    if( screenWidth<700){
+    if( isMobile){
       setData({
         img:mbImg,
         img2:mbImg2,
         img3:mbImg3,
       })
     }
-    setScreenWidth(window.innerWidth)
 
   },[])
   
@@ -79,7 +80,7 @@ export function ImageLinkHeader(props:HeaderImageLinkProps){
       style={{
         background:color,
         display:"flex",
-        flexDirection:screenWidth>700 ? changeDirection ? "row":"column":"column",
+        flexDirection:!isMobile ? changeDirection ? "row":"column":"column",
         gap:space
       }}
       >

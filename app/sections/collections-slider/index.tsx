@@ -9,6 +9,7 @@ import { Navigation } from "swiper/modules";
 import './collection-slider.css'
 import LinkCollection from "./linkCollection";
 import SliderCard from "./sliderCard";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface MyCollectionSliderLoaderData{
   collectionsData:any[]
@@ -217,7 +218,8 @@ function CollectionSlider(props:CollectionSliderProps) {
   const [currentCollection,setCurrentCollection] = useState(null)
   const [slideIndex,setSlideIndex]=useState(0)
   const [headTitleContainer,setHeadTitleContainer]=useState(0)
-  const [isMobile,setIsMobile]=useState(false)
+  const isMobile = useIsMobile(600);
+
 
   const collections = loaderData?.collectionsData || []  
 
@@ -238,7 +240,7 @@ function CollectionSlider(props:CollectionSliderProps) {
     }
 
     if(window.innerWidth < 700){
-      setIsMobile(true)
+
       setVisibleSlides(1)
     }
 

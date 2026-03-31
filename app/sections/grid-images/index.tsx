@@ -68,11 +68,7 @@ function GridImages(props:GridImagesProps){
 
     const [isMobile,setIsMobile]= useState(false)
   
-    useEffect(()=>{
-      if(window.innerWidth < 700){
-        setIsMobile(true)
-      }
-    },[])
+  
   return (  
     <div 
       className="py-16 lg:py-32"

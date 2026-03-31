@@ -10,6 +10,7 @@ import { Filters } from "./filters";
 import { ProductsPagination } from "./products-pagination";
 import { ToolsBar } from "./tools-bar";
 import { selectorPaddingMargin } from "~/utils/general";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 export interface CollectionFiltersData {
   showBreadcrumb: boolean;
@@ -287,6 +288,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     toolMarginText,
     toolWeight,
   };
+  const isMobile = useIsMobile(600);
 
   const { collection, collections } = useLoaderData<
     CollectionQuery & {
@@ -303,20 +305,15 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     Number(productsPerRowMobile) || 1,
   );
 
-  const [windowSize, setWindowSize] = useState(800);
   useEffect(() => {
     setGridSizeDesktop(Number(productsPerRowDesktop) || 3);
     setGridSizeMobile(Number(productsPerRowMobile) || 1);
   }, [productsPerRowDesktop, productsPerRowMobile]);
 
-  useEffect(() => {
-    if (window.innerWidth) {
-      setWindowSize(window.innerWidth);
-    }
-  }, []);
+
 
   if (collection?.products && collections) {
-    const bannerImg = windowSize > 700 ? bannerDesk : bannerMobile;
+    const bannerImg = !isMobile ? bannerDesk : bannerMobile;
     const banner = bannerImg ? bannerImg : collection.image;
 
     return (

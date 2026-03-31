@@ -1,4 +1,5 @@
 import { useEffect, useState} from "react";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import type {HeaderTopTextProps} from "~/types/header"
 import { selectorPaddingMargin } from "~/utils/general";
 
@@ -110,10 +111,11 @@ export function TopTextHeader(props:HeaderTopTextProps){
     }
   )
   
-  const screenWidth= window.innerWidth
+  const isMobile = useIsMobile(600);
+  
   
   useEffect(()=>{
-    if( screenWidth<700){
+    if( isMobile){
       setData({
         containerSize:mbContainerSize,
         tSpacing:mbTSpacing,

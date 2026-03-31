@@ -2,6 +2,7 @@ import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 export interface ParagraphProps
   extends VariantProps<typeof variants>,
@@ -44,6 +45,8 @@ function Paragraph(props: ParagraphProps) {
     className,
     ...rest
   } = props;
+  const isMobile = useIsMobile(600);
+
   return (
     <Tag
       ref={ref}
@@ -55,7 +58,7 @@ function Paragraph(props: ParagraphProps) {
       style={{ 
         color:color,
         fontSize:textSize,
-        width:window.innerWidth>600?`${contWidth}%`:"100%" 
+        width:!isMobile?`${contWidth}%`:"100%" 
       }}
     />
   );

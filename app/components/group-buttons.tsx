@@ -1,6 +1,7 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import { Section } from "./section"
 import { useEffect, useRef, type CSSProperties } from "react";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface groupButtonsProps extends HydrogenComponentProps{
   direction:string;
@@ -13,6 +14,8 @@ export default function groupButtons(props:groupButtonsProps){
   
   const {direction,gap,mbDirection,mbGap,children,...rest}=props
   const container = useRef(null)
+  const isMobile = useIsMobile(600);
+
   useEffect(()=>{
     if(container.current){
       const parentElm= container.current.parentElement
@@ -21,8 +24,8 @@ export default function groupButtons(props:groupButtonsProps){
           parentElm.removeAttribute("class")
         }
         parentElm.style.display = "flex";
-        parentElm.style.flexDirection = window.innerWidth>600 ? direction === "row" ? "row" : "column" : mbDirection === "row" ? "row" : "column";
-        parentElm.style.gap = window.innerWidth>600?`${gap}rem`:`${mbGap}rem`;
+        parentElm.style.flexDirection = !isMobile ? direction === "row" ? "row" : "column" : mbDirection === "row" ? "row" : "column";
+        parentElm.style.gap = !isMobile?`${gap}rem`:`${mbGap}rem`;
       }
     }
   },[container.current,gap,direction])

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { HeaderBannerProps} from "~/types/header"
 import { selectorPaddingMargin } from "~/utils/general";
 import { Link } from "~/components/link";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 type BannerData ={
     imgColor:string;
@@ -214,11 +215,10 @@ export function BannerHeader(props:HeaderBannerProps){
     bWeight:bWeight,
     }
   )
-  
-  const screenWidth= window.innerWidth
+  const isMobile = useIsMobile(600);
   
   useEffect(()=>{
-    if( screenWidth<700){
+    if( isMobile){
       setData({
         imgColor:mbImgColor,
         borderSize:mbBorderSize,

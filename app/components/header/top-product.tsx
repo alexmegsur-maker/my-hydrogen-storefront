@@ -3,6 +3,7 @@ import type {HeaderTopProductProps} from "~/types/header"
 import { selectorPaddingMargin } from "~/utils/general";
 import Link from "~/components/link";
 import { Image } from "@shopify/hydrogen";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 type ProductTop ={
   logoSize:number;
@@ -159,7 +160,6 @@ export function ProductTopHeader(props:HeaderTopProductProps){
     mbDMargin,
     mbDWeight,
   } = props;
-  const [screenWidth,setScreenWidth]=useState<number>(window.innerWidth)
   const [data, setData]= useState<ProductTop>(
     {
     logoSize:logoSize,
@@ -204,7 +204,8 @@ export function ProductTopHeader(props:HeaderTopProductProps){
     }
   )
   
-  // const screenWidth= window.innerWidth
+  const isMobile = useIsMobile(600);
+  
   
   const styleImgs = {
     width:"auto",
@@ -212,7 +213,7 @@ export function ProductTopHeader(props:HeaderTopProductProps){
   } as CSSProperties
 
   useEffect(()=>{
-    if( screenWidth<700){
+    if( isMobile){
       setData({
         logoSize:mbLogoSize,
         imgListSize:mbImgListSize,
@@ -255,9 +256,9 @@ export function ProductTopHeader(props:HeaderTopProductProps){
         dWeight:mbDWeight,
       })
     }
-    setScreenWidth(window.innerWidth)
+    
 
-  },[screenWidth])
+  },[isMobile])
   
   return(
     <div 
@@ -275,7 +276,7 @@ export function ProductTopHeader(props:HeaderTopProductProps){
         }}
         >
         <div className="flex ">
-            {img1 != undefined  && (screenWidth > 700 ||  selectMobile  === "img1" ) &&
+            {img1 != undefined  && (!isMobile ||  selectMobile  === "img1" ) &&
               <Link to={img1Link}>
                   <Image
                     sizes="auto"
@@ -286,7 +287,7 @@ export function ProductTopHeader(props:HeaderTopProductProps){
                   />
               </Link>
             }
-            {img2 != undefined  && (screenWidth > 700 || selectMobile  === "img2" ) &&
+            {img2 != undefined  && (!isMobile || selectMobile  === "img2" ) &&
               <Link to={img2Link}>
                   <Image
                     sizes="auto"
@@ -297,7 +298,7 @@ export function ProductTopHeader(props:HeaderTopProductProps){
                   />
               </Link> 
             }
-            {img3 != undefined  && (screenWidth > 700 || selectMobile  === "img3" ) && 
+            {img3 != undefined  && (!isMobile || selectMobile  === "img3" ) && 
               <Link to={img3Link}>
                   <Image
                     data={img3}
