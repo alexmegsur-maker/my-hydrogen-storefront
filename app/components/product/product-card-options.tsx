@@ -55,7 +55,7 @@ export function ProductCardOptions({
             if(colorsTheme){
             const colorCheck = colorsTheme.find((e)=>e.identifier === name.toLowerCase())
 
-              const color = colorCheck.colors.length>1 ? `linear-gradient(125deg, ${colorCheck.colors[0]} 50%, ${colorCheck.colors[1]} 50%)`:colorCheck.colors[0]
+              const color = colorCheck?.colors.length>1 ? `linear-gradient(125deg, ${colorCheck?.colors[0]} 50%, ${colorCheck?.colors[1]} 50%)`:colorCheck?.colors[0]
               const swatchColor = color ? color : "#fff";
               return (
                 <Tooltip key={name}>

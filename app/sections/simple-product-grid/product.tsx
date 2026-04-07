@@ -1,17 +1,24 @@
 import {
+  type ComponentLoaderArgs,
   createSchema,
   type HydrogenComponentProps,
   IMAGES_PLACEHOLDERS,
   type WeaverseImage,
+  type WeaverseProduct,
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { useNavigate } from "react-router";
+import type { ProductQuery } from "storefront-api.generated";
 import { Image } from "~/components/image";
 import Link, { type LinkProps, linkContentInputs } from "~/components/link";
+import { PRODUCT_QUERY } from "~/graphql/queries";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import type { ImageAspectRatio } from "~/types/others";
-import { selectorPaddingMargin } from "~/utils/general";
+import { selectorPaddingMargin, truncate } from "~/utils/general";
 import { calculateAspectRatio } from "~/utils/image";
+import { checkPrice } from "~/utils/product";
 
 const variants = cva("", {
   variants: {
@@ -31,16 +38,14 @@ const variants = cva("", {
   },
 });
 
-interface ColumnWithImageItemProps
+interface ColumnWithProductItemProps
   extends VariantProps<typeof variants>,
     Pick<LinkProps, "variant" | "text" | "to">,
     HydrogenComponentProps {
-  imageSrc: WeaverseImage;
+  producto:WeaverseProduct,
   imageAspectRatio: ImageAspectRatio;
   imageBorderRadius: number;
   iconSize: number;
-  heading: string;
-  content: string;
   ref?: React.Ref<HTMLDivElement>;
   
   bgColor:string;
@@ -52,8 +57,6 @@ interface ColumnWithImageItemProps
   paddingText:string;
   hImgCont:number;
   contentPosition:string;
-  typeIcon:string;
-  textSvg:string;
   tColor:string;
   tSize:string;
   tLetter:number;
@@ -76,16 +79,26 @@ interface ColumnWithImageItemProps
   dMarginSelect:string;
   dMarginText:string;
   dWeight:string;
+  pColor:string;
+  pSize:string;
+  pLetter:number;
+  pAlignment:"left"|"center"|"right"|"justify";
+  pUpper:boolean;
+  pFamily:string;
+  pPaddingSelect:string;
+  pPaddingText:string;
+  pMarginSelect:string;
+  pMarginText:string;
+  pWeight:string;
 }
 
-function ColumnWithImageItem(props: ColumnWithImageItemProps) {
+function ColumnWithProductItem(props: ColumnWithProductItemProps) {
   const {
-    imageSrc,
+    producto,
+    loaderData,
     imageAspectRatio,
     imageBorderRadius,
     iconSize,
-    heading,
-    content,
     text,
     to,
     variant,
@@ -102,8 +115,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
     paddingText,
     hImgCont,
     contentPosition,
-    typeIcon,
-    textSvg,
+   
     tColor,
     tSize,
     tLetter,
@@ -126,63 +138,83 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
     dMarginSelect,
     dMarginText,
     dWeight,
+    pColor,
+    pSize,
+    pLetter,
+    pAlignment,
+    pUpper,
+    pFamily,
+    pPaddingSelect,
+    pPaddingText,
+    pMarginSelect,
+    pMarginText,
+    pWeight,
     ...rest
   } = props;
   
+  const product = loaderData?.product ?? null
+  const imageSrc= product?.featuredImage
+  const navigate = useNavigate()
+
   const [isHover,setIsHover]=useState(false)
   const position = contentPosition?.split(" ")
+  const isMobile= useIsMobile(600)
 
+  const linkProduct =()=>{
+    if(product){
+      navigate(`/products/${product.handle}`)
+    }
+  }
+
+  useEffect(()=>{
+    console.log("producto loaderdata",loaderData)
+  },[loaderData])
   return (
     <div
       ref={ref}
       {...rest}
       data-motion="slide-in"
+      onClick={linkProduct}
       onMouseEnter={()=>setIsHover(true)}
       onMouseLeave={()=>setIsHover(false)}
       className={variants({ size, hideOnMobile })}
       style = {{ 
         background:isHover ? bgHColor : bgColor,
-        transform:isHover?"translateY(-5%)":"unset",
+        transform:isHover?"translateY(-2%)":"unset",
         border:`1px solid ${isHover?borderHColor:borderColor}`,
         borderRadius:`${rounded}px`,
         ...selectorPaddingMargin("padding",paddingSelect,paddingText),
         transition:"all 0.4s ease",
+        cursor:"pointer"
       }}
     >
       <div className="w-full relative"
         style={{
           height:hImgCont >0 ? `${hImgCont}rem`:"auto",
           justifyContent:position[1],
-          alignContent:position[0]!= "center" ? position[0]=="top" ? "start":"end":"center"
+          alignContent:position[0]!= "center" ? position[0]=="top" ? "start":"end":"center",
+          transform:isHover?"scale(1.05)":"unset",
+          transition:"all 0.4s ease "
+        
         }}
       >
-        {typeIcon =="image" ? 
-          <Image
-            data={typeof imageSrc === "object" ? imageSrc : { url: imageSrc }}
-            sizes="auto"
-            className="h-auto rounded-(--radius)"
-            style={{
-              width:`${iconSize}%`,
-              alignSelf:"center",
-              justifySelf:"center",
-              "--radius": `${imageBorderRadius}px`,
-            } as CSSProperties}
-            aspectRatio={calculateAspectRatio(imageSrc, imageAspectRatio)}
-          />
-          :
-            <div
-              dangerouslySetInnerHTML={{__html:textSvg}}
-              style={{
-                height:`${iconSize}%`,
-                width:`${iconSize}%`
-              }}
-            >
-              
-            </div>
-        }
+        <Image
+          data={typeof imageSrc === "object" ? imageSrc : { url: imageSrc }}
+          sizes="auto"
+          className="h-auto rounded-(--radius)"
+          style={{
+            width:`${iconSize}%`,
+            alignSelf:"center",
+            justifySelf:"center",
+            borderRadius: `${imageBorderRadius}px`,
+            filter:isHover && !isMobile?"grayscale(0%)":"grayScale(100%)",
+            transition:"all 0.4s ease",
+          } as CSSProperties}
+          aspectRatio={calculateAspectRatio(imageSrc, imageAspectRatio)}
+        />
       </div>
       <div className="mt-2 w-full space-y-3.5 text-center">
-        {heading && 
+        {product?.title && 
           <h6 
             style={{
               color: tColor,
@@ -196,12 +228,11 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
               ...selectorPaddingMargin("margin", tMarginSelect, tMarginText),
             }}
           >
-            {heading}
+            {product?.title}
           </h6>
         }
-        {content && 
+        {product?.description && 
           <p 
-            dangerouslySetInnerHTML={{ __html: content }} 
             style={{
               color: dColor,
               fontFamily: dFamily,
@@ -213,27 +244,77 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
               ...selectorPaddingMargin("padding", dPaddingSelect, dPaddingText),
               ...selectorPaddingMargin("margin", dMarginSelect, dMarginText),
             }}    
-            />
+            >
+              {truncate(product?.description,20) }
+            </p>
         }
-        {text && (
-          <Link variant={variant} to={to}>
-            {text}
-          </Link>
-        )}
+        <p
+          style={{
+              color: pColor,
+              fontFamily: pFamily,
+              fontSize: pSize,
+              fontWeight: pWeight,
+              textTransform: pUpper ? "uppercase" : "unset",
+              letterSpacing: pLetter > 0?`${pLetter}px`:"normal",
+              textAlign:dAlignment,
+              ...selectorPaddingMargin("padding", pPaddingSelect, pPaddingText),
+              ...selectorPaddingMargin("margin", pMarginSelect, pMarginText),
+            }} 
+        >
+          {checkPrice(product?.selectedOrFirstAvailableVariant.price.amount)} €
+        </p>
       </div>
     </div>
   );
 }
 
-export default ColumnWithImageItem;
+export default ColumnWithProductItem;
+export const loader = async ({
+  data,
+  weaverse,
+}: ComponentLoaderArgs<ColumnWithProductItemProps>) => {
+  const { language, country } = weaverse.storefront.i18n;
+  const { producto } = data;
 
-export const schema = createSchema({
-  type: "column-with-image--item",
-  title: "Column",
+  if(!producto?.handle) {return null}
+  
+  try {
+        const {product} = await weaverse.storefront.query<ProductQuery>(
+          PRODUCT_QUERY,
+          {
+            variables: {
+              country,
+              language,
+              selectedOptions: [],
+              handle: producto.handle,
+            },
+          }
+        );
+        if (product){
+          return JSON.parse(JSON.stringify({ product: product })) 
+        }
+      } catch (error) {
+        console.error("Error cargando producto:", error);
+        return JSON.parse(JSON.stringify({ product: null }));
+        
+      }
+   
+ 
+
+};
+
+export const schema = createSchema({ 
+  type: "column-with-product--item",
+  title: "Product",
   settings: [
     {
-      group: "Column",
+      group: "Column product",
       inputs: [
+        {
+          type:'product',
+          label:'Featured product',
+          name:'producto',
+        },
         {
           type:'color',
           label:'background color',
@@ -363,31 +444,6 @@ export const schema = createSchema({
           defaultValue:"center center"
         },
         {
-          type:'select',
-          label:'select type of icon',
-          name:'typeIcon',
-          configs:{
-            options:[
-              {value:'image',label:'image'},
-              {value:'svg',label:'svg text'},
-            ]
-          },
-          defaultValue:'svg',
-        },
-        {
-          type:'textarea',
-          label:'svg text',
-          name:'textSvg',
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="svg"
-        
-        },
-        {
-          type: "image",
-          name: "imageSrc",
-          label: "Image",
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="image"
-        },
-        {
           type:'range',
           label:'icon Size',
           name:'iconSize',
@@ -415,7 +471,6 @@ export const schema = createSchema({
           },
           helpText:
             'Learn more about image <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio" target="_blank" rel="noopener noreferrer">aspect ratio</a> property.',
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="image"
         },
         {
           type: "range",
@@ -428,34 +483,8 @@ export const schema = createSchema({
             unit: "px",
           },
           defaultValue: 0,
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="image"
-        },
-        {
-          type: "heading",
-          label: "Content",
-        },
-        {
-          type: "text",
-          name: "heading",
-          label: "Heading",
-          placeholder: "Example heading",
-          defaultValue: "Example heading",
-        },
-        {
-          type: "richtext",
-          label: "Description",
-          name: "content",
-          placeholder:
-            "Use this section to promote content throughout every page of your site. Add images for further impact.",
-          defaultValue:
-            "Use this section to promote content throughout every page of your site. Add images for further impact.",
         },
 
-        {
-          type: "heading",
-          label: "Button (optional)",
-        },
-        ...linkContentInputs,
       ],
     },
     {
@@ -694,9 +723,125 @@ export const schema = createSchema({
           defaultValue:'300',
         },   
       ]
+    },
+    {
+      group:"Price",
+      inputs:[
+        {
+          type:'color',
+          label:'color',
+          name:'pColor',
+          defaultValue:'#71717A',
+        },
+        {
+          type:'text',
+          label:'font size',
+          name:'pSize',
+          defaultValue:'0.8rem',
+        },
+        {
+          type:'range',
+          label:'letter spacing',
+          name:'pLetter',
+          defaultValue:0,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          }
+        },
+        {
+          type: "select",
+          label: "text alignment",
+          name: "pAlignment",
+          configs: {
+            options: [
+              { value: "left", label: "Left" },
+              { value: "center", label: "Center" },
+              { value: "right", label: "Right" },
+              { value: "justify", label: "Justify" },
+            ],
+          },
+          defaultValue: "left",
+        },
+        {
+          type:'switch',
+          label:'uppercase',
+          name:'pUpper',
+          defaultValue:false,
+        },
+        {
+          type:'text',
+          label:'font family',
+          name:'pFamily',
+          defaultValue:'Montserrat',
+        },
+        {
+          type:'select',
+          label:'Padding type',
+          name:'pPaddingSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'a',
+        },
+        {
+          type:'text',
+          label:'Padding text',
+          name:'pPaddingText',
+        },
+        {
+          type:'select',
+          label:'Margin type',
+          name:'pMarginSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'a',
+        },
+        {
+          type:'text',
+          label:'Margin text',
+          name:'pMarginText',
+        },
+        {
+          type:'select',
+          label:'Font weight',
+          name:'pWeight',
+          configs:{
+            options:[
+              {value:'100',label:'100'},
+              {value:'200',label:'200'},
+              {value:'300',label:'300'},
+              {value:'400',label:'400'},
+              {value:'500',label:'500'},
+              {value:'600',label:'600'},
+              {value:'700',label:'700'},
+              {value:'800',label:'800'},
+              {value:'900',label:'900'},
+            ]
+          },
+          defaultValue:'300',
+        },   
+      ]
     }
   ],
-  presets: {
-    imageSrc: IMAGES_PLACEHOLDERS.product_4,
-  },
+
 });

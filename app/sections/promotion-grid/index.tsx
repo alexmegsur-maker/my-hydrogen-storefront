@@ -1,6 +1,7 @@
-import { createSchema, IMAGES_PLACEHOLDERS } from "@weaverse/hydrogen";
+import { createSchema, IMAGES_PLACEHOLDERS, useChildInstances, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import { useEffect } from "react";
 import { backgroundInputs } from "~/components/background-image";
 import { overlayInputs } from "~/components/overlay";
 import type { SectionProps } from "~/components/section";
@@ -44,15 +45,38 @@ const variants = cva("flex flex-col sm:grid", {
   },
 });
 
-function PromotionGrid(props: PromotionGridProps) {
-  const { children, gridSize, gap, ref, ...rest } = props;
+function PromotionGrid(props: PromotionGridProps & HydrogenComponentProps) {
+  const { children = [], gridSize, gap, ref, ...rest } = props;
+  const childInstances =useChildInstances()
+    const headerChildsId =childInstances.map(
+      (instance:any)=>{ 
+        console.log("instance",instance)
+        if(instance.data.type=="heading"||instance.data.type=="subheading"){
+          return instance.data.id
+        }
+        return null
+      }
+    ).filter((elm)=>elm != null)
+
   return (
     <Section
       ref={ref}
       {...rest}
-      containerClassName={variants({ gridSize, gap })}
     >
-      {children}
+      <div className="section-header-center">
+        {children.map((child,idx)=>{
+          if(headerChildsId.find((elm)=>elm ==child.props.id)){
+            return child
+          }
+        })}
+      </div>
+      <div className={variants({gridSize,gap})}>
+      {children.map((child,idx)=>{
+          if(!headerChildsId.find((elm)=>elm ==child.props.id)){
+            return child
+          }
+        })}
+      </div>
     </Section>
   );
 }
@@ -86,7 +110,7 @@ export const schema = createSchema({
           configs: {
             min: 0,
             max: 60,
-            step: 4,
+            step: 1,
             unit: "px",
           },
           defaultValue: 20,
@@ -97,7 +121,7 @@ export const schema = createSchema({
     { group: "Background", inputs: backgroundInputs },
     { group: "Overlay", inputs: overlayInputs },
   ],
-  childTypes: ["promotion-grid-item"],
+  childTypes: ["promotion-grid-item","subheading","heading"],
   presets: {
     gridSize: "2x2",
     gap: 20,

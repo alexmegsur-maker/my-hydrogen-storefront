@@ -5,7 +5,7 @@ import type {
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type React from "react";
-import type { HTMLAttributes } from "react";
+import type { CSSProperties, HTMLAttributes } from "react";
 import { cn } from "~/utils/cn";
 import type { BackgroundImageProps } from "./background-image";
 import { backgroundInputs } from "./background-image";
@@ -32,6 +32,7 @@ export interface SectionProps<T = any>
   children?: React.ReactNode;
   paddingSelect?:string;
   paddingText?:string;
+  containerStyle?:CSSProperties;
 }
 
 const variants = cva("relative", {
@@ -105,6 +106,7 @@ export function Section(props: SectionProps) {
     paddingSelect,
     paddingText,
     style = {},
+    containerStyle={},
     ...rest
   } = props;
 
@@ -147,6 +149,7 @@ export function Section(props: SectionProps) {
             ],
           containerClassName,
         )}
+        style={containerStyle}
       >
         {isBgForContent && <OverlayAndBackground {...props} />}
         {children}

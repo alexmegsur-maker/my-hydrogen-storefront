@@ -6,9 +6,12 @@ import {
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import { BackgroundImage } from "~/components/background-image";
 import type { OverlayProps } from "~/components/overlay";
 import { Overlay, overlayInputs } from "~/components/overlay";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 const variants = cva(
   [
@@ -64,6 +67,12 @@ interface PromotionItemProps
     OverlayProps {
   backgroundImage: WeaverseImage | string;
   ref?: React.Ref<HTMLDivElement>;
+  link:string;
+  activeGrayscale:boolean;
+  grayscale:number;
+  gradient:boolean;
+  gradientInfo:string;
+
 }
 
 function PromotionGridItem(props: PromotionItemProps) {
@@ -76,24 +85,58 @@ function PromotionGridItem(props: PromotionItemProps) {
     overlayColor,
     overlayColorHover,
     overlayOpacity,
+    link,
+    activeGrayscale,
+    grayscale,
+    gradient,
+    gradientInfo,
     ref,
     ...rest
   } = props;
+  const [isHover,setIsHover]=useState(false)
+  const navigate = useNavigate()
+  const isMobile = useIsMobile(600)
+
+  const showLink =()=>{
+    if(link!=undefined){
+      navigate(link)
+    }
+  }
+ 
   return (
     <div
       ref={ref}
       {...rest}
       data-motion="slide-in"
-      className={variants({ contentPosition, borderRadius })}
+      className={variants({ contentPosition, borderRadius })+" cursor-pointer"}
+      onMouseEnter={()=>setIsHover(true)}
+      onMouseLeave={()=>setIsHover(false)}
+      onClick={showLink}
     >
-      <BackgroundImage backgroundImage={backgroundImage} />
+      <BackgroundImage 
+        backgroundImage={backgroundImage} 
+        style={{
+          filter: activeGrayscale ? !isHover || !isMobile ? `grayscale(${grayscale}%)`:"unset":"unset",
+          transform:isHover?"scale(1.05)":"scale(1)",
+          transition:"all 0.4s ease"
+        }}
+      />
       <Overlay
         enableOverlay={enableOverlay}
         overlayColor={overlayColor}
         overlayColorHover={overlayColorHover}
         overlayOpacity={overlayOpacity}
+        gradient={gradient}
+        gradientInfo={gradientInfo}
       />
-      {children}
+      <div
+        style={{
+          transform:isHover?"translateY(-10%)":"unset",
+          transition:"all 0.4s ease"
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -107,6 +150,12 @@ export const schema = createSchema({
     {
       group: "Layout",
       inputs: [
+        {
+          type:'url',
+          label:'url',
+          name:'link',
+          defaultValue:'/products',
+        },
         {
           type: "position",
           label: "Content position",
@@ -139,6 +188,39 @@ export const schema = createSchema({
           type: "heading",
           label: "Overlay",
         },
+        {
+          type:'switch',
+          label:'active grayscale',
+          name:'activeGrayscale',
+          defaultValue:true,
+        },
+        {
+          type:'range',
+          label:'grayscale',
+          name:'grayscale',
+          defaultValue:60,
+          configs:{
+            min:0,
+            max:100,
+            step:1,
+            unit:'%',
+          },
+          condition:(data:PromotionItemProps)=>data.activeGrayscale==true
+        },
+        {
+          type:'switch',
+          label:'gradient',
+          name:'gradient',
+          defaultValue:true,
+        },
+        {
+          type:'text',
+          label:'gradient text',
+          name:'gradientInfo',
+          defaultValue:"linear-gradient(359deg,#000 0%, transparent 30%);",
+          condition:(data:PromotionItemProps)=>data.gradient==true
+        },
+
         ...overlayInputs,
       ],
     },

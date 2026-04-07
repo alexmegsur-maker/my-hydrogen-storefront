@@ -1,14 +1,9 @@
-import {
-  createSchema,
-  type HydrogenComponentProps,
-  IMAGES_PLACEHOLDERS,
-  type WeaverseImage,
-} from "@weaverse/hydrogen";
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
+import { createSchema, IMAGES_PLACEHOLDERS, type HydrogenComponentProps, type WeaverseImage } from "@weaverse/hydrogen";
+import { cva, type VariantProps } from "class-variance-authority";
 import { useState, type CSSProperties } from "react";
+import { useNavigate } from "react-router";
 import { Image } from "~/components/image";
-import Link, { type LinkProps, linkContentInputs } from "~/components/link";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import type { ImageAspectRatio } from "~/types/others";
 import { selectorPaddingMargin } from "~/utils/general";
 import { calculateAspectRatio } from "~/utils/image";
@@ -20,40 +15,30 @@ const variants = cva("", {
       col2: "col-span-2",
       col3: "col-span-3",
       col4: "col-span-4",
-      col5: "col-span-5",
-      col6: "col-span-6",
-      col7: "col-span-7",
     },
-    hideOnMobile: {
-      true: "hidden sm:block",
-      false: "",
+    rowSize: {
+      row1: "row-span-1",
+      row2: "row-span-2",
+      row3: "row-span-3",
+      row4: "row-span-4",
+      
     },
   },
 });
 
-interface ColumnWithImageItemProps
-  extends VariantProps<typeof variants>,
-    Pick<LinkProps, "variant" | "text" | "to">,
-    HydrogenComponentProps {
-  imageSrc: WeaverseImage;
-  imageAspectRatio: ImageAspectRatio;
-  imageBorderRadius: number;
-  iconSize: number;
-  heading: string;
-  content: string;
-  ref?: React.Ref<HTMLDivElement>;
-  
+interface CommunityPostProps 
+extends VariantProps<typeof variants>,
+HydrogenComponentProps{
+  ref?:React.Ref<HTMLDivElement>;
+  image:WeaverseImage;
+  link:string;
   bgColor:string;
   bgHColor:string;
   borderColor:string;
   borderHColor:string;
   rounded:number;
-  paddingSelect:string;
-  paddingText:string;
-  hImgCont:number;
-  contentPosition:string;
-  typeIcon:string;
-  textSvg:string;
+  imageAspectRatio:ImageAspectRatio;
+  user:string;
   tColor:string;
   tSize:string;
   tLetter:number;
@@ -65,6 +50,7 @@ interface ColumnWithImageItemProps
   tMarginSelect:string;
   tMarginText:string;
   tWeight:string;
+  model:string;
   dColor:string;
   dSize:string;
   dLetter:number;
@@ -78,32 +64,21 @@ interface ColumnWithImageItemProps
   dWeight:string;
 }
 
-function ColumnWithImageItem(props: ColumnWithImageItemProps) {
+
+export default function CommunityPost(props:CommunityPostProps){
   const {
-    imageSrc,
-    imageAspectRatio,
-    imageBorderRadius,
-    iconSize,
-    heading,
-    content,
-    text,
-    to,
-    variant,
-    hideOnMobile,
-    size,
     ref,
-    
+    image,
+    size,
+    rowSize,
+    link,
     bgColor,
     bgHColor,
     borderColor,
     borderHColor,
     rounded,
-    paddingSelect,
-    paddingText,
-    hImgCont,
-    contentPosition,
-    typeIcon,
-    textSvg,
+    imageAspectRatio,
+    user,
     tColor,
     tSize,
     tLetter,
@@ -115,6 +90,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
     tMarginSelect,
     tMarginText,
     tWeight,
+    model,
     dColor,
     dSize,
     dLetter,
@@ -127,113 +103,122 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
     dMarginText,
     dWeight,
     ...rest
-  } = props;
-  
+  }=props
+  const navigate= useNavigate()
   const [isHover,setIsHover]=useState(false)
-  const position = contentPosition?.split(" ")
+  const isMobile=useIsMobile(600)
 
+  const linkfeed = ()=>{
+    if(link){
+      navigate(link)
+    }
+  }  
+  
   return (
-    <div
+    <div 
       ref={ref}
       {...rest}
-      data-motion="slide-in"
+      onClick={linkfeed}
       onMouseEnter={()=>setIsHover(true)}
       onMouseLeave={()=>setIsHover(false)}
-      className={variants({ size, hideOnMobile })}
+      className={variants({ size, rowSize })+ " overflow-hidden relative"}
       style = {{ 
         background:isHover ? bgHColor : bgColor,
-        transform:isHover?"translateY(-5%)":"unset",
-        border:`1px solid ${isHover?borderHColor:borderColor}`,
+        transform:isHover?"scale(1.02)":"unset",
+        boxShadow:isHover || isMobile?"0 10px 30px #000000cc":"unset",
+        border:`1px solid ${isHover || isMobile ?borderHColor:borderColor}`,
         borderRadius:`${rounded}px`,
-        ...selectorPaddingMargin("padding",paddingSelect,paddingText),
         transition:"all 0.4s ease",
       }}
-    >
-      <div className="w-full relative"
-        style={{
-          height:hImgCont >0 ? `${hImgCont}rem`:"auto",
-          justifyContent:position[1],
-          alignContent:position[0]!= "center" ? position[0]=="top" ? "start":"end":"center"
-        }}
+    
+
       >
-        {typeIcon =="image" ? 
-          <Image
-            data={typeof imageSrc === "object" ? imageSrc : { url: imageSrc }}
-            sizes="auto"
-            className="h-auto rounded-(--radius)"
-            style={{
-              width:`${iconSize}%`,
-              alignSelf:"center",
-              justifySelf:"center",
-              "--radius": `${imageBorderRadius}px`,
-            } as CSSProperties}
-            aspectRatio={calculateAspectRatio(imageSrc, imageAspectRatio)}
-          />
-          :
-            <div
-              dangerouslySetInnerHTML={{__html:textSvg}}
-              style={{
-                height:`${iconSize}%`,
-                width:`${iconSize}%`
-              }}
-            >
-              
-            </div>
-        }
+      <div className="social-img w-ful h-full object-cover">
+        <Image 
+          data={typeof image === "object" ? image : { url: image }}
+          sizes="auto"
+          className="h-full w-full object-cover"
+          style={{
+            alignSelf:"center",
+            justifySelf:"center",
+            filter:isHover || isMobile?"grayscale(0%)":"grayscale(100%)",
+            transition:"all 0.3s ease"
+
+          } as CSSProperties}
+          aspectRatio={calculateAspectRatio(image, imageAspectRatio)}
+        />
       </div>
-      <div className="mt-2 w-full space-y-3.5 text-center">
-        {heading && 
-          <h6 
-            style={{
-              color: tColor,
-              fontFamily: tFamily,
-              fontSize: tSize,
-              fontWeight: tWeight,
-              textTransform: tUpper ? "uppercase" : "unset",
-              letterSpacing: tLetter > 0?`${tLetter}px`:"normal",
-              textAlign:tAlignment,
-              ...selectorPaddingMargin("padding", tPaddingSelect, tPaddingText),
-              ...selectorPaddingMargin("margin", tMarginSelect, tMarginText),
-            }}
+      <div 
+        className="absolute w-full left-0 bottom-0"
+        style={{
+          background:"linear-gradient(to top, #050505e6,transparent)",
+          padding:"1.5rem",
+          textAlign:"left",
+          transform:isHover || isMobile ?"translateY(0)":"translateY(20px)",
+          opacity:isHover || isMobile ?"1":"0",
+          transition:"all 0.3s ease"
+        }}
+        >
+        <div 
+          className="social-user"
+          style={{
+            color: tColor,
+            fontFamily: tFamily,
+            fontSize: tSize,
+            fontWeight: tWeight,
+            textTransform: tUpper ? "uppercase" : "unset",
+            letterSpacing: tLetter > 0?`${tLetter}px`:"normal",
+            textAlign:tAlignment,
+            ...selectorPaddingMargin("padding", tPaddingSelect, tPaddingText),
+            ...selectorPaddingMargin("margin", tMarginSelect, tMarginText),
+          }}
           >
-            {heading}
-          </h6>
-        }
-        {content && 
-          <p 
-            dangerouslySetInnerHTML={{ __html: content }} 
-            style={{
-              color: dColor,
-              fontFamily: dFamily,
-              fontSize: dSize,
-              fontWeight: dWeight,
-              textTransform: dUpper ? "uppercase" : "unset",
-              letterSpacing: dLetter > 0?`${dLetter}px`:"normal",
-              textAlign:dAlignment,
-              ...selectorPaddingMargin("padding", dPaddingSelect, dPaddingText),
-              ...selectorPaddingMargin("margin", dMarginSelect, dMarginText),
-            }}    
-            />
-        }
-        {text && (
-          <Link variant={variant} to={to}>
-            {text}
-          </Link>
-        )}
+          {user}
+        </div>
+        <div 
+          className="social-model"
+          style={{
+            color: dColor,
+            fontFamily: dFamily,
+            fontSize: dSize,
+            fontWeight: dWeight,
+            textTransform: dUpper ? "uppercase" : "unset",
+            letterSpacing: dLetter > 0?`${dLetter}px`:"normal",
+            textAlign:dAlignment,
+            ...selectorPaddingMargin("padding", dPaddingSelect, dPaddingText),
+            ...selectorPaddingMargin("margin", dMarginSelect, dMarginText),
+          }}    
+          >
+          {model}
+        </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default ColumnWithImageItem;
-
 export const schema = createSchema({
-  type: "column-with-image--item",
-  title: "Column",
-  settings: [
+  type:"column-with-post--item",
+  title:"Post",
+  settings:[
     {
-      group: "Column",
-      inputs: [
+      group:"post",
+      inputs:[
+        {
+          type:'image',
+          label:'image',
+          name:'image',
+          defaultValue:{
+            url:IMAGES_PLACEHOLDERS.image,
+            altText:'Alt text',
+           
+          }
+        },
+        {
+          type:'url',
+          label:'url',
+          name:'link',
+          defaultValue:'/products',
+        },
         {
           type:'color',
           label:'background color',
@@ -263,7 +248,7 @@ export const schema = createSchema({
           type:'range',
           label:'border radius',
           name:'rounded',
-          defaultValue:10,
+          defaultValue:4,
           configs:{
             min:0,
             max:200,
@@ -293,111 +278,37 @@ export const schema = createSchema({
                 label: "Column 4",
                 value: "col4",
               },
+              
+            ],
+          },
+          defaultValue: "col2",
+        },
+        {
+          type: "select",
+          name: "rowSize",
+          label: "Row size",
+          configs: {
+            options: [
               {
-                label: "Column 5",
-                value: "col5",
+                label: "Row 1",
+                value: "row1",
               },
               {
-                label: "Column 6",
-                value: "col6",
+                label: "Row 2",
+                value: "row2",
               },
               {
-                label: "Column 7",
-                value: "col7",
+                label: "Row 3",
+                value: "row3",
+              },
+              {
+                label: "Row 4",
+                value: "row4",
               },
               
             ],
           },
-          defaultValue: "col4",
-        },
-        {
-          type: "switch",
-          label: "Hide on Mobile",
-          name: "hideOnMobile",
-          defaultValue: false,
-        },
-        {
-          type:'select',
-          label:'Padding type',
-          name:'paddingSelect',
-          configs:{
-            options:[
-              {value:'t',label:'Top'},
-              {value:'b',label:'Bottom'},
-              {value:'l',label:'Left'},
-              {value:'r',label:'Right'},
-              {value:'x',label:'Inline'},
-              {value:'y',label:'Block'},
-              {value:'a',label:'Custom'},
-            ]
-          },
-          defaultValue:'a',
-        },
-        {
-          type:'text',
-          label:'Padding text',
-          name:'paddingText',
-          defaultValue:"2.5rem 2rem"
-        },
-        {
-          type: "heading",
-          label: "Image icon",
-        },
-        {
-          type:'range',
-          label:'height img/svg container',
-          name:'hImgCont',
-          defaultValue:2.5,
-          configs:{
-            min:0,
-            max:20,
-            step:0.1,
-            unit:'rem',
-          },
-          helpText:"0 igual 'auto'"
-        },
-        {
-          type:"position",
-          label:"content position",
-          name:"contentPosition",
-          defaultValue:"center center"
-        },
-        {
-          type:'select',
-          label:'select type of icon',
-          name:'typeIcon',
-          configs:{
-            options:[
-              {value:'image',label:'image'},
-              {value:'svg',label:'svg text'},
-            ]
-          },
-          defaultValue:'svg',
-        },
-        {
-          type:'textarea',
-          label:'svg text',
-          name:'textSvg',
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="svg"
-        
-        },
-        {
-          type: "image",
-          name: "imageSrc",
-          label: "Image",
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="image"
-        },
-        {
-          type:'range',
-          label:'icon Size',
-          name:'iconSize',
-          defaultValue:12,
-          configs:{
-            min:10,
-            max:100,
-            step:1,
-            unit:'%',
-          },
+          defaultValue: "row2",
         },
         {
           type: "select",
@@ -415,52 +326,22 @@ export const schema = createSchema({
           },
           helpText:
             'Learn more about image <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio" target="_blank" rel="noopener noreferrer">aspect ratio</a> property.',
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="image"
         },
-        {
-          type: "range",
-          name: "imageBorderRadius",
-          label: "Image border radius",
-          configs: {
-            min: 0,
-            max: 40,
-            step: 2,
-            unit: "px",
-          },
-          defaultValue: 0,
-          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="image"
-        },
-        {
-          type: "heading",
-          label: "Content",
-        },
-        {
-          type: "text",
-          name: "heading",
-          label: "Heading",
-          placeholder: "Example heading",
-          defaultValue: "Example heading",
-        },
-        {
-          type: "richtext",
-          label: "Description",
-          name: "content",
-          placeholder:
-            "Use this section to promote content throughout every page of your site. Add images for further impact.",
-          defaultValue:
-            "Use this section to promote content throughout every page of your site. Add images for further impact.",
-        },
-
-        {
-          type: "heading",
-          label: "Button (optional)",
-        },
-        ...linkContentInputs,
-      ],
+      ]
     },
     {
-      group:"heading",
-      inputs:[
+      group:"overlay",
+      inputs:[  
+        {
+          type:'heading',
+          label:'user'
+        },
+        {
+          type:'text',
+          label:'user',
+          name:'user',
+          defaultValue:'@Alexander',
+        },
         {
           type:'color',
           label:'color',
@@ -477,7 +358,7 @@ export const schema = createSchema({
           type:'range',
           label:'letter spacing',
           name:'tLetter',
-          defaultValue:2,
+          defaultValue:1,
           configs:{
             min:0,
             max:50,
@@ -503,7 +384,7 @@ export const schema = createSchema({
           type:'switch',
           label:'uppercase',
           name:'tUpper',
-          defaultValue:true,
+          defaultValue:false,
         },
         {
           type:'text',
@@ -554,7 +435,7 @@ export const schema = createSchema({
           type:'text',
           label:'Margin text',
           name:'tMarginText',
-          defaultValue:"0.8rem"
+          defaultValue:"0.2rem"
         },
         {
           type:'select',
@@ -575,11 +456,16 @@ export const schema = createSchema({
           },
           defaultValue:'400',
         },   
-      ]
-    },
-    {
-      group:"description",
-      inputs:[
+        {
+          type:'heading',
+          label:'model'
+        },
+        {
+          type:'text',
+          label:'model',
+          name:'model',
+          defaultValue:'ORIGIN EDITION',
+        },
         {
           type:'color',
           label:'color',
@@ -590,13 +476,13 @@ export const schema = createSchema({
           type:'text',
           label:'font size',
           name:'dSize',
-          defaultValue:'0.8rem',
+          defaultValue:'0.75rem',
         },
         {
           type:'range',
           label:'letter spacing',
           name:'dLetter',
-          defaultValue:0,
+          defaultValue:1,
           configs:{
             min:0,
             max:50,
@@ -693,10 +579,8 @@ export const schema = createSchema({
           },
           defaultValue:'300',
         },   
+    
       ]
     }
-  ],
-  presets: {
-    imageSrc: IMAGES_PLACEHOLDERS.product_4,
-  },
-});
+  ]
+})

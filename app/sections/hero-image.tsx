@@ -9,9 +9,11 @@ import { backgroundInputs } from "~/components/background-image";
 import { overlayInputs } from "~/components/overlay";
 import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section } from "~/components/section";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 export interface HeroImageProps extends VariantProps<typeof variants> {
   ref: React.Ref<HTMLElement>;
+  widthCont:number;
 }
 
 const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
@@ -57,8 +59,9 @@ const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
 });
 
 export default function HeroImage(props: HeroImageProps & SectionProps) {
-  const { ref, children, height, contentPosition, ...rest } = props;
+  const { ref, children, height,widthCont, contentPosition, ...rest } = props;
   const { enableTransparentHeader } = useThemeSettings();
+  const isMobile = useIsMobile(600)
   return (
     <Section
       ref={ref}
@@ -67,7 +70,12 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
         contentPosition,
         height,
         enableTransparentHeader,
+
       })}
+      containerStyle={{
+        width:isMobile?"100%":`${widthCont}%`
+      }}
+      
     >
       {children}
     </Section>
@@ -81,6 +89,18 @@ export const schema = createSchema({
     {
       group: "Layout",
       inputs: [
+        {
+          type:'range',
+          label:'width content',
+          name:'widthCont',
+          defaultValue:100,
+          configs:{
+            min:5,
+            max:100,
+            step:1,
+            unit:'%',
+          }
+        },
         {
           type: "select",
           name: "height",

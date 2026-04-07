@@ -6,7 +6,9 @@ import {
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type { CSSProperties } from "react";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import { cn } from "~/utils/cn";
+import { selectorPaddingMargin } from "~/utils/general";
 
 
 
@@ -17,28 +19,10 @@ const variants = cva("heading", {
       custom: "",
       scale: "text-scale",
     },
-    weight: {
-      "100": "font-thin",
-      "200": "font-extralight",
-      "300": "font-light",
-      "400": "font-normal",
-      "500": "font-medium",
-      "600": "font-semibold",
-      "700": "font-bold",
-      "800": "font-extrabold",
-      "900": "font-black",
-    },
-  
-    alignment: {
-      left: "text-left",
-      center: "text-center",
-      right: "text-right",
-    },
+
   },
   defaultVariants: {
     size: "default",
-    weight: "400",
-    alignment: "center",
   },
 });
 
@@ -46,15 +30,21 @@ export interface HeadingProps
   extends VariantProps<typeof variants>{
   ref?: React.Ref<HTMLHeadingElement>;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  weight:string;
   content: string;
   color?: string;
   backgroundColor?: string;
+  alignment:"left"|"center"|"right";
   minSize?: number;
   maxSize?: number;
   animate?: boolean;
   mobileSize:string;
   desktopSize:string;
   letterSpacing:number;
+  paddingSelect?:string;
+  paddingText?:string;
+  marginSelect?:string;
+  marginText?:string;
 }
 
 function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
@@ -72,6 +62,10 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     alignment,
     minSize,
     maxSize,
+    paddingSelect,
+    paddingText,
+    marginSelect,
+    marginText,
     className,
     animate = true,
     ...rest
@@ -89,18 +83,24 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
   if (animate) {
     rest["data-motion"] = "fade-up";
   }
+  const isMobile= useIsMobile(600)
+
   return (
     <Tag
       ref={ref}
       {...rest}
       style={{
         ...style,
-        letterSpacing:letterSpacing>0 ? `${letterSpacing}px`:"normal"
-
+        width:"100%",
+        fontSize:size=="custom" && isMobile ? mobileSize:desktopSize,
+        letterSpacing:letterSpacing>0 ? `${letterSpacing}px`:"normal",
+        fontWeight:weight,
+        textAlign:alignment,
+        ...selectorPaddingMargin("padding",paddingSelect,paddingText),
+        ...selectorPaddingMargin("margin",marginSelect,marginText),
       }}
       className={cn(
-        size === "custom" &&  `text-[${mobileSize}] md:text-[${desktopSize}]`,
-        variants({ size, weight, alignment, className }),
+        variants({ size, className }),
       )}
     >
       {content}
@@ -241,6 +241,51 @@ export const headingInputs: InspectorGroup["inputs"] = [
       ],
     },
     defaultValue: "center",
+  },
+  {
+    type:'select',
+    label:'Padding type',
+    name:'paddingSelect',
+    configs:{
+      options:[
+        {value:'t',label:'Top'},
+        {value:'b',label:'Bottom'},
+        {value:'l',label:'Left'},
+        {value:'r',label:'Right'},
+        {value:'x',label:'Inline'},
+        {value:'y',label:'Block'},
+        {value:'a',label:'Custom'},
+      ]
+    },
+    defaultValue:'a',
+  },
+  {
+    type:'text',
+    label:'Padding text',
+    name:'paddingText',
+  },
+  {
+    type:'select',
+    label:'Margin type',
+    name:'marginSelect',
+    configs:{
+      options:[
+        {value:'t',label:'Top'},
+        {value:'b',label:'Bottom'},
+        {value:'l',label:'Left'},
+        {value:'r',label:'Right'},
+        {value:'x',label:'Inline'},
+        {value:'y',label:'Block'},
+        {value:'a',label:'Custom'},
+      ]
+    },
+    defaultValue:'b',
+  },
+  {
+    type:'text',
+    label:'Margin text',
+    name:'marginText',
+    defaultValue:"0.8rem"
   },
 ];
 

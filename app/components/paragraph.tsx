@@ -10,6 +10,7 @@ export interface ParagraphProps
   ref?: React.Ref<HTMLParagraphElement | HTMLDivElement>;
   as?: "p" | "div";
   content: string;
+  alignment:"left"|"center"|"right";
   textSize:string;
   color?: string;
   contWidth:number;
@@ -20,11 +21,6 @@ const variants = cva("paragraph", {
     width: {
       full: "mx-auto w-full",
       narrow: "mx-auto w-full max-w-4xl md:w-1/2 lg:w-3/4",
-    },
-    alignment: {
-      left: "text-left",
-      center: "text-center",
-      right: "text-right",
     },
   },
   defaultVariants: {
@@ -52,11 +48,12 @@ function Paragraph(props: ParagraphProps) {
       ref={ref}
       data-motion="fade-up"
       {...rest}
-      className={clsx(variants({width, alignment, className }))}
+      className={clsx(variants({width, className }))}
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: content }}
       style={{ 
         color:color,
+        textAlign:alignment,
         fontSize:textSize,
         width:!isMobile?`${contWidth}%`:"100%" 
       }}
@@ -139,13 +136,13 @@ export const schema = createSchema({
           label: "Alignment",
           configs: {
             options: [
-              { value: "left", label: "Left", icon: "align-start-vertical" },
+              { value: "left", label: "Left" },
               {
                 value: "center",
                 label: "Center",
-                icon: "align-center-vertical",
               },
-              { value: "right", label: "Right", icon: "align-end-vertical" },
+              { value: "right", label: "Right"},
+              { value: "justify", label: "Justify"},
             ],
           },
           defaultValue: "center",

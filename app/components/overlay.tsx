@@ -7,6 +7,8 @@ export interface OverlayData {
   overlayColor: string;
   overlayColorHover: string;
   overlayOpacity: number;
+  gradient?:boolean;
+  gradientInfo?:string;
 }
 
 export type OverlayProps = OverlayData & {
@@ -19,6 +21,8 @@ export function Overlay(props: OverlayProps) {
     overlayColor,
     overlayColorHover,
     overlayOpacity,
+    gradient,
+    gradientInfo,
     className,
   } = props;
   if (enableOverlay) {
@@ -36,6 +40,24 @@ export function Overlay(props: OverlayProps) {
             "--overlay-color-hover": overlayColorHover,
             opacity: overlayOpacity / 100,
             margin: 0,
+            background:gradient ? gradientInfo:"unset"
+          } as CSSProperties
+        }
+      />
+    );
+  }
+  if(gradient){
+    return (
+      <div
+        className={cn(
+          "absolute inset-0 z-[-1] transition-colors duration-300",
+          className,
+        )}
+        style={
+          {
+            opacity:1,
+            margin: 0,
+            background:gradient ? gradientInfo:"unset"
           } as CSSProperties
         }
       />

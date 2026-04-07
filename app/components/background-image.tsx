@@ -2,6 +2,7 @@ import { Image } from "@shopify/hydrogen";
 import type { InspectorGroup, WeaverseImage } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import type { CSSProperties } from "react";
 
 const variants = cva("absolute inset-0 z-[-1] h-full w-full", {
   variants: {
@@ -30,10 +31,11 @@ const variants = cva("absolute inset-0 z-[-1] h-full w-full", {
 
 export type BackgroundImageProps = VariantProps<typeof variants> & {
   backgroundImage?: WeaverseImage | string;
+  style?:CSSProperties;
 };
 
 export function BackgroundImage(props: BackgroundImageProps) {
-  const { backgroundImage, backgroundFit, backgroundPosition } = props;
+  const { backgroundImage,style, backgroundFit, backgroundPosition } = props;
   if (backgroundImage) {
     const data =
       typeof backgroundImage === "string"
@@ -44,6 +46,7 @@ export function BackgroundImage(props: BackgroundImageProps) {
         className={variants({ backgroundFit, backgroundPosition })}
         data={data}
         sizes="auto"
+        style={style}
       />
     );
   }

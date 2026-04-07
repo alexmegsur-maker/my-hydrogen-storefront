@@ -2,6 +2,7 @@ import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { cn } from "~/utils/cn";
+import { selectorPaddingMargin } from "~/utils/general";
 
 const variants = cva("subheading", {
   variants: {
@@ -27,6 +28,11 @@ interface SubHeadingProps
   weight:string;
   letter:number;
   fontFamily:string;
+  paddingSelect?:string;
+  paddingText?:string;
+  marginSelect?:string;
+  marginText?:string;
+
 
 }
 
@@ -41,6 +47,10 @@ function SubHeading(props: SubHeadingProps) {
     alignment,
     letter,
     fontFamily,
+    paddingSelect,
+    paddingText,
+    marginSelect,
+    marginText,
     className,
     ...rest
   } = props;
@@ -55,6 +65,8 @@ function SubHeading(props: SubHeadingProps) {
         fontWeight:weight,
         letterSpacing:letter > 0 ? `${letter}px`:"normal",
         fontFamily:fontFamily,
+        ...selectorPaddingMargin("padding",paddingSelect,paddingText),
+        ...selectorPaddingMargin("margin",marginSelect,marginText),
        }}
       className={cn(variants({  alignment, className }))}
     >
@@ -158,6 +170,51 @@ export const schema = createSchema({
             ],
           },
           defaultValue: "center",
+        },
+        {
+          type:'select',
+          label:'Padding type',
+          name:'paddingSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'a',
+        },
+        {
+          type:'text',
+          label:'Padding text',
+          name:'paddingText',
+        },
+        {
+          type:'select',
+          label:'Margin type',
+          name:'marginSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'b',
+        },
+        {
+          type:'text',
+          label:'Margin text',
+          name:'marginText',
+          defaultValue:"0.8rem"
         },
       ],
     },

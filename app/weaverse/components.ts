@@ -105,6 +105,15 @@ import * as FilterStep from "~/sections/main-product-j/filter-step"
 import * as FilterOption from "~/sections/main-product-j/filter-option"
 import * as CrossellProductJ from "~/sections/main-product-j/crossell"
 import * as BuyButtonsProductJ from "~/sections/main-product-j/buy-buttons"
+import * as CardSelector from "~/sections/card-selector"
+import * as CardSimple from "~/components/card-simple"
+import * as SimpleProductGrid from "~/sections/simple-product-grid"
+import * as SimpleProductItems from "~/sections/simple-product-grid/items"
+import * as SimpleProductItem from "~/sections/simple-product-grid/product"
+import * as CommunityGrid from "~/sections/comunity-grid"
+import * as CommunityItems from "~/sections/comunity-grid/items"
+import * as CommunityPost from "~/sections/comunity-grid/post"
+
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -217,5 +226,13 @@ export const components: HydrogenComponent[] = [
   FilterOption,
   CrossellProductJ,
   BuyButtonsProductJ,
-  GroupButtons
+  GroupButtons,
+  CardSelector,
+  CardSimple,
+  SimpleProductGrid,
+  SimpleProductItems,
+  SimpleProductItem,
+  CommunityGrid,
+  CommunityItems,
+  CommunityPost
 ];

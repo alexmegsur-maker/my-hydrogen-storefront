@@ -278,7 +278,7 @@ export default function  CrossellProductJ (props:CrossellProductJProps){
                   fontSize: tSize,
                   fontWeight: tWeight,
                   textTransform: tUpper ? "uppercase" : "unset",
-                  letterSpacing: `${tLetter}px`,
+                  letterSpacing: tLetter > 0 ? `${tLetter}px`:"normal",
                   ...selectorPaddingMargin("padding", tPaddingSelect, tPaddingText),
                   ...selectorPaddingMargin("margin", tMarginSelect, tMarginText),
                 }}
