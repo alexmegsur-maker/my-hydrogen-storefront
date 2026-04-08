@@ -120,6 +120,24 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: 36,
         },
         {
+          type:'switch',
+          label:'active spin',
+          name:'activeSpin',
+          defaultValue:true,
+        },
+        {
+          type:'switch',
+          label:'repeat content',
+          name:'repeat',
+          defaultValue:true,
+        },
+        {
+          type:'text',
+          label:'font size',
+          name:'topbarSize',
+          defaultValue:'0.7rem',
+        },
+        {
           type: "range",
           label: "Scrolling speed",
           name: "topbarScrollingSpeed",
@@ -207,10 +225,60 @@ export const themeSchema: HydrogenThemeSchema = {
             options:[
               {value:"style-1",label:"style 1"},
               {value:"style-2",label:"style 2"},
+              {value:"style-3",label:"style 3"},
             ]
           },
           defaultValue:"style-1"
-        }
+        },
+        {
+          type:'switch',
+          label:'show search',
+          name:'showSearch',
+          defaultValue:true,
+        },
+        {
+          type:'switch',
+          label:'show Account',
+          name:'showLogin',
+          defaultValue:true,
+        },
+        {
+          type:'switch',
+          label:'show language',
+          name:'showHeaderLanguage',
+          defaultValue:true,
+        },
+        
+        {
+          type:'text',
+          label:'header size',
+          name:'headerSize',
+          defaultValue:'5rem',
+        },
+        {
+          type:'color',
+          label:'header border color',
+          name:'headerBorderColor',
+          defaultValue:'#ffffff08',
+        },
+        {
+          type:'text',
+          label:'title size',
+          name:'headerTSize',
+          defaultValue:'0.75rem',
+        },
+        {
+          type:'color',
+          label:'title color',
+          name:'headerTColor',
+          defaultValue:'#A1A1AA',
+        },
+        {
+          type:'color',
+          label:'title hover color',
+          name:'headerTHColor',
+          defaultValue:'#FFFFFF',
+        },
       ],
     },
     {
@@ -302,6 +370,18 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "color",
           label: "Footer background",
           name: "footerBgColor",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "Footer border Color",
+          name: "footerBorderColor",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "Footer border copyright Color",
+          name: "footerBorderCopyColor",
           defaultValue: "#000000",
         },
         {
@@ -835,6 +915,7 @@ export const themeSchema: HydrogenThemeSchema = {
     {
       group: "Newsletter Popup",
       inputs: [
+
         {
           type: "switch",
           label: "Enable newsletter popup",
@@ -1076,11 +1157,18 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Store information",
         },
         {
+          type:'switch',
+          label:'Show Store Information',
+          name:'showStoreInfo',
+          defaultValue:true,
+        },
+        {
           type: "text",
           name: "addressTitle",
           label: "Title",
           defaultValue: "OUR SHOP",
           placeholder: "Our shop",
+          condition:(theme)=>theme.showStoreInfo ==true
         },
         {
           type: "text",
@@ -1088,6 +1176,7 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Address",
           defaultValue: "301 Front St W, Toronto, ON M5V 2T6, Canada",
           placeholder: "301 Front St W, Toronto, ON M5V 2T6, Canada",
+          condition:(theme)=>theme.showStoreInfo ==true
         },
         {
           type: "text",
@@ -1095,10 +1184,17 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Email",
           defaultValue: "contact@my-store.com",
           placeholder: "contact@my-store.com",
+          condition:(theme)=>theme.showStoreInfo ==true
         },
         {
           type: "heading",
           label: "Newsletter",
+        },
+        {
+          type:'switch',
+          label:'Show Newsletter',
+          name:'showNewsletter',
+          defaultValue:true,
         },
         {
           type: "text",
@@ -1106,12 +1202,14 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Title",
           defaultValue: "STAY IN TOUCH",
           placeholder: "Stay in touch",
+          condition:(theme)=>theme.showNewsletter ==true
         },
         {
           type: "text",
           name: "newsletterDescription",
           label: "Description",
           defaultValue: "News and inspiration in your inbox, every week.",
+          condition:(theme)=>theme.showNewsletter ==true
         },
         {
           type: "text",
@@ -1119,6 +1217,7 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Input placeholder",
           defaultValue: "Please enter your email",
           placeholder: "Please enter your email",
+          condition:(theme)=>theme.showNewsletter ==true
         },
         {
           type: "text",
@@ -1126,13 +1225,185 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Button text",
           defaultValue: "Send",
           placeholder: "Send",
+          condition:(theme)=>theme.showNewsletter ==true
         },
+        {
+          type:'heading',
+          label:'footer menus'
+        },
+        {
+          type:'range',
+          label:'menu linksgap',
+          name:'footerStgap',
+          defaultValue:1,
+          configs:{
+            min:0,
+            max:5,
+            step:0.1,
+            unit:'rem',
+          }
+        },
+        {
+          type:'text',
+          label:'menus footer',
+          name:'footerMenus',
+          defaultValue:'mobile-menu',
+          helpText:"add handle of menu navigation"
+        },
+
+        {
+          type:'color',
+          label:'menu title color',
+          name:'footerTcolor',
+          defaultValue:'#FFFFFF',
+        },
+        {
+          type:'text',
+          label:'menu title font size',
+          name:'footertSize',
+          defaultValue:'0.9rem',
+        },
+        {
+          type:'range',
+          label:'menu title letter spacing',
+          name:'footertLetter',
+          defaultValue:2,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          }
+        },
+        {
+          type:'switch',
+          label:'menu title uppercase',
+          name:'footertUpper',
+          defaultValue:true,
+        },
+        {
+          type:'text',
+          label:'menu title font family',
+          name:'footertFamily',
+          defaultValue:'Montserrat',
+        },
+        {
+          type:'select',
+          label:'menu title Font weight',
+          name:'footertWeight',
+          configs:{
+            options:[
+              {value:'100',label:'100'},
+              {value:'200',label:'200'},
+              {value:'300',label:'300'},
+              {value:'400',label:'400'},
+              {value:'500',label:'500'},
+              {value:'600',label:'600'},
+              {value:'700',label:'700'},
+              {value:'800',label:'800'},
+              {value:'900',label:'900'},
+            ]
+          },
+          defaultValue:'400',
+        },   
+        {
+          type:'color',
+          label:'menu link color',
+          name:'footerSTcolor',
+          defaultValue:'#A1A1A1AA',
+        },
+        {
+          type:'text',
+          label:'menu link font size',
+          name:'footerStSize',
+          defaultValue:'0.9rem',
+        },
+        {
+          type:'range',
+          label:'menu link letter spacing',
+          name:'footerStLetter',
+          defaultValue:2,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          }
+        },
+        {
+          type:'switch',
+          label:'menu link uppercase',
+          name:'footerStUpper',
+          defaultValue:true,
+        },
+        {
+          type:'text',
+          label:'menu link font family',
+          name:'footerStFamily',
+          defaultValue:'Montserrat',
+        },
+        {
+          type:'select',
+          label:'menu link Font weight',
+          name:'footerStWeight',
+          configs:{
+            options:[
+              {value:'100',label:'100'},
+              {value:'200',label:'200'},
+              {value:'300',label:'300'},
+              {value:'400',label:'400'},
+              {value:'500',label:'500'},
+              {value:'600',label:'600'},
+              {value:'700',label:'700'},
+              {value:'800',label:'800'},
+              {value:'900',label:'900'},
+            ]
+          },
+          defaultValue:'400',
+        },   
         {
           type: "richtext",
           name: "copyright",
           label: "Copyright text",
           defaultValue: "© 2024 Weaverse. All rights reserved.",
         },
+        {
+          type:'switch',
+          label:'Show language selector',
+          name:'showLanguage',
+          defaultValue:true,
+        },
+        {
+          type:'url',
+          label:'Aviso Legal',
+          name:'legal',
+          defaultValue:'/products',
+        },
+        {
+          type:'url',
+          label:'Privacidad',
+          name:'privacidad',
+          defaultValue:'/products',
+        },
+        {
+          type:'url',
+          label:'Cookies',
+          name:'cookies',
+          defaultValue:'/products',
+        },
+         {
+          type:'color',
+          label:'copyright color',
+          name:'footerCopyColor',
+          defaultValue:'#A1A1A1AA',
+        },
+        {
+          type:'text',
+          label:'copyright font size',
+          name:'footerCopySize',
+          defaultValue:'0.9rem',
+        },
+        
       ],
     },
   ],

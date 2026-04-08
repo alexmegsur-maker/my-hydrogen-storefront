@@ -13,7 +13,9 @@ import { seoPayload } from "./seo";
  * Load data necessary for rendering content above the fold. This is the critical data
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
-type LayoutDataArgs = AppLoadContext & {headerMenuHandle:string};
+type LayoutDataArgs = AppLoadContext & {
+  headerMenuHandle:string,
+  footerMenuHandle:string};
 
 export async function loadCriticalData({
   request,
@@ -22,9 +24,10 @@ export async function loadCriticalData({
 
   const weaverseTheme = await context.weaverse.loadThemeSettings();
   const headerMenuHandle = (weaverseTheme.theme.menu as string) || 'main-menu';
+  const footerMenuHandle = (weaverseTheme.theme.footerMenus as string) || 'main-menu';
 
   const [layout, swatchesConfigs] = await Promise.all([
-    getLayoutData({...context,headerMenuHandle} as LayoutDataArgs),
+    getLayoutData({...context,headerMenuHandle,footerMenuHandle} as LayoutDataArgs),
     getSwatchesConfigs(context),
   ]);
 
@@ -68,12 +71,12 @@ export function loadDeferredData({ context }: LoaderFunctionArgs) {
 }
 
 
-async function getLayoutData({ storefront, env ,headerMenuHandle}:LayoutDataArgs) {
+async function getLayoutData({ storefront, env ,headerMenuHandle,footerMenuHandle}:LayoutDataArgs) {
   const data = await storefront
     .query<LayoutQuery>(LAYOUT_QUERY, {
       variables: {
         headerMenuHandle:headerMenuHandle  ,
-        footerMenuHandle: "footer",
+        footerMenuHandle: footerMenuHandle,
         language: storefront.i18n.language,
       },
     })

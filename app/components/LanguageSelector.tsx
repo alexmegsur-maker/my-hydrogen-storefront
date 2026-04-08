@@ -1,4 +1,5 @@
 import { Value } from '@radix-ui/react-select';
+import { useThemeSettings } from '@weaverse/hydrogen';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {COUNTRIES} from '~/utils/const';
@@ -8,6 +9,8 @@ export function LanguageSelector() {
   const navigate = useNavigate();
   const [selectLang,setSelectLang] = useState("ES / EUR");
   const [show,setShow] = useState(false);
+  const {headerTColor,headerTHColor,headerTSize}=useThemeSettings()
+  const [isHover,setIsHover]=useState(false)
 
   // Obtenemos el prefijo actual (ej: /en o vacío para default)
   const currentPathPart = `/${pathname.substring(1).split('/')[0].toLowerCase()}`;
@@ -44,17 +47,25 @@ export function LanguageSelector() {
 
   return (
     <div  onClick={()=>setShow((state)=>!state)}  className="bg-transparent p-1 relative flex cursor-pointer">
-        <button >
+        <button 
+          onMouseEnter={()=>setIsHover(true)}
+          onMouseLeave={()=>setIsHover(false)}
+          style={{
+            color: isHover ? headerTHColor:headerTColor,
+            fontSize:headerTSize
+          }}
+        >
           {selectLang}
         </button>
         {show && 
           <div 
-            className='absolute flex  flex-col w-[200px] right-0 bg-black text-white'
+            className='absolute flex  flex-col w-[200px] right-0  text-white'
             style={{
               marginTop:"26px",
-              borderRadius:"15px",
-              boxShadow:"0 20px 50px 0 rgba(0,0,0,0.1)",
-              border:"1px solid #d1dbe4"
+              borderRadius:"5px",
+              boxShadow:"0 20px 50px 0 rgba(151, 151, 151, 0.1)",
+              border:"1px solid #5757571c",
+              background:"#131313"
             }}
           >
             <span
@@ -64,7 +75,7 @@ export function LanguageSelector() {
               height:0,
               borderLeft:"5px solid transparent",
               borderRight:"5px solid transparent",
-              borderBottom:"6px solid black",
+              borderBottom:"6px solid #131313",
               display:show ? "block":"none",
               transform:"translateY(-100%)",
               right:"20px"

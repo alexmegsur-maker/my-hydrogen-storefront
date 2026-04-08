@@ -18,19 +18,39 @@ import { BannerHeader } from "~/components/header/banner";
 import { ImageLinkHeader } from "~/components/header/image-link";
 import { TopTextHeader } from "~/components/header/top-text";
 import { ProductTopHeader } from "~/components/header/top-product";
+import { useThemeSettings } from "@weaverse/hydrogen";
 
-export function DesktopMenu() {
+interface DesktopMenuProps{
+  partial?:boolean;
+  position?:"left"|"right"
+}
+
+export function DesktopMenu( props:DesktopMenuProps) {
+  const {partial,position}=props
   const { headerMenu } = useShopMenu();
   const [value, setValue] = useState<string>("");
   const components = useComponentStore((state)=>state.headerMenuItems)
+  const [hoverId,setHoverId] =useState<string|null>("")
 
+  const {
+    headerTSize,
+    headerTColor,
+    headerTHColor
+  }=useThemeSettings()
+
+  
   if (headerMenu?.items?.length) {
     const items = headerMenu.items as unknown as SingleMenuItem[];
-
+    
     return (
       <NavigationMenu.Root value={value} onValueChange={setValue}>
-        <NavigationMenu.List className="hidden h-full grow justify-center lg:flex">
-          {items.map((menuItem) => {
+        <NavigationMenu.List className="hidden h-full grow justify-center lg:flex"
+          style={{
+            gap:partial ? "4rem":"unset"
+          }}
+        >
+          {items.map((menuItem ,idx) => {
+            const half =Math.floor(items.length/2)
             const { id, items: childItems = [], title, to } = menuItem;
             const level = getMaxDepth(menuItem);
             const hasSubmenu = level > 1;
@@ -38,45 +58,38 @@ export function DesktopMenu() {
               level === 2 &&
               childItems.every(({ resource }) => !resource?.image);
             const hasEdition = components.find((elm)=>elm.heading === menuItem.title)
-            if ( isDropdown && hasEdition == undefined ) {
-              return <DropdownMenu key={id} menuItem={menuItem} />;
-            }
-
-            // Use NavigationMenu for mega menu items and items without submenu
-            return (
-              <NavigationMenu.Item key={id} value={id}>
-                <NavigationMenu.Trigger
-                  className={clsx([
-                    "flex h-full cursor-pointer items-center gap-1.5 px-3 py-2",
-                    'data-[state="open"]:[&>svg]:rotate-180',
-                    "uppercase focus:outline-hidden",
-                  ])}
-                  data-navigation-elm={title}
-                >
-                  {hasSubmenu ? (
-                    <>
-                      <span>{title}</span>
-                      <CaretDownIcon className="h-3.5 w-3.5 transition-transform" />
-                    </>
-                  ) : (
-                    <NavigationMenu.Link asChild>
-                      <Link to={to} className="transition-none">
-                        {title}
-                      </Link>
-                    </NavigationMenu.Link>
-                  )}
-                </NavigationMenu.Trigger>
-                {level > 1  && (
-                  <NavigationMenu.Content
-                    className={cn([
-                      "absolute top-0 left-0 w-full bg-white"
+            const isHover = hoverId ===id
+            const Result = 
+                <NavigationMenu.Item key={id} value={id}>
+                  <NavigationMenu.Trigger
+                    className={clsx([
+                      "flex h-full cursor-pointer items-center gap-1.5 px-3 py-2",
+                      'data-[state="open"]:[&>svg]:rotate-180',
+                      "uppercase focus:outline-hidden",
                     ])}
+                    data-navigation-elm={title}
+                    onMouseEnter={()=>setHoverId(id)}
+                    onMouseLeave={()=>setHoverId(null)}
+                    style={{
+                      fontSize:headerTSize,
+                      color:isHover ? headerTHColor:headerTColor,
+                      letterSpacing:"2px"
+                    }}
                   >
-                    <MegaMenu items={childItems} title={title}/>
-                  </NavigationMenu.Content>
-                )}
-                {
-                  level === 1 && hasEdition != undefined && (
+                    {hasSubmenu ? (
+                      <>
+                        <span>{title}</span>
+                        {/* <CaretDownIcon className="h-3.5 w-3.5 transition-transform" /> */}
+                      </>
+                    ) : (
+                      <NavigationMenu.Link asChild>
+                        <Link to={to} className="transition-none">
+                          {title}
+                        </Link>
+                      </NavigationMenu.Link>
+                    )}
+                  </NavigationMenu.Trigger>
+                  {level > 1  && (
                     <NavigationMenu.Content
                       className={cn([
                         "absolute top-0 left-0 w-full bg-white"
@@ -84,10 +97,43 @@ export function DesktopMenu() {
                     >
                       <MegaMenu items={childItems} title={title}/>
                     </NavigationMenu.Content>
-                  )
+                  )}
+                  {
+                    level === 1 && hasEdition != undefined && (
+                      <NavigationMenu.Content
+                        className={cn([
+                          "absolute top-0 left-0 w-full bg-white"
+                        ])}
+                      >
+                        <MegaMenu items={childItems} title={title}/>
+                      </NavigationMenu.Content>
+                    )
+                  }
+                </NavigationMenu.Item>
+              ;
+            // Use NavigationMenu for mega menu items and items without submenu
+            if(partial){
+              if( position=="left" && idx+1<=half){
+                if ( isDropdown && hasEdition == undefined ) {
+                  return <DropdownMenu key={id} menuItem={menuItem} />;
                 }
-              </NavigationMenu.Item>
-            );
+                return Result
+
+              }
+              if( position=="right" && idx+1>half){
+                if ( isDropdown && hasEdition == undefined ) {
+                  return <DropdownMenu key={id} menuItem={menuItem} />;
+                }
+                return Result
+              }
+              return null
+            }else{
+              if ( isDropdown && hasEdition == undefined ) {
+                return <DropdownMenu key={id} menuItem={menuItem} />;
+              }
+              return Result
+            }
+            
           })}
         </NavigationMenu.List>
         <div className="absolute inset-x-0 top-full flex w-full justify-center shadow-header bg-white">

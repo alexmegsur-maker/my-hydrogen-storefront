@@ -116,7 +116,7 @@ function PromotionGridItem(props: PromotionItemProps) {
       <BackgroundImage 
         backgroundImage={backgroundImage} 
         style={{
-          filter: activeGrayscale ? !isHover || !isMobile ? `grayscale(${grayscale}%)`:"unset":"unset",
+          filter: !isMobile && activeGrayscale && !isHover ? `grayscale(${grayscale}%)`:"unset",
           transform:isHover?"scale(1.05)":"scale(1)",
           transition:"all 0.4s ease"
         }}

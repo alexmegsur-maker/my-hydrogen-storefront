@@ -1,5 +1,6 @@
 import { CaretDownIcon } from "@phosphor-icons/react";
 import { Content, Item, Root, Trigger } from "@radix-ui/react-dropdown-menu";
+import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useState } from "react";
 import Link from "~/components/link";
@@ -9,6 +10,9 @@ import type { SingleMenuItem } from "~/types/menu";
 export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
   const [open, setOpen] = useState(false);
   const { items: childItems = [], title } = menuItem;
+  const {headerTSize,headerTColor,headerTHColor}=useThemeSettings()
+  const [isHover,setIsHover]=useState(false)
+
   return (
     <div 
       onMouseLeave={() => setOpen(false)} 
@@ -22,11 +26,19 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
           ])}
           onMouseEnter={() => {
             setOpen(true);
+            setIsHover(true)
           }}
+          onMouseLeave={()=>setIsHover(false)}
           data-navigation-elm={title}
+
+          style={{
+            fontSize:headerTSize,
+            color:isHover ? headerTHColor:headerTColor,
+            letterSpacing:"2px"
+          }}
         >
           <span>{title}</span>
-          <CaretDownIcon className="h-3.5 w-3.5 transition-transform" />
+          {/* <CaretDownIcon className="h-3.5 w-3.5 transition-transform" /> */}
         </Trigger>
         <Content
           align="start"

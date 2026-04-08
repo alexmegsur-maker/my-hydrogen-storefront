@@ -15,6 +15,7 @@ import { useShopMenu } from "~/hooks/use-shop-menu";
 import { cn } from "~/utils/cn";
 import { CountrySelector } from "./country-selector";
 import { FooterMenu } from "./menu/footer-menu";
+import { useEffect, useState } from "react";
 
 const variants = cva("", {
   variants: {
@@ -50,6 +51,19 @@ export function Footer() {
     newsletterDescription,
     newsletterPlaceholder,
     newsletterButtonText,
+
+    footerBorderColor,
+    footerBorderCopyColor,
+    showStoreInfo,
+    showNewsletter,
+
+    showLanguage,
+    legal,
+    privacidad,
+    cookies,
+    footerCopyColor,
+    footerCopySize,
+
   } = useThemeSettings();
   const fetcher = useFetcher<{ ok: boolean; error: string }>();
 
@@ -89,6 +103,10 @@ export function Footer() {
         "w-full bg-(--color-footer-bg) pt-9 text-(--color-footer-text) lg:pt-16",
         variants({ padding: footerWidth }),
       )}
+      style={{
+        borderTop:`1px solid ${footerBorderColor}`,
+        fontFamily:"Montserrat"
+      }}
     >
       <div
         className={cn(
@@ -97,7 +115,7 @@ export function Footer() {
         )}
       >
         <div className="space-y-9">
-          <div className="grid w-full gap-8 lg:grid-cols-3">
+          <div className="grid w-full gap-8 lg:gap-[10rem] lg:grid-cols-3">
             <div className="flex flex-col gap-6">
               {footerLogoData ? (
                 <div className="relative" style={{ width: footerLogoWidth }}>
@@ -127,63 +145,87 @@ export function Footer() {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col gap-6">
-              <div className="text-base">{addressTitle}</div>
-              <div className="space-y-2">
-                <p>{storeAddress}</p>
-                <p>Email: {storeEmail}</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-6">
-              <div className="text-base">{newsletterTitle}</div>
-              <div className="space-y-2">
-                <p>{newsletterDescription}</p>
-                <fetcher.Form
-                  action="/api/klaviyo"
-                  method="POST"
-                  encType="multipart/form-data"
-                >
-                  <div className="flex">
-                    <input
-                      name="email"
-                      type="email"
-                      required
-                      placeholder={newsletterPlaceholder}
-                      className="grow border border-gray-100 px-3 focus-visible:outline-hidden"
-                    />
-                    <Button
-                      variant="custom"
-                      type="submit"
-                      loading={fetcher.state === "submitting"}
-                    >
-                      {newsletterButtonText}
-                    </Button>
-                  </div>
-                </fetcher.Form>
-                <div className="h-8">
-                  {message && (
-                    <Banner variant="success" className="mb-6">
-                      {message}
-                    </Banner>
-                  )}
-                  {error && (
-                    <Banner variant="error" className="mb-6">
-                      {error}
-                    </Banner>
-                  )}
+            {showStoreInfo &&
+              <div className="flex flex-col gap-6">
+                <div className="text-base">{addressTitle}</div>
+                <div className="space-y-2">
+                  <p>{storeAddress}</p>
+                  <p>Email: {storeEmail}</p>
                 </div>
               </div>
+            }
+            {showNewsletter && 
+              <div className="flex flex-col gap-6">
+                <div className="text-base">{newsletterTitle}</div>
+                <div className="space-y-2">
+                  <p>{newsletterDescription}</p>
+                  <fetcher.Form
+                    action="/api/klaviyo"
+                    method="POST"
+                    encType="multipart/form-data"
+                  >
+                    <div className="flex">
+                      <input
+                        name="email"
+                        type="email"
+                        required
+                        placeholder={newsletterPlaceholder}
+                        className="grow border border-gray-100 px-3 focus-visible:outline-hidden"
+                      />
+                      <Button
+                        variant="custom"
+                        type="submit"
+                        loading={fetcher.state === "submitting"}
+                      >
+                        {newsletterButtonText}
+                      </Button>
+                    </div>
+                  </fetcher.Form>
+                  <div className="h-8">
+                    {message && (
+                      <Banner variant="success" className="mb-6">
+                        {message}
+                      </Banner>
+                    )}
+                    {error && (
+                      <Banner variant="error" className="mb-6">
+                        {error}
+                      </Banner>
+                    )}
+                  </div>
+                </div>
+              </div>
+            }
+            <div className=" col-span-2">
+              <FooterMenu />
             </div>
           </div>
-          <FooterMenu />
         </div>
-        <div className="flex flex-col items-center justify-between gap-4 border-line-subtle border-t py-9 lg:flex-row">
-          <div className="flex gap-2">
-            <CountrySelector />
+        <div 
+          className={`flex  flex-col items-center justify-between gap-4 border-line-subtle border-t lg:flex-row`}
+          style={{
+            borderColor:footerBorderCopyColor,
+            paddingBlock:"2rem",
+            color:footerCopyColor,
+            fontSize:footerCopySize,
+          }}
+        >
+          
+          {showLanguage && 
+            <div className="flex gap-2">
+              <CountrySelector />
+            </div>
+          }
+          <p dangerouslySetInnerHTML={{__html:copyright}}/>
+
+          <div className=" flex gap-2">
+            <Link to={legal} className={`hover:text-white`}>Aviso Legal</Link>
+            <Link to={privacidad} className={`text-[${footerCopyColor}] hover:text-white`}>Privacidad</Link>
+            <Link to={cookies} className={`text-[${footerCopyColor}] hover:text-white`}>Cookies</Link>
           </div>
-          <p>{copyright}</p>
         </div>
       </div>
     </footer>
   );
 }
+
