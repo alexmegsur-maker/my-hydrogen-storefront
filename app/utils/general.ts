@@ -1,39 +1,41 @@
+import type { CSSProperties } from "react"
+
 export function selectorPaddingMargin(type:string,selector:string,value:string|null |undefined) {
   if(value!=null || value!=undefined){
     switch(type){
       case "padding":
         switch(selector){
           case "t":
-            return{paddingTop:`${value}`}
+            return{paddingTop:`${value}`}as CSSProperties
           case "b":
-            return{paddingBottom:`${value}`}
+            return{paddingBottom:`${value}`}as CSSProperties
           case "l":
-            return{paddingLeft:`${value}`}
+            return{paddingLeft:`${value}`}as CSSProperties
           case "r":
-            return{paddingRight:`${value}`}
+            return{paddingRight:`${value}`}as CSSProperties
           case "x":
-            return{paddingInline:`${value}`}
+            return{paddingInline:`${value}`}as CSSProperties
           case "y":
-            return{paddingBlock:`${value}`}
+            return{paddingBlock:`${value}`}as CSSProperties
           case "a":
-            return{padding:`${value}`}
+            return{padding:`${value}`}as CSSProperties
         }
       case"margin":
         switch(selector){
           case "t":
-            return{marginTop:`${value}`}
+            return{marginTop:`${value}`}as CSSProperties
           case "b":
-            return{marginBottom:`${value}`}
+            return{marginBottom:`${value}`}as CSSProperties
           case "l":
-            return{marginLeft:`${value}`}
+            return{marginLeft:`${value}`}as CSSProperties
           case "r":
-            return{marginRight:`${value}`}
+            return{marginRight:`${value}`}as CSSProperties
           case "x":
-            return{marginInline:`${value}`}
+            return{marginInline:`${value}`}as CSSProperties
           case "y":
-            return{marginBlock:`${value}`}
+            return{marginBlock:`${value}`}as CSSProperties
           case "a":
-            return{margin:`${value}`}
+            return{margin:`${value}`}as CSSProperties
         }
     }
   }

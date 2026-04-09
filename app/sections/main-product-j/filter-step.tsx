@@ -31,7 +31,6 @@ export default function FilterStep(props: FilterStepProps) {
 
   useEffect(()=>{
     if(metaobj){
-      console.log("metaobj",metaobj)
       setIsLoading(true)
 
       const loadMetaObject = async(retryCount=0)=>{
@@ -42,9 +41,7 @@ export default function FilterStep(props: FilterStepProps) {
           const finalUrl = `${getApiUrl}?${params.toString()}`
 
           const res = await fetch(finalUrl)
-          console.log("res---->",res)
           const data = await res.json() as ApiResponseCollection
-          console.log("data---->",data)
 
           if(data.ok){
             setMetaObject(data.result.metaobjects)
@@ -68,12 +65,10 @@ export default function FilterStep(props: FilterStepProps) {
         }
       }
       loadMetaObject()
-      console.log("metaobj",metaobj)
     }
   },[metaobj])
 
   useEffect(()=>{
-    console.log("metaObject",metaObject)
     if(metaObject){
       let objectString= JSON.stringify(metaObject)
       addVarOptions(objectString)

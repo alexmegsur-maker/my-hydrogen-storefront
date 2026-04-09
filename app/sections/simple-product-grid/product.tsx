@@ -167,7 +167,6 @@ function ColumnWithProductItem(props: ColumnWithProductItemProps) {
   }
 
   useEffect(()=>{
-    console.log("producto loaderdata",loaderData)
   },[loaderData])
   return (
     <div

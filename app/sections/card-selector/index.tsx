@@ -24,7 +24,6 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
   const childInstances =useChildInstances()
   const headerChildsId =childInstances.map(
     (instance:any)=>{ 
-      console.log("instance",instance)
       if(instance.data.type=="heading"||instance.data.type=="subheading"){
         return instance.data.id
       }
@@ -32,12 +31,6 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
     }
   ).filter((elm)=>elm != null)
 
-  useEffect(()=>{
-    if(childInstances){
-      console.log("childInstances",childInstances)
-      console.log("headerChildsId",headerChildsId)
-    }
-  },[childInstances])
 
   return(
   <Section ref={ref} {...rest} className="universes-wrapper">

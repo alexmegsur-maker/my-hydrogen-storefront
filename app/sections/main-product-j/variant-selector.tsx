@@ -342,7 +342,6 @@ export default function SelectorVariant(props:SelectorVariantProps){
     if(producto){
       let formatedProduct= createCurProVar(producto.node)
       setProduct(formatedProduct)
-      // console.log("formatedProduct",formatedProduct)
     }
   } 
 

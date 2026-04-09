@@ -50,7 +50,6 @@ function PromotionGrid(props: PromotionGridProps & HydrogenComponentProps) {
   const childInstances =useChildInstances()
     const headerChildsId =childInstances.map(
       (instance:any)=>{ 
-        console.log("instance",instance)
         if(instance.data.type=="heading"||instance.data.type=="subheading"){
           return instance.data.id
         }

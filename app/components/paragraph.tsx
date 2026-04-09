@@ -1,9 +1,13 @@
+import { useGSAP } from "@gsap/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
+import gsap from "gsap";
+import { useRef, type CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
-
+import "~/styles/paragraph.css"
+import { selectorPaddingMargin } from "~/utils/general";
 export interface ParagraphProps
   extends VariantProps<typeof variants>,
     Partial<HydrogenComponentProps> {
@@ -14,13 +18,18 @@ export interface ParagraphProps
   textSize:string;
   color?: string;
   contWidth:number;
+  family:string;
+  gap:number;
+  marginSelect?:string;
+  marginText?:string;
+  lineH:number;
 }
 
 const variants = cva("paragraph", {
   variants: {
     width: {
       full: "mx-auto w-full",
-      narrow: "mx-auto w-full max-w-4xl md:w-1/2 lg:w-3/4",
+      narrow: "w-full max-w-4xl md:w-1/2 lg:w-3/4",
     },
   },
   defaultVariants: {
@@ -39,24 +48,47 @@ function Paragraph(props: ParagraphProps) {
     alignment,
     contWidth,
     className,
+    family,
+    gap,
+    marginSelect,
+    marginText,
+    lineH,
     ...rest
   } = props;
+
   const isMobile = useIsMobile(600);
+  const element =useRef(null)
+  useGSAP(()=>{
+    gsap.from(element.current,{
+      transform:"translateY(100%)",
+      filter:"blur(1.5rem)",
+      transition:"ease",
+      duration:1
+    })
+  },{scope:element})
 
   return (
     <Tag
-      ref={ref}
+      ref={element}
       data-motion="fade-up"
       {...rest}
-      className={clsx(variants({width, className }))}
+      className={clsx(variants({width, className }))+" paragraphComp"}
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: content }}
       style={{ 
+        display:"flex",
+        flexDirection:"column",
+        lineHeight:lineH>0 ? lineH:"unset",
+        gap:gap>0 ?`${gap}rem`:"normal",
         color:color,
         textAlign:alignment,
         fontSize:textSize,
-        width:!isMobile?`${contWidth}%`:"100%" 
-      }}
+        fontFamily:family,
+        width:!isMobile?`${contWidth}%`:"100%",
+        ...selectorPaddingMargin("margin",marginSelect,marginText),
+        "--paragraph-color":color 
+        
+      }as CSSProperties }
     />
   );
 }
@@ -104,6 +136,30 @@ export const schema = createSchema({
           defaultValue: "p",
         },
         {
+          type:'range',
+          label:'gap content',
+          name:'gap',
+          defaultValue:0,
+          configs:{
+            min:0,
+            max:5,
+            step:0.1,
+            unit:'rem',
+          }
+        },
+        {
+          type:'range',
+          label:'line heading',
+          name:'lineH',
+          defaultValue:1.1,
+          configs:{
+            min:0,
+            max:5,
+            step:0.1,
+            unit:'u',
+          }
+        },
+        {
           type: "color",
           name: "color",
           label: "Text color",
@@ -146,6 +202,34 @@ export const schema = createSchema({
             ],
           },
           defaultValue: "center",
+        },
+        {
+          type:'text',
+          label:'Font family',
+          name:'family',
+          defaultValue:'Montserrat',
+        },
+        {
+          type:'select',
+          label:'Margin type',
+          name:'marginSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'b',
+        },
+        {
+          type:'text',
+          label:'Margin text',
+          name:'marginText',
         },
       ],
     },

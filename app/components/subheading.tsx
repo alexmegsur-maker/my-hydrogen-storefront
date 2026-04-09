@@ -1,6 +1,9 @@
+import { useGSAP } from "@gsap/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import gsap from "gsap";
+import { useRef } from "react";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
@@ -32,7 +35,8 @@ interface SubHeadingProps
   paddingText?:string;
   marginSelect?:string;
   marginText?:string;
-
+  family?:string;
+  lineH:number;
 
 }
 
@@ -52,17 +56,30 @@ function SubHeading(props: SubHeadingProps) {
     marginSelect,
     marginText,
     className,
+    lineH,
     ...rest
   } = props;
+  const element =useRef(null)
+  useGSAP(()=>{
+    gsap.from(element.current,{
+      transform:"translateY(100%)",
+      filter:"blur(1.5rem)",
+      transition:"ease",
+      duration:1
+    })
+  },{scope:element})
+
+
   return (
     <Tag
-      ref={ref}
+      ref={element}
       {...rest}
       data-motion="fade-up"
       style={{ 
         color:color,
         fontSize:size,
         fontWeight:weight,
+        lineHeight:lineH>0 ? lineH:"unset",
         letterSpacing:letter > 0 ? `${letter}px`:"normal",
         fontFamily:fontFamily,
         ...selectorPaddingMargin("padding",paddingSelect,paddingText),
@@ -127,6 +144,18 @@ export const schema = createSchema({
             max:50,
             step:1,
             unit:'px',
+          }
+        },
+        {
+          type:'range',
+          label:'line heading',
+          name:'lineH',
+          defaultValue:1.1,
+          configs:{
+            min:0,
+            max:5,
+            step:0.1,
+            unit:'u',
           }
         },
         {

@@ -1,0 +1,52 @@
+.paragraphComp ol li::before{
+  content:"";
+  position: absolute;
+  left: 0;
+  top:0.5rem;
+  width: 6px;
+  height: 6px;
+  background-color: transparent;
+  border: 1px solid var(--paragraph-color);
+}
+.paragraphComp li{
+  position: relative;
+  padding-left: 1rem;
+  
+}
+
+.paragraphComp ul li{
+  margin-bottom: 1rem;
+  padding-left: 1.8rem;
+}
+.paragraphComp ul li::before{
+  position: absolute;
+  font-size: 0.9rem;
+  left: 0;
+  top:0.1rem;
+  font-weight: 600;
+  width: 6px;
+  height: 6px;
+  background-color: transparent;  
+  color:white;
+}
+.paragraphComp ul li:nth-child(1)::before{
+  content:"01.";
+  }
+.paragraphComp ul li:nth-child(2)::before{
+  content:"02.";
+  }
+.paragraphComp ul li:nth-child(3)::before{
+  content:"03.";
+  }
+.paragraphComp ul li:nth-child(4)::before{
+  content:"04.";
+  }
+.paragraphComp ul li:nth-child(5)::before{
+  content:"05.";
+  }
+.paragraphComp ul li:nth-child(6)::before{
+  content:"06.";
+  }
+.paragraphComp ul li:nth-child(7)::before{
+  content:"07.";
+  }

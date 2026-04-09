@@ -1,3 +1,4 @@
+import { useGSAP } from "@gsap/react";
 import {
   createSchema,
   type HydrogenComponentProps,
@@ -5,11 +6,15 @@ import {
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
-import type { CSSProperties } from "react";
+import gsap from "gsap";
+import { useRef, type CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
+if(typeof window !== "undefined"){
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 
 const variants = cva("heading", {
@@ -45,6 +50,9 @@ export interface HeadingProps
   paddingText?:string;
   marginSelect?:string;
   marginText?:string;
+  family?:string;
+  lineH:number;
+  animacion:"none"|"typer"|"fade",
 }
 
 function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
@@ -68,8 +76,17 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     marginText,
     className,
     animate = true,
+    family,
+    lineH,
+    animacion,
     ...rest
   } = props;
+
+  const element =useRef<HTMLHeadingElement>(null)
+  const textInnerRef = useRef<HTMLSpanElement>(null)
+  const cursorRef = useRef<HTMLSpanElement>(null)
+  const isMobile= useIsMobile(600)
+
   let style: CSSProperties = { color, backgroundColor };
   if (size === "scale") {
     style = {
@@ -79,31 +96,101 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
       "--max-size": maxSize,
     } as CSSProperties;
   }
+ 
+  useGSAP(() => {
+    // 1. Lógica para animación FADE (la original)
+    if (animacion === "fade") {
+      gsap.from(element.current, {
+        y: "100%",
+        filter: "blur(1.5rem)",
+        opacity: 0,
+        duration: 1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: element.current,
+          start: "top 90%",
+          toggleActions: "play none none none",
+        },
+      });
+    }
 
-  if (animate) {
-    rest["data-motion"] = "fade-up";
-  }
-  const isMobile= useIsMobile(600)
+    // 2. Lógica para animación TYPER
+    if (animacion === "typer") {
+      // Animación de escritura
+      gsap.fromTo(
+        textInnerRef.current,
+        { width: 0 },
+        {
+          width: "100%",
+          duration: 2,
+          ease: "power4.inOut",
+          scrollTrigger: {
+            trigger: element.current,
+            start: "top 90%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
+
+      // Animación del cursor (parpadeo constante)
+      gsap.to(cursorRef.current, {
+        opacity: 0,
+        repeat: -1,
+        duration: 0.8,
+        ease: "steps(1)",
+      });
+    }
+  }, { scope: element, dependencies: [animacion] });
 
   return (
     <Tag
-      ref={ref}
+      ref={element}
       {...rest}
       style={{
         ...style,
         width:"100%",
         fontSize:size=="custom" && isMobile ? mobileSize:desktopSize,
         letterSpacing:letterSpacing>0 ? `${letterSpacing}px`:"normal",
+        lineHeight:lineH>0 ? lineH:"unset",
         fontWeight:weight,
         textAlign:alignment,
+        fontFamily:family,
+        display:"flex",
+        justifyContent: alignment === "center" ? "center" : alignment === "right" ? "flex-end" : "flex-start",
+        overflow:"hidden",
         ...selectorPaddingMargin("padding",paddingSelect,paddingText),
         ...selectorPaddingMargin("margin",marginSelect,marginText),
       }}
       className={cn(
-        variants({ size, className }),
+        variants({ size, className }), 
       )}
     >
-      {content}
+      {animacion === "typer" ? (
+        <span style={{ display: "inline-flex", alignItems: "baseline" }}>
+          <span
+            ref={textInnerRef}
+            style={{
+              display: "inline-block",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {content}
+          </span>
+          <span
+            ref={cursorRef}
+            style={{
+              display: "inline-block",
+              width: "3px",
+              height: "0.8em",
+              backgroundColor: color || "currentColor",
+              marginLeft: "4px",
+            }}
+          />
+        </span>
+      ) : (
+        content
+      )}
     </Tag>
   );
 }
@@ -226,6 +313,18 @@ export const headingInputs: InspectorGroup["inputs"] = [
     }
   },
   {
+    type:'range',
+    label:'line heading',
+    name:'lineH',
+    defaultValue:1.1,
+    configs:{
+      min:0,
+      max:5,
+      step:0.1,
+      unit:'u',
+    }
+  },
+  {
     type: "toggle-group",
     name: "alignment",
     label: "Alignment",
@@ -286,6 +385,25 @@ export const headingInputs: InspectorGroup["inputs"] = [
     label:'Margin text',
     name:'marginText',
     defaultValue:"0.8rem"
+  },
+  {
+    type:'text',
+    label:'Font family',
+    name:'family',
+    defaultValue:'Montserrat',
+  },
+  {
+    type:'select',
+    label:'animation',
+    name:'animacion',
+    configs:{
+      options:[
+        {value:'none',label:'None'},
+        {value:'typer',label:'typer'},
+        {value:'fade',label:'fade'},
+      ]
+    },
+    defaultValue:"fade",
   },
 ];
 

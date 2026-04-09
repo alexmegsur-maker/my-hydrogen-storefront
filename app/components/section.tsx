@@ -13,6 +13,7 @@ import type { OverlayProps } from "./overlay";
 import { overlayInputs } from "./overlay";
 import { OverlayAndBackground } from "./overlay-and-background";
 import { selectorPaddingMargin } from "~/utils/general";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 export type BackgroundProps = BackgroundImageProps & {
   backgroundFor: "section" | "content";
@@ -115,7 +116,7 @@ export function Section(props: SectionProps) {
     "--section-bg-color": backgroundColor,
     "--section-radius": `${borderRadius || 0}px`,
   } as React.CSSProperties;
-
+  const isMobile = useIsMobile(600)
   const isBgForContent = backgroundFor === "content";
   const hasBackground = backgroundColor || backgroundImage || borderRadius > 0;
   const estilo = verticalPadding != "custom" ? 
@@ -123,7 +124,7 @@ export function Section(props: SectionProps) {
     :
     {
       ...style,
-      ...selectorPaddingMargin("padding",paddingSelect,paddingText)
+      ...selectorPaddingMargin("padding",paddingSelect,isMobile?"5%":paddingText)
     }
 
   return (

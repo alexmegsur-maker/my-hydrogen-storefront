@@ -113,6 +113,10 @@ import * as SimpleProductItem from "~/sections/simple-product-grid/product"
 import * as CommunityGrid from "~/sections/comunity-grid"
 import * as CommunityItems from "~/sections/comunity-grid/items"
 import * as CommunityPost from "~/sections/comunity-grid/post"
+import * as LegalWrapper from "~/sections/legal-wrapper"
+import * as LegalWrapperSection from "~/sections/legal-wrapper/section"
+import * as TimeLine from "~/sections/timeline-phoenix"
+import * as TimeLineItem from "~/sections/timeline-phoenix/step"
 
 
 export const components: HydrogenComponent[] = [
@@ -234,5 +238,9 @@ export const components: HydrogenComponent[] = [
   SimpleProductItem,
   CommunityGrid,
   CommunityItems,
-  CommunityPost
+  CommunityPost,
+  LegalWrapper,
+  LegalWrapperSection,
+  TimeLine,
+  TimeLineItem
 ];

@@ -75,7 +75,6 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
       containerStyle={{
         width:isMobile?"100%":`${widthCont}%`
       }}
-      
     >
       {children}
     </Section>
