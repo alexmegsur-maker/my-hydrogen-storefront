@@ -7,14 +7,11 @@ import {
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, type CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
-
-if(typeof window !== "undefined"){
-  gsap.registerPlugin(ScrollTrigger)
-}
 
 
 const variants = cva("heading", {
@@ -24,7 +21,7 @@ const variants = cva("heading", {
       custom: "",
       scale: "text-scale",
     },
-
+    
   },
   defaultVariants: {
     size: "default",
@@ -32,7 +29,7 @@ const variants = cva("heading", {
 });
 
 export interface HeadingProps
-  extends VariantProps<typeof variants>{
+extends VariantProps<typeof variants>{
   ref?: React.Ref<HTMLHeadingElement>;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   weight:string;
@@ -81,12 +78,16 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     animacion,
     ...rest
   } = props;
-
+  
+  if(typeof window !== "undefined"){
+    gsap.registerPlugin(ScrollTrigger)
+  }
+  
   const element =useRef<HTMLHeadingElement>(null)
   const textInnerRef = useRef<HTMLSpanElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
   const isMobile= useIsMobile(600)
-
+  
   let style: CSSProperties = { color, backgroundColor };
   if (size === "scale") {
     style = {
