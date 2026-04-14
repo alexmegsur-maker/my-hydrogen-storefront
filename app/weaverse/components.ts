@@ -117,6 +117,10 @@ import * as LegalWrapper from "~/sections/legal-wrapper"
 import * as LegalWrapperSection from "~/sections/legal-wrapper/section"
 import * as TimeLine from "~/sections/timeline-phoenix"
 import * as TimeLineItem from "~/sections/timeline-phoenix/step"
+import * as GroupElements from"~/components/group-elements"
+import * as SliderElements from "~/sections/slider-elements"
+import * as SliderElement from "~/sections/slider-elements/slide-elements"
+
 
 
 export const components: HydrogenComponent[] = [
@@ -242,5 +246,8 @@ export const components: HydrogenComponent[] = [
   LegalWrapper,
   LegalWrapperSection,
   TimeLine,
-  TimeLineItem
+  TimeLineItem,
+  GroupElements,
+  SliderElements,
+  SliderElement,
 ];

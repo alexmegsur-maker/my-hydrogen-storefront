@@ -1,28 +1,14 @@
-import { useGSAP } from "@gsap/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
-import gsap from "gsap";
-import { useRef } from "react";
+import type { CSSProperties } from "react";
+import { useScrollAnimation } from "~/hooks/use-scroll-animation";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
-const variants = cva("subheading", {
-  variants: {
-    alignment: {
-      left: "text-left",
-      center: "text-center",
-      right: "text-right",
-    },
-  },
-  defaultVariants: {
-    alignment: "center",
-  },
-});
 
 interface SubHeadingProps
-  extends VariantProps<typeof variants>,
-    HydrogenComponentProps {
+  extends HydrogenComponentProps {
   ref?: React.Ref<HTMLHeadingElement | HTMLParagraphElement | HTMLDivElement>;
   as?: "h4" | "h5" | "h6" | "div" | "p";
   color?: string;
@@ -30,6 +16,7 @@ interface SubHeadingProps
   size:string;
   weight:string;
   letter:number;
+  alignment: "center"|"left" |"right";
   fontFamily:string;
   paddingSelect?:string;
   paddingText?:string;
@@ -37,7 +24,10 @@ interface SubHeadingProps
   marginText?:string;
   family?:string;
   lineH:number;
-
+  activeShadow:boolean;
+  textShadow:string;
+  typeDecoration:"none"|"start"|"end",
+  decoration:string;
 }
 
 function SubHeading(props: SubHeadingProps) {
@@ -57,37 +47,53 @@ function SubHeading(props: SubHeadingProps) {
     marginText,
     className,
     lineH,
+    activeShadow,
+    textShadow,
+    typeDecoration,
+    decoration,
     ...rest
   } = props;
-  const element =useRef(null)
-  useGSAP(()=>{
-    gsap.from(element.current,{
-      transform:"translateY(100%)",
-      filter:"blur(1.5rem)",
-      transition:"ease",
-      duration:1
-    })
-  },{scope:element})
-
+  const {elementRef}=useScrollAnimation<HTMLHeadingElement>({
+    animation:"fade",
+    cursorColor:color
+  }) 
 
   return (
     <Tag
-      ref={element}
+      ref={elementRef}
       {...rest}
       data-motion="fade-up"
       style={{ 
-        color:color,
-        fontSize:size,
-        fontWeight:weight,
-        lineHeight:lineH>0 ? lineH:"unset",
-        letterSpacing:letter > 0 ? `${letter}px`:"normal",
-        fontFamily:fontFamily,
-        ...selectorPaddingMargin("padding",paddingSelect,paddingText),
-        ...selectorPaddingMargin("margin",marginSelect,marginText),
-       }}
-      className={cn(variants({  alignment, className }))}
+        color: color,
+        fontSize: size,
+        fontWeight: weight,
+        lineHeight: lineH > 0 ? lineH : "unset",
+        letterSpacing: letter > 0 ? `${letter}px` : "normal",
+        textShadow: activeShadow ? textShadow : "unset",
+        fontFamily: fontFamily,
+        
+        // 1. Cambiamos textAlign por justifyContent para el contenedor flex
+        justifyContent: alignment === "center" ? "center" : alignment === "right" ? "flex-end" : "flex-start",
+        
+        // 2. Mantenemos textAlign por si el texto hace wrap (varias líneas)
+        textAlign: alignment === "center" ? "center" : alignment === "right" ? "right" : "left",
+
+        // 3. Alineación vertical para que la decoración y el texto cuadren
+        alignItems: "center", 
+        gap: "8px", // Opcional: para que la decoración no pegue al texto
+        justifySelf:typeDecoration == "none"?"unset":alignment === "center"?"center":alignment==="right"?"end":"start",
+        ...selectorPaddingMargin("padding", paddingSelect, paddingText),
+        ...selectorPaddingMargin("margin", marginSelect, marginText),
+      }}
+      className={cn( className +" flex")}
     >
+      {typeDecoration =="start" &&
+        <div className="w-fit flex h-auto" dangerouslySetInnerHTML={{__html:decoration}}/>
+      }
       {content}
+      {typeDecoration =="end" &&
+        <div className="w-fit flex h-auto" dangerouslySetInnerHTML={{__html:decoration}}/>
+      }
     </Tag>
   );
 }
@@ -200,6 +206,19 @@ export const schema = createSchema({
           },
           defaultValue: "center",
         },
+         {
+            type:'switch',
+            label:'active text shadow',
+            name:'activeShadow',
+            defaultValue:false,
+          },
+          {
+            type:'text',
+            label:'text shadow',
+            name:'textShadow',
+            defaultValue:'0 0 20px #00d2ffcc',
+            condition:(data:SubHeadingProps)=>data.activeShadow ===true
+          },
         {
           type:'select',
           label:'Padding type',
@@ -245,6 +264,26 @@ export const schema = createSchema({
           name:'marginText',
           defaultValue:"0.8rem"
         },
+        {
+          type:'select',
+          label:'Show decoration',
+          name:'typeDecoration',
+          configs:{
+            options:[
+              {value:'none',label:'None'},
+              {value:'start',label:'Start'},
+              {value:'end',label:'End'},
+            ]
+          },
+          defaultValue:"none",
+        },
+        {
+          type:'textarea',
+          label:'decoration',
+          name:'decoration',
+        },
+        
+        
       ],
     },
   ],

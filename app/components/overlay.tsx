@@ -21,7 +21,7 @@ export function Overlay(props: OverlayProps) {
     overlayColor,
     overlayColorHover,
     overlayOpacity,
-    gradient,
+    gradient = false,
     gradientInfo,
     className,
   } = props;
@@ -40,7 +40,6 @@ export function Overlay(props: OverlayProps) {
             "--overlay-color-hover": overlayColorHover,
             opacity: overlayOpacity / 100,
             margin: 0,
-            background:gradient ? gradientInfo:"unset"
           } as CSSProperties
         }
       />
@@ -57,6 +56,8 @@ export function Overlay(props: OverlayProps) {
           {
             opacity:1,
             margin: 0,
+            width:"100%",
+            height:"100%",
             background:gradient ? gradientInfo:"unset"
           } as CSSProperties
         }

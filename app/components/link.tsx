@@ -78,6 +78,7 @@ export interface LinkStyles {
   letter:number;
   paddingSelect:string;
   paddingText:string;
+  alignment:"start"|"center"|"end"
 }
 
 export interface LinkData
@@ -163,6 +164,7 @@ export function Link(props: LinkProps) {
     letter,
     paddingSelect,
     paddingText,
+    alignment,
     children,
     target,
     ...rest
@@ -179,12 +181,14 @@ export function Link(props: LinkProps) {
       fontFamily:fontFamily,
       fontSize:size,
       fontWeight:weight,
+      placeSelf:alignment,
       "--btn-text": textColor,
       "--btn-bg": backgroundColor,
       "--btn-border": borderColor,
       "--btn-bg-hover": backgroundColorHover,
       "--btn-text-hover": textColorHover,
-      "--btn-border-hover": borderColorHover,
+      "--btn-border-hover": borderColorHover,  
+      marginInline:"auto"
     } as React.CSSProperties;
   }
 
@@ -205,7 +209,7 @@ export function Link(props: LinkProps) {
         ...style,
         transform:isHover ? "translateY(-10%)":"unset",
         ...selectorPaddingMargin("padding",paddingSelect,paddingText),
-        transition:"all 0.4s ease"
+        transition:"all 0.4s ease",
       }}
       className={cn(variants({ variant }), className)}
       target={target !== undefined ? target : isExternal ? "_blank" : undefined}
@@ -352,6 +356,22 @@ export const linkStylesInputs: InspectorGroup["inputs"] = [
     defaultValue:'500',
     condition: (data: LinkData) => data.variant === "custom",
   },
+  {
+    type:'select',
+    label:'alignment',
+    name:'aligment',
+    configs:{
+      options:[
+        {value:'start',label:'Left'},
+        {value:'center',label:'Center'},
+        {value:'end',label:'Right'},
+        
+      ]
+    },
+    defaultValue:'center',
+    condition: (data: LinkData) => data.variant === "custom",
+  },
+  
   {
       type:'select',
       label:'Padding type',

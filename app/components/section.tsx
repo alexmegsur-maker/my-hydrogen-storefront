@@ -14,6 +14,7 @@ import { overlayInputs } from "./overlay";
 import { OverlayAndBackground } from "./overlay-and-background";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useDeviceSize } from "~/hooks/devices-size";
 
 export type BackgroundProps = BackgroundImageProps & {
   backgroundFor: "section" | "content";
@@ -34,6 +35,12 @@ export interface SectionProps<T = any>
   paddingSelect?:string;
   paddingText?:string;
   containerStyle?:CSSProperties;
+  multipleDevice?:boolean;
+  pdngTextmb?:string;
+  pdngTexttb?:string;
+  pdngTextlp?:string;
+  pdngText?:string;
+
 }
 
 const variants = cva("relative", {
@@ -108,6 +115,11 @@ export function Section(props: SectionProps) {
     paddingText,
     style = {},
     containerStyle={},
+    multipleDevice,
+    pdngTextmb,
+    pdngTexttb,
+    pdngTextlp,
+    pdngText,
     ...rest
   } = props;
 
@@ -117,14 +129,21 @@ export function Section(props: SectionProps) {
     "--section-radius": `${borderRadius || 0}px`,
   } as React.CSSProperties;
   const isMobile = useIsMobile(600)
+  const device=useDeviceSize()
   const isBgForContent = backgroundFor === "content";
   const hasBackground = backgroundColor || backgroundImage || borderRadius > 0;
+  const size =device=="mb" && pdngTextmb || device=="tb" && pdngTexttb || device =="lp" && pdngTextlp||device=="screen"&& pdngText 
+
   const estilo = verticalPadding != "custom" ? 
     style 
     :
     {
-      ...style,
-      ...selectorPaddingMargin("padding",paddingSelect,isMobile?"5%":paddingText)
+      ...style, 
+      ...selectorPaddingMargin(
+        "padding",
+        paddingSelect,
+        multipleDevice ? size : isMobile?"5%":paddingText
+        )
     }
 
   return (
@@ -217,13 +236,44 @@ export const layoutInputs: InspectorGroup["inputs"] = [
     },
     defaultValue:'a',
     condition: (data: SectionProps )=> data.verticalPadding =="custom",
+  },
+  {
     
+    type:'switch',
+    label:'multiple device',
+    name:'multipleDevice',
+    defaultValue:false,
+    condition: (data: SectionProps )=> data.verticalPadding =="custom",
   },
   {
     type:'text',
     label:'Padding text',
     name:'paddingText',
-    condition: (data: SectionProps )=> data.verticalPadding =="custom",
+    condition: (data: SectionProps )=> data.verticalPadding =="custom"&& data.multipleDevice ==false,
+  },
+  {
+    type:'text',
+    label:'Padding text mobile',
+    name:'pdngTextmb',
+    condition: (data: SectionProps )=> data.multipleDevice ==true,
+  },
+  {
+    type:'text',
+    label:'Padding text tablet',
+    name:'pdngTexttb',
+    condition: (data: SectionProps )=> data.multipleDevice ==true,
+  },
+  {
+    type:'text',
+    label:'Padding text laptop',
+    name:'pdngTextlp',
+    condition: (data: SectionProps )=> data.multipleDevice ==true,
+  },
+  {
+    type:'text',
+    label:'Padding text screen',
+    name:'pdngText',
+    condition: (data: SectionProps )=> data.multipleDevice ==true,
   },
   {
     type: "range",

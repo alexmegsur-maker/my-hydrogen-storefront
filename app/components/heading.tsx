@@ -1,4 +1,3 @@
-import { useGSAP } from "@gsap/react";
 import {
   createSchema,
   type HydrogenComponentProps,
@@ -8,8 +7,9 @@ import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useScrollAnimation } from "~/hooks/use-scroll-animation";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
@@ -49,6 +49,8 @@ extends VariantProps<typeof variants>{
   marginText?:string;
   family?:string;
   lineH:number;
+  activeShadow:boolean;
+  textShadow:string;
   animacion:"none"|"typer"|"fade",
 }
 
@@ -75,6 +77,8 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     animate = true,
     family,
     lineH,
+    activeShadow,
+    textShadow,
     animacion,
     ...rest
   } = props;
@@ -82,11 +86,15 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
   if(typeof window !== "undefined"){
     gsap.registerPlugin(ScrollTrigger)
   }
-  
-  const element =useRef<HTMLHeadingElement>(null)
-  const textInnerRef = useRef<HTMLSpanElement>(null)
-  const cursorRef = useRef<HTMLSpanElement>(null)
   const isMobile= useIsMobile(600)
+  
+  const {elementRef,textInnerRef,cursorRef}= useScrollAnimation<HTMLHeadingElement>({
+    animation:animacion,
+    cursorColor:color
+  })
+
+  
+
   
   let style: CSSProperties = { color, backgroundColor };
   if (size === "scale") {
@@ -98,54 +106,10 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     } as CSSProperties;
   }
  
-  useGSAP(() => {
-    // 1. Lógica para animación FADE (la original)
-    if (animacion === "fade") {
-      gsap.from(element.current, {
-        y: "100%",
-        filter: "blur(1.5rem)",
-        opacity: 0,
-        duration: 1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: element.current,
-          start: "top 90%",
-          toggleActions: "play none none none",
-        },
-      });
-    }
-
-    // 2. Lógica para animación TYPER
-    if (animacion === "typer") {
-      // Animación de escritura
-      gsap.fromTo(
-        textInnerRef.current,
-        { width: 0 },
-        {
-          width: "100%",
-          duration: 2,
-          ease: "power4.inOut",
-          scrollTrigger: {
-            trigger: element.current,
-            start: "top 90%",
-            toggleActions: "play none none none",
-          },
-        }
-      );
-
-      // Animación del cursor (parpadeo constante)
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        repeat: -1,
-        duration: 0.8,
-        ease: "steps(1)",
-      });
-    }
-  }, { scope: element, dependencies: [animacion] });
 
   return (
     <Tag
-      ref={element}
+      ref={elementRef}
       {...rest}
       style={{
         ...style,
@@ -156,9 +120,9 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
         fontWeight:weight,
         textAlign:alignment,
         fontFamily:family,
+        textShadow:activeShadow ? textShadow:"unset",
         display:"flex",
         justifyContent: alignment === "center" ? "center" : alignment === "right" ? "flex-end" : "flex-start",
-        overflow:"hidden",
         ...selectorPaddingMargin("padding",paddingSelect,paddingText),
         ...selectorPaddingMargin("margin",marginSelect,marginText),
       }}
@@ -343,6 +307,20 @@ export const headingInputs: InspectorGroup["inputs"] = [
     defaultValue: "center",
   },
   {
+    type:'switch',
+    label:'active text shadow',
+    name:'activeShadow',
+    defaultValue:false,
+  },
+  {
+    type:'text',
+    label:'text shadow',
+    name:'textShadow',
+    defaultValue:'0 0 20px #00d2ffcc',
+    condition:(data:HeadingProps)=>data.activeShadow ===true
+  },
+
+  {
     type:'select',
     label:'Padding type',
     name:'paddingSelect',
@@ -402,6 +380,8 @@ export const headingInputs: InspectorGroup["inputs"] = [
         {value:'none',label:'None'},
         {value:'typer',label:'typer'},
         {value:'fade',label:'fade'},
+        {value:'neonPulse',label:'neon pulse'},
+        {value:'spaceNeonPulse',label:'space neon pulse'},
       ]
     },
     defaultValue:"fade",

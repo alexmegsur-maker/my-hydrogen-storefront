@@ -2,17 +2,22 @@ import {
   createSchema,
   type HydrogenComponentProps,
   IMAGES_PLACEHOLDERS,
+  useItemInstance,
+  useParentInstance,
   type WeaverseImage,
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Image } from "~/components/image";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import type { ImageAspectRatio } from "~/types/others";
 import { cn } from "~/utils/cn";
 
 const variants = cva("h-auto w-full", {
   variants: {
     width: {
+      custom:"md:w-[--wdist]",
       small: "md:w-[40%]",
       medium: "md:w-[50%]",
       large: "md:w-[60%]",
@@ -53,6 +58,7 @@ interface ImageWithTextImageProps
   image: WeaverseImage | string;
   imageAspectRatio: ImageAspectRatio;
   ref?: React.Ref<HTMLDivElement>;
+  verticalAlign:'flex-start'|'center'|'flex-end',
 }
 
 function ImageWithTextImage(props: ImageWithTextImageProps) {
@@ -62,9 +68,16 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
     imageAspectRatio,
     borderRadius,
     objectFit,
+    verticalAlign,
     ref,
     ...rest
   } = props;
+
+  const parentInstance = useParentInstance()
+  const instance = useItemInstance()
+  const [contentSize,setContentSize]=useState(100)
+  const isMobile  = useIsMobile(600)
+
   const imageData: Partial<WeaverseImage> =
     typeof image === "string" ? { url: image, altText: "Placeholder" } : image;
   let aspRt: string | undefined;
@@ -76,14 +89,35 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
     aspRt = imageAspectRatio;
   }
 
+  useEffect(()=>{
+    if(parentInstance.data.contentDist){
+      let position = parentInstance.data.children.findIndex((elm)=>elm.id ==instance.data.id)
+      if(position == 0){
+        setContentSize(parentInstance.data.contentDist)
+      }else{
+        setContentSize(100-parentInstance.data.contentDist)
+      }
+      
+    }
+  },[parentInstance.data?.contentDist,instance.data?.id])
+  console.count("image")
   return (
-    <div ref={ref} {...rest} className={cn(variants({ width }))}>
+    <div 
+      ref={ref} {...rest} 
+      className={cn(variants({ width }),"z-2")  }
+      style={{
+        width:isMobile?"100%":`${contentSize}%`,
+        alignSelf:verticalAlign
+
+      }as CSSProperties}
+    >
       <Image
         data={imageData}
         data-motion="slide-in"
         sizes="auto"
         aspectRatio={aspRt}
-        className={cn("h-auto w-full", variants({ objectFit, borderRadius }))}
+        className={cn("h-full w-full flex", variants({ objectFit, borderRadius }))}
+      
       />
     </div>
   );
@@ -122,12 +156,26 @@ export const schema = createSchema({
             'Learn more about image <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio" target="_blank" rel="noopener noreferrer">aspect ratio</a> property.',
         },
         {
+          type:'select',
+          label:'vertical align',
+          name:'verticalAlign',
+          configs:{
+            options:[
+              {value:'flex-start',label:'start'},
+              {value:'center',label:'center'},
+              {value:'flex-end',label:'end'},
+            ]
+          },
+          defaultValue:"flex-start",
+        },
+        {
           type: "select",
           name: "width",
           label: "Width",
           defaultValue: "medium",
           configs: {
             options: [
+              { value: "custom", label: "Custom" },
               { value: "small", label: "Small" },
               { value: "medium", label: "Medium" },
               { value: "large", label: "Large" },
@@ -169,3 +217,4 @@ export const schema = createSchema({
     borderRadius: 0,
   },
 });
+ 

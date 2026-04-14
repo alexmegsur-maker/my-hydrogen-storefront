@@ -6,7 +6,7 @@ import {
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { backgroundInputs } from "~/components/background-image";
-import { overlayInputs } from "~/components/overlay";
+import { Overlay, overlayInputs } from "~/components/overlay";
 import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section } from "~/components/section";
 import { useIsMobile } from "~/hooks/use-is-mobile";
@@ -14,6 +14,8 @@ import { useIsMobile } from "~/hooks/use-is-mobile";
 export interface HeroImageProps extends VariantProps<typeof variants> {
   ref: React.Ref<HTMLElement>;
   widthCont:number;
+  showBorder:boolean;
+  colorBorder:string;
 }
 
 const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
@@ -59,7 +61,7 @@ const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
 });
 
 export default function HeroImage(props: HeroImageProps & SectionProps) {
-  const { ref, children, height,widthCont, contentPosition, ...rest } = props;
+  const { ref, children, height,widthCont, contentPosition,colorBorder,showBorder,enableOverlay, overlayColor,overlayColorHover,overlayOpacity, ...rest } = props;
   const { enableTransparentHeader } = useThemeSettings();
   const isMobile = useIsMobile(600)
   return (
@@ -70,12 +72,21 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
         contentPosition,
         height,
         enableTransparentHeader,
-
       })}
       containerStyle={{
-        width:isMobile?"100%":`${widthCont}%`
+        width:isMobile?"100%":`${widthCont}%`,
+        position:enableOverlay?  "static":"relative"
+      }}
+      style={{
+        borderBottom:showBorder ? `1px solid ${colorBorder}`:"unset"
       }}
     >
+      <Overlay
+        enableOverlay={enableOverlay}
+        overlayColor={overlayColor}
+        overlayColorHover={overlayColorHover} 
+        overlayOpacity={overlayOpacity}
+        />
       {children}
     </Section>
   );
@@ -89,6 +100,19 @@ export const schema = createSchema({
       group: "Layout",
       inputs: [
         {
+          type:'switch',
+          label:'show border bottom',
+          name:'showBorder',
+          defaultValue:false,
+        },
+        {
+          type:'color',
+          label:'color Border',
+          name:'colorBorder',
+          defaultValue:'#ffffff0d',
+          condition:(data)=>data.showBorder==true
+        },
+        {
           type:'range',
           label:'width content',
           name:'widthCont',
@@ -97,8 +121,8 @@ export const schema = createSchema({
             min:5,
             max:100,
             step:1,
-            unit:'%',
-          }
+            unit:'%', 
+          } 
         },
         {
           type: "select",

@@ -13,27 +13,19 @@ interface groupButtonsProps extends HydrogenComponentProps{
 export default function groupButtons(props:groupButtonsProps){
   
   const {direction,gap,mbDirection,mbGap,children,...rest}=props
-  const container = useRef(null)
+  
   const isMobile = useIsMobile(600);
 
-  useEffect(()=>{
-    if(container.current){
-      const parentElm= container.current.parentElement
-      if(parentElm){
-        if(parentElm.hasAttribute("class")){
-          parentElm.removeAttribute("class")
-        }
-        parentElm.style.display = "flex";
-        parentElm.style.flexDirection = !isMobile ? direction === "row" ? "row" : "column" : mbDirection === "row" ? "row" : "column";
-        parentElm.style.gap = !isMobile?`${gap}rem`:`${mbGap}rem`;
-      }
-    }
-  },[container.current,gap,direction])
-
   return(
-    <Section  {...rest} className="flex overflow-visible">
+    <Section  {...rest} className="flex overflow-visible"
+      containerStyle={{
+        overflow:"visible",
+        display:"flex",
+        flexDirection:!isMobile ? direction === "row" ? "row" : "column" : mbDirection === "row" ? "row" : "column",
+        gap:!isMobile?`${gap}rem`:`${mbGap}rem`,
+      }}
+    >
       {children}
-      <span ref={container} style={{display:"none"}}></span>
     </Section>
   )
 }

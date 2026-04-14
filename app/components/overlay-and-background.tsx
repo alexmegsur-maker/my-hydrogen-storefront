@@ -16,10 +16,12 @@ export function OverlayAndBackground(props: OverlayAndBackgroundProps) {
     overlayColor,
     overlayColorHover,
     overlayOpacity,
+    backgroundGrayscale,
   } = props;
   return (
     <>
       <BackgroundImage
+        backgroundGrayscale={backgroundGrayscale}
         backgroundImage={backgroundImage}
         backgroundFit={backgroundFit}
         backgroundPosition={backgroundPosition}

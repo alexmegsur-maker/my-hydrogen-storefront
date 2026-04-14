@@ -1,0 +1,61 @@
+.fabric-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Elemento decorativo independiente, solo detrás */
+.fabric-wrapper::before,
+.fabric-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fabric-wrapper::before {
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.1) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 16px 16px;
+  -webkit-mask-image: radial-gradient(circle at center, black 10%, transparent 65%);
+  mask-image: radial-gradient(circle at center, black 10%, transparent 65%);
+}
+
+.fabric-wrapper::after {
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 1) 2.5px,
+    transparent 2.5px
+  );
+  background-size: 16px 16px;
+  -webkit-mask-image: radial-gradient(circle at center, black 10%, transparent 65%),
+    linear-gradient(135deg, transparent 40%, black 50%, transparent 60%);
+  mask-image: radial-gradient(circle at center, black 10%, transparent 65%),
+    linear-gradient(135deg, transparent 40%, black 50%, transparent 60%);
+  -webkit-mask-size: 100% 100%, 300% 300%;
+  mask-size: 100% 100%, 300% 300%;
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: waveScan 3s linear infinite;
+}
+
+@keyframes waveScan {
+  0% {
+    -webkit-mask-position: 0% 0%, 150% 150%;
+    mask-position: 0% 0%, 150% 150%;
+  }
+  100% {
+    -webkit-mask-position: 0% 0%, -50% -50%;
+    mask-position: 0% 0%, -50% -50%;
+  }
+}
+
+/* Todo el contenido directo queda por encima */
+.fabric-wrapper > * {
+  position: relative;
+  z-index: 1;
+}

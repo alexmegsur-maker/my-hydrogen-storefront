@@ -1,10 +1,13 @@
-import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import { createSchema, useItemInstance, useParentInstance, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import clsx from "clsx";
+import { useEffect, useState } from "react";
+import { Section, sectionSettings } from "~/components/section";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 const variants = cva(
-  "flex grow flex-col justify-center gap-5 px-4 py-6 md:px-8 md:py-8 [&_.paragraph]:mx-[unset] [&_.paragraph]:w-auto",
+  "flex  flex-col justify-center ",
   {
     variants: {
       alignment: {
@@ -27,10 +30,41 @@ interface ImageWithTextContentProps
 
 function ImageWithTextContent(props: ImageWithTextContentProps) {
   const { alignment, children, ref, ...rest } = props;
+  const parentInstance = useParentInstance()
+  const [contentSize,setContentSize]=useState(100)
+  const [distribution,setDistribution]=useState(false)
+
+  const instance = useItemInstance()
+  const isMobile = useIsMobile(600)
+  useEffect(()=>{
+    if(parentInstance.data.contentDist){
+      let position = parentInstance.data.children.findIndex((elm)=>elm.id ==instance.data.id)
+      
+      if(position == 0){
+        setContentSize(parentInstance.data.contentDist)
+        setDistribution(true)
+      }else if (position > 0){
+        setContentSize(100-parentInstance.data.contentDist)
+        setDistribution(true)
+      }
+      
+    }
+  },[parentInstance.data?.contentDist,instance.data?.id])
+  console.count("content")
+
   return (
-    <div ref={ref} {...rest} className={clsx(variants({ alignment }))}>
+    <Section
+      overflow="unset" 
+      ref={ref} 
+      {...rest} 
+      className={clsx(variants({ alignment }))}
+      style={{
+        width: distribution ? isMobile?"100% ":`${contentSize}%`:"fit-content"
+      }}
+      containerClassName="flex flex-col"
+      > 
       {children}
-    </div>
+    </Section>
   );
 }
 
@@ -60,8 +94,9 @@ export const schema = createSchema({
         },
       ],
     },
+    ...sectionSettings
   ],
-  childTypes: ["subheading", "heading", "paragraph", "button"],
+  childTypes: ["subheading", "heading", "paragraph", "button","group-elements"],
   presets: {
     alignment: "center",
     children: [

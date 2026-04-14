@@ -1,11 +1,10 @@
-import { useGSAP } from "@gsap/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { clsx } from "clsx";
-import gsap from "gsap";
-import { useRef, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useScrollAnimation } from "~/hooks/use-scroll-animation";
 import "~/styles/paragraph.css"
 import { selectorPaddingMargin } from "~/utils/general";
 export interface ParagraphProps
@@ -57,19 +56,14 @@ function Paragraph(props: ParagraphProps) {
   } = props;
 
   const isMobile = useIsMobile(600);
-  const element =useRef(null)
-  useGSAP(()=>{
-    gsap.from(element.current,{
-      transform:"translateY(100%)",
-      filter:"blur(1.5rem)",
-      transition:"ease",
-      duration:1
-    })
-  },{scope:element})
+    const {elementRef}=useScrollAnimation<HTMLHeadingElement>({
+      animation:"fade",
+      cursorColor:color
+    }) 
 
   return (
     <Tag
-      ref={element}
+      ref={elementRef}
       data-motion="fade-up"
       {...rest}
       className={clsx(variants({width, className }))+" paragraphComp"}

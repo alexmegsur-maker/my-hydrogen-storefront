@@ -1,0 +1,27 @@
+.aurora-layer {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    radial-gradient(circle at 50% 50%, var(--aurora-color-1), transparent 45%),
+    radial-gradient(circle at 20% 80%, var(--aurora-color-2), transparent 40%),
+    radial-gradient(circle at 80% 20%, var(--aurora-color-3), transparent 40%);
+  filter: blur(var(--aurora-blur));
+  opacity: var(--aurora-opacity);
+  animation: auroraMove var(--aurora-duration) linear infinite;
+}
+
+.secondary {
+  animation-duration: calc(var(--aurora-duration) * 1.25);
+  animation-direction: reverse;
+  opacity: calc(var(--aurora-opacity) * 0.7);
+  filter: blur(calc(var(--aurora-blur) * 1.2));
+}
+
+@keyframes auroraMove {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}

@@ -32,10 +32,11 @@ const variants = cva("absolute inset-0 z-[-1] h-full w-full", {
 export type BackgroundImageProps = VariantProps<typeof variants> & {
   backgroundImage?: WeaverseImage | string;
   style?:CSSProperties;
+  backgroundGrayscale?:number;
 };
 
 export function BackgroundImage(props: BackgroundImageProps) {
-  const { backgroundImage,style, backgroundFit, backgroundPosition } = props;
+  const { backgroundImage,style,backgroundGrayscale, backgroundFit, backgroundPosition } = props;
   if (backgroundImage) {
     const data =
       typeof backgroundImage === "string"
@@ -46,7 +47,10 @@ export function BackgroundImage(props: BackgroundImageProps) {
         className={variants({ backgroundFit, backgroundPosition })}
         data={data}
         sizes="auto"
-        style={style}
+        style={{
+          ...style,
+          filter:`grayscale(${backgroundGrayscale}%)`
+        }}
       />
     );
   }
@@ -97,5 +101,17 @@ export const backgroundInputs: InspectorGroup["inputs"] = [
     label: "Background position",
     defaultValue: "center center",
     condition: (data: BackgroundImageProps) => Boolean(data.backgroundImage),
+  },
+  {
+    type:'range',
+    label:'grayscale',
+    name:'backgroundGrayscale',
+    defaultValue:0,
+    configs:{
+      min:0,
+      max:100,
+      step:1,
+      unit:'%',
+    }
   },
 ];
