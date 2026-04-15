@@ -28,6 +28,8 @@ interface SubHeadingProps
   textShadow:string;
   typeDecoration:"none"|"start"|"end",
   decoration:string;
+  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe",
+
 }
 
 function SubHeading(props: SubHeadingProps) {
@@ -51,10 +53,11 @@ function SubHeading(props: SubHeadingProps) {
     textShadow,
     typeDecoration,
     decoration,
+    animacion,
     ...rest
   } = props;
   const {elementRef}=useScrollAnimation<HTMLHeadingElement>({
-    animation:"fade",
+    animation:animacion,
     cursorColor:color
   }) 
 
@@ -235,6 +238,22 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'a',
+        },
+        {
+          type:'select',
+          label:'animation',
+          name:'animacion',
+          configs:{
+            options:[
+              {value:'none',label:'None'},
+              {value:'typer',label:'typer'},
+              {value:'fade',label:'fade'},
+              {value:'neonPulse',label:'neon pulse'},
+              {value:'spaceNeonPulse',label:'space neon pulse'},
+              {value:"breathe",label:"breathe"},
+            ]
+          },
+          defaultValue:"fade",
         },
         {
           type:'text',

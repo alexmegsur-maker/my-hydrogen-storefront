@@ -40,6 +40,8 @@ export interface SectionProps<T = any>
   pdngTexttb?:string;
   pdngTextlp?:string;
   pdngText?:string;
+  marginSelect?:string;
+  marginText?:string;
 
 }
 
@@ -120,6 +122,8 @@ export function Section(props: SectionProps) {
     pdngTexttb,
     pdngTextlp,
     pdngText,
+    marginSelect,
+    marginText,
     ...rest
   } = props;
 
@@ -143,6 +147,11 @@ export function Section(props: SectionProps) {
         "padding",
         paddingSelect,
         multipleDevice ? size : isMobile?"5%":paddingText
+        ),
+      ...selectorPaddingMargin(
+        "margin",
+        marginSelect,
+        isMobile?"0":marginText
         )
     }
 
@@ -274,6 +283,26 @@ export const layoutInputs: InspectorGroup["inputs"] = [
     label:'Padding text screen',
     name:'pdngText',
     condition: (data: SectionProps )=> data.multipleDevice ==true,
+  },
+  {
+    type: "select",
+    label: "Margin type",
+    name: "marginSelect",
+    configs: {
+      options: [
+        { value: "t", label: "Top" },
+        { value: "b", label: "Bottom" },
+        { value: "x", label: "Inline" },
+        { value: "y", label: "Block" },
+        { value: "a", label: "Custom" },
+      ],
+    },
+    defaultValue: "a",
+  },
+  {
+    type: "text",
+    label: "Margin value",
+    name: "marginText",
   },
   {
     type: "range",

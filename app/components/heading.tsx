@@ -51,7 +51,7 @@ extends VariantProps<typeof variants>{
   lineH:number;
   activeShadow:boolean;
   textShadow:string;
-  animacion:"none"|"typer"|"fade",
+  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe",
 }
 
 function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
@@ -382,6 +382,7 @@ export const headingInputs: InspectorGroup["inputs"] = [
         {value:'fade',label:'fade'},
         {value:'neonPulse',label:'neon pulse'},
         {value:'spaceNeonPulse',label:'space neon pulse'},
+        {value:"breathe",label:"breathe"},
       ]
     },
     defaultValue:"fade",

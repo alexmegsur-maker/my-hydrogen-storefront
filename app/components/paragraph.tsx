@@ -22,6 +22,8 @@ export interface ParagraphProps
   marginSelect?:string;
   marginText?:string;
   lineH:number;
+  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe",
+
 }
 
 const variants = cva("paragraph", {
@@ -52,12 +54,13 @@ function Paragraph(props: ParagraphProps) {
     marginSelect,
     marginText,
     lineH,
+    animacion,
     ...rest
   } = props;
 
   const isMobile = useIsMobile(600);
     const {elementRef}=useScrollAnimation<HTMLHeadingElement>({
-      animation:"fade",
+      animation:animacion,
       cursorColor:color
     }) 
 
@@ -224,6 +227,22 @@ export const schema = createSchema({
           type:'text',
           label:'Margin text',
           name:'marginText',
+        },
+        {
+          type:'select',
+          label:'animation',
+          name:'animacion',
+          configs:{
+            options:[
+              {value:'none',label:'None'},
+              {value:'typer',label:'typer'},
+              {value:'fade',label:'fade'},
+              {value:'neonPulse',label:'neon pulse'},
+              {value:'spaceNeonPulse',label:'space neon pulse'},
+              {value:"breathe",label:"breathe"},
+            ]
+          },
+          defaultValue:"fade",
         },
       ],
     },

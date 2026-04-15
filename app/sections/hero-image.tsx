@@ -10,12 +10,13 @@ import { Overlay, overlayInputs } from "~/components/overlay";
 import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section } from "~/components/section";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { cn } from "~/utils/cn";
 
 export interface HeroImageProps extends VariantProps<typeof variants> {
-  ref: React.Ref<HTMLElement>;
   widthCont:number;
   showBorder:boolean;
   colorBorder:string;
+  activeDots:boolean;
 }
 
 const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
@@ -61,21 +62,27 @@ const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
 });
 
 export default function HeroImage(props: HeroImageProps & SectionProps) {
-  const { ref, children, height,widthCont, contentPosition,colorBorder,showBorder,enableOverlay, overlayColor,overlayColorHover,overlayOpacity, ...rest } = props;
+  const { ref, children, height, activeDots, widthCont, contentPosition,colorBorder,showBorder,enableOverlay, overlayColor,overlayColorHover,overlayOpacity, ...rest } = props;
   const { enableTransparentHeader } = useThemeSettings();
   const isMobile = useIsMobile(600)
   return (
     <Section
       ref={ref}
       {...rest}
-      containerClassName={variants({
-        contentPosition,
-        height,
-        enableTransparentHeader,
-      })}
+      containerClassName={cn(
+        variants({
+          contentPosition,
+          height,
+          enableTransparentHeader,
+          
+        }),
+        activeDots ? "fabric-wrapper relative flex flex-col" : "z-1",
+
+      )}
       containerStyle={{
         width:isMobile?"100%":`${widthCont}%`,
-        position:enableOverlay?  "static":"relative"
+        position:enableOverlay?  "static":"relative",
+        
       }}
       style={{
         borderBottom:showBorder ? `1px solid ${colorBorder}`:"unset"
@@ -114,7 +121,7 @@ export const schema = createSchema({
         },
         {
           type:'range',
-          label:'width content',
+          label:'width content', 
           name:'widthCont',
           defaultValue:100,
           configs:{
@@ -142,6 +149,12 @@ export const schema = createSchema({
           name: "contentPosition",
           label: "Content position",
           defaultValue: "center center",
+        },
+        {
+          type: "switch",
+          label: "active effect docts",
+          name: "activeDots",
+          defaultValue: false,
         },
         ...layoutInputs.filter(
           (inp) => inp.name !== "divider" && inp.name !== "borderRadius",

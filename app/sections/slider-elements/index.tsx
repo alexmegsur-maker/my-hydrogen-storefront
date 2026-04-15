@@ -88,13 +88,16 @@ export default function SliderElements(props:SliderElementsProps){
   return(
     <div {...rest} className="flex flex-col">
       <section 
-        className="selector-wrapper flex justify-center items-start"
+        className="selector-wrapper justify-center items-start"
         style={{
           gap:`${gap}rem`,
           backgroundColor:bgColorCont,
           borderTop:showBorderT ?`1px solid ${borderContcolor}`:"unset",
           borderBottom:showBorderB ?`1px solid ${borderContcolor}`:"unset",
-          ...selectorPaddingMargin("padding",contPaddingSelect,contPaddingText)
+          ...selectorPaddingMargin("padding",contPaddingSelect,contPaddingText),
+          display:isMobile?"grid":"flex",
+          gridTemplateColumns:isMobile?"repeat(3,1fr)":"unset"
+
         }}
       >
         {childInstances.map((instance:any,idx)=>{

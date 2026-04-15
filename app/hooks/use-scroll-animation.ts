@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-export type AnimationType = "none" | "fade" | "typer" |"spaceNeonPulse"|"neonPulse";
+export type AnimationType = "none" | "fade" | "typer" |"spaceNeonPulse"|"neonPulse" | "breathe";
 
 export interface ScrollAnimationOptions {
   /** Tipo de animación a ejecutar */
@@ -152,10 +152,19 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
 
         // Cursor: parpadeo constante, no depende del scroll
         gsap.to(cursorRef.current, {
-          opacity: 0,
-          repeat: -1,
-          duration: 0.8,
+          opacity: 0.3,
           ease: "steps(1)",
+        });
+      }
+      if(animation == "breathe"){
+        gsap.fromTo(cursorRef.current, {
+          opacity: 1,
+          repeat: -1,
+          duration: 2,
+          ease: "steps(1)",
+          yoyo:true,
+        },{
+
         });
       }
     },

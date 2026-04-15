@@ -100,7 +100,6 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
       
     }
   },[parentInstance.data?.contentDist,instance.data?.id])
-  console.count("image")
   return (
     <div 
       ref={ref} {...rest} 

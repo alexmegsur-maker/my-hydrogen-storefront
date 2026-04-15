@@ -120,7 +120,11 @@ import * as TimeLineItem from "~/sections/timeline-phoenix/step"
 import * as GroupElements from"~/components/group-elements"
 import * as SliderElements from "~/sections/slider-elements"
 import * as SliderElement from "~/sections/slider-elements/slide-elements"
-
+import * as Table from "~/sections/table"
+import * as TableRow from "~/sections/table/row"
+import * as TableItem from "~/sections/table/item"
+import * as Instruction from "~/sections/instrucctions"
+import * as InstructionStep from "~/sections/instrucctions/step"
 
 
 export const components: HydrogenComponent[] = [
@@ -250,4 +254,9 @@ export const components: HydrogenComponent[] = [
   GroupElements,
   SliderElements,
   SliderElement,
+  Table,
+  TableRow,
+  TableItem,
+  Instruction,
+  InstructionStep,
 ];

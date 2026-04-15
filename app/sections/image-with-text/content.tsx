@@ -50,7 +50,6 @@ function ImageWithTextContent(props: ImageWithTextContentProps) {
       
     }
   },[parentInstance.data?.contentDist,instance.data?.id])
-  console.count("content")
 
   return (
     <Section
