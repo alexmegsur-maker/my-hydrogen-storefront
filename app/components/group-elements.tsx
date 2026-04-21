@@ -10,11 +10,14 @@ interface GroupElementsProps extends SectionProps{
   alignContent:"normal"|"center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly"|"baseline"|"stretch";
   mbAlignContent:"normal"|"center"|"flex-start"|"flex-end"|"space-between"|"space-around"|"space-evenly"|"baseline"|"stretch";
   showBorder:boolean;
+  showBorderBottom:boolean;
+  showBorderLeft:boolean;
+  showBorderRight:boolean;
   colorBorder:string;
 }
 
 export default function GroupElements (props:GroupElementsProps & HydrogenComponentProps){
-const {direction,gapCont,mbDirection,mbGapCont,showBorder ,colorBorder,alignContent,mbAlignContent,children,...rest}=props
+const {direction,gapCont,mbDirection,mbGapCont,showBorder,showBorderBottom,showBorderLeft,showBorderRight,colorBorder,alignContent,mbAlignContent,children,...rest}=props
   
   const isMobile = useIsMobile(600);
 
@@ -22,7 +25,10 @@ const {direction,gapCont,mbDirection,mbGapCont,showBorder ,colorBorder,alignCont
     <Section  {...rest} 
       className="flex overflow-visible"
       style={{
-        borderTop:showBorder?`1px solid ${colorBorder}`:"unset"
+        borderTop:showBorder?`1px solid ${colorBorder}`:"unset",
+        borderBottom:showBorderBottom?`1px solid ${colorBorder}`:"unset",
+        borderLeft:showBorderLeft?`1px solid ${colorBorder}`:"unset",
+        borderRight:showBorderRight?`1px solid ${colorBorder}`:"unset",
       }}
       containerStyle={{
         overflow:"visible",
@@ -41,7 +47,7 @@ const {direction,gapCont,mbDirection,mbGapCont,showBorder ,colorBorder,alignCont
 export const schema =createSchema({
   type:"group-elements",
   title:"group elements",
-  childTypes:["heading","subheading","paragraph","button","image-with-text--content"],
+  childTypes:["heading","subheading","paragraph","button","image-with-text--content","copybutton"],
   settings:[
     ...sectionSettings,
     {
@@ -52,6 +58,24 @@ export const schema =createSchema({
           label:'show top border ',
           name:'showBorder',
           defaultValue:true,
+        },
+        {
+          type:'switch',
+          label:'show bottom border ',
+          name:'showBorderBottom',
+          defaultValue:false,
+        },
+        {
+          type:'switch',
+          label:'show left border ',
+          name:'showBorderLeft',
+          defaultValue:false,
+        },
+        {
+          type:'switch',
+          label:'show right border ',
+          name:'showBorderRight',
+          defaultValue:false,
         },
         {
           type:'color',

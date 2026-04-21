@@ -13,8 +13,7 @@ import {
   useOutletContext,
 } from "react-router";
 import invariant from "tiny-invariant";
-import { Button } from "~/components/button";
-import Link from "~/components/link";
+import { Link } from "~/components/link";
 import { doLogout } from "./auth/logout";
 import { CUSTOMER_UPDATE_MUTATION } from "./profile";
 
@@ -28,134 +27,168 @@ export interface ActionData {
   fieldErrors?: {
     firstName?: string;
     lastName?: string;
-    email?: string;
-    phone?: string;
-    currentPassword?: string;
-    newPassword?: string;
-    newPassword2?: string;
   };
 }
 
 function formDataHas(formData: FormData, key: string) {
-  if (!formData.has(key)) {
-    return false;
-  }
-
+  if (!formData.has(key)) return false;
   const value = formData.get(key);
   return typeof value === "string" && value.length > 0;
 }
 
-export const handle = {
-  renderInModal: true,
-};
+export const handle = { renderInModal: true };
 
 export const action: ActionFunction = async ({ request, context, params }) => {
   const formData = await request.formData();
-
-  // Double-check current user is logged in.
-  // Will throw a logout redirect if not.
   if (!(await context.customerAccount.isLoggedIn())) {
     throw await doLogout(context);
   }
-
   try {
     const customer: CustomerUpdateInput = {};
-
-    if (formDataHas(formData, "firstName")) {
-      customer.firstName = formData.get("firstName") as string;
-    }
-    if (formDataHas(formData, "lastName")) {
-      customer.lastName = formData.get("lastName") as string;
-    }
-
+    if (formDataHas(formData, "firstName")) customer.firstName = formData.get("firstName") as string;
+    if (formDataHas(formData, "lastName")) customer.lastName = formData.get("lastName") as string;
     const { data: updateData, errors } =
       await context.customerAccount.mutate<CustomerUpdateMutation>(
         CUSTOMER_UPDATE_MUTATION,
-        {
-          variables: {
-            customer,
-          },
-        },
+        { variables: { customer } },
       );
-
     invariant(!errors?.length, errors?.[0]?.message);
     invariant(
       !updateData?.customerUpdate?.userErrors?.length,
       updateData?.customerUpdate?.userErrors?.[0]?.message,
     );
-
     return redirect(params?.locale ? `${params.locale}/account` : "/account");
   } catch (error: any) {
-    return data(
-      { formError: error?.message },
-      {
-        status: 400,
-      },
-    );
+    return data({ formError: error?.message }, { status: 400 });
   }
 };
 
-/**
- * Since this component is nested in `accounts/`, it is rendered in a modal via `<Outlet>` in `account.tsx`.
- *
- * This allows us to:
- * - preserve URL state (`/accounts/edit` when the modal is open)
- * - co-locate the edit action with the edit form (rather than grouped in account.tsx)
- * - use the `useOutletContext` hook to access the customer data from the parent route (no additional data loading)
- * - return a simple `redirect()` from this action to close the modal :mindblown: (no useState/useEffect)
- * - use the presence of outlet data (in `account.tsx`) to open/close the modal (no useState)
- */
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  background: "transparent",
+  border: "1px solid rgba(255,255,255,0.15)",
+  color: "#FFFFFF",
+  padding: "0.75rem 1rem",
+  fontSize: "0.9rem",
+  fontFamily: "'Inter', sans-serif",
+  outline: "none",
+  borderRadius: 0,
+};
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontFamily: "'Outfit', sans-serif",
+  fontSize: "0.7rem",
+  color: "#52525B",
+  textTransform: "uppercase",
+  letterSpacing: "2px",
+  marginBottom: "0.5rem",
+};
+
 export default function AccountDetailsEdit() {
   const actionData = useActionData<ActionData>();
   const { customer } = useOutletContext<AccountOutletContext>();
   const { state } = useNavigation();
 
   return (
-    <div className="space-y-2">
-      <div className="py-2.5 text-xl">Edit account</div>
-      <Form method="post" className="space-y-3">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+      <div
+        style={{
+          fontFamily: "'Outfit', sans-serif",
+          fontSize: "1.1rem",
+          fontWeight: 300,
+          textTransform: "uppercase",
+          letterSpacing: "2px",
+          color: "#FFFFFF",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          paddingBottom: "1rem",
+        }}
+      >
+        Editar Datos
+      </div>
+
+      <Form method="post" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
         {actionData?.formError && (
-          <div className="flex items-center justify-center bg-red-100 p-3 text-red-900">
+          <div
+            style={{
+              background: "rgba(255,68,68,0.08)",
+              border: "1px solid rgba(255,68,68,0.3)",
+              color: "#ff4444",
+              padding: "0.75rem 1rem",
+              fontSize: "0.85rem",
+            }}
+          >
             {actionData.formError}
           </div>
         )}
+
         <div>
-          <label htmlFor="firstName" className="mb-1 block">
-            First name
-          </label>
+          <label htmlFor="firstName" style={labelStyle}>Nombre</label>
           <input
             id="firstName"
             name="firstName"
-            className="w-full appearance-none border border-line p-3 focus:outline-hidden"
             type="text"
             autoComplete="given-name"
-            placeholder="First name"
-            aria-label="First name"
+            placeholder="Nombre"
             defaultValue={customer.firstName ?? ""}
+            style={inputStyle}
           />
         </div>
+
         <div>
-          <label htmlFor="lastName" className="mb-1 block">
-            Last name
-          </label>
+          <label htmlFor="lastName" style={labelStyle}>Apellidos</label>
           <input
             id="lastName"
             name="lastName"
-            className="w-full appearance-none border border-line p-3 focus:outline-hidden"
             type="text"
             autoComplete="family-name"
-            placeholder="Last name"
-            aria-label="Last name"
+            placeholder="Apellidos"
             defaultValue={customer.lastName ?? ""}
+            style={inputStyle}
           />
         </div>
-        <div className="flex items-center justify-end gap-6 py-2.5">
-          <Link to="/account" className="underline-offset-4 hover:underline">
-            Cancel
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: "1.5rem",
+            paddingTop: "0.5rem",
+          }}
+        >
+          <Link
+            to="/account"
+            style={{
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: "0.8rem",
+              color: "#A1A1AA",
+              textDecoration: "none",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+            }}
+          >
+            Cancelar
           </Link>
-          <Button type="submit" variant="primary" disabled={state !== "idle"}>
-            {state === "submitting" ? "Saving" : "Save"}
-          </Button>
+          <button
+            type="submit"
+            disabled={state !== "idle"}
+            style={{
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "2px",
+              color: "#050505",
+              background: "#FFFFFF",
+              border: "none",
+              padding: "0.75rem 1.5rem",
+              cursor: state !== "idle" ? "not-allowed" : "pointer",
+              opacity: state !== "idle" ? 0.6 : 1,
+            }}
+          >
+            {state === "submitting" ? "Guardando..." : "Confirmar"}
+          </button>
         </div>
       </Form>
     </div>

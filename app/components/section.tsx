@@ -15,6 +15,7 @@ import { OverlayAndBackground } from "./overlay-and-background";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useDeviceSize } from "~/hooks/devices-size";
+import ForgeCanvas, { forgeSettings, smokeInputs, type ForgeCanvasProps } from "./smoke-ash";
 
 export type BackgroundProps = BackgroundImageProps & {
   backgroundFor: "section" | "content";
@@ -26,6 +27,7 @@ export interface SectionProps<T = any>
     Partial<Omit<HydrogenComponentProps<T>, "children">>,
     Omit<HTMLAttributes<HTMLElement>, "children">,
     Partial<BackgroundProps>,
+    Partial<ForgeCanvasProps>,
     Partial<OverlayProps> {
   ref?: React.Ref<HTMLElement>;
   as?: React.ElementType;
@@ -42,7 +44,7 @@ export interface SectionProps<T = any>
   pdngText?:string;
   marginSelect?:string;
   marginText?:string;
-
+  showSmoke?:boolean;
 }
 
 const variants = cva("relative", {
@@ -124,6 +126,30 @@ export function Section(props: SectionProps) {
     pdngText,
     marginSelect,
     marginText,
+
+    showSmoke,
+    smokeCount,
+    smokeOpacityMin,
+    smokeOpacityMax,
+    smokeSizeMin,
+    smokeSizeMax,
+    smokeSpeedMin,
+    smokeSpeedMax,
+    smokeColor,
+    emberCount,
+    emberOpacityMin,
+    emberOpacityMax,
+    emberSizeMin,
+    emberSizeMax,
+    emberSpeedMin,
+    emberSpeedMax,
+    emberColor,
+    showSilhouette,
+    silhouetteUrl,
+    silhouetteOpacity,
+    canvasOpacity,
+    zIndex,
+
     ...rest
   } = props;
 
@@ -132,6 +158,30 @@ export function Section(props: SectionProps) {
     "--section-bg-color": backgroundColor,
     "--section-radius": `${borderRadius || 0}px`,
   } as React.CSSProperties;
+  const forgeProps: ForgeCanvasProps = {
+    showSmoke:showSmoke,
+    smokeCount: smokeCount!,
+    smokeOpacityMin: smokeOpacityMin!,
+    smokeOpacityMax: smokeOpacityMax!,
+    smokeSizeMin: smokeSizeMin!,
+    smokeSizeMax: smokeSizeMax!,
+    smokeSpeedMin: smokeSpeedMin!,
+    smokeSpeedMax: smokeSpeedMax!,
+    smokeColor: smokeColor!,
+    emberCount: emberCount!,
+    emberOpacityMin: emberOpacityMin!,
+    emberOpacityMax: emberOpacityMax!,
+    emberSizeMin: emberSizeMin!,
+    emberSizeMax: emberSizeMax!,
+    emberSpeedMin: emberSpeedMin!,
+    emberSpeedMax: emberSpeedMax!,
+    emberColor: emberColor!,
+    showSilhouette: showSilhouette!,
+    silhouetteUrl: silhouetteUrl!,
+    silhouetteOpacity: silhouetteOpacity!,
+    canvasOpacity: canvasOpacity!,
+    zIndex: zIndex!,
+  };
   const isMobile = useIsMobile(600)
   const device=useDeviceSize()
   const isBgForContent = backgroundFor === "content";
@@ -167,6 +217,7 @@ export function Section(props: SectionProps) {
           "rounded-(--section-radius) bg-(--section-bg-color)",
       )}
     >
+      {showSmoke && <ForgeCanvas {...forgeProps}/>}
       {!isBgForContent && <OverlayAndBackground {...props} />}
       <div
         className={cn(
@@ -317,10 +368,17 @@ export const layoutInputs: InspectorGroup["inputs"] = [
     defaultValue: 0,
     helpText: "Should be used in combination with background image or color",
   },
+  {
+    type:'switch',
+    label:'show smoke bg',
+    name:'showSmoke',
+    defaultValue:false,
+  },
 ];
 
 export const sectionSettings: InspectorGroup[] = [
   { group: "Layout", inputs: layoutInputs },
   { group: "Background", inputs: backgroundInputs },
   { group: "Overlay", inputs: overlayInputs },
+  ...forgeSettings ,
 ];

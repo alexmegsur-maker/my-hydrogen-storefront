@@ -90,7 +90,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
   }
 
   useEffect(()=>{
-    if(parentInstance.data.contentDist){
+    if(parentInstance.data?.contentDist){
       let position = parentInstance.data.children.findIndex((elm)=>elm.id ==instance.data.id)
       if(position == 0){
         setContentSize(parentInstance.data.contentDist)

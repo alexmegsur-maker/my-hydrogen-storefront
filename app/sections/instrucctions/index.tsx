@@ -68,6 +68,7 @@ export default function Instrucction(props:SectionProps){
           const selected = active == identificacion
           return(
             <div 
+              key={idx}
               onClick={()=>scrollToStep(identificacion)}
               className="flex items-center cursor-pointer"
               style={{
@@ -103,5 +104,7 @@ export const  schema = createSchema({
   type:"instruction",
   title:"Instrucctions",
   childTypes:["instruction-step"],
-  settings:sectionSettings
+  settings:[
+    ...sectionSettings
+  ]
 })

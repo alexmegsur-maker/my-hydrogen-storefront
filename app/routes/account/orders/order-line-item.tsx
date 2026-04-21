@@ -8,57 +8,95 @@ export function OrderLineItem({
 }: {
   lineItem: OrderLineItemFullFragment;
 }) {
-  let hasDiscount = false;
-  if (lineItem.currentTotalPrice?.amount !== lineItem.totalPrice?.amount) {
-    hasDiscount = true;
-  }
+  const hasDiscount =
+    lineItem.currentTotalPrice?.amount !== lineItem.totalPrice?.amount;
+
   return (
-    <div className="flex gap-4" key={lineItem.id}>
+    <div
+      style={{
+        display: "flex",
+        gap: "1.5rem",
+        paddingBottom: "1.5rem",
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
+      }}
+    >
+      {/* Imagen */}
       {lineItem?.image && (
-        <div className="h-auto w-[120px] shrink-0">
-          <Image data={lineItem.image} width={500} height={500} sizes="auto"  />
+        <div
+          style={{
+            width: "100px",
+            flexShrink: 0,
+            border: "1px solid rgba(255,255,255,0.1)",
+            overflow: "hidden",
+          }}
+        >
+          <Image
+            data={lineItem.image}
+            width={500}
+            height={500}
+            sizes="auto"
+            style={{ width: "100%", height: "auto", display: "block", filter: "grayscale(20%)" }}
+          />
         </div>
       )}
-      <dl className="flex flex-col">
-        <dt className="sr-only">Product</dt>
-        <dd className="truncate">
-          <div className="">{lineItem.title}</div>
-          <div className="text-body-subtle text-sm">
+
+      {/* Info */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <div style={{ color: "#FFFFFF", fontWeight: 500, fontFamily: "'Outfit', sans-serif" }}>
+          {lineItem.title}
+        </div>
+        {lineItem.variantTitle && (
+          <div style={{ fontSize: "0.85rem", color: "#A1A1AA" }}>
             {lineItem.variantTitle}
           </div>
-        </dd>
-        <dt className="sr-only">Quantity</dt>
-        <dd className="mt-1 grow truncate">x{lineItem.quantity}</dd>
-        <dt className="sr-only">Discount</dt>
-        <dd className="flex flex-wrap gap-2 truncate">
-          {lineItem.discountAllocations.map((discount, index) => {
-            const discountApp = discount.discountApplication as any;
-            const discountTitle = discountApp?.title || discountApp?.code;
-            return (
-              <div
-                key={index}
-                className="flex w-fit items-center gap-1 rounded-xs border border-line-subtle px-1.5 py-1 text-body-subtle text-sm"
-              >
-                <TagIcon className="h-4 w-4" />
-                <span>{discountTitle}</span>
-                <div className="inline-flex">
-                  (<span>-</span>
-                  <Money data={discount.allocatedAmount} />)
+        )}
+        <div style={{ fontSize: "0.85rem", color: "#52525B" }}>
+          x{lineItem.quantity}
+        </div>
+
+        {/* Descuentos */}
+        {lineItem.discountAllocations.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.25rem" }}>
+            {lineItem.discountAllocations.map((discount, index) => {
+              const discountApp = discount.discountApplication as any;
+              const discountTitle = discountApp?.title || discountApp?.code;
+              return (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    padding: "3px 8px",
+                    fontSize: "0.75rem",
+                    color: "#A1A1AA",
+                    borderRadius: "2px",
+                  }}
+                >
+                  <TagIcon style={{ width: "12px", height: "12px" }} />
+                  <span>{discountTitle}</span>
+                  <span>
+                    (-<Money data={discount.allocatedAmount} />)
+                  </span>
                 </div>
-              </div>
-            );
-          })}
-        </dd>
-        <dt className="sr-only">Current Price</dt>
-        <dd className="mt-2 flex gap-2 truncate">
+              );
+            })}
+          </div>
+        )}
+
+        {/* Precio */}
+        <div style={{ display: "flex", gap: "0.75rem", marginTop: "auto", paddingTop: "0.5rem" }}>
           {hasDiscount && (
-            <span className="text-body-subtle line-through">
+            <span style={{ color: "#52525B", textDecoration: "line-through", fontSize: "0.9rem" }}>
               <Money data={lineItem.totalPrice} />
             </span>
           )}
-          <Money data={lineItem.currentTotalPrice} />
-        </dd>
-      </dl>
+          <span style={{ color: "#FFFFFF", fontSize: "0.9rem" }}>
+            <Money data={lineItem.currentTotalPrice} />
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

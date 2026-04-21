@@ -15,12 +15,20 @@ const variants = cva("", {
       col2: "col-span-2",
       col3: "col-span-3",
       col4: "col-span-4",
+      col5: "col-span-5",
+      col6: "col-span-6",
+      col7: "col-span-7",
+      col8: "col-span-8",
     },
     rowSize: {
       row1: "row-span-1",
       row2: "row-span-2",
       row3: "row-span-3",
       row4: "row-span-4",
+      row5: "row-span-5",
+      row6: "row-span-6",
+      row7: "row-span-7",
+      row8: "row-span-8",
       
     },
   },
@@ -278,6 +286,22 @@ export const schema = createSchema({
                 label: "Column 4",
                 value: "col4",
               },
+              {
+                label: "Column 5",
+                value: "col5",
+              },
+              {
+                label: "Column 6",
+                value: "col6",
+              },
+              {
+                label: "Column 7",
+                value: "col7",
+              },
+              {
+                label: "Column 8",
+                value: "col8",
+              },
               
             ],
           },
@@ -304,6 +328,22 @@ export const schema = createSchema({
               {
                 label: "Row 4",
                 value: "row4",
+              },
+              {
+                label: "Row 5",
+                value: "row5",
+              },
+              {
+                label: "Row 6",
+                value: "row6",
+              },
+              {
+                label: "Row 7",
+                value: "row7",
+              },
+              {
+                label: "Row 8",
+                value: "row8",
               },
               
             ],

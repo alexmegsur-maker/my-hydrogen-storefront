@@ -2,6 +2,7 @@ import type { HydrogenComponent } from "@weaverse/hydrogen";
 import * as Heading from "~/components/heading";
 import * as Link from "~/components/link";
 import * as Paragraph from "~/components/paragraph";
+import * as SmokeAsh from "~/components/smoke-ash";
 import * as GroupButtons from "~/components/group-buttons";
 import * as SubHeading from "~/components/subheading";
 import * as AllProducts from "~/sections/all-products";
@@ -125,15 +126,25 @@ import * as TableRow from "~/sections/table/row"
 import * as TableItem from "~/sections/table/item"
 import * as Instruction from "~/sections/instrucctions"
 import * as InstructionStep from "~/sections/instrucctions/step"
-
+import * as StepSectionCards from "~/sections/step-section-cards"
+import * as StepSectionCard from "~/sections/step-section-cards/step-card"
+import * as SocialTags from "~/sections/step-section-cards/social-tag"
+import * as GarantiaForm from "~/sections/garantia-form"
+import * as GarantiaFormField from "~/sections/garantia-form/form-field"
+import * as GarantiaFormButton from "~/sections/garantia-form/form-submit-button"
+import * as CopyButton from "~/components/copy-button"
+import * as  RoadmapTimeline from "~/sections/roadmap"
+import * as  TimelineCard from "~/sections/roadmap/card"
+import * as FaqSection from "~/sections/faq-section"
+import * as FaqItem from "~/sections/faq-section/item"
 
 export const components: HydrogenComponent[] = [
+  // He movido HeroImage aquí arriba para asegurar que se registre primero
+  HeroImage, 
   SubHeading,
   Heading,
   Paragraph,
   Link,
-  // AliReview,
-  // AliReviewList,
   AllProducts,
   FeaturedCollections,
   FeaturedCollectionItems,
@@ -142,7 +153,6 @@ export const components: HydrogenComponent[] = [
   Page,
   VideoEmbed,
   VideoEmbedItem,
-  HeroImage,
   ImageWithText,
   ImageWithTextContent,
   ImageWithTextImage,
@@ -160,9 +170,11 @@ export const components: HydrogenComponent[] = [
   CountDownTimer,
   NewsLetter,
   NewsLetterForm,
-  Blogs,
-  BlogPost,
-  AllProducts,
+  /* DUPLICADOS ELIMINADOS AQUÍ:
+     - Blogs (Ya estaba arriba)
+     - BlogPost (Ya estaba arriba)
+     - AllProducts (Ya estaba arriba)
+  */
   FeaturedProducts,
   FeaturedProductItems,
   Testimonial,
@@ -259,4 +271,15 @@ export const components: HydrogenComponent[] = [
   TableItem,
   Instruction,
   InstructionStep,
+  StepSectionCards,
+  StepSectionCard,
+  SocialTags,
+  GarantiaForm,
+  GarantiaFormField,
+  GarantiaFormButton,
+  CopyButton,
+  RoadmapTimeline,
+  TimelineCard,
+  FaqSection,
+  FaqItem,
 ];

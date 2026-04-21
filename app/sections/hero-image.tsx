@@ -2,17 +2,20 @@ import {
   createSchema,
   IMAGES_PLACEHOLDERS,
   useThemeSettings,
+  type HydrogenComponentProps,
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { backgroundInputs } from "~/components/background-image";
 import { Overlay, overlayInputs } from "~/components/overlay";
-import type { SectionProps } from "~/components/section";
-import { layoutInputs, Section } from "~/components/section";
+// import type { SectionProps } from "~/components/section";
+import { layoutInputs, Section, type SectionProps } from "~/components/section";
+import { forgeSettings } from "~/components/smoke-ash";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { cn } from "~/utils/cn";
 
-export interface HeroImageProps extends VariantProps<typeof variants> {
+export interface HeroImageProps extends VariantProps<typeof variants>,HydrogenComponentProps {
+  ref: React.Ref<HTMLElement>;
   widthCont:number;
   showBorder:boolean;
   colorBorder:string;
@@ -52,7 +55,6 @@ const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
     {
       height: "full",
       enableTransparentHeader: false,
-      className: "h-screen-dynamic",
     },
   ],
   defaultVariants: {
@@ -80,7 +82,7 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
 
       )}
       containerStyle={{
-        width:isMobile?"100%":`${widthCont}%`,
+        width:`${widthCont}%`,
         position:enableOverlay?  "static":"relative",
         
       }}
@@ -100,7 +102,7 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
 }
 
 export const schema = createSchema({
-  type: "hero-image",
+  type: "hero-imagev2",
   title: "Hero image",
   settings: [
     {
@@ -121,7 +123,7 @@ export const schema = createSchema({
         },
         {
           type:'range',
-          label:'width content', 
+          label:'width content',
           name:'widthCont',
           defaultValue:100,
           configs:{
@@ -171,8 +173,9 @@ export const schema = createSchema({
       ],
     },
     { group: "Overlay", inputs: overlayInputs },
+    ...forgeSettings,
   ],
-  childTypes: ["subheading", "heading", "paragraph", "button"],
+  childTypes: ["subheading", "heading", "paragraph", "button","group-elements"],
   presets: {
     height: "large",
     contentPosition: "center center",

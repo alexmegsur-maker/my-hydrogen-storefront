@@ -30,7 +30,7 @@ export const action: ActionFunction = async ({
   const { customerCreate, errors: queryErrors } =
     await context.storefront.mutate<CustomerCreateMutation>(CUSTOMER_CREATE, {
       variables: {
-        input: { email, password: "5hopify" },
+        input: { email, password: "5hopify" ,acceptsMarketing:true},
       },
     });
 

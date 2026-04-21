@@ -26,10 +26,11 @@ interface ImageWithTextContentProps
   extends VariantProps<typeof variants>,
     HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
+  widthDesktop:string;
 }
 
 function ImageWithTextContent(props: ImageWithTextContentProps) {
-  const { alignment, children, ref, ...rest } = props;
+  const { alignment,widthDesktop, children, ref, ...rest } = props;
   const parentInstance = useParentInstance()
   const [contentSize,setContentSize]=useState(100)
   const [distribution,setDistribution]=useState(false)
@@ -37,7 +38,7 @@ function ImageWithTextContent(props: ImageWithTextContentProps) {
   const instance = useItemInstance()
   const isMobile = useIsMobile(600)
   useEffect(()=>{
-    if(parentInstance.data.contentDist){
+    if(parentInstance.data?.contentDist){
       let position = parentInstance.data.children.findIndex((elm)=>elm.id ==instance.data.id)
       
       if(position == 0){
@@ -58,7 +59,7 @@ function ImageWithTextContent(props: ImageWithTextContentProps) {
       {...rest} 
       className={clsx(variants({ alignment }))}
       style={{
-        width: distribution ? isMobile?"100% ":`${contentSize}%`:"fit-content"
+        width: distribution ? isMobile?"100% ":`${contentSize}%`:widthDesktop
       }}
       containerClassName="flex flex-col"
       > 
@@ -91,6 +92,20 @@ export const schema = createSchema({
           helpText:
             "This will override the default alignment setting of all children components.",
         },
+        {
+          type: "select",
+          name: "widthDesktop",
+          label: "width desktop",
+          configs: {
+            options: [
+              { value: "fit-content", label: "fit-content" },
+              { value: "100%", label: "full" },
+              { value: "auto", label: "auto" },
+            ],
+          },
+          defaultValue:"fit-content"
+        },
+
       ],
     },
     ...sectionSettings

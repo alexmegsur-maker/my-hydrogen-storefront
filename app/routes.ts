@@ -35,6 +35,7 @@ export default hydrogenRoutes([
       route("featured-products", "routes/api/featured-products.ts"),
       route("klaviyo", "routes/api/klaviyo.ts"),
       route("predictive-search", "routes/api/predictive-search.ts"),
+      route("extension-garantia", "routes/api/extension-garantia.ts"),
       route("products", "routes/api/products.ts"),
       route("product-secret", "routes/api/product-secret.ts"),
       route(":version/graphql.json", "routes/api/graphql.json.ts"),
