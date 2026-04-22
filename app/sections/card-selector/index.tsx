@@ -1,13 +1,21 @@
+import { useGSAP } from "@gsap/react";
 import { createSchema, IMAGES_PLACEHOLDERS, useChildInstances, type HydrogenComponentProps } from "@weaverse/hydrogen"
-import { useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
 import { Image } from "~/components/image"
 import { Section, sectionSettings } from "~/components/section"
 import { useIsMobile } from "~/hooks/use-is-mobile";
+
+gsap.registerPlugin(ScrollTrigger)
 
 export interface CardSelectorProps{
   ref: React.Ref<HTMLDivElement>;
   gap:number;
   borderColor:string;
+  fadeY: number;
+  fadeDuration: number;
+  staggerDelay: number;
 }
 
 export default function CardSelector( props: CardSelectorProps & HydrogenComponentProps ){
@@ -17,6 +25,9 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
     gap,
     borderColor,
     children=[],
+    fadeY,
+    fadeDuration,
+    staggerDelay,
     ...rest
   }=props
 
@@ -31,6 +42,45 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
     }
   ).filter((elm)=>elm != null)
 
+  const container=useRef(null)
+  
+    useGSAP(
+      () => {
+        // Selecciona los hijos directos del contenedor
+        const items = gsap.utils.toArray<HTMLElement>(
+          ":scope > *",
+          container.current!,
+        );
+   
+        if (!items.length) return;
+   
+        // Estado inicial — invisible y desplazados hacia abajo
+        gsap.set(items, {
+          opacity: 0,
+          y: fadeY ?? 40,
+        });
+   
+        // Animación de entrada con stagger, disparada por ScrollTrigger
+        gsap.to(items, {
+          opacity: 1,
+          y: 0,
+          duration: fadeDuration ?? 0.7,
+          ease: "power2.out",
+          stagger: staggerDelay ?? 0.12,
+          scrollTrigger: {
+            trigger: container.current,
+            start: "top 85%",   // empieza cuando el top del contenedor alcanza el 85% del viewport
+            toggleActions: "play none none none", // solo se reproduce una vez
+          },
+        });
+      },
+      // Re-ejecuta si cambian los valores de animación o el número de hijos
+      {
+        scope: container,
+        dependencies: [fadeY, fadeDuration, staggerDelay],
+      },
+    );
+
 
   return(
   <Section ref={ref} {...rest} className="universes-wrapper">
@@ -44,6 +94,7 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
 
     <div 
       className="universes-grid"
+      ref={container}
       style={{
         width: "100%",
         display: isMobile ?"flex":"grid",
@@ -96,7 +147,33 @@ export const schema = createSchema({
           defaultValue:'#ffffff0d',
         },
       ]
-    }
+    },
+    {
+      group: "Animación",
+      inputs: [
+        {
+          type: "range",
+          label: "Desplazamiento inicial (Y)",
+          name: "fadeY",
+          defaultValue: 40,
+          configs: { min: 0, max: 120, step: 4, unit: "px" },
+        },
+        {
+          type: "range",
+          label: "Duración fade",
+          name: "fadeDuration",
+          defaultValue: 0.7,
+          configs: { min: 0.2, max: 2, step: 0.1, unit: "s" },
+        },
+        {
+          type: "range",
+          label: "Delay entre items (stagger)",
+          name: "staggerDelay",
+          defaultValue: 0.12,
+          configs: { min: 0, max: 0.6, step: 0.02, unit: "s" },
+        },
+      ],
+    },
   ],
   presets:{
     width:"full",

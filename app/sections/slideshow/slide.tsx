@@ -5,6 +5,7 @@ import {
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import { useRef } from "react";
 import { backgroundInputs } from "~/components/background-image";
 import { overlayInputs } from "~/components/overlay";
 import type { OverlayAndBackgroundProps } from "~/components/overlay-and-background";
@@ -90,11 +91,13 @@ export default function Slide(props: SlideProps) {
     children,
     ...rest
   } = props;
-  const [scope] = useAnimation(ref);
+
+  const  innerRef = useRef(null)
+  const [scope] = useAnimation(innerRef);
   const isMobile = useIsMobile(600);
   
   return (
-    <div ref={scope} {...rest} className="h-full w-full">
+    <div ref={innerRef} {...rest} className="h-full w-full">
       <OverlayAndBackground
         backgroundImage={backgroundImage}
         backgroundFit={backgroundFit}

@@ -1,6 +1,6 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import { Section } from "./section"
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useRef} from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -19,9 +19,9 @@ export default function groupButtons(props:groupButtonsProps){
   const container = useRef(null) 
   
   useGSAP(()=>{
-     gsap.from(".button-group", {
+     gsap.from(container.current, {
       opacity: 0,
-      y: 20,
+      y: "100%",
       duration: 1,
       ease: "power3.out",
     });
@@ -29,16 +29,22 @@ export default function groupButtons(props:groupButtonsProps){
   },{scope:container})
 
   return(
-    <Section ref={container} {...rest} className="flex overflow-visible"
-      containerStyle={{
-        overflow:"visible",
-        display:"flex",
-        flexDirection:!isMobile ? direction === "row" ? "row" : "column" : mbDirection === "row" ? "row" : "column",
-        gap:!isMobile?`${gap}rem`:`${mbGap}rem`,
-      }}
-      containerClassName="button-group"
+    <Section  {...rest} className="flex overflow-visible"
+    
+      containerClassName="flex overflow-visible"
     >
-      {children}
+      <div
+        ref={container}
+        className="button-group "
+        style={{
+          overflow:"visible",
+          display:"flex",
+          flexDirection:!isMobile ? direction === "row" ? "row" : "column" : mbDirection === "row" ? "row" : "column",
+          gap:!isMobile?`${gap}rem`:`${mbGap}rem`,
+        }}
+      >
+        {children}
+      </div>
     </Section>
   )
 }

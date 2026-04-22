@@ -1,16 +1,24 @@
+import { useGSAP } from "@gsap/react";
 import { createSchema, IMAGES_PLACEHOLDERS, useChildInstances, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
-import { useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
 import { backgroundInputs } from "~/components/background-image";
 import { overlayInputs } from "~/components/overlay";
 import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section } from "~/components/section";
 
+gsap.registerPlugin(ScrollTrigger)
+
 interface PromotionGridProps
   extends VariantProps<typeof variants>,
     SectionProps {
   ref?: React.Ref<HTMLElement>;
+  fadeY: number;
+  fadeDuration: number;
+  staggerDelay: number;
 }
 
 const variants = cva("flex flex-col sm:grid", {
@@ -46,7 +54,15 @@ const variants = cva("flex flex-col sm:grid", {
 });
 
 function PromotionGrid(props: PromotionGridProps & HydrogenComponentProps) {
-  const { children = [], gridSize, gap, ref, ...rest } = props;
+  const { 
+    children = [], 
+    gridSize, 
+    gap,
+    fadeY,
+    fadeDuration,
+    staggerDelay,
+    ref, 
+    ...rest } = props;
   const childInstances =useChildInstances()
     const headerChildsId =childInstances.map(
       (instance:any)=>{ 
@@ -56,6 +72,46 @@ function PromotionGrid(props: PromotionGridProps & HydrogenComponentProps) {
         return null
       }
     ).filter((elm)=>elm != null)
+
+    const container=useRef(null)
+
+    useGSAP(
+      () => {
+        // Selecciona los hijos directos del contenedor
+        const items = gsap.utils.toArray<HTMLElement>(
+          ":scope > *",
+          container.current!,
+        );
+  
+        if (!items.length) return;
+  
+        // Estado inicial — invisible y desplazados hacia abajo
+        gsap.set(items, {
+          opacity: 0,
+          y: fadeY ?? 40,
+        });
+  
+        // Animación de entrada con stagger, disparada por ScrollTrigger
+        gsap.to(items, {
+          opacity: 1,
+          y: 0,
+          duration: fadeDuration ?? 0.7,
+          ease: "power2.out",
+          stagger: staggerDelay ?? 0.12,
+          scrollTrigger: {
+            trigger: container.current,
+            start: "top 85%",   // empieza cuando el top del contenedor alcanza el 85% del viewport
+            toggleActions: "play none none none", // solo se reproduce una vez
+          },
+        });
+      },
+      // Re-ejecuta si cambian los valores de animación o el número de hijos
+      {
+        scope: container,
+        dependencies: [fadeY, fadeDuration, staggerDelay],
+      },
+    );
+  
 
   return (
     <Section
@@ -69,7 +125,7 @@ function PromotionGrid(props: PromotionGridProps & HydrogenComponentProps) {
           }
         })}
       </div>
-      <div className={variants({gridSize,gap})}>
+      <div ref={container} className={variants({gridSize,gap})}>
       {children.map((child,idx)=>{
           if(!headerChildsId.find((elm)=>elm ==child.props.id)){
             return child
@@ -119,6 +175,32 @@ export const schema = createSchema({
     { group: "Layout", inputs: layoutInputs },
     { group: "Background", inputs: backgroundInputs },
     { group: "Overlay", inputs: overlayInputs },
+    {
+      group: "Animación",
+      inputs: [
+        {
+          type: "range",
+          label: "Desplazamiento inicial (Y)",
+          name: "fadeY",
+          defaultValue: 40,
+          configs: { min: 0, max: 120, step: 4, unit: "px" },
+        },
+        {
+          type: "range",
+          label: "Duración fade",
+          name: "fadeDuration",
+          defaultValue: 0.7,
+          configs: { min: 0.2, max: 2, step: 0.1, unit: "s" },
+        },
+        {
+          type: "range",
+          label: "Delay entre items (stagger)",
+          name: "staggerDelay",
+          defaultValue: 0.12,
+          configs: { min: 0, max: 0.6, step: 0.02, unit: "s" },
+        },
+      ],
+    },
   ],
   childTypes: ["promotion-grid-item","subheading","heading"],
   presets: {
