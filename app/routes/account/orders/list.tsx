@@ -7,17 +7,21 @@ import type {
   CustomerOrdersFragment,
   OrderItemFragment,
 } from "customer-account-api.generated";
-import type * as React from "react";
+import * as React from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link, type MetaFunction, useLoaderData } from "react-router";
-import { ORDER_STATUS } from "~/routes/account/dashboard/orders-history";
+import { ORDER_STATUS, resolveOrderStatus } from "~/routes/account/dashboard/orders-history";
 
 const ORDER_ITEM_FRAGMENT = `#graphql
   fragment OrderItem on Order {
     totalPrice { amount currencyCode }
     financialStatus
     fulfillmentStatus
-    fulfillments(first: 1) { nodes { status } }
+    fulfillments(first: 1) { 
+      nodes { 
+        status
+      } 
+    }
     id
     number
     processedAt
@@ -82,7 +86,7 @@ export default function Orders() {
           alignItems: "center",
         }}
       >
-        Historial de Despliegues
+        Historial de Pedidos
         <span style={{ fontSize: "0.9rem", color: "#A1A1AA", fontWeight: 400 }}>
           {orders.nodes.length} registros
         </span>
@@ -98,7 +102,7 @@ export default function Orders() {
             No hay despliegues registrados.
           </p>
           <Link
-            to="/collections"
+            to="/"
             style={{
               fontFamily: "'Outfit', sans-serif",
               fontSize: "0.8rem",
@@ -197,97 +201,92 @@ function PaginatedOrders<NodesType>({
   );
 }
 
+
+const ACTIVE: React.CSSProperties = {
+  borderColor: "#FFFFFF",
+  color: "#FFFFFF",
+  background: "rgba(255,255,255,0.05)",
+  boxShadow: "0 0 10px rgba(255,255,255,0.2)",
+};
+ 
+const BADGE_STYLES: Record<string, React.CSSProperties> = {
+  UNFULFILLED:         ACTIVE,
+  PARTIALLY_FULFILLED: ACTIVE,
+  IN_PROGRESS:         ACTIVE,
+  ON_HOLD:             ACTIVE,
+  SCHEDULED:           ACTIVE,
+  OPEN:                ACTIVE,
+  PENDING:             ACTIVE,
+  AUTHORIZED:          ACTIVE,
+  FULFILLED:           { borderColor: "#A1A1AA", color: "#A1A1AA" },
+  SUCCESS:             { borderColor: "#A1A1AA", color: "#A1A1AA" },
+  PAID:                { borderColor: "#A1A1AA", color: "#A1A1AA" },
+  CANCELLED:           { borderColor: "rgba(255,68,68,0.6)", color: "rgba(255,68,68,0.9)" },
+  VOIDED:              { borderColor: "rgba(255,68,68,0.6)", color: "rgba(255,68,68,0.9)" },
+  FAILURE:             { borderColor: "#ff4444", color: "#ff4444" },
+  ERROR:               { borderColor: "#ff4444", color: "#ff4444" },
+  REFUNDED:            { borderColor: "#52525B", color: "#52525B" },
+  PARTIALLY_REFUNDED:  { borderColor: "#52525B", color: "#52525B" },
+};
+
 function OrderItem({ order }: { order: OrderItemFragment }) {
-  const fulfillmentStatus = flattenConnection(order.fulfillments)[0]?.status;
+  // resolveOrderStatus prioriza: VOIDED→CANCELLED, luego order.fulfillmentStatus,
+  // luego fulfillments.nodes[0] (vacío en pedidos sin envío), luego financialStatus
+  const effectiveStatus = resolveOrderStatus(order as any);
+  const badgeStyle = BADGE_STYLES[effectiveStatus] ?? ACTIVE;
+  const badgeLabel = ORDER_STATUS[effectiveStatus] ?? effectiveStatus;
   const orderId = order.id.split("/").pop();
-
-  const statusColors: Record<string, React.CSSProperties> = {
-    SUCCESS: { borderColor: "#A1A1AA", color: "#A1A1AA" },
-    CANCELLED: { borderColor: "#A1A1AA", color: "#A1A1AA" },
-    OPEN: {
-      borderColor: "#FFFFFF",
-      color: "#FFFFFF",
-      background: "rgba(255,255,255,0.05)",
-      boxShadow: "0 0 10px rgba(255,255,255,0.2)",
-    },
-    PENDING: {
-      borderColor: "#FFFFFF",
-      color: "#FFFFFF",
-      background: "rgba(255,255,255,0.05)",
-    },
+ 
+  const TD: React.CSSProperties = {
+    padding: "1.25rem 1rem",
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
+    fontSize: "0.9rem",
+    color: "#A1A1AA",
   };
-
-  const badgeStyle = fulfillmentStatus
-    ? (statusColors[fulfillmentStatus] ?? statusColors.OPEN)
-    : statusColors.OPEN;
-
+ 
   return (
-    <tr style={{ transition: "background 0.3s" }}>
-      <td
-        style={{
-          padding: "1.25rem 1rem",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 600,
-          color: "#FFFFFF",
-          fontSize: "0.9rem",
-        }}
-      >
+    <tr
+      onMouseEnter={(e) =>
+        (e.currentTarget as HTMLTableRowElement)
+          .querySelectorAll("td")
+          .forEach((td) => ((td as HTMLElement).style.background = "rgba(255,255,255,0.02)"))
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget as HTMLTableRowElement)
+          .querySelectorAll("td")
+          .forEach((td) => ((td as HTMLElement).style.background = "transparent"))
+      }
+    >
+      <td style={{ ...TD, color: "#FFFFFF", fontWeight: 600, fontFamily: "'Outfit', sans-serif" }}>
         #{order.number}
       </td>
-      <td
-        style={{
-          padding: "1.25rem 1rem",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
-          fontSize: "0.9rem",
-          color: "#A1A1AA",
-        }}
-      >
+      <td style={TD}>
         {new Date(order.processedAt).toLocaleDateString("es-ES", {
           day: "numeric",
           month: "long",
           year: "numeric",
         })}
       </td>
-      <td
-        style={{
-          padding: "1.25rem 1rem",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
-        }}
-      >
-        {fulfillmentStatus && (
-          <span
-            style={{
-              padding: "4px 10px",
-              borderRadius: "2px",
-              fontSize: "0.7rem",
-              fontFamily: "'Outfit', sans-serif",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              border: "1px solid",
-              ...badgeStyle,
-            }}
-          >
-            {ORDER_STATUS[fulfillmentStatus] ?? fulfillmentStatus}
-          </span>
-        )}
+      <td style={TD}>
+        <span
+          style={{
+            padding: "4px 10px",
+            borderRadius: "2px",
+            fontSize: "0.7rem",
+            fontFamily: "'Outfit', sans-serif",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            border: "1px solid",
+            ...badgeStyle,
+          }}
+        >
+          {badgeLabel}
+        </span>
       </td>
-      <td
-        style={{
-          padding: "1.25rem 1rem",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
-          fontSize: "0.9rem",
-          color: "#A1A1AA",
-        }}
-      >
+      <td style={TD}>
         {order.totalPrice.amount} {order.totalPrice.currencyCode}
       </td>
-      <td
-        style={{
-          padding: "1.25rem 1rem",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
-        }}
-      >
+      <td style={TD}>
         <Link
           to={`/account/orders/${orderId}`}
           style={{
@@ -301,7 +300,7 @@ function OrderItem({ order }: { order: OrderItemFragment }) {
             paddingBottom: "2px",
           }}
         >
-          Ver Manifiesto
+          Ver Detalles
         </Link>
       </td>
     </tr>

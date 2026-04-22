@@ -10,6 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { type CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useScrollAnimation } from "~/hooks/use-scroll-animation";
+import { splitText } from "~/routes/account/dashboard";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
@@ -51,7 +52,7 @@ extends VariantProps<typeof variants>{
   lineH:number;
   activeShadow:boolean;
   textShadow:string;
-  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe",
+  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe"|"writeChar",
 }
 
 function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
@@ -105,7 +106,6 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
       "--max-size": maxSize,
     } as CSSProperties;
   }
- 
 
   return (
     <Tag
@@ -119,6 +119,7 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
         lineHeight:lineH>0 ? lineH:"unset",
         fontWeight:weight,
         textAlign:alignment,
+        flexWrap:animacion ==="writeChar"?"wrap":"unset",
         fontFamily:family,
         textShadow:activeShadow ? textShadow:"unset",
         display:"flex",
@@ -130,7 +131,39 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
         variants({ size, className }), 
       )}
     >
-      {animacion === "typer" ? (
+      {(()=>{
+        switch(animacion){
+          case 'typer':
+            return (<span style={{ display: "inline-flex", alignItems: "baseline" }}>
+              <span
+                ref={textInnerRef}
+                style={{
+                  display: "inline-block",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {content}
+              </span>
+              <span
+                ref={cursorRef}
+                style={{
+                  display: "inline-block",
+                  width: "3px",
+                  height: "0.8em",
+                  backgroundColor: color || "currentColor",
+                  marginLeft: "4px",
+                }}
+              />
+            </span>
+            )
+          case'writeChar':
+            return splitText(content)
+          default :
+            return content
+        }
+      })()}
+      {/* {animacion === "typer" ? (
         <span style={{ display: "inline-flex", alignItems: "baseline" }}>
           <span
             ref={textInnerRef}
@@ -155,7 +188,7 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
         </span>
       ) : (
         content
-      )}
+      )} */}
     </Tag>
   );
 }
@@ -383,6 +416,7 @@ export const headingInputs: InspectorGroup["inputs"] = [
         {value:'neonPulse',label:'neon pulse'},
         {value:'spaceNeonPulse',label:'space neon pulse'},
         {value:"breathe",label:"breathe"},
+        {value:"writeChar",label:"write character"},
       ]
     },
     defaultValue:"fade",

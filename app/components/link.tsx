@@ -149,7 +149,7 @@ export function Link(props: LinkProps) {
     to,
     text,
     variant,
-    className,
+    className = "button-link",
     style,
     textColor,
     backgroundColor,

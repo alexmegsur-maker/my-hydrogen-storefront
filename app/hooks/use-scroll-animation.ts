@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-export type AnimationType = "none" | "fade" | "typer" |"spaceNeonPulse"|"neonPulse" | "breathe";
+export type AnimationType = "none" | "fade" | "typer" |"spaceNeonPulse"|"neonPulse" | "breathe"|"writeChar";
 
 export interface ScrollAnimationOptions {
   /** Tipo de animación a ejecutar */
@@ -88,6 +88,16 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             scrollTrigger: stConfig,
           });
         }
+      }
+      if(animation ==="writeChar"){
+        gsap.from(".char", {
+          opacity: 0,
+          y: 20,
+          rotateX: -90,
+          stagger: 0.08,
+          duration: 1,
+          ease: "power3.out",
+        })
       }
       if(animation === "neonPulse"){
         const tl = gsap.timeline({

@@ -8,10 +8,16 @@ import { ORDER_STATUS } from "~/routes/account/dashboard/orders-history";
 import { OrderLineItem } from "./order-line-item";
 import { CUSTOMER_ORDER_QUERY } from "./order-query";
 import { OrderSummary } from "./order-summary";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => [
   { title: `Orden ${data?.order?.name} | Phoenix` },
 ];
+
+gsap.registerPlugin(ScrollTrigger)
 
 export async function loader({ request, context, params }: LoaderFunctionArgs) {
   if (!params.id) {
@@ -29,6 +35,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     );
     if (errors?.length || !data?.order?.lineItems) throw new Error("Order not found");
     const order: OrderFragment = data.order;
+    const cancelledAt = order.cancelledAt
     const lineItems = flattenConnection(order.lineItems);
     const discountApplications = flattenConnection(order.discountApplications);
     const firstDiscount = discountApplications[0]?.value;
@@ -38,7 +45,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     const fulfillments = flattenConnection(order.fulfillments);
     const fulfillmentStatus =
       fulfillments.length > 0 ? fulfillments[0].status : ("OPEN" as FulfillmentStatus);
-    return { order, lineItems, discountValue, discountPercentage, fulfillmentStatus };
+    return { order, lineItems, discountValue, discountPercentage, fulfillmentStatus ,cancelledAt};
   } catch (error) {
     throw new Response(error instanceof Error ? error.message : undefined, { status: 404 });
   }
@@ -52,10 +59,30 @@ const statusStyle: Record<string, React.CSSProperties> = {
 };
 
 export default function OrderDetails() {
-  const { order, lineItems, fulfillmentStatus } = useLoaderData<typeof loader>();
+  const { order, lineItems, fulfillmentStatus ,cancelledAt } = useLoaderData<typeof loader>();
+  
+  const container = useRef(null)
+  useGSAP(() => {
+   
+    const sections = gsap.utils.toArray('.fade-up-trigger');
+    sections.forEach((section:any) => {
+      gsap.from(section, {
+        scrollTrigger: {
+          trigger: section,
+          start: "top 90%", // Empieza cuando el tope de la sección está al 90% del viewport
+          toggleActions: "play none none none", // Solo se reproduce una vez al entrar
+        },
+        opacity: 0,
+        y: 40,
+        duration: 1,
+        ease: "power3.out",
+      });
+    });
 
+
+  }, { scope: container });
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+    <div ref={container} style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {/* Cabecera */}
       <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "1.5rem" }}>
         <h1
@@ -69,19 +96,20 @@ export default function OrderDetails() {
             marginBottom: "1rem",
           }}
         >
-          Manifiesto de Orden
+          Detalles del Pedido
         </h1>
         <Link
           to="/account/orders"
           variant="underline"
           style={{ color: "#A1A1AA", fontSize: "0.85rem" }}
         >
-          ← Volver a Despliegues
+          ← Volver a Historial
         </Link>
       </div>
 
       {/* Meta info */}
-      <div
+      <div 
+        className="fade-up-trigger"
         style={{
           background: "rgba(10,10,10,0.7)",
           border: "1px solid rgba(255,255,255,0.1)",
@@ -110,7 +138,7 @@ export default function OrderDetails() {
             Procesado el {new Date(order.processedAt).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
           </div>
         </div>
-        {fulfillmentStatus && (
+        {fulfillmentStatus && !cancelledAt && (
           <span
             style={{
               alignSelf: "flex-start",
@@ -127,6 +155,23 @@ export default function OrderDetails() {
             {ORDER_STATUS[fulfillmentStatus] ?? fulfillmentStatus}
           </span>
         )}
+        {cancelledAt && (
+          <span
+            style={{
+              alignSelf: "flex-start",
+              padding: "6px 14px",
+              borderRadius: "2px",
+              fontSize: "0.75rem",
+              fontFamily: "'Outfit', sans-serif",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              border: "1px solid",
+              ...(statusStyle[fulfillmentStatus] ?? statusStyle.OPEN),
+            }}
+          >
+            {ORDER_STATUS["CANCELLED"] }
+          </span>
+        )}
       </div>
 
       {/* Grid: line items + resumen + dirección */}
@@ -139,6 +184,7 @@ export default function OrderDetails() {
       >
         {/* Line items */}
         <div
+          className="fade-up-trigger"
           style={{
             background: "rgba(10,10,10,0.7)",
             border: "1px solid rgba(255,255,255,0.1)",
@@ -171,6 +217,7 @@ export default function OrderDetails() {
         {/* Dirección de envío */}
         {order?.shippingAddress && (
           <div
+            className="fade-up-trigger"
             style={{
               background: "rgba(10,10,10,0.7)",
               border: "1px solid rgba(255,255,255,0.1)",

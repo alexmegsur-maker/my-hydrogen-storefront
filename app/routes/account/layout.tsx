@@ -10,6 +10,7 @@ import { routeHeaders } from "~/utils/cache";
 import { getFeaturedProducts } from "~/utils/featured-products";
 import { doLogout } from "./auth/logout";
 import AccountDashboard from "./dashboard";
+import { useEffect } from "react";
 
 export const headers = routeHeaders;
 
@@ -44,7 +45,7 @@ export async function loader({ context }: LoaderFunctionArgs) {
 const NAV_LINKS = [
   { to: "/account", label: "Panel Principal", exact: true },
   { to: "/account/orders", label: "Historial Despliegues" },
-  { to: "/account/address", label: "Coordenadas Envío" },
+  // { to: "/account/address", label: "Coordenadas Envío" },
   { to: "/account/profile", label: "Datos Operador" },
 ];
 
@@ -62,6 +63,11 @@ export default function AccountLayout() {
   const fullName =
     `${customer?.firstName ?? ""} ${customer?.lastName ?? ""}`.trim() ||
     "Operador";
+
+
+  useEffect(()=>{
+    console.log("customer layout",customer)
+  },[customer])  
 
   const sidebar = (
     <aside
