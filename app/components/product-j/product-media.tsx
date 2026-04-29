@@ -235,7 +235,7 @@ function ProductMedia(props:ProductMediaProps){
                         </SwiperSlide>
                     }
                     {media.map((elm,index)=>{
-                      let active = activeIndex == index+1
+                      let active = principalImg ? activeIndex == index+1:activeIndex == index
                       return(
                         <SwiperSlide className="relative w-fit"
                           style={{
