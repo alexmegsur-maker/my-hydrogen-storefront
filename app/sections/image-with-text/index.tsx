@@ -85,7 +85,7 @@ function ImageWithText(props: ImageWithTextProps) {
 export default ImageWithText;
 
 export const schema = createSchema({
-  type: "image-with-textv2",
+  type: "image-with-text",
   title: "Image with text",
   settings: [
     {

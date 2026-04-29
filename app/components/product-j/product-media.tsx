@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useMousePosition } from "~/utils/mouse-position"
 import MiniatureSlide from "../product-secret/miniature-slide"
 import { Swiper,SwiperSlide } from "swiper/react"
@@ -10,11 +10,12 @@ interface ProductMediaProps{
   media:MediaProduct[],
   view360:[]|MediaProduct[],
   logo:Image |null,
+  principalImg:Image |null,
   mediaVideos:string[],
 }
 
 function ProductMedia(props:ProductMediaProps){
-  const {media,view360,logo,mediaVideos} = props
+  const {media,view360,logo,mediaVideos,principalImg} = props
   const [thumbsSwiper,setThumbsSwiper] = useState(null)
   const [principalSwiper,setPrincipalSwiper] = useState(null)
   const [show,setShow] = useState(false)
@@ -56,6 +57,8 @@ function ProductMedia(props:ProductMediaProps){
   const zoomImage360=()=>{
     setZoom(state => !state)
   }
+
+
   return(
  <div className="transition-all flex-none w-full mt-10 md:mt-0 md:w-[65vw] md:h-[100vh]"> 
       <div className="bottom-0 md:h-full w-full md:w-[65vw] ">
@@ -117,6 +120,18 @@ function ProductMedia(props:ProductMediaProps){
                           setActiveIndex(s.realIndex)
                         }}
                         >
+                        {principalImg &&
+                          <SwiperSlide
+                            className="w-full h-[50vh] md:h-full relative"
+                            >
+                            <img
+                              loading="lazy"
+                              src={principalImg?.url}
+                              alt={principalImg?.altText}
+                              className="w-[100%] h-[100%] object-cover m-0 aspect-[2.5] md:aspect-[1.5] transition duration-1000 ease-in-out"
+                            />
+                          </SwiperSlide>
+                        }
                         {media.map((elm)=>{
                           return(
                             <SwiperSlide
@@ -124,8 +139,8 @@ function ProductMedia(props:ProductMediaProps){
                             >
                               <img
                                 loading="lazy"
-                                src={elm.previewImage.url}
-                                alt={elm.previewImage.altText}
+                                src={elm?.previewImage.url}
+                                alt={elm?.previewImage.altText}
                                 className="w-[100%] h-[100%] object-cover m-0 aspect-[2.5] md:aspect-[1.5] transition duration-1000 ease-in-out"
                               />
                             </SwiperSlide>
@@ -201,8 +216,26 @@ function ProductMedia(props:ProductMediaProps){
                     }}
                     className="mySwiper overflow-hidden"
                     >
+
+                    {principalImg &&
+                      <SwiperSlide className="relative w-fit"
+                          style={{
+                            width:"fit-content !important"
+                          }}
+                        >
+                          <MiniatureSlide 
+                            swiper={principalSwiper}
+                            index={0}
+                            active={activeIndex ==0} 
+                            url={principalImg.url} 
+                            alt={principalImg.altText}
+                            show={show}
+                            changeShow={setShow}
+                            />
+                        </SwiperSlide>
+                    }
                     {media.map((elm,index)=>{
-                      let active = activeIndex == index
+                      let active = activeIndex == index+1
                       return(
                         <SwiperSlide className="relative w-fit"
                           style={{
@@ -211,10 +244,10 @@ function ProductMedia(props:ProductMediaProps){
                         >
                           <MiniatureSlide 
                             swiper={principalSwiper}
-                            index={index}
+                            index={index-1}
                             active={active} 
-                            url={elm.previewImage.url} 
-                            alt={elm.previewImage.altText}
+                            url={elm?.previewImage.url} 
+                            alt={elm?.previewImage.altText}
                             show={show}
                             changeShow={setShow}
                             />

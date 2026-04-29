@@ -105,10 +105,13 @@ export interface CurrentProduct{
   imagenes360:MediaProduct[];
   tags?:string[];
   logo:Image;
+  principalImg:Image;
   page:Page;
   listVideos:string[];
   nombre:string;
   tooltip:Metafield;
+  material:string | null;
+
 }
 
 export interface CurrentProdcutStore{

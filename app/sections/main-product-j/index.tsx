@@ -39,11 +39,23 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
   const setProduct= useCurrentProduct((state)=>state.setProduct)
   const productStore = useCurrentProduct((state)=>state.currentProduct)
   const isMobile = useIsMobile(600);
+  const restoreHeaderFooter=()=>{
+      const header = document.querySelector("header")
+      const anuncement = document.querySelector("#announcement-bar") as HTMLDivElement
+      const footer = document.querySelector("footer")
+      header.style.display="block"
+      anuncement.style.display="block"
+      footer.style.display="block"
+  }
   
   useEffect(()=>{
     if(document){
       const header = document.querySelector("header")
+      const anuncement = document.querySelector("#announcement-bar") as HTMLDivElement
+      const footer = document.querySelector("footer")
       header.style.display="none"
+      anuncement.style.display="none"
+      footer.style.display="none"
     }
 
   },[])
@@ -54,6 +66,7 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
       setProduct(auxProd)
     }
     setCurrentProduct(auxProd)
+    console.log(product)
   },[product])
 
   
@@ -71,6 +84,7 @@ if(productStore){
           view360={currentProduct?.imagenes360 || []}
           logo={currentProduct?.logo?.previewImage || null}
           mediaVideos={currentProduct?.listVideos || []}
+          principalImg= {currentProduct?.principalImg?.previewImage || null}
         />
         <div 
           className="container-info relative w-full overflow-y-auto"
@@ -87,7 +101,7 @@ if(productStore){
               zIndex:10
             }}
           >
-            <Link to={"/"}>← Inicio</Link>
+            <Link to={"/"} onClick={ restoreHeaderFooter}>← Inicio</Link>
           </div>
           <div
             style={{ 
@@ -112,7 +126,10 @@ export const schema = createSchema({
     "selector-variant",
     "filter-step",
     "crossell-productJ",
-    "buy-buttons-productJ"
+    "buy-buttons-productJ",
+    "variant-secret",
+    "selector-variant-secret",
+    
   ],
   limit:1,
   settings:[

@@ -46,6 +46,7 @@ export interface ProductNode{
   featuredImage:RequestImage;
   nombre?:RequestMetafield;
   tooltip?:RequestMetafield;
+  material:RequestMetafield;
   variants:{
     edges:{
       node:RequestVariant[]

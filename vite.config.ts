@@ -19,6 +19,11 @@ export default defineConfig({
     assetsInlineLimit: 0,
   },
   server: {
+    host:true,
+    strictPort:false,
+    hmr:{
+      clientPort:3456
+    },
     warmup: {
       clientFiles: [
         "./app/routes/**/*",

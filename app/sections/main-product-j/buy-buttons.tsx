@@ -352,7 +352,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
     
             { showBuy && 
               idsVariants.length > 0 && 
-              currentProd?.selectedVariant?.availableForSale &&          
+              currentProd?.selectedVariant?.availableForSale ?          
                 <>
                   {currentProd?.selectedVariant?.quantityAvailable <= 0 ? 
                     <div className="relative w-full">
@@ -422,6 +422,34 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                   }
     
                 </>
+                :
+                <>
+                
+                    <div ref={buyButton} className="relative">
+                
+                      <button 
+                      
+                        className="w-full py-5 px-2 border-solid border-2 uppercase border-[#3790b0] text-[16px] text-[#3790b0] hover:border-[#000] hover:text-[#000] font-bold z-10 gap-2"
+                        onClick={buyProducts}
+                        style={{
+                          color:"#fff",
+                          borderColor:!hoverBuy ? bnColor : bnHoverColor,
+                          background: "rgb(158, 158, 158)",
+                          fontSize:bnSize,
+                          letterSpacing: `${bnLetter}px`,
+                          fontFamily:bnFamily,
+                          fontWeight:bnWeight,
+                          ...selectorPaddingMargin("padding",bnPaddingSelect,bnPaddingText),
+                          ...selectorPaddingMargin("margin",bnMarginSelect,bnMarginText),
+                        }}
+                      > 
+                        Agotado 
+                      </button>
+                    </div>
+                  
+    
+                </>
+
               
             }
             <div

@@ -137,6 +137,10 @@ import * as  RoadmapTimeline from "~/sections/roadmap"
 import * as  TimelineCard from "~/sections/roadmap/card"
 import * as FaqSection from "~/sections/faq-section"
 import * as FaqItem from "~/sections/faq-section/item"
+import * as SelectorVariantSecret from "~/sections/main-product-j/variant-selector-secret"
+import * as filterOptionSize from "~/sections/main-product-j/filter-option-size"
+import * as filterOptionMaterial from "~/sections/main-product-j/filter-option-material"
+import * as PhoenixValidation from "~/sections/phoenix-validation"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -282,4 +286,8 @@ export const components: HydrogenComponent[] = [
   TimelineCard,
   FaqSection,
   FaqItem,
+  SelectorVariantSecret,
+  filterOptionSize,
+  filterOptionMaterial,
+  PhoenixValidation,
 ];

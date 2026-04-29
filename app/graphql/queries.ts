@@ -59,6 +59,23 @@ export const PRODUCT_QUERY = `#graphql
           }
         }
       }
+      principalImg:metafield(namespace:"custom",key:"img_principal") {
+        key
+        value
+        reference{
+          ... on Media{
+            previewImage{
+              altText  
+              url
+            }
+          }
+        }
+      }
+     material:metafield(namespace:"custom",key:"material") {
+        key
+        type
+        value
+      }
       imagenes360:metafield(namespace:"custom",key:"imagen360") {
         key
         value

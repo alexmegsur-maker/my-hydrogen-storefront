@@ -30,12 +30,10 @@ function CollectionVariant(props:collectionVariantProps){
   const filteredProducts = products.filter((elm)=>{
     if(listFilter.length===0) return true;
 
-    const material = elm.node.variants.edges[0].node.material?.value;
+    const material = elm.node.material.value;
     if(!material)return false
-
     return listFilter.some((f)=>f.toLocaleLowerCase()===material.toLocaleLowerCase());
   });
-  
   const isEmpty = filteredProducts.length === 0;
   
   return (

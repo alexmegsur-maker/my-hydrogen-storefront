@@ -85,7 +85,11 @@ export default function FilterStep(props: FilterStepProps) {
 export const schema = createSchema({
   title: "Filter step",
   type: "filter-step",
-  childTypes:["filter-option"],
+  childTypes:[
+    "filter-option",
+    "filter-option-size",
+    "filter-option-material"
+  ],
   settings: [
     {
       group: "general",

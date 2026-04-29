@@ -7,6 +7,7 @@ import {
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { backgroundInputs } from "~/components/background-image";
+import NetworkBackground, { networkBackgroundSettings, type NetworkBackgroundProps } from "~/components/networkBackground";
 import { Overlay, overlayInputs } from "~/components/overlay";
 // import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
@@ -14,12 +15,13 @@ import { forgeSettings } from "~/components/smoke-ash";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { cn } from "~/utils/cn";
 
-export interface HeroImageProps extends VariantProps<typeof variants>,HydrogenComponentProps {
+export interface HeroImageProps extends VariantProps<typeof variants>,HydrogenComponentProps,NetworkBackgroundProps {
   ref: React.Ref<HTMLElement>;
   widthCont:number;
   showBorder:boolean;
   colorBorder:string;
   activeDots:boolean;
+  activeNetwork:boolean;
 }
 
 const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
@@ -64,7 +66,38 @@ const variants = cva("flex flex-col [&_.paragraph]:mx-[unset]", {
 });
 
 export default function HeroImage(props: HeroImageProps & SectionProps) {
-  const { ref, children, height, activeDots, widthCont, contentPosition,colorBorder,showBorder,enableOverlay, overlayColor,overlayColorHover,overlayOpacity, ...rest } = props;
+  const { 
+    ref, 
+    children, 
+    height, 
+    activeDots, 
+    widthCont, 
+    contentPosition,
+    colorBorder,
+    showBorder,
+    enableOverlay, 
+    overlayColor,
+    overlayColorHover,
+    overlayOpacity,
+    activeNetwork,
+    particleColor, 
+    lineColor, 
+    particleOpacity, 
+    interactiveRadius, 
+    velocity, 
+    numberParticles,
+    ...rest 
+  } = props;
+
+  const network= {
+    activeNetwork,
+    particleColor, 
+    lineColor, 
+    particleOpacity, 
+    interactiveRadius, 
+    velocity,
+    numberParticles,
+  }
   const { enableTransparentHeader } = useThemeSettings();
   const isMobile = useIsMobile(600)
   return (
@@ -83,13 +116,14 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
       )}
       containerStyle={{
         width:`${widthCont}%`,
-        position:enableOverlay?  "static":"relative",
+        position:enableOverlay || activeNetwork ?  "static":"relative",
         
       }}
       style={{
         borderBottom:showBorder ? `1px solid ${colorBorder}`:"unset"
       }}
     >
+      <NetworkBackground {...network}/>
       <Overlay
         enableOverlay={enableOverlay}
         overlayColor={overlayColor}
@@ -170,9 +204,16 @@ export const schema = createSchema({
           (inp) =>
             inp.name !== "backgroundFor" && inp.name !== "backgroundColor",
         ),
+        {
+          type:'switch',
+          label:'active network background',
+          name:'activeNetwork',
+          defaultValue:false,
+        },
       ],
     },
     { group: "Overlay", inputs: overlayInputs },
+    ...networkBackgroundSettings,
     ...forgeSettings,
   ],
   childTypes: ["subheading", "heading", "paragraph", "button","group-elements"],

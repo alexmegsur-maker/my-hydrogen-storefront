@@ -5,149 +5,113 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import LateralCollection from "~/components/product-j/lateral-collection";
 import "~/styles/filter-option.css";
-import { renderRichText, selectorPaddingMargin } from "~/utils/general";
+import { selectorPaddingMargin } from "~/utils/general";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useFilterProduct } from "~/stores/filterProductStore";
 
-interface FilterOptionProps extends HydrogenComponentProps {
+interface FilterOptionSizeProps extends HydrogenComponentProps {
   title: string;
-  handle: string;
-  paddingSelect:string;
-  paddingText:string;
-  marginSelect:string;
-  marginText:string;
-  tColor:string;
-  tSize:string;
-  tLetter:number;
-  tUpper:boolean;
-  tFamily:string;
-  tPaddingSelect:string;
-  tPaddingText:string;
-  tMarginSelect:string;
-  tMarginText:string;
-  tWeight:string;
-  bColor:string;
-  bSize:string;
-  bFamily:string;
-  vtColor:string;
-  vtSize:string;
-  vtLetter:number;
-  vtUpper:boolean;
-  vtFamily:string;
-  vtPaddingSelect:string;
-  vtPaddingText:string;
-  vtMarginSelect:string;
-  vtMarginText:string;
-  vtWeight:string;
-  vdColor:string;
-  vdSize:string;
-  vdLetter:number;
-  vdUpper:boolean;
-  vdFamily:string;
-  vdPaddingSelect:string;
-  vdPaddingText:string;
-  vdMarginSelect:string;
-  vdMarginText:string;
-  vdWeight:string;
-  bgColor:string;
-  lcPaddingSelect:string;
-  lcPaddingText:string;
-  lcMarginSelect:string;
-  lcMarginText:string;
-  brColor:string;
-  brSize:string;
-  brLetter:number;
-  brUpper:boolean;
-  brFamily:string;
-  brPaddingSelect:string;
-  brPaddingText:string;
-  brMarginSelect:string;
-  brMarginText:string;
-  brWeight:string;
-  ntColor:string;
-  ntSize:string;
-  ntLetter:number;
-  ntUpper:boolean;
-  ntFamily:string;
-  ntPaddingSelect:string;
-  ntPaddingText:string;
-  ntMarginSelect:string;
-  ntMarginText:string;
-  ntWeight:string;
-  tllTColor:string;
-  tllTSize:string;
-  tllTLetter:number;
-  tllTUpper:boolean;
-  tllTFamily:string;
-  tllTPaddingSelect:string;
-  tllTPaddingText:string;
-  tllTMarginSelect:string;
-  tllTMarginText:string;
-  tllTWeight:string;
-  tllDColor:string;
-  tllDSize:string;
-  tllDLetter:number;
-  tllDUpper:boolean;
-  tllDFamily:string;
-  tllDPaddingSelect:string;
-  tllDPaddingText:string;
-  tllDMarginSelect:string;
-  tllDMarginText:string;
-  tllDWeight:string;
-  tllStColor:string;
-  tllStSize:string;
-  tllStLetter:number;
-  tllStUpper:boolean;
-  tllStFamily:string;
-  tllStPaddingSelect:string;
-  tllStPaddingText:string;
-  tllStMarginSelect:string;
-  tllStMarginText:string;
-  tllStWeight:string;
-  tllNColor:string;
-  tllNSize:string;
-  tllNFamily:string;
-  tllNWeight:string;
-  lcTColor:string;
-  lcTSize:string;
-  lcTLetter:number;
-  lcTUpper:boolean;
-  lcTFamily:string;
-  lcTPaddingSelect:string;
-  lcTPaddingText:string;
-  lcTMarginSelect:string;
-  lcTMarginText:string;
-  lcTWeight:string;
-  lcDColor:string;
-  lcDSize:string;
-  lcDFamily:string;
-  lcDWeight:string;
-  lcStColor:string;
-  lcStSize:string;
-  lcStLetter:number;
-  lcStUpper:boolean;
-  lcStFamily:string;
-  lcStPaddingSelect:string;
-  lcStPaddingText:string;
-  lcStMarginSelect:string;
-  lcStMarginText:string;
-  lcStWeight:string;
-  lcEtColor:string;
-  lcEvColor:string;
-  lcESize:string;
-  lcEFamily:string;
-  lcEWeight:string;
-  lcFtColor:string;
-  lcFvColor:string;
-  lcFSize:string;
-  lcFFamily:string;
-  lcFWeight:string;
+  paddingSelect: string;
+  paddingText: string;
+  marginSelect: string;
+  marginText: string;
+  tColor: string;
+  tSize: string;
+  tLetter: number;
+  tUpper: boolean;
+  tFamily: string;
+  tPaddingSelect: string;
+  tPaddingText: string;
+  tMarginSelect: string;
+  tMarginText: string;
+  tWeight: string;
+  bColor: string;
+  bSize: string;
+  bFamily: string;
+  vtColor: string;
+  vtSize: string;
+  vtLetter: number;
+  vtUpper: boolean;
+  vtFamily: string;
+  vtPaddingSelect: string;
+  vtPaddingText: string;
+  vtMarginSelect: string;
+  vtMarginText: string;
+  vtWeight: string;
+  vdColor: string;
+  vdSize: string;
+  vdLetter: number;
+  vdUpper: boolean;
+  vdFamily: string;
+  vdPaddingSelect: string;
+  vdPaddingText: string;
+  vdMarginSelect: string;
+  vdMarginText: string;
+  vdWeight: string;
+  bgColor: string;
+  lcPaddingSelect: string;
+  lcPaddingText: string;
+  lcMarginSelect: string;
+  lcMarginText: string;
+  brColor: string;
+  brSize: string;
+  brLetter: number;
+  brUpper: boolean;
+  brFamily: string;
+  brPaddingSelect: string;
+  brPaddingText: string;
+  brMarginSelect: string;
+  brMarginText: string;
+  brWeight: string;
+  ntColor: string;
+  ntSize: string;
+  ntLetter: number;
+  ntUpper: boolean;
+  ntFamily: string;
+  ntPaddingSelect: string;
+  ntPaddingText: string;
+  ntMarginSelect: string;
+  ntMarginText: string;
+  ntWeight: string;
+  tllTColor: string;
+  tllTSize: string;
+  tllTLetter: number;
+  tllTUpper: boolean;
+  tllTFamily: string;
+  tllTPaddingSelect: string;
+  tllTPaddingText: string;
+  tllTMarginSelect: string;
+  tllTMarginText: string;
+  tllTWeight: string;
+  tllDColor: string;
+  tllDSize: string;
+  tllDLetter: number;
+  tllDUpper: boolean;
+  tllDFamily: string;
+  tllDPaddingSelect: string;
+  tllDPaddingText: string;
+  tllDMarginSelect: string;
+  tllDMarginText: string;
+  tllDWeight: string;
+  tllStColor: string;
+  tllStSize: string;
+  tllStLetter: number;
+  tllStUpper: boolean;
+  tllStFamily: string;
+  tllStPaddingSelect: string;
+  tllStPaddingText: string;
+  tllStMarginSelect: string;
+  tllStMarginText: string;
+  tllStWeight: string;
+  tllNColor: string;
+  tllNSize: string;
+  tllNFamily: string;
+  tllNWeight: string;
 }
 
-export default function FilterOption(props: FilterOptionProps) {
-  const { 
-    title, 
-    handle,
+export default function FilterOptionSize(props: FilterOptionSizeProps) {
+  const {
+    title,
     paddingSelect,
     paddingText,
     marginSelect,
@@ -244,44 +208,11 @@ export default function FilterOption(props: FilterOptionProps) {
     tllNSize,
     tllNFamily,
     tllNWeight,
-    lcTColor,
-    lcTSize,
-    lcTLetter,
-    lcTUpper,
-    lcTFamily,
-    lcTPaddingSelect,
-    lcTPaddingText,
-    lcTMarginSelect,
-    lcTMarginText,
-    lcTWeight,
-    lcDColor,
-    lcDSize,
-    lcDFamily,
-    lcDWeight,
-    lcStColor,
-    lcStSize,
-    lcStLetter,
-    lcStUpper,
-    lcStFamily,
-    lcStPaddingSelect,
-    lcStPaddingText,
-    lcStMarginSelect,
-    lcStMarginText,
-    lcStWeight,
-    lcEtColor,
-    lcEvColor,
-    lcESize,
-    lcEFamily,
-    lcEWeight,
-    lcFtColor,
-    lcFvColor,
-    lcFSize,
-    lcFFamily,
-    lcFWeight, 
-    ...rest } = props;
+    ...rest
+  } = props;
+
   const [variantSelected, setVariantSelected] = useState({
     button: "",
-    guia: [],
     options: [],
   });
   const [height, setHeight] = useState(175);
@@ -290,58 +221,46 @@ export default function FilterOption(props: FilterOptionProps) {
   const [selected, setSelected] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
   const [show, setShow] = useState(false);
-  const [optionsProduct,setOptionsProduct]=useState<string[]>([])
-  const [materialesAvailable,setMaterialesAvailable] =  useState([])
+  const [optionsProduct, setOptionsProduct] = useState<string[]>([]);
 
   const variantOptions = useVariantOptions((state) => state.varOptions);
   const currentProduct = useCurrentProduct((state) => state.currentProduct);
   const setVariant = useCurrentProduct((state) => state.setVariant);
-  const addFilter = useFilterProduct((state)=>state.addFilter)
-  const removeFilter = useFilterProduct((state)=>state.removeFilter)
-  const currentVariant = currentProduct?.selectedVariant;
-  const optionsCurrent = currentProduct?.options.find(
-    (e) => e.name.toLowerCase() === handle.toLowerCase(),
-  );
+  const addFilter = useFilterProduct((state) => state.addFilter);
+  const removeFilter = useFilterProduct((state) => state.removeFilter);
   const isMobile = useIsMobile(600);
-  
+
   useEffect(() => {
     if (variantOptions) {
       try {
         const data = JSON.parse(variantOptions) as any;
-        
-        
+
         const match = data.edges?.find(
-          (elm) => elm.node.handle.toLowerCase() === handle.toLowerCase(),
+          (elm) => elm.node.handle.toLowerCase() === "talla"
         );
+
         if (match) {
           const node = match.node;
-         
-          currentVariant.selectedOptions.forEach((i)=>{
-            if(node.handle.toLowerCase() == i.name.toLowerCase()){
-              setSelected(i.value.toLowerCase())
+          const currentVariant = currentProduct?.selectedVariant;
+
+          currentVariant?.selectedOptions.forEach((i) => {
+            if (node.handle.toLowerCase() === i.name.toLowerCase()) {
+              setSelected(i.value.toLowerCase());
             }
-          })
+          });
 
-          const button = node.fields.find((e) => e.key == "button");
-          let guia = node.fields.find((e) => e.key == "guia");
-          let options = node.fields.find((e) => e.key == "material");
+          const button = node.fields.find((e) => e.key === "button");
+          let options = node.fields.find((e) => e.key === "material");
 
-          let materiales= [options.references.edges.find((e)=>e.node.fields[1].value == "cuero" ),options.references.edges.find((e)=>e.node.fields[1].value == "tela" )]
-         
-          setMaterialesAvailable(materiales)
-         
-          
-          
-          let prodOptions= options?.references?.edges.map((elm,idx)=>{
-            let opt = elm.node.fields.find((e)=>e.key =="product")
-            return opt.value
-          })
+          let prodOptions = options?.references?.edges.map((elm) => {
+            let opt = elm.node.fields.find((e) => e.key === "product");
+            return opt.value;
+          });
 
-          setOptionsProduct(prodOptions)
+          setOptionsProduct(prodOptions);
 
           setVariantSelected({
             button: button?.value || "",
-            guia: guia?.reference?.fields || [],
             options: options?.references?.edges || [],
           });
         }
@@ -349,7 +268,7 @@ export default function FilterOption(props: FilterOptionProps) {
         console.error("Error parseando variantOptions:", error);
       }
     }
-  }, [variantOptions, handle]);
+  }, [variantOptions, currentProduct]);
 
   useEffect(() => {
     if (height > 187 || weight > 104) {
@@ -360,9 +279,10 @@ export default function FilterOption(props: FilterOptionProps) {
   }, [height, weight]);
 
   useEffect(() => {
-    if (currentVariant?.selectedOptions[0].value!="Default title") {
+    const currentVariant = currentProduct?.selectedVariant;
+    if (currentVariant?.selectedOptions[0].value !== "Default title") {
       const option = currentVariant.selectedOptions?.find(
-        (i) => i.name.toLowerCase() === handle.toLowerCase(),
+        (i) => i.name.toLowerCase() === "talla"
       );
       setSelected(option?.value.toLowerCase());
     } else {
@@ -371,53 +291,53 @@ export default function FilterOption(props: FilterOptionProps) {
   }, [currentProduct]);
 
   const changeVariant = (elm: string, handElm: string) => {
-    optionsProduct.forEach((e)=>{
-      removeFilter(e)
-    })
+    optionsProduct.forEach((e) => {
+      removeFilter(e);
+    });
 
-    currentProduct.variants.nodes.forEach((e)=>{
-      const el = e.selectedOptions.find((i)=>i.name == handElm)
-      if(el){
-        if(el.value.toLowerCase() == elm.toLowerCase()){
-          setVariant(e)
-          addFilter(elm)
+    currentProduct.variants.nodes.forEach((e) => {
+      const el = e.selectedOptions.find((i) => i.name === handElm);
+      if (el) {
+        if (el.value.toLowerCase() === elm.toLowerCase()) {
+          setVariant(e);
+          addFilter(elm);
         }
       }
-    })
+    });
   };
 
   return (
     <Section {...rest}>
-      <div 
+      <div
         className="config-section"
         style={{
-          ...selectorPaddingMargin("padding",paddingSelect,paddingText),
-          ...selectorPaddingMargin("margin",marginSelect,marginText),
+          ...selectorPaddingMargin("padding", paddingSelect, paddingText),
+          ...selectorPaddingMargin("margin", marginSelect, marginText),
         }}
       >
         <div className="section-header flex justify-between items-baseline mb-[1.5rem]">
           <div
             className="config-label"
             style={{
-              color:tColor,
-              fontFamily:tFamily,
-              fontSize:tSize,
-              fontWeight:tWeight,
-              textTransform:tUpper ?"uppercase":"unset",
-              letterSpacing:`${tLetter}px`,
-              ...selectorPaddingMargin("padding",tPaddingSelect,tPaddingText),
-              ...selectorPaddingMargin("margin",tMarginSelect,tMarginText),
+              color: tColor,
+              fontFamily: tFamily,
+              fontSize: tSize,
+              fontWeight: tWeight,
+              textTransform: tUpper ? "uppercase" : "unset",
+              letterSpacing: `${tLetter}px`,
+              ...selectorPaddingMargin("padding", tPaddingSelect, tPaddingText),
+              ...selectorPaddingMargin("margin", tMarginSelect, tMarginText),
             }}
           >
-            {title ? title : "Variant option"}
+            {title ? title : "Talla"}
           </div>
           <span
             className="config-link cursor-pointer"
             onClick={() => setShow(true)}
             style={{
-              color:bColor,
-              fontFamily:bFamily,
-              fontSize:bSize,
+              color: bColor,
+              fontFamily: bFamily,
+              fontSize: bSize,
               textDecoration: "underline",
               textUnderlineOffset: "4px",
               transition: "color 0.3s",
@@ -427,35 +347,29 @@ export default function FilterOption(props: FilterOptionProps) {
           </span>
         </div>
         <div className="options-list flex flex-col gap-[0.5rem]">
-          {variantSelected.options?.map((opt,index) => {
+          {variantSelected.options?.map((opt, index) => {
             const fields = opt.node.fields;
-            const optTitle = fields?.find((e) => e.key == "title");
-            const optDesc = fields?.find((e) => e.key == "description");
-            const product = fields?.find((e) => e.key == "product");
+            const optTitle = fields?.find((e) => e.key === "title");
+            const optDesc = fields?.find((e) => e.key === "description");
+            const product = fields?.find((e) => e.key === "product");
             const active = product.value.toLowerCase() === selected;
             const isHovered = product.value.toLowerCase() === hoveredId;
-          
+
             return (
               <div
                 key={index}
                 className="option-item-variant active flex justify-between items-center cursor-pointer"
-                onClick={() =>
-                  changeVariant(
-                    product.value.toLowerCase(),
-                    handle.toLowerCase(),
-                  )
-                }
+                onClick={() => changeVariant(product.value.toLowerCase(), "talla")}
                 onMouseEnter={() => setHoveredId(product.value.toLowerCase())}
                 onMouseLeave={() => setHoveredId(null)}
-                data-variante={handle.toLowerCase()}
+                data-variante="talla"
                 data-variante-option={product.value.toLowerCase()}
                 data-active={active}
                 style={{
-                  padding:
-                  isHovered  ? "1rem 0 1rem 10px" : "1rem 0",
+                  padding: isHovered ? "1rem 0 1rem 10px" : "1rem 0",
                   borderBottom: "1px solid #ffffff08",
                   transition: "all 0.4s ease",
-                  opacity: active || isHovered  ? "1" : "0.6",
+                  opacity: active || isHovered ? "1" : "0.6",
                   cursor: "pointer",
                 }}
               >
@@ -466,12 +380,11 @@ export default function FilterOption(props: FilterOptionProps) {
                       fontFamily: vtFamily,
                       fontSize: vtSize,
                       color: vtColor,
-                      textTransform:vtUpper?"uppercase":"unset",
-                      letterSpacing:vtLetter>0 ?`${vtLetter}px`:"normal",
-                      fontWeight:
-                        active || isHovered  ? vtWeight : "400",
-                      ...selectorPaddingMargin("padding",vtPaddingSelect,vtPaddingText),
-                      ...selectorPaddingMargin("margin",vtMarginSelect,vtMarginText),
+                      textTransform: vtUpper ? "uppercase" : "unset",
+                      letterSpacing: vtLetter > 0 ? `${vtLetter}px` : "normal",
+                      fontWeight: active || isHovered ? vtWeight : "400",
+                      ...selectorPaddingMargin("padding", vtPaddingSelect, vtPaddingText),
+                      ...selectorPaddingMargin("margin", vtMarginSelect, vtMarginText),
                       transition: "all 0.3s",
                     }}
                   >
@@ -483,11 +396,11 @@ export default function FilterOption(props: FilterOptionProps) {
                       fontFamily: vdFamily,
                       fontSize: vdSize,
                       color: vdColor,
-                      textTransform:vdUpper?"uppercase":"unset",
-                      letterSpacing:vdLetter>0 ?`${vdLetter}px`:"normal",
+                      textTransform: vdUpper ? "uppercase" : "unset",
+                      letterSpacing: vdLetter > 0 ? `${vdLetter}px` : "normal",
                       fontWeight: vdWeight,
-                      ...selectorPaddingMargin("padding",vdPaddingSelect,vdPaddingText),
-                      ...selectorPaddingMargin("margin",vdMarginSelect,vdMarginText),
+                      ...selectorPaddingMargin("padding", vdPaddingSelect, vdPaddingText),
+                      ...selectorPaddingMargin("margin", vdMarginSelect, vdMarginText),
                     }}
                   >
                     {optDesc?.value}
@@ -510,511 +423,335 @@ export default function FilterOption(props: FilterOptionProps) {
           })}
         </div>
       </div>
-      {handle.toLowerCase() == "talla" ? (
-        <LateralCollection
-          title={"SISTEMA DE AJUSTE"}
-          confirmBtn={false}
-          show={show}
-          close={() => setShow(false)}
+
+      <LateralCollection
+        title={"SISTEMA DE AJUSTE"}
+        confirmBtn={false}
+        show={show}
+        close={() => setShow(false)}
+        style={{
+          background: bgColor,
+        }}
+        estilos={{
+          "--brColor": brColor,
+          "--brSize": brSize,
+          "--brLetter": brLetter,
+          "--brUpper": brUpper,
+          "--brFamily": brFamily,
+          "--brPaddingSelect": brPaddingSelect,
+          "--brPaddingText": brPaddingText,
+          "--brMarginSelect": brMarginSelect,
+          "--brMarginText": brMarginText,
+          "--brWeight": brWeight,
+          "--ntColor": ntColor,
+          "--ntSize": ntSize,
+          "--ntLetter": ntLetter,
+          "--ntUpper": ntUpper,
+          "--ntFamily": ntFamily,
+          "--ntPaddingSelect": ntPaddingSelect,
+          "--ntPaddingText": ntPaddingText,
+          "--ntMarginSelect": ntMarginSelect,
+          "--ntMarginText": ntMarginText,
+          "--ntWeight": ntWeight,
+        } as CSSProperties}
+      >
+        <div
+          className="flex flex-col gap-[3rem] h-[100%]"
           style={{
-            background: bgColor,
+            flexGrow: 1,
+            ...selectorPaddingMargin(
+              "padding",
+              lcPaddingSelect,
+              !isMobile ? lcPaddingText : "1.5rem"
+            ),
+            ...selectorPaddingMargin("margin", lcMarginSelect, lcMarginText),
           }}
-          estilos={{
-            "--brColor":brColor,
-            "--brSize":brSize,
-            "--brLetter":brLetter,
-            "--brUpper":brUpper,
-            "--brFamily":brFamily,
-            "--brPaddingSelect":brPaddingSelect,
-            "--brPaddingText":brPaddingText,
-            "--brMarginSelect":brMarginSelect,
-            "--brMarginText":brMarginText,
-            "--brWeight":brWeight,
-            "--ntColor":ntColor,
-            "--ntSize":ntSize,
-            "--ntLetter":ntLetter,
-            "--ntUpper":ntUpper,
-            "--ntFamily":ntFamily,
-            "--ntPaddingSelect":ntPaddingSelect,
-            "--ntPaddingText":ntPaddingText,
-            "--ntMarginSelect":ntMarginSelect,
-            "--ntMarginText":ntMarginText,
-            "--ntWeight":ntWeight,
-          }as CSSProperties}
         >
-          <div
-            className="flex flex-col gap-[3rem] h-[100%]"
-            style={{
-              flexGrow: 1,
-              ...selectorPaddingMargin("padding",lcPaddingSelect,!isMobile?lcPaddingText:"1.5rem"),
-              ...selectorPaddingMargin("margin",lcMarginSelect,lcMarginText),
-            }}
-          >
+          {/* Sistema de ajuste content */}
+          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
             <div
-              style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}
+              id="cBox"
+              style={{
+                width: "100px",
+                height: "140px",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                background: "rgba(255, 255, 255, 0.02)",
+                position: "relative",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "0.4s",
+                boxShadow: "none",
+                transform: "scale(1)",
+              }}
             >
+              <img
+                className="absolute"
+                src={currentProduct?.media?.nodes[0].previewImage?.url}
+                alt={currentProduct?.media?.nodes[0].previewImage?.altText}
+              />
               <div
-                id="cBox"
                 style={{
-                  width: "100px",
-                  height: "140px",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  background: "rgba(255, 255, 255, 0.02)",
-                  position: "relative",
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "0.4s",
-                  boxShadow: "none",
-                  transform: "scale(1)",
+                  position: "absolute",
+                  width: "100%",
+                  height: "2px",
+                  background: "#FFF",
+                  boxShadow: "0 0 15px #FFF",
+                  top: 0,
+                  zIndex: 10,
+                  animation: "scanLineAnim 3s infinite linear",
+                }}
+              ></div>
+              <span
+                style={{
+                  zIndex: 10,
+                  fontSize: "0.5rem",
+                  color: "rgba(255,255,255,0.2)",
+                  letterSpacing: "2px",
+                  fontFamily: "Montserrat",
                 }}
               >
-                <img
-                  className="absolute"
-                  src={currentProduct?.media?.nodes[0].previewImage?.url}
-                  alt={currentProduct?.media?.nodes[0].previewImage?.altText}
-                />
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "2px",
-                    background: "#FFF",
-                    boxShadow: "0 0 15px #FFF",
-                    top: 0,
-                    zIndex: 10,
-                    animation: "scanLineAnim 3s infinite linear",
-                  }}
-                ></div>
-                <span
-                  style={{
-                    zIndex: 10,
-                    fontSize: "0.5rem",
-                    color: "rgba(255,255,255,0.2)",
-                    letterSpacing: "2px",
-                    fontFamily: "Montserrat",
-                  }}
-                >
-                  ANALYZING...
-                </span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span
-                  id="sLbl"
-                  style={{
-                    color: tllTColor,
-                    fontFamily: tllTFamily,
-                    fontSize: tllTSize,
-                    textTransform:tllTUpper?"uppercase":"unset",
-                    letterSpacing:tllTLetter>0 ?`${tllTLetter}px`:"normal",
-                    fontWeight: tllTWeight,
-                    ...selectorPaddingMargin("padding",tllTPaddingSelect,tllTPaddingText),
-                    ...selectorPaddingMargin("margin",tllTMarginSelect,tllTMarginText),
-                    lineHeight: 1,
-                  }}
-                >
-                  {recommendation}
-                </span>
-                <span
-                  style={{
-                    color: tllDColor,
-                    fontFamily: tllDFamily,
-                    fontSize: tllDSize,
-                    textTransform:tllDUpper?"uppercase":"unset",
-                    letterSpacing:tllDLetter>0 ?`${tllDLetter}px`:"normal",
-                    fontWeight: tllDWeight,
-                    ...selectorPaddingMargin("padding",tllDPaddingSelect,tllDPaddingText),
-                    ...selectorPaddingMargin("margin",tllDMarginSelect,tllDMarginText),
-                  }}
-                >
-                  CHASIS RECOMENDADO
-                </span>
-              </div>
+                ANALYZING...
+              </span>
             </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "2.5rem",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "baseline",
-                    marginBottom: "1rem",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
-                    paddingBottom: "5px",
-                  }}
-                >
-                  <label
-                    style={{
-                    
-                      color: tllStColor,
-                      fontFamily: tllStFamily,
-                      fontSize: tllStSize,
-                      textTransform:tllStUpper?"uppercase":"unset",
-                      letterSpacing:tllStLetter>0 ?`${tllStLetter}px`:"normal",
-                      fontWeight: tllStWeight,
-                      ...selectorPaddingMargin("padding",tllStPaddingSelect,tllStPaddingText),
-                      ...selectorPaddingMargin("margin",tllStMarginSelect,tllStMarginText),
-                    
-                    }}
-                  >
-                    Estatura
-                  </label>
-                  <span
-                    id="hTxt"
-                    style={{
-                      fontFamily: tllNFamily,
-                      fontSize: tllNSize,
-                      fontWeight: tllNWeight,
-                      color: tllNColor,
-                    }}
-                  >
-                    {height} CM
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  id="hIn"
-                  min="150"
-                  max="210"
-                  value={height}
-                  onChange={(e) => setHeight(parseInt(e.target.value))}
-                  style={{
-                    WebkitAppearance: "none",
-                    outline: "none",
-                    border: "none",
-                    width: "100%",
-                    cursor: "pointer",
-                    accentColor: "#FFF",
-                  }}
-                />
-              </div>
-
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "baseline",
-                    marginBottom: "1rem",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
-                    paddingBottom: "5px",
-                  }}
-                >
-                  <label
-                    style={{
-                      color: tllStColor,
-                      fontFamily: tllStFamily,
-                      fontSize: tllStSize,
-                      textTransform:tllStUpper?"uppercase":"unset",
-                      letterSpacing:tllStLetter>0 ?`${tllStLetter}px`:"normal",
-                      fontWeight: tllStWeight,
-                      ...selectorPaddingMargin("padding",tllStPaddingSelect,tllStPaddingText),
-                      ...selectorPaddingMargin("margin",tllStMarginSelect,tllStMarginText),
-                    }}
-                  >
-                    Masa Corporal
-                  </label>
-                  <span
-                    id="wTxt"
-                    style={{
-                      fontFamily: tllNFamily,
-                      fontSize: tllNSize,
-                      fontWeight: tllNWeight,
-                      color: tllNColor,
-                    }}
-                  >
-                    {weight} KG
-                  </span>
-                </div>
-                <input
-                  className="cursor-pointer"
-                  type="range"
-                  id="wIn"
-                  min="50"
-                  max="150"
-                  value={weight}
-                  onChange={(e) => setWeight(parseInt(e.target.value))}
-                  style={{
-                    WebkitAppearance: "none",
-                    outline: "none",
-                    border: "none",
-                    width: "100%",
-                    cursor: "pointer",
-                    accentColor: "#FFF",
-                  }}
-                />
-              </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span
+                id="sLbl"
+                style={{
+                  color: tllTColor,
+                  fontFamily: tllTFamily,
+                  fontSize: tllTSize,
+                  textTransform: tllTUpper ? "uppercase" : "unset",
+                  letterSpacing: tllTLetter > 0 ? `${tllTLetter}px` : "normal",
+                  fontWeight: tllTWeight,
+                  ...selectorPaddingMargin("padding", tllTPaddingSelect, tllTPaddingText),
+                  ...selectorPaddingMargin("margin", tllTMarginSelect, tllTMarginText),
+                  lineHeight: 1,
+                }}
+              >
+                {recommendation}
+              </span>
+              <span
+                style={{
+                  color: tllDColor,
+                  fontFamily: tllDFamily,
+                  fontSize: tllDSize,
+                  textTransform: tllDUpper ? "uppercase" : "unset",
+                  letterSpacing: tllDLetter > 0 ? `${tllDLetter}px` : "normal",
+                  fontWeight: tllDWeight,
+                  ...selectorPaddingMargin("padding", tllDPaddingSelect, tllDPaddingText),
+                  ...selectorPaddingMargin("margin", tllDMarginSelect, tllDMarginText),
+                }}
+              >
+                CHASIS RECOMENDADO
+              </span>
             </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "1.5rem",
-                fontFamily: "Montserrat",
-              }}
-            >
-              <div>
-                <small
-                  style={{
-                    display: "block",
-                    fontSize: "0.6rem",
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
-                    color: tllStColor,
-                    fontFamily: tllStFamily,
-                  }}
-                >
-                  Pistón Hidráulico
-                </small>
-                <p
-                  style={{
-                    fontSize: "0.85rem",
-                    fontWeight: "500",
-                    marginTop: "4px",
-                    color:tllNColor,
-                  }}
-                >
-                  Clase 4 (150kg)
-                </p>
-              </div>
-              <div>
-                <small
-                  style={{
-                    display: "block",
-                    fontSize: "0.6rem",
-                    color: tllStColor,
-                    fontFamily: tllStFamily,
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Estructura
-                </small>
-                <p
-                  style={{
-                    fontSize: "0.85rem",
-                    fontWeight: "500",
-                    marginTop: "4px",
-                    color:tllNColor,
-                  }}
-                >
-                  Acero Forjado
-                </p>
-              </div>
-            </div>
-
-            <p
-              style={{
-                fontSize: "0.7rem",
-                color: tllStColor,
-                lineHeight: "1.6",
-                marginTop: "auto",
-                fontFamily: "Montserrat",
-                fontStyle: "italic",
-              }}
-            >
-              *Ambos modelos garantizan la misma certificación de carga (150kg).
-              El chasis XL optimiza la ergonomía para envergaduras superiores.
-            </p>
           </div>
-        </LateralCollection>
-      ):
-      <LateralCollection
-          title={variantSelected?.guia.find((e)=>e.key=="title")?.value}
-          confirmBtn={false}
-          show={show}
-          close={() => setShow(false)}
-          style={{
-            background: bgColor,
-          }}
-          estilos={{
-            "--brColor":brColor,
-            "--brSize":brSize,
-            "--brLetter":brLetter,
-            "--brUpper":brUpper,
-            "--brFamily":brFamily,
-            "--brPaddingSelect":brPaddingSelect,
-            "--brPaddingText":brPaddingText,
-            "--brMarginSelect":brMarginSelect,
-            "--brMarginText":brMarginText,
-            "--brWeight":brWeight,
-            "--ntColor":ntColor,
-            "--ntSize":ntSize,
-            "--ntLetter":ntLetter,
-            "--ntUpper":ntUpper,
-            "--ntFamily":ntFamily,
-            "--ntPaddingSelect":ntPaddingSelect,
-            "--ntPaddingText":ntPaddingText,
-            "--ntMarginSelect":ntMarginSelect,
-            "--ntMarginText":ntMarginText,
-            "--ntWeight":ntWeight,
-          }as CSSProperties}
-        >
-         <div className="drawer-scroll-area overflow-y-auto" 
-          style={{
-            ...selectorPaddingMargin("padding",lcPaddingSelect,!isMobile?lcPaddingText:"1.5rem"),
-            ...selectorPaddingMargin("padding",lcMarginSelect,lcMarginText)
-          }}
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2.5rem",
+            }}
           >
-            <h2 
-              className="drawer-header-title" 
-              style={{
-                color: lcTColor,
-                fontFamily: lcTFamily,
-                fontSize: lcTSize,
-                textTransform:lcTUpper?"uppercase":"unset",
-                letterSpacing:lcTLetter>0 ?`${lcTLetter}px`:"normal",
-                fontWeight: lcTWeight,
-                ...selectorPaddingMargin("padding",lcTPaddingSelect,lcTPaddingText),
-                ...selectorPaddingMargin("margin",lcTMarginSelect,lcTMarginText),
-              
-              }}
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginBottom: "1rem",
+                  borderBottom: "1px solid rgba(255,255,255,0.05)",
+                  paddingBottom: "5px",
+                }}
               >
-                {variantSelected.guia?.find((e)=>e.key ==="nav_title")?.value}
-            </h2>
-            
-            <div className="acc-ficha-gallery grid gap-[10px] grid-cols-2 mb-[2.5rem]">
-              {variantSelected.guia?.find((e)=>e.key=="imagenes")?.imagenes?.edges.map((i)=>{
-                const imageUrl=i.node.image.url;
-                return(  
-                  <div 
-                    className="acc-ficha-img w-full h-[140px] bg-cover bg-center md:grayscale hover:grayscale-0 rounded-md overflow-hidden"
-                    style={{
-                      transition:"all 0.4s ease"
-                    }}
-                  >
-                    {imageUrl && 
-                      <img src={imageUrl} alt="Gallery" className="w-full h-full object-cover" />
-                    }
-                  </div>
-                )
-              })}
+                <label
+                  style={{
+                    color: tllStColor,
+                    fontFamily: tllStFamily,
+                    fontSize: tllStSize,
+                    textTransform: tllStUpper ? "uppercase" : "unset",
+                    letterSpacing: tllStLetter > 0 ? `${tllStLetter}px` : "normal",
+                    fontWeight: tllStWeight,
+                    ...selectorPaddingMargin("padding", tllStPaddingSelect, tllStPaddingText),
+                    ...selectorPaddingMargin("margin", tllStMarginSelect, tllStMarginText),
+                  }}
+                >
+                  Estatura
+                </label>
+                <span
+                  id="hTxt"
+                  style={{
+                    fontFamily: tllNFamily,
+                    fontSize: tllNSize,
+                    fontWeight: tllNWeight,
+                    color: tllNColor,
+                  }}
+                >
+                  {height} CM
+                </span>
+              </div>
+              <input
+                type="range"
+                id="hIn"
+                min="150"
+                max="210"
+                value={height}
+                onChange={(e) => setHeight(parseInt(e.target.value))}
+                style={{
+                  WebkitAppearance: "none",
+                  outline: "none",
+                  border: "none",
+                  width: "100%",
+                  cursor: "pointer",
+                  accentColor: "#FFF",
+                }}
+              />
             </div>
-            
-            <div
-              className="acc-ficha-desc"
-              style={{
-                fontSize:lcDSize,
-                color: lcDColor,
-                lineHeight: "1.7",
-                fontWeight: lcDWeight,
-                fontFamily:lcDFamily
-              }}
-              dangerouslySetInnerHTML={{__html:renderRichText(variantSelected.guia?.find((e)=>e.key==="description")?.value)}}
-              >
-            </div>
 
-            <h3 className="acc-section-title"
-              style={{
-                color: lcStColor,
-                fontFamily: lcStFamily,
-                fontSize: lcStSize,
-                textTransform:lcStUpper?"uppercase":"unset",
-                letterSpacing:lcStLetter>0 ?`${lcStLetter}px`:"normal",
-                fontWeight: lcStWeight,
-                ...selectorPaddingMargin("padding",lcStPaddingSelect,lcStPaddingText),
-                ...selectorPaddingMargin("margin",lcStMarginSelect,lcStMarginText),
-                borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-              }}  
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginBottom: "1rem",
+                  borderBottom: "1px solid rgba(255,255,255,0.05)",
+                  paddingBottom: "5px",
+                }}
               >
-              {variantSelected.guia?.find((e)=>e.key==="especificacion_title")?.value}
-            </h3>
-            <ul className="acc-specs-list flex flex-col gap-[1rem] list-none">
-
-              {variantSelected.guia?.find((e)=>e.key==="especificacion")?.metaobjetos?.edges.map((i,index)=>{
-                  let titleEsp = i.node.fields.find((j)=>j.key=== "title")?.value
-                  let especification = i.node.fields.find((j)=>j.key=== "especificacion")?.value
-                return(
-                  <li key={index} className="flex justify-between items-baseline"
-                    style={{
-                      borderBottom:"1px dashed rgba(255,255,255,0.03)",
-                      fontSize:lcESize,
-                      fontFamily:lcEFamily,
-                      paddingBottom:"0.5rem",
-                      fontWeight:lcEWeight
-                    }}
-                  >
-                    <span 
-                      className="spec-lbl"
-                      style={{
-                        color:lcEtColor
-                      }}
-                      >
-                      {titleEsp}
-                    </span>
-                    <span 
-                      className="spec-val"
-                      style={{
-                        color:lcEvColor,
-                        fontWeight:"500",
-                        textAlign:"right"
-                      }}
-                      >
-                      {especification}
-                    </span>
-                  </li>
-                )
-              })}
-            </ul>
-
-            <h3 
-              className="acc-section-title"
-              style={{
-                color: lcStColor,
-                fontFamily: lcStFamily,
-                fontSize: lcStSize,
-                textTransform:lcStUpper?"uppercase":"unset",
-                letterSpacing:lcStLetter>0 ?`${lcStLetter}px`:"normal",
-                fontWeight: lcStWeight,
-                ...selectorPaddingMargin("padding",lcStPaddingSelect,lcStPaddingText),
-                ...selectorPaddingMargin("margin",lcStMarginSelect,lcStMarginText),
-                borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-              }}
-              >
-                {variantSelected.guia?.find((e)=>e.key==="frecuency_title")?.value}
-            </h3>
-            <div 
-              className="acc-faq-box flex flex-col fap-[1.2rem]"
-              dangerouslySetInnerHTML={{__html:renderRichText(variantSelected.guia?.find((e)=>e.key==="frecuency_content")?.value)}}
-              style={{
-                fontSize: lcFSize,
-                color: lcFtColor,
-                lineHeight: "1.5",
-                fontWeight: lcFWeight,
-                "--contentFColor":lcFvColor,
-              } as CSSProperties}
-            >
-              
-              {/* {renderRichText(variantSelected.guia?.find((e)=>e.key==="frecuency_content")?.value)} */}
+                <label
+                  style={{
+                    color: tllStColor,
+                    fontFamily: tllStFamily,
+                    fontSize: tllStSize,
+                    textTransform: tllStUpper ? "uppercase" : "unset",
+                    letterSpacing: tllStLetter > 0 ? `${tllStLetter}px` : "normal",
+                    fontWeight: tllStWeight,
+                    ...selectorPaddingMargin("padding", tllStPaddingSelect, tllStPaddingText),
+                    ...selectorPaddingMargin("margin", tllStMarginSelect, tllStMarginText),
+                  }}
+                >
+                  Masa Corporal
+                </label>
+                <span
+                  id="wTxt"
+                  style={{
+                    fontFamily: tllNFamily,
+                    fontSize: tllNSize,
+                    fontWeight: tllNWeight,
+                    color: tllNColor,
+                  }}
+                >
+                  {weight} KG
+                </span>
+              </div>
+              <input
+                className="cursor-pointer"
+                type="range"
+                id="wIn"
+                min="50"
+                max="150"
+                value={weight}
+                onChange={(e) => setWeight(parseInt(e.target.value))}
+                style={{
+                  WebkitAppearance: "none",
+                  outline: "none",
+                  border: "none",
+                  width: "100%",
+                  cursor: "pointer",
+                  accentColor: "#FFF",
+                }}
+              />
             </div>
           </div>
-        </LateralCollection>
-      }
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1.5rem",
+              fontFamily: "Montserrat",
+            }}
+          >
+            <div>
+              <small
+                style={{
+                  display: "block",
+                  fontSize: "0.6rem",
+                  letterSpacing: "1px",
+                  textTransform: "uppercase",
+                  color: tllStColor,
+                  fontFamily: tllStFamily,
+                }}
+              >
+                Pistón Hidráulico
+              </small>
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  fontWeight: "500",
+                  marginTop: "4px",
+                  color: tllNColor,
+                }}
+              >
+                Clase 4 (150kg)
+              </p>
+            </div>
+            <div>
+              <small
+                style={{
+                  display: "block",
+                  fontSize: "0.6rem",
+                  color: tllStColor,
+                  fontFamily: tllStFamily,
+                  letterSpacing: "1px",
+                  textTransform: "uppercase",
+                }}
+              >
+                Estructura
+              </small>
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  fontWeight: "500",
+                  marginTop: "4px",
+                  color: tllNColor,
+                }}
+              >
+                Acero Forjado
+              </p>
+            </div>
+          </div>
+
+          <p
+            style={{
+              fontSize: "0.7rem",
+              color: tllStColor,
+              lineHeight: "1.6",
+              marginTop: "auto",
+              fontFamily: "Montserrat",
+              fontStyle: "italic",
+            }}
+          >
+            *Ambos modelos garantizan la misma certificación de carga (150kg). El
+            chasis XL optimiza la ergonomía para envergaduras superiores.
+          </p>
+        </div>
+      </LateralCollection>
     </Section>
   );
 }
+
 export const schema = createSchema({
-  title: "Filter Option",
-  type: "filter-option",
+  title: "Filter Option - Size",
+  type: "filter-option-size",
   settings: [
     {
       group: "General",
       inputs: [
-        {
-          type: "text",
-          label: "handle",
-          name: "handle",
-          helpText: "add handle of metaobject to use",
-        },
         {
           type: "text",
           label: "title",
@@ -1671,21 +1408,21 @@ export const schema = createSchema({
         {
           type:'heading',
           label:'title',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
          {
           type:'color',
           label:'color',
           name:'tllTColor',
           defaultValue:'#fff',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font size',
           name:'tllTSize',
           defaultValue:'1.8rem',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'range',
@@ -1698,21 +1435,21 @@ export const schema = createSchema({
             step:1,
             unit:'px',
           },
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'switch',
           label:'uppercase',
           name:'tllTUpper',
           defaultValue:true,
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font family',
           name:'tllTFamily',
           defaultValue:'Montserrat',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1730,13 +1467,13 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'a',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'Padding text',
           name:'tllTPaddingText',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1754,13 +1491,13 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'a',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'Margin text',
           name:'tllTMarginText',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1780,26 +1517,26 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'800',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'heading',
           label:'description',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
          {
           type:'color',
           label:'color',
           name:'tllDColor',
           defaultValue:'#71717A',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font size',
           name:'tllDSize',
           defaultValue:'0.65rem',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'range',
@@ -1812,21 +1549,21 @@ export const schema = createSchema({
             step:1,
             unit:'px',
           },
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'switch',
           label:'uppercase',
           name:'tllDUpper',
           defaultValue:true,
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font family',
           name:'tllDFamily',
           defaultValue:'Montserrat',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1844,13 +1581,13 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'a',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'Padding text',
           name:'tllDPaddingText',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1868,14 +1605,14 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'t',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'Margin text',
           name:'tllDMarginText',
           defaultValue:"5px",
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1895,26 +1632,26 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'600',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'heading',
           label:'subtitle',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'color',
           label:'color',
           name:'tllStColor',
           defaultValue:'#71717A',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font size',
           name:'tllStSize',
           defaultValue:'0.65rem',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'range',
@@ -1927,21 +1664,21 @@ export const schema = createSchema({
             step:1,
             unit:'px',
           },
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'switch',
           label:'uppercase',
           name:'tllStUpper',
           defaultValue:true,
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font family',
           name:'tllStFamily',
           defaultValue:'Montserrat',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1959,13 +1696,13 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'a',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'Padding text',
           name:'tllStPaddingText',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -1983,13 +1720,13 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'a',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'Margin text',
           name:'tllStMarginText',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -2009,33 +1746,33 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'500',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'heading',
           label:'medidas',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
          {
           type:'color',
           label:'color',
           name:'tllNColor',
           defaultValue:'#fff',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font size',
           name:'tllNSize',
           defaultValue:'1.8rem',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'text',
           label:'font family',
           name:'tllNFamily',
           defaultValue:'Montserrat',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
         {
           type:'select',
@@ -2055,7 +1792,7 @@ export const schema = createSchema({
             ]
           },
           defaultValue:'600',
-          condition:(data:FilterOptionProps)=>data.handle.toLowerCase()==="talla"
+          
         },
       ]
     },

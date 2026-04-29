@@ -52,6 +52,8 @@ export function createCurProVar(prod){
     optionValues: elm.optionValues?.map((elm2: any) => ({ name: elm2.name })) || []
   })) || [];
 
+  let material = prod.material.value || null
+
   let firstVar = prod.selectedOrFirstAvailableVariant;
   let firstSelect = null
   if(prod.variants.nodes){
@@ -70,7 +72,8 @@ export function createCurProVar(prod){
   }
   // 2. Extracción segura de Metafields
   let img360 = prod.imagenes360;
-  let logo = prod.logoMetafield;
+  let logo = prod.LogoMetafield;
+  let principalImg = prod.principalImg;
   let page = prod.pageMetafield;
   let list = prod.videosMetafield;
 
@@ -115,7 +118,9 @@ export function createCurProVar(prod){
     tooltip:prod.tooltip?.value||null,
     imagenes360:img360?.references?.nodes || [],
     logo:logo?.reference || null,
+    principalImg:principalImg?.reference || null,
     page:page?.reference || null,
+    material:material,
     listVideos:list?.references?.nodes?.map((el)=>{return el.sources?.[0]?.url||''}).filter(Boolean)||[]
   }
 }

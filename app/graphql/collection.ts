@@ -90,6 +90,7 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                   }
                 }
               }
+              
               nombre:metafield(namespace:"custom",key:"name_style_secret"){
                 id  
                 value
@@ -102,6 +103,11 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                 nodes {
                   ...Media
                 }
+              }
+              material:metafield(namespace:"custom",key:"material") {
+                key
+                type
+                value
               }
               variants(first:10){
                 edges{
@@ -124,10 +130,6 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                       currencyCode
                     }
                     tooltip:metafield(namespace:"custom",key:"tooltip"){
-                      id
-                      value
-                    }
-                    material:metafield(namespace:"custom",key:"material"){
                       id
                       value
                     }
