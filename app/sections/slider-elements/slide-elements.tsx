@@ -53,7 +53,7 @@ useEffect(() => {
 export const schema = createSchema({
   type:"slide-elements",
   title:"Slide elements",
-  childTypes:["subheading","heading","paragraph","group-elements","image-with-text"],
+  childTypes:["subheading","heading","paragraph","group-elements","image-with-text-comp"],
   settings:[
     {
       group:"Selector",

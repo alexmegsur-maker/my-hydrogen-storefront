@@ -148,6 +148,7 @@ import * as DiscountCountBar from "~/components/discountCountBar"
 import * as Comparison from "~/sections/comparacion"
 import * as ComparisonCol from "~/sections/comparacion/col"
 import * as ComparisonLine from "~/sections/comparacion/line"
+import * as ImageWithTextComp from "~/components/imageWithTextComp"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -303,5 +304,6 @@ export const components: HydrogenComponent[] = [
   DiscountCountBar,
   Comparison,
   ComparisonCol,
-  ComparisonLine
+  ComparisonLine,
+  ImageWithTextComp
 ];

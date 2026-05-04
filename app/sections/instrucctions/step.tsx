@@ -30,7 +30,7 @@ export default function InstrucctionStep(props:InstrucctionStepProps){
 export const  schema = createSchema({
   type:"instruction-step",
   title:"step",
-  childTypes:["table","subheading","heading","paragraph","image-with-text","hero-image"],
+  childTypes:["table","subheading","heading","paragraph","image-with-text-comp","hero-image"],
   settings:[
     {
       group:"content",

@@ -23,7 +23,7 @@ interface ImageWithTextProps extends SectionProps, AuroraProps {
   gapCont:number;
 }
 
-function ImageWithText(props: ImageWithTextProps) {
+function ImageWithTextComp(props: ImageWithTextProps) {
   const {
     children,
     activeDots,
@@ -82,10 +82,10 @@ function ImageWithText(props: ImageWithTextProps) {
   );
 }
 
-export default ImageWithText;
+export default ImageWithTextComp;
 
 export const schema = createSchema({
-  type: "image-with-text", 
+  type: "image-with-text-comp", 
   title: "Image with text",
   settings: [
     {
