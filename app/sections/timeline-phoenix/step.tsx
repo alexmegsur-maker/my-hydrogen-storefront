@@ -68,16 +68,16 @@ const {children,...rest}=props
         width:"5rem"
       }}
       >
-      <div 
-        ref={dotRef}
-        className="absolute left-[20px] top-[25px] w-[12px] h-[12px]"
-        style={{
-          transform:"translate(-50%,-50%) scale(1)",
-          border:`2px solid #fff`,
-          borderRadius:"50%",
-          transition:"all 0.8s cubic-bezier(0.19, 1, 0.22, 1) 0.3s"
-        }}
-      />
+     <div 
+    ref={dotRef}
+    className="absolute left-1/2 top-[25px] w-[12px] h-[12px] z-20" // left-1/2 centra el dot en los 5rem
+    style={{
+      transform: "translate(-50%, -50%)",
+      backgroundColor: "#05050500", // Fondo oscuro para que la línea no lo cruce por encima
+      border: `2px solid #52525B`,
+      borderRadius: "50%",
+    }}
+  />
 
     </div>
     <div ref={itemRef} className="flex flex-col">

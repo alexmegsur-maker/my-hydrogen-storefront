@@ -5,13 +5,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, type RefObject } from "react";
 import { useIsMobile } from "./use-is-mobile";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-export type AnimationType = "none" | "fade" | "typer" |"spaceNeonPulse"|"neonPulse" | "breathe"|"writeChar";
+export type AnimationType = "none" | "fade" | "typer" |"spaceNeonPulse"|"neonPulse" | "breathe"|"writeChar"|"underline";
 
 export interface ScrollAnimationOptions {
   /** Tipo de animación a ejecutar */
@@ -72,6 +68,8 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const cursorRef = useRef<HTMLSpanElement>(null);
   useGSAP(
     () => {
+      gsap.registerPlugin(ScrollTrigger);
+
       const stConfig = isMobile? undefined :{
             trigger: elementRef.current,
             start,
@@ -87,6 +85,24 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             ease: "power2.out",
             scrollTrigger: stConfig,
           });
+        }
+        if(animation == "underline"){
+           gsap.from(elementRef.current, {
+            y: "100%",
+            filter: "blur(1.5rem)",
+            opacity: 0,
+            duration: duration ?? 1,
+            ease: "power2.out",
+            scrollTrigger: stConfig,
+          });
+          gsap.from(cursorRef.current,{
+            width:0,
+            duration: duration ?? 1,
+            delay:0.5,
+            ease: "power2.out",
+            scrollTrigger: stConfig,
+          
+          }) 
         }
       }
       if(animation ==="writeChar"){
@@ -177,6 +193,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
 
         });
       }
+    
     },
     { scope: elementRef, dependencies: [animation, start, duration, cursorColor] }
   );

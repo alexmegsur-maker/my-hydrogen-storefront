@@ -1,3 +1,4 @@
+import { useGSAP } from "@gsap/react";
 import {
   createSchema,
   type HydrogenComponentProps,
@@ -6,7 +7,9 @@ import {
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
-import { useState, type CSSProperties } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useState, type CSSProperties } from "react";
 import { Image } from "~/components/image";
 import Link, { type LinkProps, linkContentInputs } from "~/components/link";
 import type { ImageAspectRatio } from "~/types/others";
@@ -42,7 +45,7 @@ interface ColumnWithImageItemProps
   heading: string;
   content: string;
   ref?: React.Ref<HTMLDivElement>;
-  
+  estilo:"classic"|"leftBar";
   bgColor:string;
   bgHColor:string;
   borderColor:string;
@@ -93,6 +96,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
     size,
     ref,
     
+    estilo,
     bgColor,
     bgHColor,
     borderColor,
@@ -131,24 +135,68 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
   
   const [isHover,setIsHover]=useState(false)
   const position = contentPosition?.split(" ")
+  const container = useRef(null)
+  const bar = useRef(null)
+
+  const cardEstilo=estilo =="classic"?{
+    background:isHover ? bgHColor : bgColor,
+    transform:isHover?"translateY(-5%)":"unset",
+    border:`1px solid ${isHover?borderHColor:borderColor}`,
+    borderRadius:`${rounded}px`,
+    ...selectorPaddingMargin("padding",paddingSelect,paddingText),
+    transition:"all 0.4s ease",
+  }as CSSProperties :{
+    position:"relative",
+    background:isHover ? bgHColor : bgColor,
+    borderLeft:`1px solid ${borderColor}`,
+    ...selectorPaddingMargin("padding",paddingSelect,paddingText),
+    transition:"all 0.4s ease",
+  } as CSSProperties
+
+
+  useGSAP(()=>{
+    gsap.registerPlugin(ScrollTrigger);
+    if(bar.current){
+      gsap.from(bar.current,{
+        height:0,
+        duration:1,
+        delay:0.5,
+        ease:"power1.inOut",
+        scrollTrigger: {
+        trigger: container.current, 
+        start: "top 85%",           
+        toggleActions: "play none none none",
+      }
+      })
+
+    }
+  },{scope:container})
+
 
   return (
     <div
-      ref={ref}
+      ref={container}
       {...rest}
       data-motion="slide-in"
       onMouseEnter={()=>setIsHover(true)}
       onMouseLeave={()=>setIsHover(false)}
       className={variants({ size, hideOnMobile })}
-      style = {{ 
-        background:isHover ? bgHColor : bgColor,
-        transform:isHover?"translateY(-5%)":"unset",
-        border:`1px solid ${isHover?borderHColor:borderColor}`,
-        borderRadius:`${rounded}px`,
-        ...selectorPaddingMargin("padding",paddingSelect,paddingText),
-        transition:"all 0.4s ease",
-      }}
+      style = {cardEstilo}
     >
+      {estilo =="leftBar" &&
+      <span
+        ref={bar}
+        style={{
+          position:"absolute",
+          top:0,
+          left:"-1px",
+          width:"2px",
+          height:"100px",
+          backgroundColor:borderHColor,
+          boxShadow:`0 0 14px ${borderHColor}`
+        }}
+      />
+      } 
       <div className="w-full relative"
         style={{
           height:hImgCont >0 ? `${hImgCont}rem`:"auto",
@@ -234,6 +282,18 @@ export const schema = createSchema({
     {
       group: "Column",
       inputs: [
+        {
+          type:'select',
+          label:'column style',
+          name:'estilo',
+          configs:{
+            options:[
+              {value:'classic',label:'classic'},
+              {value:'leftBar',label:'left bar'},
+            ]
+          },
+          defaultValue:"classic",
+        },
         {
           type:'color',
           label:'background color',

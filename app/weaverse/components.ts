@@ -141,6 +141,13 @@ import * as SelectorVariantSecret from "~/sections/main-product-j/variant-select
 import * as filterOptionSize from "~/sections/main-product-j/filter-option-size"
 import * as filterOptionMaterial from "~/sections/main-product-j/filter-option-material"
 import * as PhoenixValidation from "~/sections/phoenix-validation"
+import * as SimpleTable from "~/sections/table-simple"
+import * as SimpleTableRow from "~/sections/table-simple/tr"
+import * as SimpleTableCeil from "~/sections/table-simple/td"
+import * as DiscountCountBar from "~/components/discountCountBar"
+import * as Comparison from "~/sections/comparacion"
+import * as ComparisonCol from "~/sections/comparacion/col"
+import * as ComparisonLine from "~/sections/comparacion/line"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -290,4 +297,11 @@ export const components: HydrogenComponent[] = [
   filterOptionSize,
   filterOptionMaterial,
   PhoenixValidation,
+  SimpleTable,
+  SimpleTableRow,
+  SimpleTableCeil,
+  DiscountCountBar,
+  Comparison,
+  ComparisonCol,
+  ComparisonLine
 ];

@@ -123,7 +123,10 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
         borderBottom:showBorder ? `1px solid ${colorBorder}`:"unset"
       }}
     >
-      <NetworkBackground {...network}/>
+      {activeNetwork &&
+        <NetworkBackground {...network}/>
+
+      }
       <Overlay
         enableOverlay={enableOverlay}
         overlayColor={overlayColor}

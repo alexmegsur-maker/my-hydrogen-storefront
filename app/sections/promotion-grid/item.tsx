@@ -72,7 +72,8 @@ interface PromotionItemProps
   grayscale:number;
   gradient:boolean;
   gradientInfo:string;
-
+  hoverBar:boolean;
+  colorhoverBar:string;
 }
 
 function PromotionGridItem(props: PromotionItemProps) {
@@ -91,6 +92,8 @@ function PromotionGridItem(props: PromotionItemProps) {
     gradient,
     gradientInfo,
     ref,
+    hoverBar,
+    colorhoverBar,
     ...rest
   } = props;
   const [isHover,setIsHover]=useState(false)
@@ -137,6 +140,21 @@ function PromotionGridItem(props: PromotionItemProps) {
       >
         {children}
       </div>
+      {hoverBar && 
+        <span
+          style={{
+            width:isHover?"100%":0,
+            position:"absolute",
+            bottom:0,
+            left:"50%",
+            height:"2px",
+            background:`linear-gradient(90deg,transparent,${colorhoverBar},transparent)`,
+            transform:"translateX(-50%)",
+            boxShadow:`0 0 14px ${colorhoverBar}50`,
+            transition:"width 0.4s ease"
+          }}
+        />
+      }
     </div>
   );
 }
@@ -173,6 +191,19 @@ export const schema = createSchema({
             unit: "px",
           },
           defaultValue: 0,
+        },
+        {
+          type:'switch',
+          label:'enable animation hover bar',
+          name:'hoverBar',
+          defaultValue:true,
+        },
+        {
+          type:'color',
+          label:'color',
+          name:'colorhoverBar',
+          defaultValue:'#FFFFFF',
+          condition:(data:PromotionItemProps)=>data.hoverBar==true
         },
       ],
     },

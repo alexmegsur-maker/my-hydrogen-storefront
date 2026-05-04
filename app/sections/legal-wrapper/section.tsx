@@ -95,7 +95,7 @@ export default function SectionLegalWrapper(props:SectionLegalWrapperProps){
 export const schema = createSchema({
   type:"section-legal-wrapper",
   title:"Section",
-  childTypes:["subheading","heading","paragraph","button"],
+  childTypes:["subheading","heading","paragraph","button","group-elements","table","simple-table"],
   settings:[
     {
       group:"General",

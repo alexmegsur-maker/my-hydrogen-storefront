@@ -5,15 +5,12 @@ import {
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { type CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useScrollAnimation } from "~/hooks/use-scroll-animation";
 import { splitText } from "~/routes/account/dashboard";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
-
 
 const variants = cva("heading", {
   variants: {
@@ -52,7 +49,8 @@ extends VariantProps<typeof variants>{
   lineH:number;
   activeShadow:boolean;
   textShadow:string;
-  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe"|"writeChar",
+  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe"|"writeChar"|"underline";
+  spaceUnderline:number;
 }
 
 function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
@@ -81,12 +79,11 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     activeShadow,
     textShadow,
     animacion,
+    spaceUnderline,
     ...rest
   } = props;
   
-  if(typeof window !== "undefined"){
-    gsap.registerPlugin(ScrollTrigger)
-  }
+
   const isMobile= useIsMobile(600)
   
   const {elementRef,textInnerRef,cursorRef}= useScrollAnimation<HTMLHeadingElement>({
@@ -159,6 +156,26 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
             )
           case'writeChar':
             return splitText(content)
+          case'underline':
+            return (
+              <span className="relative">
+
+                {content}
+                <span
+                  ref={cursorRef}
+                  style={{
+                    width:"140px",
+                    position:"absolute",
+                    bottom:`-${spaceUnderline}px`,
+                    left:"50%",
+                    height:"1px",
+                    background:`linear-gradient(90deg,transparent,${color},transparent)`,
+                    transform:"translateX(-50%)",
+                    boxShadow:`0 0 14px ${color}50`
+                  }}
+                />
+              </span>
+            )
           default :
             return content
         }
@@ -417,9 +434,23 @@ export const headingInputs: InspectorGroup["inputs"] = [
         {value:'spaceNeonPulse',label:'space neon pulse'},
         {value:"breathe",label:"breathe"},
         {value:"writeChar",label:"write character"},
+        {value:"underline",label:"underline"},
       ]
     },
     defaultValue:"fade",
+  },
+  {
+    type:'range',
+    label:'space underline',
+    name:'spaceUnderline',
+    defaultValue:20,
+    configs:{
+      min:5,
+      max:100,
+      step:1,
+      unit:'px',
+    },
+    condition:(data:HeadingProps)=>data.animacion==="underline"
   },
 ];
 

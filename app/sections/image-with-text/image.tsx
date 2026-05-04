@@ -1,3 +1,4 @@
+import { useGSAP } from "@gsap/react";
 import {
   createSchema,
   type HydrogenComponentProps,
@@ -8,7 +9,9 @@ import {
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
-import { useEffect, useState, type CSSProperties } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Image } from "~/components/image";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import type { ImageAspectRatio } from "~/types/others";
@@ -59,6 +62,8 @@ interface ImageWithTextImageProps
   imageAspectRatio: ImageAspectRatio;
   ref?: React.Ref<HTMLDivElement>;
   verticalAlign:'flex-start'|'center'|'flex-end',
+  enableBar:boolean;
+  barColor:string;
 }
 
 function ImageWithTextImage(props: ImageWithTextImageProps) {
@@ -70,6 +75,8 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
     objectFit,
     verticalAlign,
     ref,
+    enableBar,
+    barColor,
     ...rest
   } = props;
 
@@ -77,7 +84,8 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
   const instance = useItemInstance()
   const [contentSize,setContentSize]=useState(100)
   const isMobile  = useIsMobile(600)
-
+  const container = useRef(null)
+  const bar = useRef(null)
   const imageData: Partial<WeaverseImage> =
     typeof image === "string" ? { url: image, altText: "Placeholder" } : image;
   let aspRt: string | undefined;
@@ -100,14 +108,45 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
       
     }
   },[parentInstance.data?.contentDist,instance.data?.id])
+
+  useGSAP(()=>{
+    gsap.registerPlugin(ScrollTrigger)
+    if(bar.current){
+      gsap.from(bar.current,{
+        transform:"scaleX(0)",
+        duration:1,
+        delay:0.5,
+        ease:"power1.inOut",
+        scrollTrigger:{
+          trigger:container.current,
+          start:"top 85%",
+          toggleActions:"play none none none"
+        }
+      })
+      gsap.from(container.current,{
+        filter:"blur(1rem)",
+        duration:1,
+        delay:0.5,
+        ease:"power1.inOut",
+        scrollTrigger:{
+          trigger:container.current,
+          start:"top 85%",
+          toggleActions:"play none none none"
+        }
+      })
+    }
+
+  },{scope:container})
+
+
   return (
     <div 
-      ref={ref} {...rest} 
+      ref={container} {...rest} 
       className={cn(variants({ width }),"z-2")  }
       style={{
         width:isMobile?"100%":`${contentSize}%`,
-        alignSelf:verticalAlign
-
+        alignSelf:verticalAlign,
+        position:enableBar?"relative":"unset"
       }as CSSProperties}
     >
       <Image
@@ -118,6 +157,22 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
         className={cn("h-full w-full flex", variants({ objectFit, borderRadius }))}
       
       />
+      {enableBar &&
+        <span
+          ref={bar}
+          style={{
+            position:"absolute",
+            bottom:0,
+            left:0,
+            width:"100%",
+            height:"3px",
+            background:barColor,
+            boxShadow:`0 0 20px ${barColor}`,
+            transform:"scaleX(1)",
+            zIndex:999,
+          }}
+        />
+      }
     </div>
   );
 }
@@ -132,6 +187,7 @@ export const schema = createSchema({
     {
       group: "Image",
       inputs: [
+
         {
           type: "image",
           name: "image",
@@ -204,6 +260,19 @@ export const schema = createSchema({
               { value: "contain", label: "Contain" },
             ],
           },
+        },
+        {
+          type:'switch',
+          label:'enable bar',
+          name:'enableBar',
+          defaultValue:false,
+        },
+        {
+          type:'color',
+          label:'color bar',
+          name:'barColor',
+          defaultValue:'#FFFFFF',
+          condition:(data:ImageWithTextImageProps)=>data.enableBar == true
         },
       ],
     },

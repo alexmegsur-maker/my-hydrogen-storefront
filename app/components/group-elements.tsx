@@ -17,7 +17,7 @@ interface GroupElementsProps extends SectionProps{
 }
 
 export default function GroupElements (props:GroupElementsProps & HydrogenComponentProps){
-const {direction,gapCont,mbDirection,mbGapCont,showBorder,showBorderBottom,showBorderLeft,showBorderRight,colorBorder,alignContent,mbAlignContent,children,...rest}=props
+  const {direction,gapCont,mbDirection,mbGapCont,showBorder,showBorderBottom,showBorderLeft,showBorderRight,colorBorder,alignContent,mbAlignContent,children,...rest}=props
   
   const isMobile = useIsMobile(600);
 
@@ -47,7 +47,15 @@ const {direction,gapCont,mbDirection,mbGapCont,showBorder,showBorderBottom,showB
 export const schema =createSchema({
   type:"group-elements",
   title:"group elements",
-  childTypes:["heading","subheading","paragraph","button","image-with-text--content","copybutton"],
+  childTypes:[
+    "heading",
+    "subheading",
+    "paragraph",
+    "button",
+    "image-with-text--content",
+    "copybutton",
+    "discountCountBar"
+  ],
   settings:[
     ...sectionSettings,
     {
