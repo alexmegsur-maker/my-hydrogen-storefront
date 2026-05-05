@@ -75,7 +75,7 @@ export default function LegalWrapper(props:LegalWrapperProps & HydrogenComponent
         gap:`${gapContent}rem`,
       }}
     >
-      <aside className="w-[300px] sticky top-[100px] self-start hidden lg:flex">
+      <aside className="w-[350px] sticky top-[100px] self-start hidden lg:flex">
         <nav ref={asideRef} className="  flex flex-col gap-[1rem]">
           {childInstances.map((instance:any,idx)=>{
             const targetId = instance.data.navText.trim().split(" ").join("-").toLowerCase()
@@ -91,7 +91,7 @@ export default function LegalWrapper(props:LegalWrapperProps & HydrogenComponent
 
         </nav>
       </aside>
-      <main style={{flexGrow:1}} ref={lineRef}>
+      <main style={{flexGrow:1}} className="w-[0] md:w-auto" ref={lineRef}>
         {children}
       </main>
     </Section>

@@ -21,6 +21,7 @@ interface StepCardProps extends HydrogenComponentProps {
 
   // Step number ghost styles
   showStepNumber: boolean;
+  strokeStepNumber: boolean;
   stepNumberColor: string;
   stepNumberSize: string;
   stepNumberFamily: string;
@@ -63,6 +64,7 @@ function StepCard(props: StepCardProps) {
     paddingSelect,
     paddingText,
     showStepNumber,
+    strokeStepNumber,
     stepNumberColor,
     stepNumberSize,
     stepNumberFamily,
@@ -116,9 +118,9 @@ function StepCard(props: StepCardProps) {
             right: "1.5rem",
             fontFamily:stepNumberFamily,
             fontSize: stepNumberSize,
-            fontWeight: 800,
-            color: "transparent",
-            WebkitTextStroke: `1px ${isHover ? stepNumberColor : "rgba(255,255,255,0.05)"}`,
+            fontWeight:strokeStepNumber? 800:500,
+            color: strokeStepNumber?"transparent":`${isHover ? stepNumberColor : "rgba(255,255,255,0.05)"}`,
+            WebkitTextStroke:strokeStepNumber? `1px ${isHover ? stepNumberColor : "rgba(255,255,255,0.05)"}`:"unset",
             lineHeight: 1,
             transition: "all 0.5s ease",
             zIndex: 0,
@@ -325,6 +327,12 @@ export const schema = createSchema({
           defaultValue: true,
         },
         {
+          type: "switch",
+          name: "strokeStepNumber",
+          label: "Stroke ghost step number",
+          defaultValue: true,
+        },
+        {
           type: "color",
           name: "stepNumberColor",
           label: "Ghost number hover color",
@@ -449,6 +457,7 @@ export const schema = createSchema({
     paddingSelect: "a",
     paddingText: "4rem 3rem",
     showStepNumber: true,
+    strokeStepNumber: true,
     stepNumberColor: "rgba(255,255,255,0.2)",
     stepNumberSize: "8rem",
     tColor: "#FFFFFF",

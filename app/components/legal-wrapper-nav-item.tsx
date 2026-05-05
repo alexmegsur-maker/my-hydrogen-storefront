@@ -25,8 +25,8 @@ export default function LegalWrapperNavItem(props:LegalWrapperNavItemProps){
       onClick={handleClick}
       className="cursor-pointer"
       style={{
-        borderLeft:`1px solid ${isHighlighted? data.nhColor: data.nBorderColor}`,
-        color: isHighlighted?data.nhColor:data.nColor,
+        borderLeft:`1px solid ${isHighlighted ? data.nBorderColor:data.nhColor}`,
+        color: isHighlighted? data.nColor:data.nhColor,
         fontFamily: data.nFamily,
         fontSize: data.nSize,
         fontWeight: data.nWeight,
