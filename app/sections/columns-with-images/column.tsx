@@ -255,6 +255,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
               fontFamily: dFamily,
               fontSize: dSize,
               fontWeight: dWeight,
+              lineHeight:1.6,
               textTransform: dUpper ? "uppercase" : "unset",
               letterSpacing: dLetter > 0?`${dLetter}px`:"normal",
               textAlign:dAlignment,

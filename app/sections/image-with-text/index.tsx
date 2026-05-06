@@ -74,6 +74,7 @@ function ImageWithText(props: ImageWithTextProps) {
         className="flex flex-col md:flex-row px-0 sm:px-0 z-3 relative"
         style={{
           gap:`${gapCont}rem`,
+          width:"100%"
         }}
       >
         {children}

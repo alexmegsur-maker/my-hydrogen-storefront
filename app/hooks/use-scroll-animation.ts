@@ -59,10 +59,10 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = "top 120%",
+    start = "top 110%",
     duration,
   } = options;
-
+ 
   const elementRef = useRef<T>(null);
   const textInnerRef = useRef<HTMLSpanElement>(null);
   const cursorRef = useRef<HTMLSpanElement>(null);
@@ -73,6 +73,8 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       const stConfig = isMobile? undefined :{
             trigger: elementRef.current,
             start,
+            once:true,
+            // markers:true,
             toggleActions: "play none none none",
           }
       if(!isMobile){

@@ -8,17 +8,22 @@ interface InstrucctionStepProps extends SectionProps{
   title:string;
   heightSize:"auto"|"100vh";
   activeDots:boolean;
-
+  gapStep:number;
+  centerCont:boolean;
 }
 
 export default function InstrucctionStep(props:InstrucctionStepProps){
-  const {title ,heightSize, activeDots,children,...rest}=props
+  const {title ,heightSize,gapStep, activeDots,centerCont,children,...rest}=props
   const isMobile =useIsMobile(600)
   return(
     <Section {...rest} 
     id={title.replaceAll(" ","").toLowerCase()}
     containerStyle={{
-      height:!isMobile? heightSize :"auto"
+      height:!isMobile? heightSize :"auto",
+      gap:`${gapStep}rem`,
+      display:"flex",
+      flexDirection:"column",
+      justifyContent:centerCont ? "center":"unset",
     }as CSSProperties} 
     containerClassName={cn(activeDots ? "fabric-wrapper relative flex flex-col justify-center" : "z-1",)}
     >
@@ -55,10 +60,28 @@ export const  schema = createSchema({
           defaultValue:"auto",
         },
         {
+          type:'range',
+          label:'gap',
+          name:'gapStep',
+          defaultValue:2,
+          configs:{
+            min:0,
+            max:5,
+            step:0.1,
+            unit:'rem',
+          }
+        },
+        {
           type: "switch",
           label: "active effect docts",
           name: "activeDots",
           defaultValue: false,
+        },
+        {
+          type:'switch',
+          label:'center content',
+          name:'centerCont',
+          defaultValue:true,
         },
       ]
     },

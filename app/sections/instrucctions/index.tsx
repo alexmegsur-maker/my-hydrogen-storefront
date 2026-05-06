@@ -2,8 +2,19 @@ import { createSchema, useChildInstances } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
 import { Section, sectionSettings, type SectionProps } from "~/components/section";
 
-export default function Instrucction(props:SectionProps){
-  const {children,...rest}=props
+interface InstrucctionProps extends SectionProps{
+  color:string;
+  colord:string;
+  spaceDot:number;
+  space:number;
+  size:string;
+  letter:number;
+  weight:string;
+}
+
+
+export default function Instrucction(props:InstrucctionProps){
+  const {color,colord,spaceDot,space,size,letter,weight,children,...rest}=props
   const childInstances= useChildInstances()
   const [active,setActive] = useState("")
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -59,7 +70,7 @@ export default function Instrucction(props:SectionProps){
       <nav 
         className=" fixed hidden md:flex top-[50%] md:right-[1rem] lg:right-[2rem] flex-col items-end z-100"
         style={{
-          gap:"1.2rem",
+          gap:`${space}rem`,
           transform:"translateY(-50%)"
         }}
       >
@@ -72,21 +83,30 @@ export default function Instrucction(props:SectionProps){
               onClick={()=>scrollToStep(identificacion)}
               className="flex items-center cursor-pointer"
               style={{
-                gap:"0.8rem",
+                gap:`${spaceDot}rem`,
                 opacity:selected ?1:0.4,
                 transition:"all 0.4s ease"
               }}
             >
-              <span>{instance.data.title}</span>
+              <span
+                style={{
+                  color:selected ?color:colord,
+                  fontWeight:weight,
+                  fontSize:size,
+                  letterSpacing:letter>0 ? `${letter}px`:"normal"
+                }}
+                >
+                {instance.data.title}
+              </span>
               <span
                 style={{
                   width:"6px",
                   height:"6px",
-                  border:`1px solid #ffffff4d`,
+                  border:`1px solid ${colord}`,
                   borderRadius:"50%",
                   transition:"all 0.4s ease",
-                  background:selected ? "#FFF":undefined,
-                  boxShadow:selected ?`0 0 10px #fff`:undefined, 
+                  background:selected ? color:undefined,
+                  boxShadow:selected ?`0 0 10px ${color}`:undefined, 
                   transform:selected ?`scale(1.5)`:undefined 
                 }}
               ></span>
@@ -105,6 +125,84 @@ export const  schema = createSchema({
   title:"Instrucctions",
   childTypes:["instruction-step"],
   settings:[
+    {
+      group:"step",
+      inputs:[
+        {
+          type:'color',
+          label:'color',
+          name:'color',
+          defaultValue:'#FFFFFF',
+        },
+        {
+          type:'color',
+          label:'color disabled',
+          name:'colord',
+          defaultValue:'#ffffff4d',
+        },
+        {
+          type:'range',
+          label:'space dot',
+          name:'spaceDot',
+          defaultValue:1.2,
+          configs:{
+            min:0.1,
+            max:3,
+            step:0.1,
+            unit:'rem',
+          }
+        },
+        {
+          type:'range',
+          label:'space',
+          name:'space',
+          defaultValue:0.8,
+          configs:{
+            min:0.1,
+            max:3,
+            step:0.1,
+            unit:'rem',
+          }
+        },
+        {
+          type:'text',
+          label:'font size',
+          name:'size',
+          defaultValue:'16px',
+        },
+        {
+          type:'range',
+          label:'letter spacing',
+          name:'letter',
+          defaultValue:0,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          }
+        },
+        {
+          type: "select",
+          name: "weight",
+          label: "Font weight",
+          configs: {
+            options: [
+              { value: "100", label: "100 - Thin" },
+              { value: "200", label: "200 - Extra Light" },
+              { value: "300", label: "300 - Light" },
+              { value: "400", label: "400 - Normal" },
+              { value: "500", label: "500 - Medium" },
+              { value: "600", label: "600 - Semi Bold" },
+              { value: "700", label: "700 - Bold" },
+              { value: "800", label: "800 - Extra Bold" },
+            ],
+          },
+          defaultValue: "300",
+        },
+        
+      ]
+    },
     ...sectionSettings
   ]
 })
