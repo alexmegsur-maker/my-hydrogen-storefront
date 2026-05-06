@@ -141,7 +141,7 @@ export default function CardSimple(
       <div
         className="universe-img"
         style={{
-          height: "400px",
+          height: imageAspectRatio ? "auto":"400px", 
           width: "100%",
           filter:isMobile || isHover ? "grayscale(0%) brightness(1)":"grayscale(100%) brightness(0.6)",
           transform:isHover?"scale(1.08)":"unset",
