@@ -79,6 +79,7 @@ interface ColumnWithImageItemProps
   dMarginSelect:string;
   dMarginText:string;
   dWeight:string;
+  centerSvgImg:boolean;
 }
 
 function ColumnWithImageItem(props: ColumnWithImageItemProps) {
@@ -130,6 +131,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
     dMarginSelect,
     dMarginText,
     dWeight,
+    centerSvgImg,
     ...rest
   } = props;
   
@@ -221,6 +223,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
             <div
               dangerouslySetInnerHTML={{__html:textSvg}}
               style={{
+                marginInline:centerSvgImg?"auto":"unset",
                 height:`${iconSize}%`,
                 width:`${iconSize}%`
               }}
@@ -459,6 +462,14 @@ export const schema = createSchema({
             step:1,
             unit:'%',
           },
+        },
+        {
+          type:'switch',
+          label:'center svg/image',
+          name:'centerSvgImg',
+          defaultValue:false,
+          condition:(data:ColumnWithImageItemProps)=>data.typeIcon ==="svg"
+
         },
         {
           type: "select",

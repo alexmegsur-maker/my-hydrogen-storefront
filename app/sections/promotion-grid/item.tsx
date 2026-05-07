@@ -172,7 +172,6 @@ export const schema = createSchema({
           type:'url',
           label:'url',
           name:'link',
-          defaultValue:'/products',
         },
         {
           type: "position",

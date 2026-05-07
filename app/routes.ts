@@ -40,6 +40,7 @@ export default hydrogenRoutes([
       route("product-secret", "routes/api/product-secret.ts"),
       route(":version/graphql.json", "routes/api/graphql.json.ts"),
       route("product/:productHandle/reviews?", "routes/api/product.ts"),
+      route("reviews", "routes/api/reviews.ts"),
     ]),
     ...prefix("blogs", [
       route(":blogHandle", "routes/blogs/blog.tsx"),

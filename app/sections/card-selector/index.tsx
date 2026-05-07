@@ -7,7 +7,6 @@ import { Image } from "~/components/image"
 import { Section, sectionSettings } from "~/components/section"
 import { useIsMobile } from "~/hooks/use-is-mobile";
 
-gsap.registerPlugin(ScrollTrigger)
 
 export interface CardSelectorProps{
   ref: React.Ref<HTMLDivElement>;
@@ -46,6 +45,8 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
   
     useGSAP(
       () => {
+        gsap.registerPlugin(ScrollTrigger)
+
         // Selecciona los hijos directos del contenedor
         const items = gsap.utils.toArray<HTMLElement>(
           ":scope > *",
@@ -121,7 +122,8 @@ export const schema = createSchema({
   childTypes:[
     "subheading",
     "heading",
-    "card-simple"
+    "card-simple",
+    // "recent-activity"
   ],
   settings:[
     ...sectionSettings,

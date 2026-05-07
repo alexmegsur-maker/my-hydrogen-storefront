@@ -10,8 +10,8 @@ import { ORDER_STATUS, OrdersHistory, resolveOrderStatus } from "./orders-histor
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Afiliados } from "./afiliados";
 
-gsap.registerPlugin(ScrollTrigger);
 export const splitText = (text) => {
   const words =text.split(" ")
   const texto = words.map((word,idx)=>{
@@ -53,6 +53,8 @@ export default function AccountDashboard() {
   const container = useRef(null)
 
   useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
     // 1. Animación de revelado inicial (Letra a Letra)
     const introTl =gsap.timeline();
     introTl.from(".char", {
@@ -117,11 +119,10 @@ export default function AccountDashboard() {
               maxWidth: "50%",
             }}
           >
-           <span>
+           <span className="flex w-fit">
             {splitText( "Identidad")}
            </span>
-           <br/>
-           <span>
+           <span className="flex w-fit">
             {splitText( "Confirmada.")}
            </span>
           </h1>
@@ -176,44 +177,12 @@ export default function AccountDashboard() {
       <div className="fade-up-trigger">
         <AddressBook addresses={addresses} customer={customer} />
       </div>
+      
+      <div className="fade-up-trigger">
+        <Afiliados/>
+      </div>
 
-      {/* Productos destacados si no hay pedidos */}
-      {!orders.length && (
-        <div className="fade-up-trigger">
-          <Suspense>
-            <Await
-              resolve={featuredProducts}
-              errorElement="There was a problem loading featured products."
-            >
-              {({ featuredProducts: products }) => (
-                <div style={{ paddingTop: "2rem" }}>
-                  <h5
-                    style={{
-                      fontFamily: "'Outfit', sans-serif",
-                      fontSize: "0.8rem",
-                      letterSpacing: "3px",
-                      textTransform: "uppercase",
-                      color: "#52525B",
-                      marginBottom: "1.5rem",
-                    }}
-                  >
-                    Productos destacados
-                  </h5>
-                  <Swimlane>
-                    {products.nodes.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        className="w-80 snap-start"
-                      />
-                    ))}
-                  </Swimlane>
-                </div>
-              )}
-            </Await>
-          </Suspense>
-        </div>
-      )}
+      
     </div>
   );
 }
