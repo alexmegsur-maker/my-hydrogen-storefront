@@ -104,6 +104,18 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                   ...Media
                 }
               }
+              principalImg:metafield(namespace:"custom",key:"img_principal") {
+                key
+                value
+                reference{
+                  ... on Media{
+                    previewImage{
+                      altText  
+                      url
+                    }
+                  }
+                }
+              }
               material:metafield(namespace:"custom",key:"material") {
                 key
                 type

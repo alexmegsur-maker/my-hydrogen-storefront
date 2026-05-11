@@ -42,6 +42,12 @@ export interface FaqItemProps
     Partial<Omit<HydrogenComponentProps, "children">>,
     Partial<FaqItemStyles> {}
 
+function decodeHtml(html: string): string {
+  if (typeof document === "undefined") return html; // SSR safety
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function FaqItem(props: FaqItemProps) {
@@ -138,12 +144,13 @@ export function FaqItem(props: FaqItemProps) {
       {/* Respuesta con altura animada */}
       <div
         style={{
-          maxHeight: open ? "400px" : "0px",
+          maxHeight: open ? "100%" : "0px",
           overflow: "hidden",
           transition: "max-height 0.4s ease",
         }}
       >
-        <p
+        <div
+          dangerouslySetInnerHTML={{__html:decodeHtml(answer ?? "")}}
           style={{
             padding: `0 ${answerPaddingX}px ${answerPaddingBottom}px`,
             fontSize: answerFontSize,
@@ -151,9 +158,9 @@ export function FaqItem(props: FaqItemProps) {
             lineHeight: answerLineHeight,
             margin: 0,
           }}
-        >
-          {answer}
-        </p>
+        />
+          
+        
       </div>
     </div>
   );
@@ -174,7 +181,7 @@ export const faqItemInputs: InspectorGroup["inputs"] = [
     placeholder: "¿Cuál es tu pregunta?",
   },
   {
-    type: "textarea",
+    type: "richtext",
     name: "answer",
     label: "Respuesta",
     defaultValue: "Escribe aquí la respuesta a la pregunta.",
@@ -256,14 +263,14 @@ export const faqItemInputs: InspectorGroup["inputs"] = [
     name: "questionPaddingX",
     label: "Padding horizontal",
     defaultValue: 32,
-    configs: { min: 8, max: 80, step: 4, unit: "px" },
+    configs: { min: 0, max: 80, step: 4, unit: "px" },
   },
   {
     type: "range",
     name: "questionPaddingY",
     label: "Padding vertical",
     defaultValue: 24,
-    configs: { min: 8, max: 60, step: 4, unit: "px" },
+    configs: { min: 0, max: 60, step: 4, unit: "px" },
   },
 
   // Icono
@@ -313,14 +320,14 @@ export const faqItemInputs: InspectorGroup["inputs"] = [
     name: "answerPaddingX",
     label: "Padding horizontal",
     defaultValue: 32,
-    configs: { min: 8, max: 80, step: 4, unit: "px" },
+    configs: { min: 0, max: 80, step: 4, unit: "px" },
   },
   {
     type: "range",
     name: "answerPaddingBottom",
     label: "Padding inferior",
     defaultValue: 24,
-    configs: { min: 8, max: 60, step: 4, unit: "px" },
+    configs: { min: 0, max: 60, step: 4, unit: "px" },
   },
 ];
 

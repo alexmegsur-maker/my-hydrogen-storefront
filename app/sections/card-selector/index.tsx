@@ -2,7 +2,7 @@ import { useGSAP } from "@gsap/react";
 import { createSchema, IMAGES_PLACEHOLDERS, useChildInstances, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image } from "~/components/image"
 import { Section, sectionSettings } from "~/components/section"
 import { useIsMobile } from "~/hooks/use-is-mobile";
@@ -15,6 +15,7 @@ export interface CardSelectorProps{
   fadeY: number;
   fadeDuration: number;
   staggerDelay: number;
+  numberElm:number;
 }
 
 export default function CardSelector( props: CardSelectorProps & HydrogenComponentProps ){
@@ -27,6 +28,7 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
     fadeY,
     fadeDuration,
     staggerDelay,
+    numberElm,
     ...rest
   }=props
 
@@ -99,7 +101,7 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
       style={{
         width: "100%",
         display: isMobile ?"flex":"grid",
-        gridTemplateColumns: !isMobile ?"repeat(5, 1fr)":"unset",
+        gridTemplateColumns: !isMobile ?`repeat(${numberElm}, 1fr)`:"unset",
         flexDirection:isMobile ? "column":"unset",
         gap: `${gap}rem`,
         borderTop: `1px solid ${borderColor}`,
@@ -126,10 +128,21 @@ export const schema = createSchema({
     // "recent-activity"
   ],
   settings:[
-    ...sectionSettings,
     {
       group:"general",
       inputs:[
+        {
+          type:'range',
+          label:'elements per row',
+          name:'numberElm',
+          defaultValue:4,
+          configs:{
+            min:2,
+            max:10,
+            step:1,
+            unit:'elm',
+          }
+        },
         {
           type:'range',
           label:'gap',
@@ -176,6 +189,7 @@ export const schema = createSchema({
         },
       ],
     },
+    ...sectionSettings,
   ],
   presets:{
     width:"full",

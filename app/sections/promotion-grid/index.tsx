@@ -10,7 +10,6 @@ import { overlayInputs } from "~/components/overlay";
 import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section } from "~/components/section";
 
-gsap.registerPlugin(ScrollTrigger)
 
 interface PromotionGridProps
   extends VariantProps<typeof variants>,
@@ -27,6 +26,9 @@ const variants = cva("flex flex-col sm:grid", {
       "2x2": "sm:grid-cols-2 sm:[&_.promotion-grid-item]:p-16",
       "3x3": "sm:grid-cols-3 sm:[&_.promotion-grid-item]:p-12",
       "4x4": "sm:grid-cols-4 sm:[&_.promotion-grid-item]:p-8",
+      "5x5": "sm:grid-cols-5 sm:[&_.promotion-grid-item]:p-4",
+      "6x6": "sm:grid-cols-6 sm:[&_.promotion-grid-item]:p-2",
+      
     },
     gap: {
       0: "",
@@ -77,6 +79,8 @@ function PromotionGrid(props: PromotionGridProps & HydrogenComponentProps) {
 
     useGSAP(
       () => {
+        gsap.registerPlugin(ScrollTrigger)
+
         // Selecciona los hijos directos del contenedor
         const items = gsap.utils.toArray<HTMLElement>(
           ":scope > *",
@@ -154,6 +158,8 @@ export const schema = createSchema({
               { value: "2x2", label: "2x2" },
               { value: "3x3", label: "3x3" },
               { value: "4x4", label: "4x4" },
+              { value: "5x5", label: "5x5" },
+              { value: "6x6", label: "6x6" },
             ],
           },
           defaultValue: "2x2",

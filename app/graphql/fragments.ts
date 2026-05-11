@@ -100,6 +100,30 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
       id  
       value
     }
+    principalImg:metafield(namespace:"custom",key:"img_principal") {
+      key
+      value
+      reference{
+        ... on Media{
+          previewImage{
+            altText  
+            url
+          }
+        }
+      }
+    }
+    secondImg:metafield(namespace:"custom",key:"img_second") {
+      key
+      value
+      reference{
+        ... on Media{
+          previewImage{
+            altText  
+            url
+          }
+        }
+      }
+    }
     tooltip:metafield(namespace:"custom",key:"tooltip"){
       id
       value

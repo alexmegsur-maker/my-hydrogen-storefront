@@ -70,6 +70,8 @@ HydrogenComponentProps{
   dMarginSelect:string;
   dMarginText:string;
   dWeight:string;
+  activeGrayscale:boolean;
+  grayscale:number;
 }
 
 
@@ -110,6 +112,8 @@ export default function CommunityPost(props:CommunityPostProps){
     dMarginSelect,
     dMarginText,
     dWeight,
+    activeGrayscale,
+    grayscale,
     ...rest
   }=props
   const navigate= useNavigate()
@@ -149,7 +153,7 @@ export default function CommunityPost(props:CommunityPostProps){
           style={{
             alignSelf:"center",
             justifySelf:"center",
-            filter:isHover || isMobile?"grayscale(0%)":"grayscale(100%)",
+            filter: activeGrayscale ? isHover || isMobile?"grayscale(0%)":`grayscale(${grayscale}%)`:"unset",
             transition:"all 0.3s ease"
 
           } as CSSProperties}
@@ -249,6 +253,25 @@ export const schema = createSchema({
           label:'border color hover',
           name:'borderHColor',
           defaultValue:'#ffffff26',
+        },
+         {
+          type:'switch',
+          label:'active grayscale',
+          name:'activeGrayscale',
+          defaultValue:false,
+        },
+        {
+          type:'range',
+          label:'grayscale',
+          name:'grayscale',
+          defaultValue:60,
+          configs:{
+            min:0,
+            max:100,
+            step:1,
+            unit:'%',
+          },
+          condition:(data:CommunityPostProps)=>data.activeGrayscale==true
         },
 
         {

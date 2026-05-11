@@ -38,6 +38,8 @@ export type BackgroundImageProps = VariantProps<typeof variants> & {
 export function BackgroundImage(props: BackgroundImageProps) {
   const { backgroundImage,style,backgroundGrayscale, backgroundFit, backgroundPosition } = props;
   if (backgroundImage) {
+    const {filter:externalFilter,...restStyle}=style || {};
+
     const data =
       typeof backgroundImage === "string"
         ? { url: backgroundImage, altText: "Section background" }
@@ -47,10 +49,15 @@ export function BackgroundImage(props: BackgroundImageProps) {
         className={variants({ backgroundFit, backgroundPosition })}
         data={data}
         sizes="auto"
-        style={{
-          ...style,
-          filter:`grayscale(${backgroundGrayscale}%)`
-        }}
+         style={{
+      ...restStyle,
+      filter: [
+        externalFilter,
+        backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined
+      ]
+        .filter(Boolean)
+        .join(" ") || undefined,
+    }}
       />
     );
   }

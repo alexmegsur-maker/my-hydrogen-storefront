@@ -101,7 +101,8 @@ function PromotionGridItem(props: PromotionItemProps) {
   const isMobile = useIsMobile(600)
 
   const showLink =()=>{
-    if(link!=undefined){
+    console.log("link",link)
+    if(link){
       navigate(link)
     }
   }
@@ -117,11 +118,14 @@ function PromotionGridItem(props: PromotionItemProps) {
       onClick={showLink}
     >
       <BackgroundImage 
-        backgroundImage={backgroundImage} 
+       backgroundImage={backgroundImage}
+        backgroundGrayscale={
+          !isMobile && activeGrayscale && !isHover ? grayscale : 0
+        }
         style={{
-          filter: !isMobile && activeGrayscale && !isHover ? `grayscale(${grayscale}%)`:"unset",
-          transform:isHover?"scale(1.05)":"scale(1)",
-          transition:"all 0.4s ease"
+          transform: isHover ? "scale(1.05)" : "scale(1)",
+          transition: "all 0.4s ease"
+          // Ya no pones filter aquí
         }}
       />
       <Overlay

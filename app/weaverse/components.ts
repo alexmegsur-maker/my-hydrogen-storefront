@@ -151,6 +151,9 @@ import * as ComparisonLine from "~/sections/comparacion/line"
 import * as ImageWithTextComp from "~/components/imageWithTextComp"
 import * as RecentActivity from "~/components/recentactivity"
 import * as CommunityReviews from "~/sections/comunityReviews"
+import * as VariantByProducts from "~/sections/main-product-j/variant-by-product"
+import * as VariantProd from "~/sections/main-product-j/product-var"
+
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -310,4 +313,6 @@ export const components: HydrogenComponent[] = [
   ImageWithTextComp,
   RecentActivity,
   CommunityReviews,
+  VariantByProducts,
+  VariantProd,
 ];

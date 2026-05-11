@@ -47,6 +47,7 @@ export interface ProductNode{
   nombre?:RequestMetafield;
   tooltip?:RequestMetafield;
   material:RequestMetafield;
+  principalImg?:PrincipalImgMetafield;
   variants:{
     edges:{
       node:RequestVariant[]
@@ -55,6 +56,13 @@ export interface ProductNode{
 }
 interface RequestProduct{
   node:ProductNode
+}
+
+interface PrincipalImgMetafield{
+  key:string;
+  reference:{
+    previewImage:RequestImage
+  }
 }
 
 interface FiltroMetafield{

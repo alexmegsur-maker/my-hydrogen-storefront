@@ -122,7 +122,7 @@ export default function Slide(props: SlideProps) {
 export const schema = createSchema({
   title: "Slide",
   type: "slideshow-slide",
-  childTypes: ["subheading", "heading", "paragraph", "button","group-buttons"],
+  childTypes: ["subheading", "heading", "paragraph", "button","group-buttons","recent-activity"],
   settings: [
     {
       group: "Slide",

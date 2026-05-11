@@ -26,6 +26,7 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
     const [isImageLoading, setIsImageLoading] = useState(false);
     const [hoverTitle,setHoverTitle]=useState(false)
     const [hoverImage,setHoverImage]=useState(false)
+  
     const productPageHref = usePrefixPathWithLocale(
       `/products/${product.handle}`,
     );
@@ -51,17 +52,33 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
       ),
     );
 
-    let [image, secondImage] = images.nodes;
-
-    if (selectedVariant?.image) {
-      image = selectedVariant.image;
-      const imageUrl = image.url;
-      const imageIndex = images.nodes.findIndex(({ url }) => url === imageUrl);
-      if (imageIndex > 0 && imageIndex < images.nodes.length - 1) {
-        secondImage = images.nodes[imageIndex + 1];
+    // Calcula las imágenes directamente (sin estado)
+    const getImages = () => {
+      if (product.principalImg || product.secondImg) {
+        return {
+          image: product.principalImg?.reference.previewImage ?? null,
+          secondImage: product.secondImg?.reference.previewImage ?? null,
+        };
       }
-    }
 
+      const baseImage = selectedVariant?.image ?? images.nodes[0] ?? null;
+      const imageUrl = baseImage?.url;
+      const imageIndex = images.nodes.findIndex(({ url }) => url === imageUrl);
+      const nextImage =
+        imageIndex > 0 && imageIndex < images.nodes.length - 1
+          ? images.nodes[imageIndex + 1]
+          : images.nodes[1] ?? null;
+
+      return { image: baseImage, secondImage: nextImage };
+    };
+
+    const { image, secondImage } = getImages();
+
+
+
+  useEffect(()=>{
+      console.log("product",product)
+    },[product])
  
   return (
     <div
@@ -91,7 +108,7 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
               loading="lazy"
               onLoad={() => setIsImageLoading(false)}
               style={{
-                opacity:hoverImage ? 0:1,
+                opacity:hoverImage && secondImage ? 0:1,
                 transition:"all 1s",
 
               }}

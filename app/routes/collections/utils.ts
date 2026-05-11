@@ -52,11 +52,11 @@ export function createCurProVar(prod){
     optionValues: elm.optionValues?.map((elm2: any) => ({ name: elm2.name })) || []
   })) || [];
 
-  let material = prod.material.value || null
+  let material = prod.material?.value || null
 
   let firstVar = prod.selectedOrFirstAvailableVariant;
   let firstSelect = null
-  if(prod.variants.nodes){
+  if(prod.variants?.nodes){
     firstSelect = prod.variants.nodes[0]
 
   }else{
@@ -67,7 +67,7 @@ export function createCurProVar(prod){
   }
 
   let variantformated = null
-  if(prod.variants.edges){
+  if(prod.variants?.edges){
     variantformated = prod.variants.edges.map((v)=>{return v.node})
   }
   // 2. Extracción segura de Metafields

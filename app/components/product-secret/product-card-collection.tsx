@@ -40,6 +40,7 @@ function ProductCardCollection(props:ProductCardProps){
   const isSelected = useCurrentProduct(state=>state.currentProduct?.id===product.id);
   const setCurrent = useCurrentProduct(state=>state.setProduct);
   const getApiUrl = usePrefixPathWithLocale(`api/product-secret`);
+  const [imgProduct,setImgProduct]=useState("")
 
   useGSAP(()=>{
     show.current = gsap.from(toolTip.current,{opacity:0,duration:0.5,display:"none",paused:true})
@@ -59,6 +60,18 @@ function ProductCardCollection(props:ProductCardProps){
       show.current.reverse()
     }
   },[showToolTip])
+  useEffect(()=>{
+    if(product){
+      if(product.principalImg){
+        let imagenPrincipal= product.principalImg?.reference.previewImage.url
+        setImgProduct(imagenPrincipal)
+      }else{
+        setImgProduct(product.featuredImage.url)
+      }
+    }
+
+    console.log("product",product)
+  },[product])
   
   const setProduct = useCallback(async()=>{
     if (isSelected) return
@@ -110,10 +123,9 @@ function ProductCardCollection(props:ProductCardProps){
         >
           <div className="h-full w-full">
             <img
-              loading="lazy"
               alt="Thumbnail of Secretlab TITAN Evo Secretlab for Automobili Lamborghini Pinnacle Superleggera"
               className="object-cover scale-200 top-[30%] absolute"
-              src={product?.featuredImage?.url}
+              src={imgProduct}
             />
           </div> 
         </div>

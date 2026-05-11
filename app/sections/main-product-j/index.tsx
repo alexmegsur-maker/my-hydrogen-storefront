@@ -41,21 +41,24 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
   const isMobile = useIsMobile(600);
   const restoreHeaderFooter=()=>{
       const header = document.querySelector("header")
-      const anuncement = document.querySelector("#announcement-bar") as HTMLDivElement
+      const announcement = document.querySelector("#announcement-bar") as HTMLDivElement
       const footer = document.querySelector("footer")
-      header.style.display="block"
-      anuncement.style.display="block"
-      footer.style.display="block"
+      if (header) header.style.display="block"
+      if (announcement) announcement.style.display="block"
+      if (footer) footer.style.display="block"
   }
   
   useEffect(()=>{
     if(document){
       const header = document.querySelector("header")
-      const anuncement = document.querySelector("#announcement-bar") as HTMLDivElement
+      const announcement = document.querySelector("#announcement-bar") as HTMLDivElement
       const footer = document.querySelector("footer")
-      header.style.display="none"
-      anuncement.style.display="none"
-      footer.style.display="none"
+      if (header) header.style.display="none"
+      if (announcement) announcement.style.display="none"
+      if (footer) footer.style.display="none"
+    }
+    return ()=>{
+      restoreHeaderFooter();
     }
 
   },[])
@@ -84,7 +87,6 @@ if(productStore){
           view360={currentProduct?.imagenes360 || []}
           logo={currentProduct?.logo?.previewImage || null}
           mediaVideos={currentProduct?.listVideos || []}
-          principalImg= {currentProduct?.principalImg?.previewImage || null}
         />
         <div 
           className="container-info relative w-full overflow-y-auto"
@@ -121,6 +123,10 @@ export const schema = createSchema({
   type:"j-product",
   title:"Main product J",
   childTypes:[
+    "heading",
+    "subheading",
+    "paragraph",
+    "faq-item",
     "head-info",
     "reserva-bar",
     "selector-variant",
@@ -129,6 +135,7 @@ export const schema = createSchema({
     "buy-buttons-productJ",
     "variant-secret",
     "selector-variant-secret",
+    "variant-by-product"
     
   ],
   limit:1,

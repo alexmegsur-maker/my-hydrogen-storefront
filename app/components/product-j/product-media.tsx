@@ -10,12 +10,11 @@ interface ProductMediaProps{
   media:MediaProduct[],
   view360:[]|MediaProduct[],
   logo:Image |null,
-  principalImg:Image |null,
   mediaVideos:string[],
 }
 
 function ProductMedia(props:ProductMediaProps){
-  const {media,view360,logo,mediaVideos,principalImg} = props
+  const {media,view360,logo,mediaVideos} = props
   const [thumbsSwiper,setThumbsSwiper] = useState(null)
   const [principalSwiper,setPrincipalSwiper] = useState(null)
   const [show,setShow] = useState(false)
@@ -120,18 +119,7 @@ function ProductMedia(props:ProductMediaProps){
                           setActiveIndex(s.realIndex)
                         }}
                         >
-                        {principalImg &&
-                          <SwiperSlide
-                            className="w-full h-[50vh] md:h-full relative"
-                            >
-                            <img
-                              loading="lazy"
-                              src={principalImg?.url}
-                              alt={principalImg?.altText}
-                              className="w-[100%] h-[100%] object-cover m-0 aspect-[2.5] md:aspect-[1.5] transition duration-1000 ease-in-out"
-                            />
-                          </SwiperSlide>
-                        }
+                       
                         {media.map((elm)=>{
                           return(
                             <SwiperSlide
@@ -217,25 +205,9 @@ function ProductMedia(props:ProductMediaProps){
                     className="mySwiper overflow-hidden"
                     >
 
-                    {principalImg &&
-                      <SwiperSlide className="relative w-fit"
-                          style={{
-                            width:"fit-content !important"
-                          }}
-                        >
-                          <MiniatureSlide 
-                            swiper={principalSwiper}
-                            index={0}
-                            active={activeIndex ==0} 
-                            url={principalImg.url} 
-                            alt={principalImg.altText}
-                            show={show}
-                            changeShow={setShow}
-                            />
-                        </SwiperSlide>
-                    }
+                  
                     {media.map((elm,index)=>{
-                      let active = principalImg ? activeIndex == index+1:activeIndex == index
+                      let active = activeIndex == index
                       return(
                         <SwiperSlide className="relative w-fit"
                           style={{
