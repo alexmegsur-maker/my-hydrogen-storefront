@@ -22,7 +22,7 @@ function root({
 }): SeoConfig {
   return {
     title: shop?.name,
-    titleTemplate: "%s | Weaverse Hydrogen Demo Store",
+    titleTemplate: "%s | Phoenixchairs",
     description: truncate(shop?.description ?? ""),
     handle: "@weaverse",
     url,
@@ -54,8 +54,8 @@ function root({
 function home(): SeoConfig {
   return {
     title: "Home",
-    titleTemplate: "%s | Weaverse Hydrogen Demo Store",
-    description: "The best Shopify Hydrogen Theme Customizer",
+    titleTemplate: "%s | PhoenixChairs",
+    description: "The best store of gaming chairs",
     robots: {
       noIndex: false,
       noFollow: false,
@@ -439,7 +439,7 @@ function policies({
   return {
     title: "Policies",
     titleTemplate: "%s | Policies",
-    description: "Weaverse Hydrogen store policies",
+    description: "phoenixchairs store policies",
     jsonLd: [
       {
         "@context": "https://schema.org",
@@ -449,7 +449,7 @@ function policies({
       {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        description: "Weaverse Hydrogen store policies",
+        description: "Phoenixchairs store policies",
         name: "Policies",
         url,
       },
