@@ -70,7 +70,6 @@ function ProductCardCollection(props:ProductCardProps){
       }
     }
 
-    console.log("product",product)
   },[product])
   
   const setProduct = useCallback(async()=>{

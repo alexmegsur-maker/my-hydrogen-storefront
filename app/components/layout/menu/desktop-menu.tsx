@@ -51,7 +51,10 @@ export function DesktopMenu( props:DesktopMenuProps) {
         >
           {items.map((menuItem ,idx) => {
             const half =Math.floor(items.length/2)
-            const { id, items: childItems = [], title, to } = menuItem;
+            const { id, items: childItems = [],url, title, to } = menuItem;
+            const product = url.includes("/products")?"/products":""
+        
+
             const level = getMaxDepth(menuItem);
             const hasSubmenu = level > 1;
             const isDropdown =
@@ -83,7 +86,7 @@ export function DesktopMenu( props:DesktopMenuProps) {
                       </>
                     ) : (
                       <NavigationMenu.Link asChild>
-                        <Link to={to} className="transition-none">
+                        <Link to={product+to} className="transition-none">
                           {title}
                         </Link>
                       </NavigationMenu.Link>
@@ -195,7 +198,7 @@ function MegaMenu({ items,title }: { items: SingleMenuItem[],title:string }) {
           <ul 
             className='flex flex-wrap'
             >
-            {items.map(({ id, title, to, items: children, resource }, idx) =>
+            {items.map(({ id, title, to, items: children,url, resource }, idx) =>
               resource?.image && children.length === 0 ? ( 
                 <SlideIn
                   key={id}
@@ -218,7 +221,7 @@ function MegaMenu({ items,title }: { items: SingleMenuItem[],title:string }) {
                         "h6 text-body-inverse transition-all duration-300",
                       ])}
                     >
-                      {title}
+                      {title} {url}
                     </Link>
                   </NavigationMenu.Link>
                 </SlideIn>

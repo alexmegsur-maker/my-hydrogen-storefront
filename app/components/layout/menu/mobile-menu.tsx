@@ -58,7 +58,7 @@ export function MobileMenu() {
           <div className="mt-4 border-line-subtle border-t" />
           <div className="py-2">
             <ScrollArea className="h-[calc(100vh-5rem)]">
-              <div className="space-y-1 px-4">
+              <div className="space-y-1 px-4 flex flex-col">
                 {headerMenu.items.map((item) => (
                   <CollapsibleMenuItem
                     key={item.id}

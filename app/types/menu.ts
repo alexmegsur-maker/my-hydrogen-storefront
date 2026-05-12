@@ -28,6 +28,7 @@ export interface SingleMenuItem {
   to: string;
   isExternal?: boolean;
   target: string;
+  url?:string;
   type: string;
   resource?: {
     image?: {
