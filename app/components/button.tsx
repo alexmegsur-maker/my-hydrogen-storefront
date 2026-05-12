@@ -114,7 +114,8 @@ export function Button(props: ButtonProps) {
       "--btn-bg-hover": backgroundColorHover,
       "--btn-border-hover": borderColorHover,
       width:"fit-content",
-      marginInline:"auto"
+      marginInline:"auto",
+      zIndex:3
     } as React.CSSProperties;
   }
 

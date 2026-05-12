@@ -11,6 +11,7 @@ import { createCurProVar } from "~/routes/collections/utils";
 import  type {loader as productRouteLoader} from "~/routes/products/product";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import "~/styles/product-j.css"
+import { translations } from "~/utils/translations";
 
 interface ProductInformationData
   extends Omit<ProductMediaProps, "selectedVariant" | "media"> {
@@ -33,7 +34,9 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
     ...rest
   }=props;
 
-  const {product} = useLoaderData<typeof productRouteLoader>()
+  const {product,language} = useLoaderData<typeof productRouteLoader>()
+  const t = translations[language]??translations["ES"]
+  
   const [currentProduct,setCurrentProduct] = useState(null)
 
   const setProduct= useCurrentProduct((state)=>state.setProduct)
@@ -103,7 +106,7 @@ if(productStore){
               zIndex:10
             }}
           >
-            <Link to={"/"} onClick={ restoreHeaderFooter}>← Inicio</Link>
+            <Link to={"/"} onClick={ restoreHeaderFooter}>← {t.home}</Link>
           </div>
           <div
             style={{ 

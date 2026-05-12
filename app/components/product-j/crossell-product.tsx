@@ -6,6 +6,10 @@ import type { CrossellProduct } from "~/types/crosssell";
 import { checkPrice } from "~/utils/product";
 import LateralCollection from "./lateral-collection";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useLoaderData } from "react-router";
+import { translations } from "~/utils/translations";
+import  type {loader as productRouteLoader} from "~/routes/products/product";
+
 
 interface CrossellProductProps {
   producto: ProductQuery["product"];
@@ -183,6 +187,9 @@ export default function CrossellProduct(props: CrossellProductProps) {
   const addSelectedProduct = useCrossell((state) => state.addSelected);
   const resetSelecteds = useCrossell((state) => state.resetSelecteds);
   const isMobile = useIsMobile(600);
+
+  const {language} = useLoaderData<typeof productRouteLoader>()
+  const t = translations[language]??translations["ES"]
   
   useEffect(() => {
     const media = producto.media.nodes.map((elm) => {
@@ -308,7 +315,7 @@ export default function CrossellProduct(props: CrossellProductProps) {
                   transition: "color 0.3s",
                 }}
               >
-                Saber más
+                {t.learnMore}
               </span>
             </div>
           </div>
@@ -485,7 +492,7 @@ export default function CrossellProduct(props: CrossellProductProps) {
               }
             }
           >
-            Especificaciones
+            {t.specifications}
           </h3>
           <ul className="acc-specs-list flex flex-col gap-[0.5rem] list-none">
             {producto.especificaciones?.value.split("-").map((i, index) => {

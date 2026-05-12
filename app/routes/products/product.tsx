@@ -66,6 +66,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     seo: seoPayload.product({ product, url: request.url }),
     recommended,
     selectedOptions,
+    language:storefront.i18n.language
   };
 }
 

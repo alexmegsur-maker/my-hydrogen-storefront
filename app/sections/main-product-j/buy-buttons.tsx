@@ -10,6 +10,7 @@ import { useCurrentProduct } from "~/stores/currentProduct";
 import type {loader as productRouteLoader } from "~/routes/products/product"
 import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
+import { translations } from "~/utils/translations";
 
 interface BuyButtonsProductJProps {
   showCart:boolean;
@@ -142,8 +143,8 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
   mcLabel2,
   mcLabel3,
   ...rest}=props
-  const { product ,storeDomain } = useLoaderData<typeof productRouteLoader>();
-
+  const { product ,storeDomain ,language } = useLoaderData<typeof productRouteLoader>();
+  const t = translations[language]??translations["ES"]
   const currentProd = useCurrentProduct((state) => state.currentProduct);
   const crossell = useCrossell((state) => state.crossellObjects);
   // const [productTitle,setProductTitle] = useState(product.title) 
@@ -345,7 +346,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                         ></path>
                       </svg>
                     </div>
-                    {currentProd?.selectedVariant?.availableForSale ? <>Añadir al carrito <span className={`border-l border-l-[${acPColor}] pl-1 font-bold`} style={{color:acColor}}>{totalPrice} €</span> </>:"Agotado"}
+                    {currentProd?.selectedVariant?.availableForSale ? <>{t.addToCart} <span className={`border-l border-l-[${acPColor}] pl-1 font-bold`} style={{color:acColor}}>{totalPrice} €</span> </>:t.soldOut}
                   </div>
                 </AddToCartButton>:<></>
              }
@@ -385,7 +386,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                                 ...selectorPaddingMargin("margin", resMarginSelect, resMarginText),
                               }}
                             >
-                              {fetcher.state !== 'idle' ? 'Cargando...' : (<> Reservar <span className={`border-l border-l-[${resPColor}] pl-1 font-bold`} style={{color:resPColor}}>{totalPrice} €</span> </> )}
+                              {fetcher.state !== 'idle' ? t.loading : (<> {t.reserve} <span className={`border-l border-l-[${resPColor}] pl-1 font-bold`} style={{color:resPColor}}>{totalPrice} €</span> </> )}
                             </button>
                           </>
                         )}
@@ -416,7 +417,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                           ...selectorPaddingMargin("margin",bnMarginSelect,bnMarginText),
                         }}
                       > 
-                        Añadir al setup <span  className={`border-l border-l-[${bnPColor}] pl-1 font-bold`} style={{color:bnPColor}}>{totalPrice} €</span> 
+                        {t.addToSetup} <span  className={`border-l border-l-[${bnPColor}] pl-1 font-bold`} style={{color:bnPColor}}>{totalPrice} €</span> 
                       </button>
                     </div>
                   }
@@ -443,7 +444,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                           ...selectorPaddingMargin("margin",bnMarginSelect,bnMarginText),
                         }}
                       > 
-                        Agotado 
+                        {t.soldOut} 
                       </button>
                     </div>
                   

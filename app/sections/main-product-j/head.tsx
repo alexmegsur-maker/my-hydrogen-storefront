@@ -1,9 +1,13 @@
 import { JudgemePreviewBadge,  JudgemeReviewWidget, JudgemeVerifiedBadge } from "@judgeme/shopify-hydrogen";
 import { createSchema } from "@weaverse/hydrogen"
+import { useLoaderData } from "react-router";
 import { Section } from "~/components/section";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
 import { checkPrice } from "~/utils/product";
+import { translations } from "~/utils/translations";
+import  type {loader as productRouteLoader} from "~/routes/products/product";
+
 
 interface HeadProps{
   title:string;
@@ -76,7 +80,8 @@ export default function Head(props:HeadProps){
     ...rest
   } = props
   const currentProduct= useCurrentProduct(state=>state.currentProduct)
-
+  const {product,language} = useLoaderData<typeof productRouteLoader>()
+  const t = translations[language]??translations["ES"]
   return(
     <Section {...rest}>
       <div style={{
@@ -113,8 +118,8 @@ export default function Head(props:HeadProps){
           ...selectorPaddingMargin("margin",pMarginSelect,pMarginText)
         }}
         >
-        Desde 
-        <span
+        {t.from} 
+        <span 
           className="mx-1"
           style={{
             color:pColor,
