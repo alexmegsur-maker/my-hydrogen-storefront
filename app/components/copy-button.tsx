@@ -108,7 +108,7 @@ export function CopyButton(props: FounderTokenProps) {
     letterSpacing: `${letterSpacing}px`,
     padding: `${paddingY}px ${paddingX}px`,
     minWidth: `${minWidth}%`,
-    borderRadius: `${borderRadius}px`,
+    borderRadius: `${borderRadius}px`, 
     boxShadow: isHovered ? hoverShadow : baseShadow,
     transform: isHovered ? `scale(${scaleHover})` : "scale(1)",
     transition: "all 0.3s ease",
@@ -116,6 +116,7 @@ export function CopyButton(props: FounderTokenProps) {
     display: "inline-block",
     textAlign: "center",
     userSelect: "none",
+    zIndex:3
   };
 
   return (

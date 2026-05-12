@@ -17,8 +17,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => [
   { title: `Orden ${data?.order?.name} | Phoenix` },
 ];
 
-gsap.registerPlugin(ScrollTrigger)
-
+ 
 export async function loader({ request, context, params }: LoaderFunctionArgs) {
   if (!params.id) {
     return redirect(params?.locale ? `${params.locale}/account` : "/account");
@@ -63,6 +62,7 @@ export default function OrderDetails() {
   
   const container = useRef(null)
   useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger)
    
     const sections = gsap.utils.toArray('.fade-up-trigger');
     sections.forEach((section:any) => {

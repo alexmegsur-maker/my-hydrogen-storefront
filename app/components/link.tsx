@@ -177,7 +177,7 @@ export function Link(props: LinkProps) {
     style = {
       ...style,
       borderRadius:`${rounded}px`,
-      letterSpacing:letter==0 ?'normal':`${letter}px`,
+      letterSpacing:letter==0 ?'normal':`${letter}px`, 
       fontFamily:fontFamily,
       fontSize:size,
       fontWeight:weight,
@@ -188,7 +188,8 @@ export function Link(props: LinkProps) {
       "--btn-bg-hover": backgroundColorHover,
       "--btn-text-hover": textColorHover,
       "--btn-border-hover": borderColorHover,  
-      marginInline:"auto"
+      marginInline:"auto",
+      zIndex:3
     } as React.CSSProperties;
   }
 
