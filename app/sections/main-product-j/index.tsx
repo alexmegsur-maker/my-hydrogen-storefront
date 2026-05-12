@@ -44,7 +44,7 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
       const announcement = document.querySelector("#announcement-bar") as HTMLDivElement
       const footer = document.querySelector("footer")
       if (header) header.style.display="block"
-      if (announcement) announcement.style.display="block"
+      if (announcement) announcement.style.display="flex"
       if (footer) footer.style.display="block"
   }
   

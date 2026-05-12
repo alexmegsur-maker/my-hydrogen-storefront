@@ -39,7 +39,7 @@ export default function FilterStep(props: FilterStepProps) {
             handle:metaobj.handle
           })
           const finalUrl = `${getApiUrl}?${params.toString()}`
-
+          console.log("finalUrl",finalUrl)
           const res = await fetch(finalUrl)
           const data = await res.json() as ApiResponseCollection
 
