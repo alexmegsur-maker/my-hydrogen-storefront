@@ -70,7 +70,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
     () => {
       if (isMobile) {
         // en mobile limpia cualquier estilo residual que GSAP haya dejado
-        gsap.set(elementRef.current, { clearProps: "all" });
+        gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
      
       }
      
