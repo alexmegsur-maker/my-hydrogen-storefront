@@ -84,6 +84,8 @@ export default function  LateralCollection (props:LateralCollectionProps){
               color:estilos?estilos["--brColor"]:"#52525A",
               ...selectorPaddingMargin("padding",estilos &&estilos["--brPaddingSelect"],estilos &&estilos["--brPaddingText"]),
               ...selectorPaddingMargin("margin",estilos &&estilos["--brMarginSelect"],estilos &&estilos["--brMarginText"]),
+              position:"absolute",
+              top:0,
               transition:"color 0.3s ease"
             }}
             >

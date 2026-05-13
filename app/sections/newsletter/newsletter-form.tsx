@@ -8,6 +8,8 @@ import { Banner } from "~/components/banner";
 import type { CustomerApiPlayLoad } from "~/routes/api/customer";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useState } from "react";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 
 interface NewsLetterInputProps extends HydrogenComponentProps {
 width:string;
@@ -150,6 +152,9 @@ export default function NewsLetterForm(props: NewsLetterInputProps) {
   } = props;
 
   const fetcher = useFetcher();
+  const lang = useLanguage()
+  const t = translations[lang]??translations["ES"]
+
   const { state, Form } = fetcher;
   const data = fetcher.data as CustomerApiPlayLoad;
   const submitted = state === "idle" && data;
@@ -238,7 +243,7 @@ export default function NewsLetterForm(props: NewsLetterInputProps) {
               ...selectorPaddingMargin("margin", lMarginSelect, lMarginText),
             }}
           >
-            Identificador (Email)
+            {t.identifier} (Email)
           </label>
           <input
             name="email"

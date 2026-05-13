@@ -46,7 +46,7 @@ export function Bar(props: BarProps) {
           border:`1px solid ${borderColor}`,
           borderRadius:`${barRounded}px`,
           padding:"6px",
-          width:!isMobile ? "auto":"99dvw"
+          width:"auto"
         }}
       >
         {names.map((name, idx) => {

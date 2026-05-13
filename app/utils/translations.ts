@@ -8,7 +8,8 @@ export const translations: Record<string, Record<string, string>> = {
     reserve: "Reservar",
     loading: "Cargando...",
     learnMore:"Saber más",
-    specifications:"Especificaciones"
+    specifications:"Especificaciones",
+    identifier:"Identificador"
   },
   EN: {
     home:"Home",
@@ -19,7 +20,8 @@ export const translations: Record<string, Record<string, string>> = {
     reserve: "Reserve",
     loading: "Loading...",
     learnMore:"Learn more",
-    specifications:"Specifications"
+    specifications:"Specifications",
+    identifier:"Identifier"
 
   },
  

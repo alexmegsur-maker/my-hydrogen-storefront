@@ -189,7 +189,8 @@ export function Link(props: LinkProps) {
       "--btn-text-hover": textColorHover,
       "--btn-border-hover": borderColorHover,  
       marginInline:"auto",
-      zIndex:3
+      zIndex:3,
+      textAlign:"center"
     } as React.CSSProperties;
   }
 
