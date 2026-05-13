@@ -80,6 +80,9 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             once:true,
             // markers:true,
             toggleActions: "play none none none",
+            onEnter: () => {
+              gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
+            }
           }
     
       if (animation === "fade") {
@@ -175,6 +178,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             ease: "power4.inOut",
             scrollTrigger: {
               trigger: elementRef.current,
+              once:true,
               start,
               toggleActions: "play none none none",
             },
