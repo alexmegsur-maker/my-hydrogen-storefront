@@ -57,6 +57,13 @@ function ProductMedia(props:ProductMediaProps){
     setZoom(state => !state)
   }
 
+  useEffect(()=>{
+    setActiveIndex(0)
+    if(principalSwiper){
+      principalSwiper.slideTo(0)
+    }
+  },[media])
+
 
   return(
  <div className="transition-all flex-none w-full mt-10 md:mt-0 md:w-[65vw] md:h-[100vh]"> 

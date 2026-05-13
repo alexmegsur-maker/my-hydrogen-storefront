@@ -9,7 +9,8 @@ export const translations: Record<string, Record<string, string>> = {
     loading: "Cargando...",
     learnMore:"Saber más",
     specifications:"Especificaciones",
-    identifier:"Identificador"
+    identifier:"Identificador",
+    back:"Atrás",
   },
   EN: {
     home:"Home",
@@ -21,8 +22,8 @@ export const translations: Record<string, Record<string, string>> = {
     loading: "Loading...",
     learnMore:"Learn more",
     specifications:"Specifications",
-    identifier:"Identifier"
-
+    identifier:"Identifier",
+    back:"Back",
   },
  
 };

@@ -4,7 +4,9 @@ import gsap from "gsap";
 import type React from "react";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useLanguage } from "~/hooks/useLanguage";
 import { selectorPaddingMargin } from "~/utils/general";
+import { translations } from "~/utils/translations";
 
 interface LateralCollectionProps extends Partial<Omit<HydrogenComponentProps, "children">> {
   title:string,
@@ -23,6 +25,8 @@ export default function  LateralCollection (props:LateralCollectionProps){
   const container =useRef(null)
   const open =useRef(null)
   const isMobile = useIsMobile(600);
+  const lang = useLanguage()
+  const t = translations[lang]??translations["ES"]
   
   useGSAP(()=>{
     open.current= gsap.from(container.current,{
@@ -68,6 +72,8 @@ export default function  LateralCollection (props:LateralCollectionProps){
           style={{
             backgroundColor:"#050505f2",
             padding: !isMobile?"1.5rem 4rem":"1.5rem",
+            position:"absolute",
+            top:0,
             borderBottom:"1px solid #ffffff08"
           }}
           >
@@ -84,12 +90,11 @@ export default function  LateralCollection (props:LateralCollectionProps){
               color:estilos?estilos["--brColor"]:"#52525A",
               ...selectorPaddingMargin("padding",estilos &&estilos["--brPaddingSelect"],estilos &&estilos["--brPaddingText"]),
               ...selectorPaddingMargin("margin",estilos &&estilos["--brMarginSelect"],estilos &&estilos["--brMarginText"]),
-              position:"absolute",
-              top:0,
+             
               transition:"color 0.3s ease"
             }}
             >
-            ← Atrás
+            ← {t.back}
           </button>
             <span 
               className="drawer-nav-title"

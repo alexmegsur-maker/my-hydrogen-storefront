@@ -4,17 +4,22 @@ import { useRef} from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { selectorPaddingMargin } from "~/utils/general";
 
 interface groupButtonsProps extends HydrogenComponentProps{
   direction:string;
   gap:number;
   mbDirection:string;
   mbGap:number;
+  marginSelect:string;
+  marginText:string;
+  mbMarginSelect:string;
+  mbMarginText:string;
 }
 
 export default function groupButtons(props:groupButtonsProps){
   
-  const {direction,gap,mbDirection,mbGap,children,...rest}=props
+  const {direction,gap,mbDirection,mbGap,children,marginSelect,marginText,mbMarginSelect,mbMarginText,...rest}=props
   const isMobile = useIsMobile(600);
   const container = useRef(null) 
   
@@ -41,6 +46,7 @@ export default function groupButtons(props:groupButtonsProps){
           display:"flex",
           flexDirection:!isMobile ? direction === "row" ? "row" : "column" : mbDirection === "row" ? "row" : "column",
           gap:!isMobile?`${gap}rem`:`${mbGap}rem`,
+          ...selectorPaddingMargin("margin",isMobile?mbMarginSelect:marginSelect,isMobile?mbMarginText:marginText)
         }}
       >
         {children}
@@ -81,6 +87,26 @@ export const schema = createSchema({
             unit:'rem',
           }
         },
+        {
+          type: "select",
+          label: "Margin type",
+          name: "marginSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        {
+          type: "text",
+          label: "Margin value",
+          name: "marginText",
+        },
       ]
     },
     {
@@ -109,6 +135,26 @@ export const schema = createSchema({
             step:0.1,
             unit:'rem',
           }
+        },
+        {
+          type: "select",
+          label: "Margin type",
+          name: "mbMarginSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        {
+          type: "text",
+          label: "Margin value",
+          name: "mbMarginText",
         },
       ]
     }
