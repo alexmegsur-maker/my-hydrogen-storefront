@@ -91,10 +91,6 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
           duration: duration ?? 1,
           ease: "power2.out",
           scrollTrigger: stConfig,
-          onComplete: () => {
-
-              gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
-            }
         });
       }
       if(animation == "underline"){
