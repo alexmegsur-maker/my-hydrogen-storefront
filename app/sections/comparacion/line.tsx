@@ -97,7 +97,7 @@ function LineItem(props: LineItemProps) {
 
   return (
     <li
-      className="flex justify-between items-center border-b gap-4"
+      className="flex justify-between items-center border-b gap-4 overflow-hidden"
       style={rowStyle}
     >
       {/* Dash prefix */}
@@ -117,7 +117,7 @@ function LineItem(props: LineItemProps) {
       )}
 
       {/* Value */}
-      <span className="shrink-0 text-right" style={valueStyle}>
+      <span className="text-right " style={valueStyle}>
         {value}
       </span>
     </li>
