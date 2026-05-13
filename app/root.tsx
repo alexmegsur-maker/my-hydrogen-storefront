@@ -4,7 +4,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
 import { useThemeSettings, withWeaverse } from "@weaverse/hydrogen";
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 import type { LinksFunction, LoaderFunctionArgs, MetaArgs } from "react-router";
 import {
   isRouteErrorResponse,
@@ -33,6 +33,8 @@ import styles from "./styles/app.css?url";
 import { DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
 import {useJudgeme} from '@judgeme/shopify-hydrogen'
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import gsap from "gsap";
 
 export type RootLoader = typeof loader;
 
@@ -110,12 +112,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
   useJudgeme(data?.judgeme ?? { shopDomain: '', publicToken: '', cdnHost: '', delay: 500 })
 
+  useEffect(()=>{
+    gsap.registerPlugin(ScrollTrigger)
+    window.addEventListener("load",()=>ScrollTrigger.refresh());
+  },[])
+
+
   if (
     location.pathname === "/subrequest-profiler" ||
     location.pathname === "/graphiql"
   ) {
     return children;
   }
+
+
   return (
     <html lang={locale.language}>
       <head> 

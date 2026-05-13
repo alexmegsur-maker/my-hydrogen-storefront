@@ -59,7 +59,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = isMobile ? "top 150%":"top 110%",
+    start = isMobile ? "top 90%":"top 110%",
     duration,
   } = options;
  
@@ -68,7 +68,6 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const cursorRef = useRef<HTMLSpanElement>(null);
   useGSAP(
     () => {
-      gsap.registerPlugin(ScrollTrigger);
 
       const stConfig = isMobile? undefined :{
             trigger: elementRef.current,
@@ -195,11 +194,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
 
         });
       }
-      const timer = setTimeout(() => {
-        ScrollTrigger.refresh();
-      }, 300);
-
-      return () => clearTimeout(timer);
+  
     },
     { scope: elementRef, dependencies: [animation, start, duration, cursorColor] }
   );
