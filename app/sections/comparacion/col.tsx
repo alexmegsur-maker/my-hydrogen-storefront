@@ -88,7 +88,7 @@ function ComparisonCol(props: ComparisonColProps) {
       ref={containerRef}
       {...rest}
       className={[
-        "comparison-col px-12 py-16 text-left",
+        "comparison-col px-6 py-8 md:px-12 md:py-16 text-left",
         isHighlighted
           ? "bg-white/[0.03] border border-white/20 -m-px z-10"
           : "bg-white/[0.01] border-r border-white/10",
