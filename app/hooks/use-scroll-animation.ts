@@ -80,21 +80,16 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             once:true,
             // markers:true,
             toggleActions: "play none none none",
-            onEnter: () => {
+            onComplete: () => {
               gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
             }
           }
     
       if (animation === "fade") {
-        gsap.fromTo(elementRef.current, {
+        gsap.from(elementRef.current, {
           y: "100%",
           filter: "blur(1.5rem)",
           opacity: 0,
-        },
-        {
-          y: "0%",
-          filter: "blur(0)",
-          opacity: 1,
           duration: duration ?? 1,
           ease: "power2.out",
           scrollTrigger: stConfig,
