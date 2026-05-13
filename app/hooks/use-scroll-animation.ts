@@ -59,7 +59,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = isMobile ? "top 90%":"top 110%",
+    start = "top 110%",
     duration,
   } = options;
  
@@ -68,44 +68,49 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const cursorRef = useRef<HTMLSpanElement>(null);
   useGSAP(
     () => {
-
-      const stConfig = isMobile? undefined :{
+      if (isMobile) {
+        // en mobile limpia cualquier estilo residual que GSAP haya dejado
+        gsap.set(elementRef.current, { clearProps: "all" });
+     
+      }
+     
+      const stConfig = {
             trigger: elementRef.current,
             start,
             once:true,
             // markers:true,
             toggleActions: "play none none none",
           }
-      if(!isMobile){
-        if (animation === "fade") {
-          gsap.from(elementRef.current, {
-            y: "100%",
-            filter: "blur(1.5rem)",
-            opacity: 0,
-            duration: duration ?? 1,
-            ease: "power2.out",
-            scrollTrigger: stConfig,
-          });
-        }
-        if(animation == "underline"){
-           gsap.from(elementRef.current, {
-            y: "100%",
-            filter: "blur(1.5rem)",
-            opacity: 0,
-            duration: duration ?? 1,
-            ease: "power2.out",
-            scrollTrigger: stConfig,
-          });
-          gsap.from(cursorRef.current,{
-            width:0,
-            duration: duration ?? 1,
-            delay:0.5,
-            ease: "power2.out",
-            scrollTrigger: stConfig,
-          
-          }) 
-        }
+    
+      if (animation === "fade") {
+        gsap.from(elementRef.current, {
+          y: "100%",
+          filter: "blur(1.5rem)",
+          opacity: 0,
+          duration: duration ?? 1,
+          ease: "power2.out",
+          scrollTrigger: stConfig,
+        });
       }
+      if(animation == "underline"){
+          gsap.from(elementRef.current, {
+          y: "100%",
+          filter: "blur(1.5rem)",
+          opacity: 0,
+          duration: duration ?? 1,
+          ease: "power2.out",
+          scrollTrigger: stConfig,
+        });
+        gsap.from(cursorRef.current,{
+          width:0,
+          duration: duration ?? 1,
+          delay:0.5,
+          ease: "power2.out",
+          scrollTrigger: stConfig,
+        
+        }) 
+      }
+    
       if(animation ==="writeChar"){
         gsap.from(".char", {
           opacity: 0,
@@ -165,7 +170,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
           textInnerRef.current,
           { width: 0 },
           {
-            width: "100%",
+            width: "auto",
             duration: duration ?? 2,
             ease: "power4.inOut",
             scrollTrigger: {
@@ -196,7 +201,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       }
   
     },
-    { scope: elementRef, dependencies: [animation, start, duration, cursorColor] }
+    { scope: elementRef, dependencies: [animation, start, duration, cursorColor,isMobile] }
   );
 
   return { elementRef, textInnerRef, cursorRef };

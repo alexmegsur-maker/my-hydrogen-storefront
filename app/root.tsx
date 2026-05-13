@@ -114,9 +114,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(()=>{
     gsap.registerPlugin(ScrollTrigger)
-    window.addEventListener("load",()=>ScrollTrigger.refresh());
+    ScrollTrigger.refresh(); // inmediato
+  
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh(); // después de que Weaverse termine de pintar
+    }, 800);
+
+    return () => clearTimeout(timer);
   },[])
 
+  useEffect(() => {
+    const timer = setTimeout(() => ScrollTrigger.refresh(), 500);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   if (
     location.pathname === "/subrequest-profiler" ||
