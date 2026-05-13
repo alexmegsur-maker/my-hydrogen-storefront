@@ -67,7 +67,6 @@ function Paragraph(props: ParagraphProps) {
   return (
     <Tag
       ref={elementRef}
-      data-motion="fade-up"
       {...rest}
       className={clsx(variants({width, className }))+" paragraphComp"}
       suppressHydrationWarning
@@ -78,6 +77,7 @@ function Paragraph(props: ParagraphProps) {
         lineHeight:lineH>0 ? lineH:"unset",
         gap:gap>0 ?`${gap}rem`:"normal",
         color:color,
+        opacity:animacion =="fade"? 0:1,
         textAlign:alignment,
         fontSize:textSize,
         fontFamily:family,
