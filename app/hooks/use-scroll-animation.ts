@@ -68,11 +68,11 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const cursorRef = useRef<HTMLSpanElement>(null);
   useGSAP(
     () => {
-      if (isMobile) {
-        // en mobile limpia cualquier estilo residual que GSAP haya dejado
-        gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
+      // if (isMobile) {
+      //   // en mobile limpia cualquier estilo residual que GSAP haya dejado
+      //   gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
      
-      }
+      // }
      
       const stConfig = {
             trigger: elementRef.current,
@@ -80,9 +80,6 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             once:true,
             // markers:true,
             toggleActions: "play none none none",
-            onComplete: () => {
-              gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
-            }
           }
     
       if (animation === "fade") {
