@@ -61,7 +61,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = !isMobile? "top 130%":"top 170%",
+    start =  isMobile ?"top 170%":"top 110%" ,
     duration,
     markers,
     color,
@@ -76,17 +76,17 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const cursorRef = useRef<HTMLSpanElement>(null);
   useGSAP(
     () => {
-      // ScrollTrigger.getAll()
-      //   .filter(st => st.trigger === elementRef.current)
-      //   .forEach(st => st.kill());
 
-     
-     
+      if (isMobile) {
+        // en mobile limpia cualquier estilo residual que GSAP haya dejado
+        gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
+
+      }
       const stConfig = {
             trigger: elementRef.current,
-            start,
-            // once:true,
-            markers:markers?{startColor: color, endColor: color, fontSize: "18px", fontWeight: "bold", indent: 20}:false,
+            start,            
+            once:true,
+            markers:markers?{startColor: color, endColor: "purple", fontSize: "18px", fontWeight: "bold", indent: 20}:false,
             toggleActions: "play none none none",
             invalidateOnRefresh: true,
           }
