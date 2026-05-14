@@ -83,7 +83,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             // once:true,
             markers:markers?{startColor: color, endColor: color, fontSize: "18px", fontWeight: "bold", indent: 20}:false,
             toggleActions: "play none none none",
-            end:"-100%"
+            end:"-100% 85%"
           }
     
       if (animation === "fade") {
