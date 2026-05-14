@@ -27,7 +27,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = "top 110%",
+    start = "-100% 110%",
     duration,
     markers,
     color,
@@ -47,6 +47,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
         ScrollTrigger.create({
           trigger: el,
           start,
+          end:"top top",
           toggleActions: "play none none none",
           invalidateOnRefresh: true,
           markers: markers
