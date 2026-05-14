@@ -60,7 +60,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = "-50% 100%",
+    start = "-50%",
     duration,
     markers,
   } = options;
