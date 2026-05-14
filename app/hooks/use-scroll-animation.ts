@@ -61,12 +61,16 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = "top 170%",
+    start = !isMobile? "top 130%":"top 170%",
     duration,
     markers,
     color,
   } = options;
- 
+  if(markers){
+  console.log("isMobile",isMobile)
+  console.log("start",start)
+
+  }
   const elementRef = useRef<T>(null);
   const textInnerRef = useRef<HTMLSpanElement>(null);
   const cursorRef = useRef<HTMLSpanElement>(null);
