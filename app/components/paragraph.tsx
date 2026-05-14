@@ -22,7 +22,8 @@ export interface ParagraphProps
   marginSelect?:string;
   marginText?:string;
   lineH:number;
-  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe",
+  animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe";
+  markers:boolean;
 
 }
 
@@ -55,13 +56,15 @@ function Paragraph(props: ParagraphProps) {
     marginText,
     lineH,
     animacion,
+    markers,
     ...rest
   } = props;
 
   const isMobile = useIsMobile(600);
     const {elementRef}=useScrollAnimation<HTMLHeadingElement>({
       animation:animacion,
-      cursorColor:color
+      cursorColor:color,
+      markers:markers
     }) 
 
   return (
@@ -242,6 +245,12 @@ export const schema = createSchema({
             ]
           },
           defaultValue:"fade",
+        },
+        {
+          type:'switch',
+          label:'markers',
+          name:'markers',
+          defaultValue:false,
         },
       ],
     },

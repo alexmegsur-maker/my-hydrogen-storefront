@@ -18,6 +18,7 @@ export interface ScrollAnimationOptions {
   start?: string;
   /** Duración de la animación principal en segundos. Por defecto: fade=1, typer=2 */
   duration?: number;
+  markers?:boolean;
 }
 
 export interface ScrollAnimationRefs<T extends HTMLElement = HTMLElement> {
@@ -59,8 +60,9 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = "top 110%",
+    start = "-50% 100%",
     duration,
+    markers,
   } = options;
  
   const elementRef = useRef<T>(null);
@@ -78,7 +80,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             trigger: elementRef.current,
             start,
             once:true,
-            // markers:true,
+            markers:markers?true:false,
             toggleActions: "play none none none",
             
           }
