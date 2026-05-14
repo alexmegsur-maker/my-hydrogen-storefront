@@ -49,7 +49,6 @@ function ComparisonCol(props: ComparisonColProps) {
 
   useGSAP(
     () => {
-      gsap.registerPlugin(ScrollTrigger);
 
       const el = containerRef.current;
       if (!el) return;
@@ -64,7 +63,7 @@ function ComparisonCol(props: ComparisonColProps) {
         ease: "power2.out",
         scrollTrigger: {
           trigger: el,
-          start: "top 85%",
+          start: "-50% 115%",
           toggleActions: "play none none none",
         },
       });

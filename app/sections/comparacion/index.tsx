@@ -125,7 +125,6 @@ function ComparisonWrapper(props: ComparisonWrapperProps) {
 
   useGSAP(
     () => {
-      gsap.registerPlugin(ScrollTrigger);
 
       const el = headerRef.current;
       if (!el) return;
@@ -141,7 +140,7 @@ function ComparisonWrapper(props: ComparisonWrapperProps) {
         stagger: 0.15,
         scrollTrigger: {
           trigger: el,
-          start: "top 85%",
+          start: "-50% 115%",
           toggleActions: "play none none none",
         },
       });

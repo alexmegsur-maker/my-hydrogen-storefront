@@ -52,6 +52,8 @@ extends VariantProps<typeof variants>{
   animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe"|"writeChar"|"underline";
   spaceUnderline:number;
   markers:boolean;
+  colorMarkers:string;
+
 }
 
 function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
@@ -82,6 +84,7 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     animacion,
     spaceUnderline,
     markers,
+    colorMarkers,
     ...rest
   } = props;
   
@@ -91,7 +94,8 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
   const {elementRef,textInnerRef,cursorRef}= useScrollAnimation<HTMLHeadingElement>({
     animation:animacion,
     cursorColor:color,
-    markers:markers
+    markers:markers,
+    color:colorMarkers
   })
 
   
@@ -460,6 +464,12 @@ export const headingInputs: InspectorGroup["inputs"] = [
     label:'markers',
     name:'markers',
     defaultValue:false,
+  },
+  {
+    type:'color',
+    label:'color',
+    name:'colorMarkers',
+    defaultValue:'#ff5e00',
   },
 ];
 

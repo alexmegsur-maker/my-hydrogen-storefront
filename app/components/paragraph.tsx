@@ -24,6 +24,7 @@ export interface ParagraphProps
   lineH:number;
   animacion:"none"|"typer"|"fade"|"spaceNeonPulse"|"neonPulse"|"breathe";
   markers:boolean;
+  colorMarkers:string;
 
 }
 
@@ -56,6 +57,7 @@ function Paragraph(props: ParagraphProps) {
     marginText,
     lineH,
     animacion,
+    colorMarkers,
     markers,
     ...rest
   } = props;
@@ -64,7 +66,9 @@ function Paragraph(props: ParagraphProps) {
     const {elementRef}=useScrollAnimation<HTMLHeadingElement>({
       animation:animacion,
       cursorColor:color,
-      markers:markers
+      markers:markers,
+      color:colorMarkers
+
     }) 
 
   return (
@@ -251,6 +255,12 @@ export const schema = createSchema({
           label:'markers',
           name:'markers',
           defaultValue:false,
+        },
+        {
+          type:'color',
+          label:'color',
+          name:'colorMarkers',
+          defaultValue:'#ff5e00',
         },
       ],
     },

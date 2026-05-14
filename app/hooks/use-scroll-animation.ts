@@ -19,6 +19,7 @@ export interface ScrollAnimationOptions {
   /** Duración de la animación principal en segundos. Por defecto: fade=1, typer=2 */
   duration?: number;
   markers?:boolean;
+  color?:string;
 }
 
 export interface ScrollAnimationRefs<T extends HTMLElement = HTMLElement> {
@@ -60,9 +61,10 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = "-50%",
+    start = "-100% 85% ",
     duration,
     markers,
+    color,
   } = options;
  
   const elementRef = useRef<T>(null);
@@ -70,17 +72,22 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const cursorRef = useRef<HTMLSpanElement>(null);
   useGSAP(
     () => {
-
+      if (isMobile) {
+        // en mobile limpia cualquier estilo residual que GSAP haya dejado
+        gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
+      }
+     
       const stConfig = {
             trigger: elementRef.current,
             start,
-            once:true,
-            markers:markers?true:false,
+            // once:true,
+            markers:markers?{startColor: color, endColor: color, fontSize: "18px", fontWeight: "bold", indent: 20}:false,
             toggleActions: "play none none none",
-            
+            end:"-100%"
           }
     
       if (animation === "fade") {
+        
         gsap.from(elementRef.current, {
           y: "100%",
           filter: "blur(1.5rem)",
@@ -122,6 +129,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       if(animation === "neonPulse"){
         const tl = gsap.timeline({
           scrollTrigger: stConfig,
+          onComplete:()=>startGlowing()
         });
         tl.from(elementRef.current, {
           y: "100%",
@@ -129,20 +137,23 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
           opacity: 0,
           duration: duration ?? 1,
           ease: "power2.out",
-          scrollTrigger: stConfig,
+          
         });
 
-        tl.to(elementRef.current, {
-          textShadow: "0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.6)",
-          repeat: -1,
-          yoyo: true,
-          duration: 1.5,
-          ease: "sine.inOut",
-        });
+        const startGlowing=()=>{
+          gsap.to(elementRef.current, {
+            textShadow: "0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.6)",
+            repeat: -1,
+            yoyo: true,
+            duration: 1.5,
+            ease: "sine.inOut",
+          });
+        }
       }
       if(animation === "spaceNeonPulse"){
         const tl = gsap.timeline({
           scrollTrigger: stConfig,
+          onComplete:()=>startNeonPulse()
         });
 
         tl.from(elementRef.current, {
@@ -154,13 +165,16 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
           delay:1,
           ease: "power2.out",
         })
-        .to(elementRef.current, {
-          textShadow: "0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.6)",
-          repeat: -1,
-          yoyo: true,
-          duration: 1.5,
-          ease: "sine.inOut",
-        });
+        const startNeonPulse=()=>{
+          
+          gsap.to(elementRef.current, {
+            textShadow: "0 0 15px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,0.6)",
+            repeat: -1,
+            yoyo: true,
+            duration: 1.5,
+            ease: "sine.inOut",
+          });
+        }
       }
 
       if (animation === "typer") {
