@@ -61,7 +61,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const {
     animation,
     cursorColor = "currentColor",
-    start = "-100% 85% ",
+    start = "top 170%",
     duration,
     markers,
     color,
@@ -72,10 +72,11 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const cursorRef = useRef<HTMLSpanElement>(null);
   useGSAP(
     () => {
-      if (isMobile) {
-        // en mobile limpia cualquier estilo residual que GSAP haya dejado
-        gsap.set(elementRef.current, { clearProps: "opacity,y,filter,transform" });
-      }
+      // ScrollTrigger.getAll()
+      //   .filter(st => st.trigger === elementRef.current)
+      //   .forEach(st => st.kill());
+
+     
      
       const stConfig = {
             trigger: elementRef.current,
@@ -83,18 +84,18 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
             // once:true,
             markers:markers?{startColor: color, endColor: color, fontSize: "18px", fontWeight: "bold", indent: 20}:false,
             toggleActions: "play none none none",
-            end:"-100% 85%"
+            invalidateOnRefresh: true,
           }
     
       if (animation === "fade") {
         
         gsap.from(elementRef.current, {
+          scrollTrigger: stConfig,
           y: "100%",
           filter: "blur(1.5rem)",
           opacity: 0,
           duration: duration ?? 1,
           ease: "power2.out",
-          scrollTrigger: stConfig,
         });
       }
       if(animation == "underline"){
@@ -214,7 +215,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       }
   
     },
-    { scope: elementRef, dependencies: [animation, start, duration, cursorColor,isMobile] }
+    { scope: elementRef, dependencies: [animation, start, duration, cursorColor] }
   );
 
   return { elementRef, textInnerRef, cursorRef };

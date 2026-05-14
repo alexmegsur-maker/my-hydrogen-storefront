@@ -80,6 +80,7 @@ function Paragraph(props: ParagraphProps) {
       dangerouslySetInnerHTML={{ __html: content }}
       style={{ 
         display:"flex",
+        position:"relative",
         flexDirection:"column",
         lineHeight:lineH>0 ? lineH:"unset",
         gap:gap>0 ?`${gap}rem`:"normal",

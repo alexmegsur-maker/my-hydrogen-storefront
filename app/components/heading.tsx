@@ -118,6 +118,7 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
       style={{
         ...style,
         width:"100%",
+        position:"relative",
         fontSize:size=="custom" && isMobile ? mobileSize:desktopSize,
         letterSpacing:letterSpacing>0 ? `${letterSpacing}px`:"normal",
         lineHeight:lineH>0 ? lineH:"unset",

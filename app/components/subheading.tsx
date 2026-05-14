@@ -79,7 +79,7 @@ function SubHeading(props: SubHeadingProps) {
         letterSpacing: letter > 0 ? `${letter}px` : "normal",
         textShadow: activeShadow ? textShadow : "unset",
         fontFamily: fontFamily,
-        
+        position:"relative",
         // 1. Cambiamos textAlign por justifyContent para el contenedor flex
         justifyContent: alignment === "center" ? "center" : alignment === "right" ? "flex-end" : "flex-start",
         
