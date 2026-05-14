@@ -47,11 +47,11 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
         ScrollTrigger.create({
           trigger: el,
           start,
-          end:"top top",
+          end:"top bottom",
           toggleActions: "play none none none",
           invalidateOnRefresh: true,
           markers: markers
-            ? { startColor: color, endColor: "purple", fontSize: "18px", fontWeight: "bold", indent: 20 }
+            ? { startColor: color, endColor: color, fontSize: "18px", fontWeight: "bold", indent: 20 }
             : false,
         });
 
