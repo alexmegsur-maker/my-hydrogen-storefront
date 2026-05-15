@@ -131,7 +131,7 @@ export function Footer() {
                   {shopName}
                 </div>
               )}
-              {bio ? <div dangerouslySetInnerHTML={{ __html: bio }} /> : null}
+              {bio ? <div id="footer-bio" dangerouslySetInnerHTML={{ __html: bio }} /> : null}
               <div className="flex gap-4">
                 {SOCIAL_ACCOUNTS.map(({ to, name, Icon }) => (
                   <Link
@@ -216,7 +216,7 @@ export function Footer() {
               <CountrySelector />
             </div>
           }
-          <p dangerouslySetInnerHTML={{__html:copyright}}/>
+          <p id="copyright-text" dangerouslySetInnerHTML={{__html:copyright}}/>
 
           <div className=" flex gap-2">
             <Link to={legal} className={`hover:text-white`}>Aviso Legal</Link>

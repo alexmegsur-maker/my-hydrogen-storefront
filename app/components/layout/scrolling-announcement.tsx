@@ -46,6 +46,7 @@ export function ScrollingAnnouncement() {
             }}
           >
             <div
+              id="announcement-text"
               className="flex items-center gap-(--gap) whitespace-nowrap [&_p]:flex [&_p]:items-center [&_p]:gap-2"
               dangerouslySetInnerHTML={{ __html: topbarText }}
             />
