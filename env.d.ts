@@ -26,6 +26,8 @@ declare global {
     JUDGEME_SHOP_DOMAIN:string;
     JUDGEME_PUBLIC_TOKEN:string;
     JUDGEME_CDN_HOST:string;
+    NFC_MASTER_KEY:string;
+    ADMIN_ALERT_EMAIL:string;
   }
 }
 

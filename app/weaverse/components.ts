@@ -140,7 +140,6 @@ import * as FaqItem from "~/sections/faq-section/item"
 import * as SelectorVariantSecret from "~/sections/main-product-j/variant-selector-secret"
 import * as filterOptionSize from "~/sections/main-product-j/filter-option-size"
 import * as filterOptionMaterial from "~/sections/main-product-j/filter-option-material"
-import * as PhoenixValidation from "~/sections/phoenix-validation"
 import * as SimpleTable from "~/sections/table-simple"
 import * as SimpleTableRow from "~/sections/table-simple/tr"
 import * as SimpleTableCeil from "~/sections/table-simple/td"
@@ -153,7 +152,7 @@ import * as RecentActivity from "~/components/recentactivity"
 import * as CommunityReviews from "~/sections/comunityReviews"
 import * as VariantByProducts from "~/sections/main-product-j/variant-by-product"
 import * as VariantProd from "~/sections/main-product-j/product-var"
-
+import * as PhoenixAtuh from "~/sections/phoenixAuth"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -302,7 +301,6 @@ export const components: HydrogenComponent[] = [
   SelectorVariantSecret,
   filterOptionSize,
   filterOptionMaterial,
-  PhoenixValidation,
   SimpleTable,
   SimpleTableRow,
   SimpleTableCeil,
@@ -315,4 +313,5 @@ export const components: HydrogenComponent[] = [
   CommunityReviews,
   VariantByProducts,
   VariantProd,
+  PhoenixAtuh,
 ];

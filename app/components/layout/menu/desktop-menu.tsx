@@ -44,7 +44,7 @@ export function DesktopMenu( props:DesktopMenuProps) {
     
     return (
       <NavigationMenu.Root value={value} onValueChange={setValue}>
-        <NavigationMenu.List className="hidden h-full grow justify-center lg:flex"
+        <NavigationMenu.List className="hidden h-full grow justify-center lg:flex "
           style={{
             gap:partial ? "4rem":"unset"
           }}
