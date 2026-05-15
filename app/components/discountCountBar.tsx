@@ -105,7 +105,7 @@ function DiscountCountBar(props:DiscountCountBarProps){
     setDiscountInfo({
       total:total,
       utilizado:utilizado,
-      porcentaje:(utilizado/total)*100
+      porcentaje:Math.ceil((utilizado/total)*100)
     })
   },[result])
  return (
