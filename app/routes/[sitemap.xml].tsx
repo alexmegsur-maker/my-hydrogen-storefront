@@ -64,7 +64,7 @@ async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
     console.error("Storefront context not found in sitemap loader");
     return urls;
   }
-
+ 
   try {
     // Ejecutamos la consulta GraphQL pidiendo los primeros 250 productos y colecciones [cite: 226, 228]
     const data: any = await context.storefront.query(`#graphql
