@@ -25,11 +25,6 @@ export default async function handleRequest(
     },
   });
 
-  const url = new URL(request.url);
-  if(url.pathname ==="/sitemap.xml"){
-    return Response.redirect(new URL("/sitemap-custom.xml",url.origin),301);
-  }
-
   const body = await renderToReadableStream(
     <NonceProvider>
       <ServerRouter
