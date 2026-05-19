@@ -123,3 +123,37 @@ export function renderRichText(jsonString: string | undefined): string {
     return jsonString || ""; 
   }
 }
+
+export function updateImageCanva(ctx,canvasWidth,canvasHeight,list,frame = 0) {
+ if(list.length!=frame){
+   ctx.drawImage(list[frame],0,0,canvasWidth,canvasHeight)
+ }
+} 
+export function  preloadImgs(route,name,size,extension="jpg"){
+  let list=[]
+
+  for(let i = 0;i<size; i++){
+    let img = new Image()
+    let number = i.toString().padStart(2,'0')
+    img.src= `${route}/${name}${number}.${extension}`
+    list.push(img)
+  }
+  
+  return list
+}
+
+export function calcularAnchoEscalado(img) {
+  return new Promise((resolve) => {
+    const calcular = () => {
+      let porcentaje = (100 * window.innerHeight) / img.naturalHeight;
+      let newWidth = (img.naturalWidth * porcentaje) / 100;
+      resolve(Math.round(newWidth));
+    };
+
+    if (img.complete && img.naturalHeight !== 0) {
+      calcular();
+    } else {
+      img.onload = calcular;
+    }
+  });
+}
