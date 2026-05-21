@@ -21,7 +21,7 @@ export default async function handleRequest(
     shop: {
       checkoutDomain:
         context.env?.PUBLIC_CHECKOUT_DOMAIN || "phoenixchairs.eu",
-      storeDomain: context.env?.PUBLIC_STORE_DOMAIN,
+      storeDomain: "phoenixchairs.eu",
     },
   });
 
