@@ -35,6 +35,7 @@ import { GlobalStyle } from "./weaverse/style";
 import { useJudgeme } from '@judgeme/shopify-hydrogen';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import gsap from "gsap";
+import { GoogleTagManager } from "./components/google-tag-manager";
 
 export type RootLoader = typeof loader;
 
@@ -185,7 +186,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             {/* CONECTOR NATIVO: Envía de forma automática la navegación e interacciones SPA a la Web Pixels API de Shopify */}
             {/* <Analytics.Connector nonce={nonce} /> */}
-        
+            <GoogleTagManager/>
             <TooltipProvider disableHoverableContent>
               <div
                 className="flex min-h-screen flex-col"
