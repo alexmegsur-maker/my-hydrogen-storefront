@@ -20,7 +20,7 @@ export default async function handleRequest(
     ...getWeaverseCsp(request, context),
     shop: {
       checkoutDomain:
-        context.env?.PUBLIC_CHECKOUT_DOMAIN || context.env?.PUBLIC_STORE_DOMAIN,
+        context.env?.PUBLIC_CHECKOUT_DOMAIN || "phoenixchairs.eu",
       storeDomain: context.env?.PUBLIC_STORE_DOMAIN,
     },
   });
