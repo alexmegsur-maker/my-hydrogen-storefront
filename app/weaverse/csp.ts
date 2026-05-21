@@ -5,7 +5,6 @@ export function getWeaverseCsp(
   context: HydrogenRouterContextProvider,
 ) {
   const url = new URL(request.url);
-  // Get weaverse host from query params
   const weaverseHost =
     url.searchParams.get("weaverseHost") || context.env.WEAVERSE_HOST;
   const isDesignMode = url.searchParams.get("weaverseHost");
@@ -13,9 +12,8 @@ export function getWeaverseCsp(
   if (weaverseHost) {
     weaverseHosts.push(weaverseHost);
   }
-  const updatedCsp: {
-    [x: string]: string[] | string | boolean;
-  } = {
+
+  const updatedCsp: { [x: string]: string[] | string | boolean } = {
     defaultSrc: [
       "data:",
       "*.youtube.com",
@@ -27,11 +25,71 @@ export function getWeaverseCsp(
       "cdn.alireviews.io",
       "cdn.jsdelivr.net",
       "*.alicdn.com",
+      "*.judge.me",
+      "cdnwidget.judge.me",
       ...weaverseHosts,
     ],
-    connectSrc: ["vimeo.com", "*.google-analytics.com", ...weaverseHosts],
-    styleSrc: weaverseHosts,
-    frameAncestors:isDesignMode ? ["*"]:["'self'","*.shopify.com","*.myshopify.com"]
+    scriptSrc: [
+      "'self'",
+      "https://cdn.shopify.com",
+      "*.googletagmanager.com",
+      "*.google-analytics.com",
+      "*.google.com",
+      "*.judge.me",
+      "cdnwidget.judge.me",
+      "*.weaverse.io",
+      ...weaverseHosts,
+      "'unsafe-eval'",
+      "'unsafe-hashes'",
+      "'unsafe-inline'",
+      "'sha256-Xv4DFZPbKwth/SyTUfU6tI8sQc1IYZCE8UHPTUKPhYw='",
+      "'sha256-wT4ini02jKYQW3youIvCKsg9ACax0pk1uKpAaIy00Yc='",
+      "'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='",
+    ],
+    styleSrc: [
+      ...weaverseHosts,
+      "https://studio.weaverse.io",
+      "'self'",
+      "'unsafe-inline'",
+      "https://cdn.shopify.com",
+      "http://localhost:*",
+      "https://fonts.googleapis.com",
+      "*.judge.me",
+      "cdnwidget.judge.me",
+    ],
+    fontSrc: [
+      "'self'",
+      "data:",
+      "https://fonts.gstatic.com",
+      "https://fonts.googleapis.com",
+    ],
+    connectSrc: [
+      "vimeo.com",
+      "*.google-analytics.com",
+      "*.analytics.google.com",
+      "*.googletagmanager.com",
+      "www.google.com",
+      "'self'",
+      "https://monorail-edge.shopifysvc.com",
+      "*.judge.me",
+      "cdnwidget.judge.me",
+      "ws://localhost:*",
+      "ws://127.0.0.1:*",
+      "ws://*.tryhydrogen.dev:*",
+      ...weaverseHosts,
+    ],
+    frameSrc: [
+      "*.googletagmanager.com",
+      "*.google.com",
+      "*.youtube.com",
+      "*.youtu.be",
+      "*.vimeo.com",
+      "*.weaverse.io"
+    ],
+    frameAncestors: isDesignMode
+      ? ["*"]
+      : ["'self'", "*.shopify.com", "*.myshopify.com"],
   };
+
   return updatedCsp;
 }

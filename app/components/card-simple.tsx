@@ -152,6 +152,7 @@ export default function CardSimple(
           data={image}
           className="h-full object-cover rounded-(--radius)"
           aspectRatio={calculateAspectRatio(image, imageAspectRatio)}
+          sizes="auto"
         />
       </div>
       <div

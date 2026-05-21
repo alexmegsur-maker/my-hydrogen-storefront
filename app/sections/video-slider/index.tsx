@@ -107,7 +107,7 @@ function VideoSlider(props:VideoSliderProps) {
                     <video className="object-cover w-full h-full hidden lg:block" preload="none" autoPlay muted loop poster={element.poster?.url}>
                       <source src={element.video.url} type="video/mp4"/>
                     </video>
-                    <Image src={element.imagen.url} width="" height="" className="object-cover w-full h-full block lg:hidden" />
+                    <Image src={element.imagen.url} width="" height="" sizes="auto" className="object-cover w-full h-full block lg:hidden" />
                   </div>
                 </div>
               </SwiperSlide>    

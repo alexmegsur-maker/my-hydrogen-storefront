@@ -38,6 +38,7 @@ function imagesSlide(props:imagesSlideProps){
           style={{
             borderRadius:radius1
           }} 
+          sizes="auto"
           />         
         <Image 
           loading="lazy" 
@@ -49,6 +50,7 @@ function imagesSlide(props:imagesSlideProps){
           style={{
             borderRadius:radius1
           }} 
+          sizes="auto"
           />
       </div>
       <div className="w-[50%] lg:w-[70%] flex-1">
@@ -62,6 +64,7 @@ function imagesSlide(props:imagesSlideProps){
           style={{
             borderRadius:radius2
           }} 
+          sizes="auto"
           />
         <Image
           loading="lazy" 
@@ -73,6 +76,7 @@ function imagesSlide(props:imagesSlideProps){
           style={{
             borderRadius:radius2
           }} 
+          sizes="auto"
           />
       </div>
     </div>

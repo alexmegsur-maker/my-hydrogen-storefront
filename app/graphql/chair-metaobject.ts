@@ -9,6 +9,21 @@ export const CHAIR_METAOBJECT_QUERY = `#graphql
           ... on MediaImage {
             image {
               url
+              altText
+              width
+              height
+            }
+          }
+        }
+        references(first: 50) {
+          nodes {
+            ... on MediaImage {
+              image {
+                url
+                altText
+                width
+                height
+              }
             }
           }
         }

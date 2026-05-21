@@ -9,7 +9,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 
-gsap.registerPlugin(ScrollTrigger)
 
 interface ColumnsWithImagesItemsProps extends HydrogenComponentProps {
   gap: number;
@@ -39,6 +38,8 @@ function ColumnsWithImagesItems(props: ColumnsWithImagesItemsProps) {
 
   useGSAP(
     () => {
+gsap.registerPlugin(ScrollTrigger)
+
       // Selecciona los hijos directos del contenedor
       const items = gsap.utils.toArray<HTMLElement>(
         ":scope > *",

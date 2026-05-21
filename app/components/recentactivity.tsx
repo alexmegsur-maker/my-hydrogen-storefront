@@ -580,7 +580,7 @@ function SkeletonList({ count }: { count: number }) {
 export const schema: HydrogenComponentSchema = {
   type: "recent-activity",
   title: "Recent Activity – Live Feed",
-  inspector: [
+  settings: [
     {
       group: "Judge.me",
       inputs: [

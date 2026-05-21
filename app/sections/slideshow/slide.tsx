@@ -70,6 +70,10 @@ export interface SlideProps
   backgroundColor: string;
   namebar:string;
   contWidth:number;
+  paddingSelect?:string;
+  multipleDevice?:string,
+  marginSelect?:string;
+  showSmoke?:boolean;
 }
 
 export default function Slide(props: SlideProps) {
@@ -79,7 +83,9 @@ export default function Slide(props: SlideProps) {
     contentPosition,
     width,
     gap,
+    namebar,
     verticalPadding,
+    paddingSelect,
     backgroundColor,
     backgroundImage,
     enableOverlay,
@@ -89,6 +95,9 @@ export default function Slide(props: SlideProps) {
     backgroundFit,
     backgroundPosition,
     children,
+    multipleDevice,
+    marginSelect,
+    showSmoke,
     ...rest
   } = props;
 

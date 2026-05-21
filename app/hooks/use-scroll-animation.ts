@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, type RefObject } from "react";
 
+
 export type AnimationType = "none" | "fade" | "typer" | "spaceNeonPulse" | "neonPulse" | "breathe" | "writeChar" | "underline";
 
 export interface ScrollAnimationOptions {
@@ -36,15 +37,16 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
   const elementRef = useRef<T>(null);
   const textInnerRef = useRef<HTMLSpanElement>(null);
   const cursorRef = useRef<HTMLSpanElement>(null);
+ 
 
   useGSAP(
     () => {
       const el = elementRef.current;
       if (!el) return;
 
-      // 🔑 Cada animación crea su propio ST independiente
-      const createST = () =>
-        ScrollTrigger.create({
+      gsap.registerPlugin(ScrollTrigger)
+      
+      const stConfig = () =>({
           trigger: el,
           start,
           end:"top bottom",
@@ -56,7 +58,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
         });
 
       if (animation === "fade") {
-        const st = createST();
+        const st = stConfig();
         gsap.from(el, {
           scrollTrigger: st,
           y: "100%",
@@ -68,8 +70,8 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       }
 
       if (animation === "underline") {
-        const st1 = createST();
-        const st2 = createST();
+        const st1 = stConfig();
+        const st2 = stConfig();
 
         gsap.from(el, {
           scrollTrigger: st1,
@@ -90,7 +92,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       }
 
       if (animation === "neonPulse") {
-        const st = createST();
+        const st = stConfig();
         const tl = gsap.timeline({
           scrollTrigger: st,
           onComplete: () => {
@@ -113,7 +115,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       }
 
       if (animation === "spaceNeonPulse") {
-        const st = createST();
+        const st = stConfig();
         const tl = gsap.timeline({
           scrollTrigger: st,
           onComplete: () => {
@@ -138,7 +140,7 @@ export function useScrollAnimation<T extends HTMLElement = HTMLElement>(
       }
 
       if (animation === "typer") {
-        const st = createST(); // ST propio para typer
+        const st = stConfig(); // ST propio para typer
         gsap.fromTo(
           textInnerRef.current,
           { width: 0 },

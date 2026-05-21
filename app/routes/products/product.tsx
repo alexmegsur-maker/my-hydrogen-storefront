@@ -15,7 +15,6 @@ import {
   redirectIfHandleIsLocalized,
 } from "~/.server/redirect";
 import { seoPayload } from "~/.server/seo";
-import { PRODUCT_QUERY } from "~/graphql/queries";
 import { routeHeaders } from "~/utils/cache";
 import {
   COMBINED_LISTINGS_CONFIGS,
@@ -23,6 +22,7 @@ import {
 } from "~/utils/combined-listings";
 import { WeaverseContent } from "~/weaverse";
 import { getRecommendedProducts } from "./recommended-product";
+import { PRODUCT_QUERY } from "~/graphql/queries";
 
 export const headers = routeHeaders;
 
@@ -33,8 +33,10 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
 
   const { storefront, weaverse } = context;
   const selectedOptions = getSelectedProductOptions(request);
+  
+  // Extendemos la consulta nativa mediante un fragmento o solicitando directamente los metafields de Judge.me
   const [{ shop, product }, weaverseData] = await Promise.all([
-    storefront.query<ProductQuery>(PRODUCT_QUERY, {
+    storefront.query<any>(PRODUCT_QUERY, {
       variables: {
         handle,
         selectedOptions,
@@ -43,7 +45,6 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
       },
     }),
     weaverse.loadPage({ type: "PRODUCT", handle }),
-    // Add other queries here, so that they are loaded in parallel
   ]);
 
   if (!product?.id) {
@@ -55,8 +56,11 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     redirectIfCombinedListing(request, product);
   }
 
-  // Use Hydrogen/Remix streaming for recommended products
   const recommended = getRecommendedProducts(storefront, product.id);
+
+  // Extraer datos de reseñas guardados por Judge.me en los metafields de Shopify
+  const reviewsRating = product.metafields?.find((m: any) => m?.key === "reviews_average")?.value || "5.0";
+  const reviewsCount = product.metafields?.find((m: any) => m?.key === "reviews_count")?.value || "0";
 
   return {
     shop,
@@ -66,7 +70,11 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     seo: seoPayload.product({ product, url: request.url }),
     recommended,
     selectedOptions,
-    language:storefront.i18n.language
+    language: storefront.i18n.language,
+    reviews: {
+      rating: parseFloat(reviewsRating),
+      count: parseInt(reviewsCount, 10),
+    }
   };
 }
 
@@ -77,30 +85,23 @@ export const meta = ({ matches }: MetaArgs<typeof loader>) => {
 };
 
 export default function Product() {
-  const { product } = useLoaderData<typeof loader>();
+  const { product, reviews } = useLoaderData<typeof loader>();
   const combinedListing = isCombinedListing(product);
 
-  // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
     getAdjacentAndFirstAvailableVariants(product),
   );
 
-  // Sets the search param to the selected variant without navigation
-  // when no search params are set or when variant options don't match
   useEffect(() => {
-    if (!selectedVariant?.selectedOptions || combinedListing) {
-      return;
-    }
+    if (!selectedVariant?.selectedOptions || combinedListing) return;
 
     const currentParams = new URLSearchParams(window.location.search);
     let needsUpdate = false;
 
-    // If no search params exist, we need to add them
     if (window.location.search === "") {
       needsUpdate = true;
     } else {
-      // Check if any of the selected variant options differ from current params
       for (const option of selectedVariant.selectedOptions) {
         const currentValue = currentParams.get(option.name);
         if (currentValue !== option.value) {
@@ -111,28 +112,57 @@ export default function Product() {
     }
 
     if (needsUpdate) {
-      // Preserve existing non-variant-related params
       const updatedParams = new URLSearchParams(currentParams);
-
-      // Update or add variant option params
       for (const option of selectedVariant.selectedOptions) {
         updatedParams.set(option.name, option.value);
       }
-
       const newSearch = updatedParams.toString();
       if (newSearch !== window.location.search.slice(1)) {
-        window.history.replaceState(
-          {},
-          "",
-          `${location.pathname}?${newSearch}`,
-        );
+        window.history.replaceState({}, "", `${location.pathname}?${newSearch}`);
       }
     }
   }, [selectedVariant?.selectedOptions, combinedListing]);
 
+  // Construcción del objeto JSON-LD enriquecido para Googlebot
+  const jsonLdSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.title,
+    "image": selectedVariant?.image?.url || product.featuredImage?.url,
+    "description": product.description,
+    "sku": selectedVariant?.sku || product.id,
+    "brand": {
+      "@type": "Brand",
+      "name": product.vendor,
+    },
+    ...(reviews.count > 0 && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": reviews.rating,
+        "reviewCount": reviews.count,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }),
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": selectedVariant?.price?.currencyCode || "EUR",
+      "price": selectedVariant?.price?.amount || "0",
+      "availability": selectedVariant?.availableForSale ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "url": window.location.href,
+    }
+  };
+
   return (
     <>
+      {/* Datos Estructurados inyectados nativamente en el HTML para Google SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
+      />
+
       <WeaverseContent />
+      
       {selectedVariant && (
         <Analytics.ProductView
           data={{

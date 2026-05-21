@@ -5,7 +5,7 @@ import type {
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type React from "react";
-import type { CSSProperties, HTMLAttributes } from "react";
+import { useEffect, useState, type CSSProperties, type HTMLAttributes } from "react";
 import { cn } from "~/utils/cn";
 import type { BackgroundImageProps } from "./background-image";
 import { backgroundInputs } from "./background-image";
@@ -20,6 +20,7 @@ import ForgeCanvas, { forgeSettings, smokeInputs, type ForgeCanvasProps } from "
 export type BackgroundProps = BackgroundImageProps & {
   backgroundFor: "section" | "content";
   backgroundColor: string;
+  backgroundGrayscale:number;
 };
 
 export interface SectionProps<T = any>
@@ -45,6 +46,7 @@ export interface SectionProps<T = any>
   marginSelect?:string;
   marginText?:string;
   showSmoke?:boolean;
+  
 }
 
 const variants = cva("relative", {
@@ -149,6 +151,7 @@ export function Section(props: SectionProps) {
     silhouetteOpacity,
     canvasOpacity,
     zIndex,
+    backgroundGrayscale,
 
     ...rest
   } = props;
@@ -182,11 +185,15 @@ export function Section(props: SectionProps) {
     canvasOpacity: canvasOpacity!,
     zIndex: zIndex!,
   };
+
+  const [mounted,setMounted]= useState(false)
+  useEffect(()=>setMounted(true),[])
+
   const isMobile = useIsMobile(600)
   const device=useDeviceSize()
   const isBgForContent = backgroundFor === "content";
   const hasBackground = backgroundColor || backgroundImage || borderRadius > 0;
-  const size =device=="mb" && pdngTextmb || device=="tb" && pdngTexttb || device =="lp" && pdngTextlp||device=="screen"&& pdngText 
+  const size =mounted?( device=="mb" && pdngTextmb || device=="tb" && pdngTexttb || device =="lp" && pdngTextlp||device=="screen"&& pdngText ):pdngText
 
   const estilo = verticalPadding != "custom" ? 
     style 
@@ -196,20 +203,22 @@ export function Section(props: SectionProps) {
       ...selectorPaddingMargin(
         "padding",
         paddingSelect,
-        multipleDevice ? size : isMobile?"5%":paddingText
+        multipleDevice ? size : mounted && isMobile?"5%":paddingText
         ),
       ...selectorPaddingMargin(
         "margin",
         marginSelect,
-        isMobile?"0":marginText
+        mounted && isMobile?"0":marginText
         )
     }
 
+  const Tag = mounted ? Component :"section"
   return (
-    <Component
+    <Tag
       ref={ref}
       {...rest}
       style={estilo}
+      suppressHydrationWarning
       className={cn(
         variants({ padding: width, overflow, className }),
         hasBackground &&
@@ -234,7 +243,7 @@ export function Section(props: SectionProps) {
         {isBgForContent && <OverlayAndBackground {...props} />}
         {children}
       </div>
-    </Component>
+    </Tag>
   );
 }
 

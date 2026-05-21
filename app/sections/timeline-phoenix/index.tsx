@@ -5,9 +5,6 @@ import { useEffect, useRef } from "react";
 import { Section, sectionSettings, type SectionProps } from "~/components/section";
 
 // Registrar el plugin de GSAP
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 interface TimeLinePhoenixProps extends SectionProps {
   showTborder: boolean;
@@ -24,6 +21,7 @@ export default function TimeLinePhoenix(props: TimeLinePhoenixProps) {
   const progressLineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
     if (!progressLineRef.current || !containerRef.current || !showLine) return;
 
     // Animación vinculada al scroll

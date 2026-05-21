@@ -4,7 +4,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
 import { useThemeSettings, withWeaverse } from "@weaverse/hydrogen";
-import { useEffect, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import type { LinksFunction, LoaderFunctionArgs, MetaArgs } from "react-router";
 import {
   isRouteErrorResponse,
@@ -21,7 +21,7 @@ import { loadCriticalData, loadDeferredData } from "./.server/root";
 import { Footer } from "./components/layout/footer";
 import { Header } from "./components/layout/header";
 import { ScrollingAnnouncement } from "./components/layout/scrolling-announcement";
-import { CustomAnalytics } from "./components/root/custom-analytics";
+// ELIMINADO: CustomAnalytics ya no se importa para evitar la duplicidad con la Web Pixels API
 import { GenericError } from "./components/root/generic-error";
 import { GlobalLoading } from "./components/root/global-loading";
 import {
@@ -32,7 +32,7 @@ import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
 import { DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
-import {useJudgeme} from '@judgeme/shopify-hydrogen'
+import { useJudgeme } from '@judgeme/shopify-hydrogen';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import gsap from "gsap";
 
@@ -53,11 +53,8 @@ export const links: LinksFunction = () => {
 };
 
 export async function loader(args: LoaderFunctionArgs) {
-  // Start fetching non-critical data without blocking time to first byte
-  const {context}= args
+  const { context } = args;
   const deferredData = loadDeferredData(args);
-
-  // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
   return {
@@ -105,23 +102,29 @@ export function ErrorBoundary({ error }: { error: Error }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const nonce = useNonce();
+  const nonce = useNonce(); 
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const { topbarHeight, topbarText } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
-  useJudgeme(data?.judgeme ?? { shopDomain: '', publicToken: '', cdnHost: '', delay: 500 })
+  const [isHydrated,setIsHydrated] = useState(false)
 
-  useEffect(()=>{
-    gsap.registerPlugin(ScrollTrigger)
-    ScrollTrigger.refresh(); // inmediato
-  
+  useJudgeme(data?.judgeme ?? { shopDomain: '', publicToken: '', cdnHost: '', delay: 500 });
+
+  useEffect(() => {
+    setIsHydrated(true)
+    if (typeof window !== "undefined") {
+      gsap.registerPlugin(ScrollTrigger);
+      ScrollTrigger.refresh();
+    }
     const timer = setTimeout(() => {
-      ScrollTrigger.refresh(); // después de que Weaverse termine de pintar
+      if (typeof window !== "undefined") {
+        ScrollTrigger.refresh();
+      }
     }, 800);
 
     return () => clearTimeout(timer);
-  },[])
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => ScrollTrigger.refresh(), 500);
@@ -135,7 +138,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     return children;
   }
 
-
   return (
     <html lang={locale.language}>
       <head> 
@@ -145,22 +147,44 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
         <GlobalStyle /> 
+         <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-5SSSMFKJ');`,
+            }}
+          />
       </head>
       <body
         style={
           {
-            opacity: 0,
+            opacity: "0" as any ,
             "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
           } as CSSProperties
         }
         className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"
       >
+
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-5SSSMFKJ"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         {data ? (
           <Analytics.Provider
             cart={data.cart}
             shop={data.shop}
             consent={data.consent}
+            
           >
+            {/* CONECTOR NATIVO: Envía de forma automática la navegación e interacciones SPA a la Web Pixels API de Shopify */}
+            {/* <Analytics.Connector nonce={nonce} /> */}
         
             <TooltipProvider disableHoverableContent>
               <div
@@ -179,9 +203,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </main>
                 <Footer />
               </div>
-              {shouldShowNewsletterPopup && <NewsletterPopup />}
+              {isHydrated && shouldShowNewsletterPopup && <NewsletterPopup />}
             </TooltipProvider>
-            <CustomAnalytics />
+            
+            {/* ELIMINADO: <CustomAnalytics /> quitado para evitar duplicar el dataLayer en el hilo principal */}
           </Analytics.Provider>
         ) : (
           children
@@ -189,7 +214,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <GlobalLoading />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
-
       </body>
     </html>
   );
