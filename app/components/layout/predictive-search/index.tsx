@@ -37,7 +37,7 @@ export function PredictiveSearchButton() {
       <Dialog.Portal>
         <Dialog.Overlay
           className={cn(
-            "fixed inset-0 z-10 bg-black/50",
+            "fixed inset-0 z-20 bg-black/50",
             "data-[state=open]:animate-[fade-in_150ms_ease-out]",
             "data-[state=closed]:animate-[fade-out_150ms_ease-in]",
           )}
@@ -45,7 +45,7 @@ export function PredictiveSearchButton() {
         <Dialog.Content
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={cn(
-            "fixed inset-x-0 top-0 z-10 bg-(--color-header-bg)",
+            "fixed inset-x-0 top-0 z-20 bg-(--color-header-bg)",
             "data-[state=open]:animate-[enter-from-top_200ms_ease-out]",
             "data-[state=closed]:animate-[exit-to-top_200ms_ease-in]",
             "focus-visible:outline-hidden",
@@ -129,7 +129,7 @@ function PredictiveSearchResults() {
     );
   }
   return (
-    <div className="-translate-x-1/2 absolute top-full left-1/2 z-10 flex w-fit items-center justify-center">
+    <div className="-translate-x-1/2 absolute top-full left-1/2 z-100 flex w-fit items-center justify-center">
       <div className="grid max-h-[80vh] w-screen min-w-[430px] max-w-[720px] grid-cols-1 gap-6 overflow-y-auto bg-(--color-header-bg) p-6 lg:grid-cols-[1fr_2fr]">
         <div className="space-y-8">
           <div className="flex flex-col gap-4 divide-y divide-line">

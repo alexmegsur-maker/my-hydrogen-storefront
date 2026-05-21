@@ -20,6 +20,18 @@ function root({
   shop: ShopFragment;
   url: Request["url"];
 }): SeoConfig {
+
+  let origin = 'https://phoenixchairs.eu';
+
+  try {
+    if(url){
+      const urlObj = typeof url === "string" ? new URL(url):url;
+      origin = urlObj.origin
+    }
+  }catch(e){
+    console.error("Mini-Oxygen SEO URL Warning:",e);
+  }
+
   return {
     title: shop?.name,
     titleTemplate: "%s | Phoenixchairs",
@@ -44,7 +56,7 @@ function root({
       url,
       potentialAction: {
         "@type": "SearchAction",
-        target: `${url}search?q={search_term}`,
+        target: `${origin}/search?q={search_term}`,
         query: "required name='search_term'",
       },
     },
