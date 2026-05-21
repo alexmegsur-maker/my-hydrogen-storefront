@@ -11,6 +11,7 @@ import type {loader as productRouteLoader } from "~/routes/products/product"
 import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
 import { translations } from "~/utils/translations";
+import { pushDoubleShot } from "~/utils/dataLayer";
 
 interface BuyButtonsProductJProps {
   showCart:boolean;
@@ -238,6 +239,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
   },[container.current])
 
   const buyProducts=()=>{
+    pushDoubleShot(currentProd,totalPrice)
     if(buyButton.current){
       const shopPayComponent = buyButton.current.querySelector("shop-pay-button ")
       if(shopPayComponent && shopPayComponent.shadowRoot){
