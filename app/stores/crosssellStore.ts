@@ -8,12 +8,13 @@ export const useCrossell = create<CrosssellStore>((set)=>({
       if(state.crossellObjects){
         if(state.crossellObjects.crossell.length>0 ){
           let parentCross= state.crossellObjects.crossell.find((elm)=>elm.id === newCrossell.id)
-          if(!parentCross){
-            return{
-              crossellObjects:{
-                ...state.crossellObjects,
-                crossell:[...state.crossellObjects.crossell,newCrossell]
-              }
+          if(parentCross){
+            return state
+          }
+          return{
+            crossellObjects:{
+              ...state.crossellObjects,
+              crossell:[...state.crossellObjects.crossell,newCrossell]
             }
           }
         }

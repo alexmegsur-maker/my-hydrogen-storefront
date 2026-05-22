@@ -153,6 +153,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
   const [comparePrice,setComparePrice]=useState(0)
   const [idsVariants,setIdsVariants]=useState<variantIdsAndQuantities[]>([])
   const [cartIdsVariants,setCartIdsVariants]=useState<CartLineInput[]>([])
+  const [cartIdsSeo,setCartIdsSeo]=useState([])
   const [hoverBuy,setHoverBuy]=useState(false);
   const [hoverAddCart,setHoverAddCart]=useState(false);
   const buyButton = useRef(null)
@@ -164,11 +165,17 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
       let newCompare=0
       const newIds:variantIdsAndQuantities[]=[]
       const newCartIds:CartLineInput[]=[]
+      const seoCartIds = []
   
       if(currentProd){
   
         let variant = currentProd.selectedVariant
         
+
+        const variantTitle = variant.selectedOptions
+          ?.map((o: any) => o.value)
+          .join(" / ") || "";
+
         newTotal += parseFloat(currentProd.selectedVariant.price.amount)
         if(variant.availableForSale && variant.quantityAvailable<=0){
           newIds.push({
@@ -181,6 +188,14 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
             quantity:1,
             attributes:[{key:"Tipo",value:"Reserva"}]
           })
+          seoCartIds.push({
+            item_id:currentProd.selectedVariant.id,
+            item_name:currentProd.title,
+            item_variant:variantTitle,
+            price:parseFloat(variant.price?.amount ?? "0"),
+            item_category: "Sillas Gaming Premium",
+            quantity: 1,
+          })
           
         }else{
           newIds.push({
@@ -191,10 +206,19 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
             merchandiseId:currentProd.selectedVariant.id,
             quantity:1
           })
+          seoCartIds.push({
+            item_id:currentProd.selectedVariant.id,
+            item_name:currentProd.title,
+            item_variant:variantTitle,
+            price:parseFloat(variant.price?.amount ?? "0"),
+            item_category: "Sillas Gaming Premium",
+            quantity: 1,
+          })
         }
       }
-  
+      
       if(crossell?.crossell){
+        console.log("crossell",crossell?.crossell)
         let filter = crossell.crossell.filter((elm)=>elm.selecteds.length != 0)
         filter.forEach((elm)=>{
           elm.selecteds.forEach((e)=>{
@@ -214,6 +238,14 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                 merchandiseId:findProd.variantId,
                 quantity:1
               })
+              seoCartIds.push({
+                item_id:findProd.variantId,
+                item_name:findProd.title,
+                item_variant:findProd.title,
+                price:parseFloat(findProd.price ?? "0"),
+                item_category: "Crossell",
+                quantity: 1,
+              })
             }
           })
         })
@@ -222,6 +254,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
       setComparePrice(newCompare)
       setIdsVariants(newIds)
       setCartIdsVariants(newCartIds)
+      setCartIdsSeo(seoCartIds)
     }, [crossell,currentProd]);
   
   useEffect(()=>{
@@ -237,9 +270,10 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
 
     }  
   },[container.current])
+  
 
   const buyProducts=()=>{
-    pushDoubleShot(currentProd,totalPrice)
+    pushDoubleShot(cartIdsSeo,totalPrice)
     if(buyButton.current){
       const shopPayComponent = buyButton.current.querySelector("shop-pay-button ")
       if(shopPayComponent && shopPayComponent.shadowRoot){

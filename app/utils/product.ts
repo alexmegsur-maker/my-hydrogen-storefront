@@ -16,14 +16,15 @@ export function hasOnlyDefaultVariant(
 
 export function checkPrice (price:string | undefined | null){
   if(!price) return "0";
-  
+
   if(price.includes(".")) {
     let split =price.split(".")
     if(split[1]=="0"){
-     return split[0] 
+     return split[0]
     }else{
       return price
     }
   }
 
+  return price
 }
