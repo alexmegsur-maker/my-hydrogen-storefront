@@ -94,6 +94,27 @@ export default function Product() {
   );
 
   useEffect(() => {
+    if (!selectedVariant) return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ ecommerce: null });
+    window.dataLayer.push({
+      event: 'view_item',
+      ecommerce: {
+        currency: selectedVariant.price?.currencyCode || 'EUR',
+        value: parseFloat(selectedVariant.price?.amount || '0'),
+        items: [{
+          item_id: selectedVariant.sku || selectedVariant.id,
+          item_name: product.title,
+          item_variant: selectedVariant.title,
+          item_brand: product.vendor,
+          price: parseFloat(selectedVariant.price?.amount || '0'),
+          quantity: 1,
+        }],
+      },
+    });
+  }, [selectedVariant?.id]);
+
+  useEffect(() => {
     if (!selectedVariant?.selectedOptions || combinedListing) return;
 
     const currentParams = new URLSearchParams(window.location.search);

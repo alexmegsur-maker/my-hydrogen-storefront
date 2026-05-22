@@ -24,26 +24,6 @@ export function GoogleTagManager() {
       });
     });
 
-    // Product view
-    subscribe('product_viewed', (data:any) => {
-      const price = parseFloat(data.products?.[0]?.price || '0');
-      window.dataLayer.push({
-        event: 'view_item',
-        ecommerce: {
-          currency: data.shop?.currency || 'EUR',
-          value: price,
-          items: data.products?.map((p: any) => ({
-            item_id: p.id,
-            item_name: p.title,
-            item_variant: p.variantTitle,
-            price: parseFloat(p.price || '0'),
-            item_brand: p.vendor,
-            quantity: p.quantity || 1,
-          })),
-        },
-      });
-    });
-
     // Add to cart
     subscribe('product_added_to_cart', (data) => {
       window.dataLayer.push({
