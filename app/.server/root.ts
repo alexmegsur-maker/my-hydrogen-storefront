@@ -126,10 +126,19 @@ async function getSwatchesConfigs(context: AppLoadContext) {
   if (!type) {
     return { colors: [], images: [] };
   }
-  const { metaobjects } = await context.storefront.query<SwatchesQuery>(
+  const result = await context.storefront.query<SwatchesQuery>(
     SWATCHES_QUERY,
     { variables: { type } },
-  );
+  ).catch((err)=>{
+    console.error("getSwatchesConfigs query failed:",err);
+    return null;
+  });
+
+  if(!result?.metaobjects?.nodes){
+    return {colors:[],images:[]}
+  }
+  const {metaobjects} = result;
+  
   const colors: Swatch[] = [];
   const images: Swatch[] = [];
   for (const { id, fields } of metaobjects.nodes) {

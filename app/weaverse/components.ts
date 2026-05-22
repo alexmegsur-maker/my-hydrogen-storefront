@@ -154,6 +154,8 @@ import * as VariantByProducts from "~/sections/main-product-j/variant-by-product
 import * as VariantProd from "~/sections/main-product-j/product-var"
 import * as PhoenixAtuh from "~/sections/phoenixAuth"
 import * as ChairSection from "~/sections/scrollanimation-section"
+import * as SliderVideoV2 from "~/sections/video-slider-v2"
+import * as SlideVideoV2 from "~/sections/video-slider-v2/slide"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -316,4 +318,6 @@ export const components: HydrogenComponent[] = [
   VariantProd,
   PhoenixAtuh,
   ChairSection,
+  SliderVideoV2,
+  SlideVideoV2,
 ];

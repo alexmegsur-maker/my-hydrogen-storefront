@@ -26,16 +26,19 @@ export function GoogleTagManager() {
 
     // Product view
     subscribe('product_viewed', (data:any) => {
+      const price = parseFloat(data.products?.[0]?.price || '0');
       window.dataLayer.push({
         event: 'view_item',
         ecommerce: {
-          currency: data.products?.[0]?.price?.currencyCode || 'EUR',
-          value: parseFloat(data.products?.[0]?.price?.amount  || '0'),
-          items: data.products?.map((p) => ({
+          currency: data.shop?.currency || 'EUR',
+          value: price,
+          items: data.products?.map((p: any) => ({
             item_id: p.id,
             item_name: p.title,
-            price: parseFloat(p.price?.amount || '0'),
+            item_variant: p.variantTitle,
+            price: parseFloat(p.price || '0'),
             item_brand: p.vendor,
+            quantity: p.quantity || 1,
           })),
         },
       });

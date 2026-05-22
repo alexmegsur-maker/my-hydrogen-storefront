@@ -5,12 +5,16 @@ export function pushDoubleShot(currentProd: any, totalPrice: number) {
   const variant = currentProd?.selectedVariant;
   if (!variant) return;
 
+  const variantTitle = variant.selectedOptions
+    ?.map((o: any) => o.value)
+    .join(" / ") || "";
+
   const itemData = {
     item_id: variant.sku || variant.id,
-    item_name: currentProd?.product?.title ?? "",
+    item_name: currentProd?.title ?? "",
+    item_variant: variantTitle,
     price: parseFloat(variant.price?.amount ?? "0"),
     item_category: "Sillas Gaming Premium",
-    variant: variant.title ?? "",
     quantity: 1,
   };
 
