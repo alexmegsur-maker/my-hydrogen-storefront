@@ -1,9 +1,10 @@
-import { createSchema, useThemeSettings, type HydrogenComponentProps } from "@weaverse/hydrogen"
+import { createSchema, useChildInstances, useThemeSettings, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import { useRef, useState } from "react";
 import type{ Swiper as SwiperType } from "swiper";
-import { Swiper } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
 import{Pagination,Navigation,Autoplay} from "swiper/modules"
 import { cva, type VariantProps } from "class-variance-authority";
+import VideoSliderBar from "~/components/video-slider-bar";
 
 const variants = cva("group [&_.swiper]:h-full", {
   variants: {
@@ -43,16 +44,33 @@ interface VideoSliderV2Props extends VariantProps<typeof variants>,HydrogenCompo
   showTimer:boolean;
   loop:boolean;
   time:number;
+  color:string;
+  bgColor:string;
+  progressColor:string;
+  bgProgressColor:string;
+  bColor:string;
+  borderColor:string;
+
+  fullWidth:boolean;
+  showDot:boolean;
+  colorSelected:string;
+  bgColorSelected:string;    
+  fontSize:string;
+
 }
 
 function VideoSliderV2( props:VideoSliderV2Props){
-  const{showBar,showLateral,showArrows,showBorder,showTimer,loop,time,height,children}=props
+  const{showBar,showLateral,showArrows,showBorder,showTimer,loop,time,height,children=[],
+    color,bgColor,progressColor,bgProgressColor,bColor,borderColor,fullWidth,showDot,
+    colorSelected,bgColorSelected,fontSize }=props
   
-  const [swiperRef,setSwiperRef] = useState(null);
+  const [swiperRef,setSwiperRef] = useState<SwiperType>(null);
   const [activeIndex,setActiveIndex] = useState(0)
   const [currentElm,setCurrentElm] = useState(0)
   const timeSwiper = time *1000
   const { enableTransparentHeader } = useThemeSettings();
+  const childInstances = useChildInstances()
+  const childrenInfo=childInstances.map((el)=>{return el.data})
 
   return(
     <section className={variants({height,enableTransparentHeader})}>
@@ -85,7 +103,33 @@ function VideoSliderV2( props:VideoSliderV2Props){
         }}
         modules={[Pagination,Navigation,Autoplay]}
         >
-          {children}
+          {children.map((child,idx)=>{
+            return(
+              <SwiperSlide key={idx}> 
+                {child}
+              </SwiperSlide>
+            )
+          })}
+          <VideoSliderBar
+            activeIndex={activeIndex}
+            sliderElements={childrenInfo}
+            swiperRef={swiperRef}
+            color={color}
+            bgColor={bgColor}
+            progressColor={progressColor}
+            bgProgressColor={bgProgressColor}
+            bColor={bColor}
+            borderColor={borderColor}
+            showDot={showDot}
+            colorSelected={colorSelected}
+            bgColorSelected={bgColorSelected}
+            showTimer={showTimer}
+            showArrows={showArrows}
+            fullWidth={fullWidth}
+            showBorder={showBorder}
+            fontSize={fontSize}
+            />
+
       </Swiper>
     </section>
   )
@@ -153,6 +197,12 @@ export const schema= createSchema({
       inputs:[
         {
           type:'switch',
+          label:'full page bar',
+          name:'fullWidth',
+          defaultValue:false,
+        },
+        {
+          type:'switch',
           label:'show Arrows',
           name:'showArrows',
           defaultValue:true,
@@ -169,6 +219,68 @@ export const schema= createSchema({
           name:'showTimer',
           defaultValue:true,
         },
+        {
+          type:'switch',
+          label:'show dot',
+          name:'showDot',
+          defaultValue:true,
+        },
+        
+        {
+          type: "color",
+          label: "color text",
+          name: "color",
+          defaultValue: "#FFFFFF",
+        },
+        {
+          type: "color",
+          label: "background color",
+          name: "bgColor",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "color text selected",
+          name: "colorSelected",
+          defaultValue: "#FFFFFF50",
+        },
+        {
+          type: "color",
+          label: "background color selected",
+          name: "bgColorSelected",
+          defaultValue: "#00000050",
+        },
+        {
+          type: "color",
+          label: "progress color",
+          name: "progressColor",
+          defaultValue: "#FFFFFF",
+        },
+        {
+          type: "color",
+          label: "background progress color",
+          name: "bgProgressColor",
+          defaultValue: "#00000060",
+        },
+        {
+          type: "color",
+          label: "arrow background color",
+          name: "bColor",
+          defaultValue: "#00000050",
+        },
+        {
+          type: "color",
+          label: "border color",
+          name: "borderColor",
+          defaultValue: "#FFFFFF",
+        },
+        {
+          type:'text',
+          label:'font size',
+          name:'fontSize',
+          defaultValue:'12px',
+        },
+
         
       ]
     }

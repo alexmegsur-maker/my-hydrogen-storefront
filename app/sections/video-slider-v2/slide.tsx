@@ -62,56 +62,53 @@ interface SlideProps extends VariantProps<typeof variants>,
     showMedia:"image"|"video"
     backgroundImage?: WeaverseImage | string;
     video:WeaverseVideo;
-    
+    poster:WeaverseImage;
+    loop:boolean;
   }
 
 
 function SlideVideoV2(props:SlideProps){
   const {contWidth,contentPosition,width,gap,verticalPadding,backgroundImage,
     backgroundFit,backgroundPosition,enableOverlay,overlayOpacity,overlayColor,
-    overlayColorHover,showMedia,video,children}=props
+    overlayColorHover,showMedia,video, poster ,children ,loop}=props
 
   const isMobile = useIsMobile(600)
   return (
-    <SwiperSlide
-      className="swiper-slide"
-    >
-      <div className="h-full w-full">
-        {showMedia=="image"?
-        <OverlayAndBackground
-          backgroundImage={backgroundImage}
-          backgroundFit={backgroundFit}
-          backgroundPosition={backgroundPosition}
-          enableOverlay={enableOverlay}
-          overlayOpacity={overlayOpacity}
-          overlayColor={overlayColor}
-          overlayColorHover={overlayColorHover}
-          />:
-          <div className="h-[75dvh] min-h-[700px] lg:h-[80dvh] lg:min-h-auto w-full transition-[transform] duration-500 ease-in-out ">
-            <div className="h-full w-full">
-              <video
-                className="object-cover w-full h-full hidden lg:block"
-                preload="none"
-                autoPlay
-                muted
-                loop
-                // poster={backgroundImage?.url}
-              >
-                <source src={video?.url} type="video/mp4" />
-              </video>
-            </div>
+    <div className="h-full w-full">
+      {showMedia=="image"?
+      <OverlayAndBackground
+        backgroundImage={backgroundImage}
+        backgroundFit={backgroundFit}
+        backgroundPosition={backgroundPosition}
+        enableOverlay={enableOverlay}
+        overlayOpacity={overlayOpacity}
+        overlayColor={overlayColor}
+        overlayColorHover={overlayColorHover}
+        />:
+        <div className="h-[75dvh] min-h-[700px] lg:h-[80dvh] absolute top-0 left-0 lg:min-h-auto w-full transition-[transform] duration-500 ease-in-out ">
+          <div className="h-full w-full">
+            <video
+              className="object-cover w-full h-full hidden lg:block"
+              preload="none"
+              autoPlay
+              muted
+              loop={loop}
+              poster={poster?.url}
+            >
+              <source src={video?.url} type="video/mp4" />
+            </video>
           </div>
-        }
-        <div
-          className={variants({contentPosition,width,gap,verticalPadding})}
-          style={{
-            width:!isMobile ? `${contWidth}%`:"100%"
-          }}
-          >
-          {children}
         </div>
+      }
+      <div
+        className={variants({contentPosition,width,gap,verticalPadding})}
+        style={{
+          width:!isMobile ? `${contWidth}%`:"100%"
+        }}
+        >
+        {children}
       </div>
-    </SwiperSlide>
+    </div>
   )
 }
 
@@ -179,6 +176,18 @@ export const schema = createSchema({
           label:'video',
           name:'video',
           condition:(data:SlideProps )=> data.showMedia =="video"
+        },
+        {
+          type:'image',
+          label:'video poster',
+          name:'poster',
+          condition:(data:SlideProps )=> data.showMedia =="video"
+        },
+        {
+          type:'switch',
+          label:'loop',
+          name:'loop',
+          defaultValue:true,
         },
         {
           type: "image",

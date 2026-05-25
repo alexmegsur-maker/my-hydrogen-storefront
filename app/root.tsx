@@ -36,6 +36,7 @@ import { useJudgeme } from '@judgeme/shopify-hydrogen';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import gsap from "gsap";
 import { GoogleTagManager } from "./components/google-tag-manager";
+import CookieConsentBanner from "./components/CookieConsent";
 
 export type RootLoader = typeof loader;
 
@@ -197,6 +198,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     Skip to content
                   </a>
                 </div>
+                <CookieConsentBanner/>
                 <ScrollingAnnouncement />
                 <Header />
                 <main id="mainContent" className="grow">
