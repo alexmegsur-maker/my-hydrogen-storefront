@@ -158,7 +158,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  // 2. Parsear el pedido
+  // 2. Parsear el pedido 
   let order: ShopifyOrder;
   try {
     order = JSON.parse(rawBody) as ShopifyOrder;
