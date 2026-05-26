@@ -18,7 +18,7 @@ export default hydrogenRoutes([
     route(
       ":shopid/orders/:token/authenticate",
       "routes/others/order-redirect.tsx",
-    ), 
+    ),  
     route("sitemap.xml", "routes/[sitemap.xml].tsx"),
     route("sitemap/:type/:page.xml", "routes/seo/sitemap-page.ts"),
     route("pages/:pageHandle", "routes/pages/regular-page.tsx"),
