@@ -41,6 +41,23 @@ export function GoogleTagManager() {
       });
     });
 
+    // Begin checkout — dispara justo antes de ir al checkout de Shopify
+    subscribe('cart_viewed', (data) => {
+      window.dataLayer.push({
+        event: 'view_cart',
+        ecommerce: {
+          currency: data.cart?.cost?.totalAmount?.currencyCode,
+          value: parseFloat(data.cart?.cost?.totalAmount?.amount || '0'),
+          items: data.cart?.lines?.nodes?.map((line: any) => ({
+            item_id: line.merchandise?.product?.id,
+            item_name: line.merchandise?.product?.title,
+            price: parseFloat(line.cost?.amountPerQuantity?.amount || '0'),
+            quantity: line.quantity,
+          })),
+        },
+      });
+    });
+    
     // Search
     subscribe('search_viewed', (data) => {
       window.dataLayer.push({

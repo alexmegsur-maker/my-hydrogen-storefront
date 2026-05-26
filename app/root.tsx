@@ -32,7 +32,7 @@ import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
 import { DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
-import { useJudgeme } from '@judgeme/shopify-hydrogen';
+import { useJudgeme } from "@judgeme/shopify-hydrogen";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import gsap from "gsap";
 import { GoogleTagManager } from "./components/google-tag-manager";
@@ -50,7 +50,11 @@ export const links: LinksFunction = () => {
       rel: "preconnect",
       href: "https://shop.app",
     },
-    { rel: "icon", type: "image/svg+xml", href: "https://cdn.shopify.com/s/files/1/0777/6370/7216/files/favicon.png?v=1694621278" },
+    {
+      rel: "icon",
+      type: "image/svg+xml",
+      href: "https://cdn.shopify.com/s/files/1/0777/6370/7216/files/favicon.png?v=1694621278",
+    },
   ];
 };
 
@@ -104,17 +108,24 @@ export function ErrorBoundary({ error }: { error: Error }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const nonce = useNonce(); 
+  const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const { topbarHeight, topbarText } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
-  const [isHydrated,setIsHydrated] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  useJudgeme(data?.judgeme ?? { shopDomain: '', publicToken: '', cdnHost: '', delay: 500 });
+  useJudgeme(
+    data?.judgeme ?? {
+      shopDomain: "",
+      publicToken: "",
+      cdnHost: "",
+      delay: 500,
+    },
+  );
 
   useEffect(() => {
-    setIsHydrated(true)
+    setIsHydrated(true);
     if (typeof window !== "undefined") {
       gsap.registerPlugin(ScrollTrigger);
       ScrollTrigger.refresh();
@@ -142,34 +153,55 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <html lang={locale.language}>
-      <head> 
+      <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
         <Meta />
         <Links />
-        <GlobalStyle /> 
-         <script
+        <GlobalStyle />
+        <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-5SSSMFKJ');`,
-            }}
-          />
+            __html: `
+      (function(w,d,s,l,i){
+        w[l]=w[l]||[];
+        w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),
+        dl=l!='dataLayer'?'&l='+l:'';
+        j.async=true;
+        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-5SSSMFKJ');
+
+      // Cross-domain linker: pasa la sesión al checkout de Shopify
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){window.dataLayer.push(arguments);}
+      gtag('config', 'G-K4JK3MMR6W', {
+        linker: {
+          domains: [
+            'phoenixchairs.eu',
+            'checkout.shopify.com',
+            'ef3391-3.myshopify.com'
+          ],
+          accept_incoming: true,
+          decorate_forms: true,
+        }
+      });
+    `,
+          }}
+        />
       </head>
       <body
         style={
           {
-            opacity: "0" as any ,
+            opacity: "0" as any,
             "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
           } as CSSProperties
         }
         className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"
       >
-
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-5SSSMFKJ"
@@ -183,11 +215,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
             cart={data.cart}
             shop={data.shop}
             consent={data.consent}
-            
           >
             {/* CONECTOR NATIVO: Envía de forma automática la navegación e interacciones SPA a la Web Pixels API de Shopify */}
             {/* <Analytics.Connector nonce={nonce} /> */}
-            <GoogleTagManager/>
+            <GoogleTagManager />
             <TooltipProvider disableHoverableContent>
               <div
                 className="flex min-h-screen flex-col"
@@ -198,7 +229,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     Skip to content
                   </a>
                 </div>
-                <CookieConsentBanner/>
+                <CookieConsentBanner />
                 <ScrollingAnnouncement />
                 <Header />
                 <main id="mainContent" className="grow">
@@ -208,7 +239,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
               {isHydrated && shouldShowNewsletterPopup && <NewsletterPopup />}
             </TooltipProvider>
-            
+
             {/* ELIMINADO: <CustomAnalytics /> quitado para evitar duplicar el dataLayer en el hilo principal */}
           </Analytics.Provider>
         ) : (
