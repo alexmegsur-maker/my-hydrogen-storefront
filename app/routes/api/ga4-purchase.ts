@@ -8,11 +8,9 @@
 import { type ActionFunctionArgs } from "@shopify/remix-oxygen";
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
-
 const GA4_MEASUREMENT_ID = "G-K4JK3MMR6W";
-const GA4_API_SECRET = process.env.GA4_MEASUREMENT_PROTOCOL_SECRET!;
-// const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET!;
-
+const GA4_API_SECRET = "ScR1NxE_Q1KvYSfAlXhX3Q";
+const SHOPIFY_WEBHOOK_SECRET = "9b68368bae5a0f35beab461ceada5e619962fb9b01359b46ea49490480f98caf";
 // ─── Tipos mínimos del payload de Shopify orders/paid ────────────────────────
 
 interface ShopifyLineItem {
@@ -51,7 +49,7 @@ async function verifyShopifyWebhook(
   request: Request,
   rawBody: string
 ): Promise<boolean> {
-  const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
+  // const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET;
   if (!SHOPIFY_WEBHOOK_SECRET) {
     console.warn("[ga4-purchase] SHOPIFY_WEBHOOK_SECRET no configurado — omitiendo verificación");
     return true;
