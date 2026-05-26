@@ -146,7 +146,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   // 3. Mandar el evento a GA4
-  try {
+  try { 
     await sendPurchaseToGA4(order);
   } catch (err) {
     console.error("[ga4-purchase] Error enviando a GA4:", err);
