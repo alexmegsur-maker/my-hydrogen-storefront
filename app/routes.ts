@@ -43,6 +43,7 @@ export default hydrogenRoutes([
       route("product/:productHandle/reviews?", "routes/api/product.ts"),
       route("reviews", "routes/api/reviews.ts"),
       route("nfc-auth", "routes/api/nfc-auth.ts"),
+      route("ga4-purchase", "routes/api/ga4-purchase.ts"),
     ]),
     ...prefix("blogs", [
       route(":blogHandle", "routes/blogs/blog.tsx"),
