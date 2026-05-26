@@ -6,7 +6,6 @@
 // Así el sandbox del pixel nunca es un problema.
 
 import { type ActionFunctionArgs } from "@shopify/remix-oxygen";
-import crypto from "node:crypto";
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -54,18 +53,40 @@ async function verifyShopifyWebhook(
 ): Promise<boolean> {
   if (!SHOPIFY_WEBHOOK_SECRET) {
     console.warn("[ga4-purchase] SHOPIFY_WEBHOOK_SECRET no configurado — omitiendo verificación");
-    return true; // En desarrollo puedes dejarlo así; en producción ponlo siempre
+    return true;
   }
 
   const hmacHeader = request.headers.get("x-shopify-hmac-sha256");
   if (!hmacHeader) return false;
 
-  const hmac = crypto
-    .createHmac("sha256", SHOPIFY_WEBHOOK_SECRET)
-    .update(rawBody, "utf8")
-    .digest("base64");
+  // Web Crypto API — compatible con Cloudflare Workers y Oxygen
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(SHOPIFY_WEBHOOK_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
 
-  return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(hmacHeader));
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(rawBody)
+  );
+
+  // Convertir a base64
+  const computedHmac = btoa(
+    String.fromCharCode(...new Uint8Array(signature))
+  );
+
+  // Comparación segura carácter a carácter
+  if (computedHmac.length !== hmacHeader.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < computedHmac.length; i++) {
+    mismatch |= computedHmac.charCodeAt(i) ^ hmacHeader.charCodeAt(i);
+  }
+  return mismatch === 0;
 }
 
 // ─── Envío a GA4 via Measurement Protocol ────────────────────────────────────
@@ -140,13 +161,13 @@ export async function action({ request }: ActionFunctionArgs) {
   // 2. Parsear el pedido
   let order: ShopifyOrder;
   try {
-    order = JSON.parse(rawBody);
+    order = JSON.parse(rawBody) as ShopifyOrder;
   } catch {
     return new Response("Bad Request: invalid JSON", { status: 400 });
   }
 
   // 3. Mandar el evento a GA4
-  try { 
+  try {
     await sendPurchaseToGA4(order);
   } catch (err) {
     console.error("[ga4-purchase] Error enviando a GA4:", err);
