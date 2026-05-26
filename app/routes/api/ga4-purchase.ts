@@ -145,6 +145,11 @@ async function sendPurchaseToGA4(order: ShopifyOrder): Promise<void> {
 // Si alguien hace GET a esta ruta (ej: en desarrollo) devolvemos 405.
 
 export async function action({ request }: ActionFunctionArgs) {
+  console.log("[ga4-purchase] ENV CHECK:", {
+    hasWebhookSecret: !!process.env.SHOPIFY_WEBHOOK_SECRET,
+    hasGA4Secret: !!process.env.GA4_MEASUREMENT_PROTOCOL_SECRET,
+    keys: Object.keys(process.env).filter(k => k.includes('SHOPIFY') || k.includes('GA4')),
+  });
   if (request.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
   }
