@@ -94,7 +94,8 @@ export function getWeaverseCsp(
       "*.youtube.com",
       "*.youtu.be",
       "*.vimeo.com",
-      "*.weaverse.io"
+      "*.weaverse.io",
+      "https://www.facebook.com",
     ],
     frameAncestors: isDesignMode
       ? ["*"]
@@ -110,7 +111,7 @@ export function getWeaverseCsp(
       "https://cdn.shopify.com",
       "https://studio.weaverse.io",
       "*.myshopify.com",
-      // "https://images.secretlab.co",
+      "https://images.secretlab.co",
     ]
   };
 
