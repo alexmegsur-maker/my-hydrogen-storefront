@@ -28,6 +28,8 @@ declare global {
     JUDGEME_CDN_HOST:string;
     NFC_MASTER_KEY:string;
     ADMIN_ALERT_EMAIL:string;
+    SHOPIFY_API_VERSION:string;
+    SHOPIFY_ADMIN_API_ACCESS_TOKEN:string;
   }
 }
 

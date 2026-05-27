@@ -2,6 +2,22 @@ import { type ActionFunctionArgs, data } from "@shopify/remix-oxygen";
 
 // ─── Mutación: crear metaobject de garantía ───────────────────────────────────
 
+const CREATE_METAOBJECT_LIVE_SYSTEM = `
+  mutation CreateLiveSystem($input: MetaobjectCreateInput!) {
+    metaobjectCreate(metaobject: $input) {
+      metaobject {
+        id
+        handle
+      }
+      userErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
 const CREATE_METAOBJECT_GARANTIA = `
   mutation CreateMetaobject($input: MetaobjectCreateInput!) {
     metaobjectCreate(metaobject: $input) {
@@ -96,6 +112,44 @@ async function shopifyAdmin(
   return res.json() as Promise<{ data?: any; errors?: { message: string }[] }>;
 }
 
+// ─── Helper: crear metaobject live_system (reemplaza el Flow de Shopify) ──────
+
+async function createLiveSystemMetaobject(
+  customerId: string,
+  email: string,
+  adminUrl: string,
+  adminToken: string
+): Promise<void> {
+  // Extraer ID numérico del GID: "gid://shopify/Customer/123" → "123"
+  const numericId = customerId.replace("gid://shopify/Customer/", "");
+  const handle = `newsletter-${numericId}-${Date.now()}`;
+  const date = new Date().toISOString();
+
+  const result = await shopifyAdmin(adminUrl, adminToken, CREATE_METAOBJECT_LIVE_SYSTEM, {
+    input: {
+      type: "live_system",
+      handle,
+      fields: [
+        { key: "nombre", value: email },
+        { key: "type",   value: "newsletter-signup" },
+        { key: "date",   value: date },
+      ],
+    },
+  });
+
+  if (result.errors?.length) {
+    console.error("[Newsletter] Error de API al crear live_system:", result.errors);
+    return;
+  }
+
+  const errors = result.data?.metaobjectCreate?.userErrors;
+  if (errors?.length) {
+    console.error("[Newsletter] Error al crear metaobject live_system:", errors);
+  } else {
+    console.log(`[Newsletter] Metaobject live_system creado para ${email} (handle: ${handle})`);
+  }
+}
+
 // ─── Helper: suscribir email a newsletter ─────────────────────────────────────
 
 async function subscribeToNewsletter(
@@ -113,7 +167,6 @@ async function subscribeToNewsletter(
   const marketingConsent = {
     marketingState: "SUBSCRIBED",
     marketingOptInLevel: "SINGLE_OPT_IN",
-    // consentUpdatedAt lo pone Shopify automáticamente
   };
 
   if (existingCustomer) {
@@ -133,11 +186,19 @@ async function subscribeToNewsletter(
       },
     });
 
-    const errors = updateResult.data?.customerUpdate?.userErrors;
-    if (errors?.length) {
-      console.error("[Newsletter] Error al actualizar consentimiento:", errors);
+    if (updateResult.errors?.length) {
+      console.error("[Newsletter] Error de API al actualizar:", updateResult.errors);
+      return;
+    }
+
+    const updateErrors = updateResult.data?.customerUpdate?.userErrors;
+    if (updateErrors?.length) {
+      console.error("[Newsletter] Error al actualizar consentimiento:", updateErrors);
+    } else if (!updateResult.data?.customerUpdate?.customer) {
+      console.error("[Newsletter] customerUpdate no retornó customer. Posiblemente estado protegido (Dado de baja).");
     } else {
       console.log(`[Newsletter] ${email} suscrito (actualización).`);
+      await createLiveSystemMetaobject(existingCustomer.id, email, adminUrl, adminToken);
     }
   } else {
     // 2b. No existe → creamos el customer con consentimiento activo
@@ -148,11 +209,21 @@ async function subscribeToNewsletter(
       },
     });
 
-    const errors = createResult.data?.customerCreate?.userErrors;
-    if (errors?.length) {
-      console.error("[Newsletter] Error al crear customer:", errors);
+    if (createResult.errors?.length) {
+      console.error("[Newsletter] Error de API al crear customer:", createResult.errors);
+      return;
+    }
+
+    const createErrors = createResult.data?.customerCreate?.userErrors;
+    const newCustomer = createResult.data?.customerCreate?.customer;
+
+    if (createErrors?.length) {
+      console.error("[Newsletter] Error al crear customer:", createErrors);
+    } else if (!newCustomer) {
+      console.error("[Newsletter] customerCreate no retornó customer ni errores. Verificar scopes del token (write_customers).");
     } else {
       console.log(`[Newsletter] ${email} suscrito (customer nuevo).`);
+      await createLiveSystemMetaobject(newCustomer.id, email, adminUrl, adminToken);
     }
   }
 }

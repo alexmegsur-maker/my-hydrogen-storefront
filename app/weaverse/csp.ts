@@ -45,6 +45,8 @@ export function getWeaverseCsp(
       "'sha256-Xv4DFZPbKwth/SyTUfU6tI8sQc1IYZCE8UHPTUKPhYw='",
       "'sha256-wT4ini02jKYQW3youIvCKsg9ACax0pk1uKpAaIy00Yc='",
       "'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='",
+      "https://connect.facebook.net",
+      "https://www.facebook.com"
     ],
     styleSrc: [
       ...weaverseHosts,
@@ -76,6 +78,11 @@ export function getWeaverseCsp(
       "ws://localhost:*",
       "ws://127.0.0.1:*",
       "ws://*.tryhydrogen.dev:*",
+      "https://stats.g.doubleclick.net",
+      "https://*.doubleclick.net",
+      "https://*.google.com",
+      "https://www.facebook.com",
+      "https://*.facebook.net",
       ...weaverseHosts,
     ],
     frameSrc: [
@@ -89,6 +96,17 @@ export function getWeaverseCsp(
     frameAncestors: isDesignMode
       ? ["*"]
       : ["'self'", "*.shopify.com", "*.myshopify.com"],
+    imgSrc:[
+      "'self'",
+      "data:",
+      "https://www.google.com",
+      "https://www.google.es",
+      "https://*.google-analytics.com",
+      "https://*.doubleclick.net",
+      "https://*.facebook.com",
+      "https://cdn.shopify.com",
+      "*.myshopify.com",
+    ]
   };
 
   return updatedCsp;
