@@ -161,7 +161,11 @@ function VariantCollectionsSecret(props:VariantCollectionsSecretProps){
                     <div className="flex flex-1 flex-col md:flex-row">
                       <div className="flex-none flex items-center content-center">
                         <div className="flex items-center me-3">
-                          <img src="https://images.secretlab.co/theme/common/pdp-icon-filter.svg" />
+                          {/* <img src="https://images.secretlab.co/theme/common/pdp-icon-filter.svg" /> */}
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                          </svg>
+
                         </div>
 
                         <div className="flex uppercase font-bold me-3 gap-1 flex-row items-center">
@@ -317,9 +321,6 @@ function VariantCollectionsSecret(props:VariantCollectionsSecretProps){
                 <div
                   className="body-sm cursor-pointer underline text-[#6C757D] flex-none"
                   data-popup-modal="true"
-                  data-url="https://secretlab.eu//es?view=modal-upholstery"
-                  data-script="//secretlab.eu/cdn/shop/t/406/assets/modal-popup-upholstery.js?v=74204397927634523201741671723"
-                  data-css="//secretlab.eu/cdn/shop/t/406/assets/modal-popup-upholstery.css?v=53312213393010288701741101400"
                 >
                   ¿Necesitas ayuda para elegir la tapicería?
                 </div>

@@ -110,6 +110,7 @@ export function getWeaverseCsp(
       "https://cdn.shopify.com",
       "https://studio.weaverse.io",
       "*.myshopify.com",
+      // "https://images.secretlab.co",
     ]
   };
 

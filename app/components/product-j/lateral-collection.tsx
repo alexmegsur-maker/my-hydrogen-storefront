@@ -72,7 +72,7 @@ export default function  LateralCollection (props:LateralCollectionProps){
           style={{
             backgroundColor:"#050505f2",
             padding: !isMobile?"1.5rem 4rem":"1.5rem",
-            position:"absolute",
+            // position:"absolute",
             top:0,
             borderBottom:"1px solid #ffffff08"
           }}

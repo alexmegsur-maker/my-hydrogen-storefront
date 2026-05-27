@@ -32,7 +32,7 @@ function ImageCentral(props:imageCentralProps){
         loading="lazy" 
         src={image.url} 
         className="w-full h-full object-cover"
-        alt="Secretlab Community Setup 3"
+        alt="Community Setup"
         width={image.width}
         height={image.height}
         style={{

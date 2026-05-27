@@ -122,7 +122,7 @@ function ProductCardCollection(props:ProductCardProps){
         >
           <div className="h-full w-full">
             <img
-              alt="Thumbnail of Secretlab TITAN Evo Secretlab for Automobili Lamborghini Pinnacle Superleggera"
+              alt="Thumbnail "
               className="object-cover scale-200 top-[30%] absolute"
               src={imgProduct}
             />

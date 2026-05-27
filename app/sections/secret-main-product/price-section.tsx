@@ -373,11 +373,11 @@ function PriceSection(props:PriceSectionProps){
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <img
+                      {/* <img
                         src="https://images.secretlab.co/theme/common/logo_paypal.svg"
                         alt="Paypal Credit logo"
                         className="paypal h-[20px]" 
-                      />
+                      /> */}
                     </a>
                     .
                     <button
