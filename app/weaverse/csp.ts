@@ -66,6 +66,7 @@ export function getWeaverseCsp(
       "https://fonts.googleapis.com",
       "https://*.gstatic.com",
       "https://*.googleapis.com",
+      "https://cdn.shopify.com",
     ],
     connectSrc: [
       "vimeo.com",
