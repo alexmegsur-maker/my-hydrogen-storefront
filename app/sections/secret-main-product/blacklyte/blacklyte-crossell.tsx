@@ -84,9 +84,6 @@ interface BlackLyteCrossellProps {
 type BlacklyteCrossProps = SectionProps<ProductCrossellLoaderData> &
   BlackLyteCrossellProps;
 
-if(typeof window !=="undefined"){
-  gsap.registerPlugin(useGSAP)
-}
 
 function BlacklyteCrossell(props: BlacklyteCrossProps) {
   const {
@@ -204,6 +201,8 @@ function BlacklyteCrossell(props: BlacklyteCrossProps) {
 
   useGSAP(
     () => {
+  gsap.registerPlugin(useGSAP)
+      
       active.current = gsap.to(boton.current, {
         background: `linear-gradient(120deg,${bBgColor} 100%, transparent 0%)`,
         color: "white",

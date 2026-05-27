@@ -33,8 +33,7 @@ function ProductVar(props: ProductVarProps) {
   
 
   useEffect(() => {
-    console.log("producto", producto);
-    console.log("currentProduct", currentProduct);
+ 
     if (producto?.handle == currentProduct?.handle) {
       setActive(true);
     } else {
