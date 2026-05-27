@@ -72,7 +72,6 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
       setProduct(auxProd)
     }
     setCurrentProduct(auxProd)
-    console.log(product)
   },[product])
 
   

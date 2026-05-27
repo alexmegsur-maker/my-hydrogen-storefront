@@ -44,9 +44,7 @@ function VideoSliderBar(props: VideoSliderBarProps) {
   } = props;
   const isMobile = useIsMobile(600);
 
-  useEffect(()=>{
-    console.log("sliderElements",sliderElements)
-  },[])
+ 
   return (
     <div className="absolute  bottom-0 lg:bottom-8 left-0 z-30"
       style={{

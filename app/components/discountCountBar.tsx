@@ -101,7 +101,6 @@ function DiscountCountBar(props:DiscountCountBarProps){
     const info = result?.metaobject.fields
     let total = parseInt(info.find((e)=>e.key=="total").value) 
     let utilizado = parseInt(info.find((e)=>e.key=="utilizado").value) 
-    console.log("info",info)
     setDiscountInfo({
       total:total,
       utilizado:utilizado,

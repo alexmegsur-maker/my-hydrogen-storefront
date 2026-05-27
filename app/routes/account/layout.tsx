@@ -65,9 +65,7 @@ export default function AccountLayout() {
     "Operador";
 
 
-  useEffect(()=>{
-    console.log("customer layout",customer)
-  },[customer])  
+  
 
   const sidebar = (
     <aside

@@ -218,7 +218,6 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
       }
       
       if(crossell?.crossell){
-        console.log("crossell",crossell?.crossell)
         let filter = crossell.crossell.filter((elm)=>elm.selecteds.length != 0)
         filter.forEach((elm)=>{
           elm.selecteds.forEach((e)=>{

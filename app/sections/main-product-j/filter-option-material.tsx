@@ -231,7 +231,6 @@ export default function FilterOptionMaterial(props: FilterOptionMaterialProps) {
     if (variantOptions) {
       try {
         const data = JSON.parse(variantOptions) as any;
-        console.log("data materiales",data)
 
         const match = data.edges?.find(
           (elm) => elm.node.handle.toLowerCase() === "tapiceria"

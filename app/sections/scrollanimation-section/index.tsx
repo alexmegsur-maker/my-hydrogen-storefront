@@ -270,7 +270,6 @@ export default function ChairSection(props: ChairSectionProps) {
         scrub:1,
         onUpdate:(self)=>{
           const p = self.progress * 100 
-          console.log("progress",p)
           if(p> 30){
             gsap.to(canvas.current,{
               filter:"blur(0)"

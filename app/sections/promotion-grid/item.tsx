@@ -101,7 +101,6 @@ function PromotionGridItem(props: PromotionItemProps) {
   const isMobile = useIsMobile(600)
 
   const showLink =()=>{
-    console.log("link",link)
     if(link){
       navigate(link)
     }

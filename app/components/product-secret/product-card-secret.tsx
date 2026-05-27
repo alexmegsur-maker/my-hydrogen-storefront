@@ -76,9 +76,6 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
 
 
 
-  useEffect(()=>{
-      console.log("product",product)
-    },[product])
  
   return (
     <div
