@@ -259,9 +259,10 @@ function ComparisonWrapper(props: ComparisonWrapperProps) {
 
         {/* Note */}
         {note && (
-          <p
+          <div
             className="mt-12 tracking-wide"
             style={noteStyle}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{ __html: note }}
           />
         )}

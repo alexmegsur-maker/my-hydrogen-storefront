@@ -3,6 +3,8 @@ import {
   InstagramLogoIcon,
   LinkedinLogoIcon,
   XLogoIcon,
+  YoutubeLogoIcon,
+  TiktokLogoIcon
 } from "@phosphor-icons/react";
 import { Image } from "@shopify/hydrogen";
 import { useThemeSettings } from "@weaverse/hydrogen";
@@ -37,6 +39,8 @@ export function Footer() {
   const {
     footerWidth,
     socialFacebook,
+    socialTiktok,
+    socialYoutube,
     socialInstagram,
     socialLinkedIn,
     socialX,
@@ -94,6 +98,16 @@ export function Footer() {
       name: "Facebook",
       to: socialFacebook,
       Icon: FacebookLogoIcon,
+    },
+    {
+      name: "Youtube",
+      to: socialYoutube,
+      Icon: YoutubeLogoIcon,
+    },
+    {
+      name: "Tiktok",
+      to: socialTiktok,
+      Icon: TiktokLogoIcon,
     },
   ].filter((acc) => acc.to && acc.to.trim() !== "");
 
@@ -216,7 +230,7 @@ export function Footer() {
               <CountrySelector />
             </div>
           }
-          <p id="copyright-text" dangerouslySetInnerHTML={{__html:copyright}}/>
+          <div id="copyright-text" suppressHydrationWarning dangerouslySetInnerHTML={{__html:copyright}}/>
 
           <div className=" flex gap-2">
             <Link to={legal} className={`hover:text-white`}>Aviso Legal</Link>

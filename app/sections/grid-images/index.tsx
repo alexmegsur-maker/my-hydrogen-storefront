@@ -99,8 +99,9 @@ function GridImages(props:GridImagesProps){
           >
           {title}
         </h3>
-        <p 
-          className="mb-6 lg:mb-8" 
+        <div
+          className="mb-6 lg:mb-8"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{__html:description}}
           style={{
             fontSize:isMobile ? "18px" : dSize,
@@ -113,7 +114,7 @@ function GridImages(props:GridImagesProps){
             ...selectorPaddingMargin("margin",dMarginSelect,!isMobile && dMarginText),
           }}          
           >
-        </p>
+        </div>
       </div>
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 lg:px-16">
         {children}

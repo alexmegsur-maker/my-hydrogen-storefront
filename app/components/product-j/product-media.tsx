@@ -153,21 +153,15 @@ function ProductMedia(props:ProductMediaProps){
             {view360?.length > 0 && (
               <div
                 data-context="pdp-360switch"
-                className="absolute right-[32px] bottom-[140px] z-[100] hidden md:flex  outline-none"
+                className="absolute right-[32px] bottom-[140px]  z-[100] hidden md:flex  outline-none"
                 onClick={show360}
               >
                 <button
                   data-context="pdp-360switch"
-                  className="relative cursor-pointer p-0 e2e-button-turntable !bg-transparent border-none !shadow-none switch-gallery-view-btn"
+                  className="relative flex items-center  bg-black/80  hover:bg-stone-800 transition-discrete rounded-full px-6 py-4 border border-stone-300  text-lg gap-2 cursor-pointer p-0 e2e-button-turntable  "
                 >
-                  <img
-                    loading="lazy"
-                    src="https://images.secretlab.co/theme/common/gallery-360-btn.svg"
-                    alt="turntables-icon"
-                    height="72"
-                    className="w-full transition duration-1000 ease-in-out"
-                    data-context="pdp-360switch"
-                  />
+                  <svg className="w-7 h-7 " fill="#ffffff" viewBox="0 0 24 24" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11.2797426,14.9868494 L10.1464466,13.8535534 C9.95118446,13.6582912 9.95118446,13.3417088 10.1464466,13.1464466 C10.3417088,12.9511845 10.6582912,12.9511845 10.8535534,13.1464466 L12.8535534,15.1464466 C13.0488155,15.3417088 13.0488155,15.6582912 12.8535534,15.8535534 L10.8535534,17.8535534 C10.6582912,18.0488155 10.3417088,18.0488155 10.1464466,17.8535534 C9.95118446,17.6582912 9.95118446,17.3417088 10.1464466,17.1464466 L11.3044061,15.9884871 C6.13483244,15.8167229 2,13.7413901 2,11 C2,8.13669069 6.51079147,6 12,6 C17.4892085,6 22,8.13669069 22,11 C22,12.5021775 20.7611164,13.8263891 18.6925542,14.7433738 C18.4401046,14.8552836 18.1447329,14.7413536 18.0328231,14.4889039 C17.9209133,14.2364543 18.0348433,13.9410827 18.2872929,13.8291729 C20.0336708,13.0550111 21,12.0221261 21,11 C21,8.89274656 17.0042017,7 12,7 C6.99579829,7 3,8.89274656 3,11 C3,13.0051086 6.6178104,14.8160018 11.2797426,14.9868494 L11.2797426,14.9868494 Z"></path> </g></svg>
+                  360 º
                 </button>
               </div>
             )}

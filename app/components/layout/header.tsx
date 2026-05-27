@@ -87,6 +87,7 @@ const currentY = y;
   const isMobile = useIsMobile(600)
   return (
     <header
+      suppressHydrationWarning
       className={cn(
         "z-20 w-full",
         "transition-all duration-300 ease-in-out",

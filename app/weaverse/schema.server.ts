@@ -1153,6 +1153,19 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: "https://www.facebook.com/weaverse",
         },
         {
+          type: "text",
+          name: "socialYoutube",
+          label: "Youtube",
+          defaultValue: "https://www.youtube.com/@PhoenixChairsEU",
+        },
+        {
+          type: "text",
+          name: "socialTiktok",
+          label: "Tiktok",
+          defaultValue: "https://www.tiktok.com/@phoenixtechnologiesspain",
+        },
+
+        {
           type: "heading",
           label: "Store information",
         },

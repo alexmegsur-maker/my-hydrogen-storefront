@@ -54,6 +54,7 @@ export function VideoColumnText(props:VideoColumnProps){
         <h2 
           className="display-2 font-normal absolute top-0 lg:top-8 2xl:top-1/2 2xl:pb-16 3xl:pb-0 left-8 2xl:-translate-y-1/2 colour-text-on-colour-primary"
           dangerouslySetInnerHTML={{ __html:heading }}
+          suppressHydrationWarning
         />
           
         
@@ -65,11 +66,13 @@ export function VideoColumnText(props:VideoColumnProps){
               className="headline-2" 
               style={{ transform: "none", transformOrigin: "50% 50% 0px" }}
               dangerouslySetInnerHTML={{__html:title}}
+              suppressHydrationWarning
               />
             <div className={hover?"":"hidden"} style={{ transformOrigin:"50% 50% 0px" }}>
               <p 
                 className="mt-4 body-lg"
                 dangerouslySetInnerHTML={{ __html:description }}
+                suppressHydrationWarning
               />
             </div>
           </div>
@@ -81,11 +84,13 @@ export function VideoColumnText(props:VideoColumnProps){
         <h2 
           className="pb-10 display-2 font-normal text-[2.5rem]"
           dangerouslySetInnerHTML={{ __html:heading }}
+          suppressHydrationWarning
           />
       )}
       <h3 
         className="headline-2 text-[1.5rem]"
         dangerouslySetInnerHTML={{ __html:title }}
+        suppressHydrationWarning
         />
     </div>
     </>

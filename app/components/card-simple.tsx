@@ -233,12 +233,13 @@ export default function CardSimple(
           {linkDecoration &&
             <span 
              className="h-full w-auto"
+             suppressHydrationWarning
              dangerouslySetInnerHTML={{__html:linkDecoration}}
              style={{
               transform:isHover?"translateX(5px)":"unset",
               transition:"transform 0.3s"
              }}
-             ></span>
+             />
           }
         </Link>
       </div>

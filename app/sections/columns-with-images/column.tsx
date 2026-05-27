@@ -250,9 +250,10 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
             {heading}
           </h6>
         }
-        {content && 
-          <p 
-            dangerouslySetInnerHTML={{ __html: content }} 
+        {content &&
+          <div
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{ __html: content }}
             style={{
               color: dColor,
               fontFamily: dFamily,
@@ -264,7 +265,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
               textAlign:dAlignment,
               ...selectorPaddingMargin("padding", dPaddingSelect, dPaddingText),
               ...selectorPaddingMargin("margin", dMarginSelect, dMarginText),
-            }}    
+            }}
             />
         }
         {text && (

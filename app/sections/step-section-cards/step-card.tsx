@@ -152,7 +152,8 @@ function StepCard(props: StepCardProps) {
         </h3>
 
         {/* Description — supports HTML like <strong> and <br> */}
-        <p
+        <div
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: description }}
           style={{
             fontFamily: dFamily,

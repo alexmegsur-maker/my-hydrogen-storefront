@@ -39,7 +39,7 @@ export default function TestimonialItem(props: TestimonialItemProps) {
       <figure className="rounded-sm bg-gray-50 p-6">
         <blockquote>
           <div className="text-xl md:text-2xl">{heading}</div>
-          <p
+          <div
             className="my-4 text-gray-500"
             suppressHydrationWarning
             dangerouslySetInnerHTML={{ __html: content }}

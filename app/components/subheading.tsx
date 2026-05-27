@@ -36,7 +36,7 @@ interface SubHeadingProps
 function SubHeading(props: SubHeadingProps) {
   const {
     ref,
-    as: Tag = "p",
+    as: Tag = "div",
     content,
     color,
     size,
@@ -96,11 +96,11 @@ function SubHeading(props: SubHeadingProps) {
       className={cn( className +" flex")}
     >
       {typeDecoration =="start" &&
-        <div className="w-fit flex h-auto" dangerouslySetInnerHTML={{__html:decoration}}/>
+        <span suppressHydrationWarning className="w-fit flex h-auto" dangerouslySetInnerHTML={{__html:decoration}}/>
       }
       {content}
       {typeDecoration =="end" &&
-        <div className="w-fit flex h-auto" dangerouslySetInnerHTML={{__html:decoration}}/>
+        <span suppressHydrationWarning className="w-fit flex h-auto" dangerouslySetInnerHTML={{__html:decoration}}/>
       }
     </Tag>
   );
@@ -128,7 +128,7 @@ export const schema = createSchema({
               { value: "div", label: "Div" },
             ],
           },
-          defaultValue: "p",
+          defaultValue: "div",
         },
         {
           type: "text",
