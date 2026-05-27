@@ -181,7 +181,7 @@ export function ProductCard({
         )}
       >
         {pcardShowVendor && (
-          <div className="text-body-subtle uppercase">{product.vendor}</div>
+          <div className="text-body-subtle uppercase">Phoenix Chairs</div>
         )}
         {pcardShowReviews && (
           <JudgemePreviewBadge id={product.id} template=""/>

@@ -107,7 +107,7 @@ export default function Product() {
           item_id: selectedVariant.sku || selectedVariant.id,
           item_name: product.title,
           item_variant: selectedVariant.title,
-          item_brand: product.vendor,
+          item_brand: "Phoenix Chairs",
           price: parseFloat(selectedVariant.price?.amount || '0'),
           quantity: 1,
         }],
@@ -155,7 +155,7 @@ export default function Product() {
     "sku": selectedVariant?.sku || product.id,
     "brand": {
       "@type": "Brand",
-      "name": product.vendor,
+      "name": "Phoenix Chairs",
     },
     ...(reviews.count > 0 && {
       "aggregateRating": {
@@ -193,7 +193,7 @@ export default function Product() {
                 id: product.id,
                 title: product.title,
                 price: selectedVariant?.price.amount || "0",
-                vendor: product.vendor,
+                vendor: "Phoenix Chairs",
                 variantId: selectedVariant?.id || "",
                 variantTitle: selectedVariant?.title || "",
                 quantity: 1,

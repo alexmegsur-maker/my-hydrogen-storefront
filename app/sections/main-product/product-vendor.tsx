@@ -16,7 +16,7 @@ export default function ProductVendor(props: ProductVendorProps) {
 
   return (
     <div ref={ref} {...rest} className="empty:hidden">
-      <span className="text-body-subtle">{product.vendor}</span>
+      <span className="text-body-subtle">Phoenix Chairs</span>
     </div>
   );
 }

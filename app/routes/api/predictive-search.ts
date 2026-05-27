@@ -178,7 +178,7 @@ function normalizePredictiveSearchResults(
             id: product.id,
             image: product.featuredImage,
             title: product.title,
-            vendor: product.vendor,
+            vendor: "Phoenix Chairs",
             url: `${localePrefix}/products/${product.handle}${trackingParams}&${firstVariantParams.toString()}`,
             price: selectedVariant?.price,
             compareAtPrice: selectedVariant?.compareAtPrice,
