@@ -71,6 +71,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     recommended,
     selectedOptions,
     language: storefront.i18n.language,
+    url: request.url,
     reviews: {
       rating: parseFloat(reviewsRating),
       count: parseInt(reviewsCount, 10),
@@ -85,7 +86,7 @@ export const meta = ({ matches }: MetaArgs<typeof loader>) => {
 };
 
 export default function Product() {
-  const { product, reviews } = useLoaderData<typeof loader>();
+  const { product, reviews, url } = useLoaderData<typeof loader>();
   const combinedListing = isCombinedListing(product);
 
   const selectedVariant = useOptimisticVariant(
@@ -170,7 +171,7 @@ export default function Product() {
       "priceCurrency": selectedVariant?.price?.currencyCode || "EUR",
       "price": selectedVariant?.price?.amount || "0",
       "availability": selectedVariant?.availableForSale ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      "url": window.location.href,
+      "url": url,
     }
   };
 
