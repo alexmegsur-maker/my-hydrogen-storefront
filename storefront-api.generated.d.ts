@@ -3904,7 +3904,7 @@ interface GeneratedQueryTypes {
     return: SitemapCatalogQuery;
     variables: SitemapCatalogQueryVariables;
   };
-  '#graphql\n  query LiveActivity($first: Int!) {\n    metaobjects(type: "live_system", first: $first) {\n      nodes {\n        id\n        fields {\n          key\n          value\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query LiveActivity($first: Int!) {\n    metaobjects(type: "live_system", first: $first, reverse:true) {\n      nodes {\n        id\n        fields {\n          key\n          value\n        }\n      }\n    }\n  }\n': {
     return: LiveActivityQuery;
     variables: LiveActivityQueryVariables;
   };

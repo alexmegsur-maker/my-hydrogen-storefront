@@ -8,40 +8,50 @@ import { data, type LoaderFunctionArgs } from "react-router";
 // Web Crypto no expone AES-ECB directamente. Usamos AES-CBC con IV cero:
 // C[0] = AES_K(P[0] XOR 0) = AES_K(P[0])  ← equivalente a ECB para un bloque.
 
-async function aesBlock(key: Uint8Array, block: Uint8Array): Promise<Uint8Array> {
+function buf(size: number): Uint8Array<ArrayBuffer> {
+  return new Uint8Array(new ArrayBuffer(size));
+}
+
+function u8(data: ArrayBuffer | ArrayBufferLike): Uint8Array<ArrayBuffer> {
+  return new Uint8Array(data instanceof ArrayBuffer ? data : data.slice(0)) as Uint8Array<ArrayBuffer>;
+}
+
+async function aesBlock(key: Uint8Array<ArrayBuffer>, block: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> {
   const cryptoKey = await crypto.subtle.importKey(
     "raw", key, { name: "AES-CBC" }, false, ["encrypt"],
   );
   const encrypted = await crypto.subtle.encrypt(
-    { name: "AES-CBC", iv: new Uint8Array(16) },
+    { name: "AES-CBC", iv: buf(16) },
     cryptoKey,
     block,
   );
   // AES-CBC con un bloque produce 32 bytes (bloque + padding PKCS7).
   // Solo nos interesa el primer bloque = AES_K(block).
-  return new Uint8Array(encrypted).slice(0, 16);
+  return u8(encrypted).slice(0, 16) as Uint8Array<ArrayBuffer>;
 }
 
 // ─── AES-128 CMAC (RFC 4493) ─────────────────────────────────────────────────
 
-function xor16(a: Uint8Array, b: Uint8Array): Uint8Array {
-  return new Uint8Array(16).map((_, i) => a[i] ^ b[i]);
-}
-
-function shiftLeft(buf: Uint8Array): Uint8Array {
-  const out = new Uint8Array(buf.length);
-  for (let i = 0; i < buf.length - 1; i++) {
-    out[i] = ((buf[i] << 1) | (buf[i + 1] >> 7)) & 0xff;
-  }
-  out[buf.length - 1] = (buf[buf.length - 1] << 1) & 0xff;
+function xor16(a: Uint8Array, b: Uint8Array): Uint8Array<ArrayBuffer> {
+  const out = buf(16);
+  for (let i = 0; i < 16; i++) out[i] = a[i] ^ b[i];
   return out;
 }
 
-async function aesCmac(key: Uint8Array, msg: Uint8Array): Promise<Uint8Array> {
-  const Rb = new Uint8Array(16);
+function shiftLeft(src: Uint8Array): Uint8Array<ArrayBuffer> {
+  const out = buf(src.length);
+  for (let i = 0; i < src.length - 1; i++) {
+    out[i] = ((src[i] << 1) | (src[i + 1] >> 7)) & 0xff;
+  }
+  out[src.length - 1] = (src[src.length - 1] << 1) & 0xff;
+  return out;
+}
+
+async function aesCmac(key: Uint8Array<ArrayBuffer>, msg: Uint8Array): Promise<Uint8Array<ArrayBuffer>> {
+  const Rb = buf(16);
   Rb[15] = 0x87;
 
-  const L = await aesBlock(key, new Uint8Array(16));
+  const L = await aesBlock(key, buf(16));
   const K1 = L[0] & 0x80 ? xor16(shiftLeft(L), Rb) : shiftLeft(L);
   const K2 = K1[0] & 0x80 ? xor16(shiftLeft(K1), Rb) : shiftLeft(K1);
 
@@ -50,21 +60,20 @@ async function aesCmac(key: Uint8Array, msg: Uint8Array): Promise<Uint8Array> {
   if (n === 0) { n = 1; complete = false; }
   else complete = msg.length % 16 === 0;
 
-  // Preparar último bloque
-  let mLast: Uint8Array;
+  let mLast: Uint8Array<ArrayBuffer>;
   if (complete) {
-    mLast = xor16(msg.slice((n - 1) * 16) as Uint8Array, K1);
+    mLast = xor16(msg.slice((n - 1) * 16), K1);
   } else {
-    const pad = new Uint8Array(16);
+    const pad = buf(16);
     const tail = msg.slice((n - 1) * 16);
     pad.set(tail);
     pad[tail.length] = 0x80;
     mLast = xor16(pad, K2);
   }
 
-  let X = new Uint8Array(16);
+  let X = buf(16);
   for (let i = 0; i < n - 1; i++) {
-    X = await aesBlock(key, xor16(X, msg.slice(i * 16, i * 16 + 16) as Uint8Array));
+    X = await aesBlock(key, xor16(X, msg.slice(i * 16, i * 16 + 16)));
   }
   return aesBlock(key, xor16(X, mLast));
 }
@@ -75,8 +84,8 @@ async function aesCmac(key: Uint8Array, msg: Uint8Array): Promise<Uint8Array> {
 // MAC   = AES-CMAC(K_ses, "")   ← SUN sin datos de fichero
 // MAC_t = bytes [1,3,5,7,9,11,13,15] de MAC  (8 bytes = 16 hex)
 
-function fromHex(hex: string): Uint8Array {
-  const out = new Uint8Array(hex.length / 2);
+function fromHex(hex: string): Uint8Array<ArrayBuffer> {
+  const out = buf(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
     out[i / 2] = parseInt(hex.slice(i, i + 2), 16);
   }
