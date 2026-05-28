@@ -26,9 +26,10 @@ export async function loadCriticalData({
   const headerMenuHandle = (weaverseTheme.theme.menu as string) || 'main-menu';
   const footerMenuHandle = (weaverseTheme.theme.footerMenus as string) || 'main-menu';
 
-  const [layout, swatchesConfigs] = await Promise.all([
+  const [layout, swatchesConfigs, globalStats] = await Promise.all([
     getLayoutData({...context,headerMenuHandle,footerMenuHandle} as LayoutDataArgs),
     getSwatchesConfigs(context),
+    getGlobalStats(context),
   ]);
 
   const seo = seoPayload.root({ shop: layout.shop, url: request.url });
@@ -53,6 +54,7 @@ export async function loadCriticalData({
     weaverseTheme,
     googleGtmID: env.PUBLIC_GOOGLE_GTM_ID,
     swatchesConfigs,
+    globalStats,
   };
 }
 
@@ -293,6 +295,83 @@ function resolveToFromType(
       return routePrefix[type]
         ? `/${routePrefix[type]}/${handle}`
         : `/${handle}`;
+  }
+}
+
+async function fetchAdminAPI(env: Env, query: string, variables: Record<string, any> = {}) {
+  const version = env.SHOPIFY_API_VERSION || '2024-10';
+  const res = await fetch(
+    `https://${env.PUBLIC_STORE_DOMAIN}/admin/api/${version}/graphql.json`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+      },
+      body: JSON.stringify({ query, variables }),
+    },
+  );
+  const json = await res.json() as any;
+  return json.data;
+}
+
+function getMondayISO(weekOffset = 0): string {
+  const now = new Date();
+  const day = now.getDay();
+  const daysToMonday = day === 0 ? 6 : day - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - daysToMonday + weekOffset * 7);
+  monday.setHours(0, 0, 0, 0);
+  return monday.toISOString().split('T')[0];
+}
+
+async function getUnitsSold(env: Env, from: string, to: string): Promise<number> {
+  const data = await fetchAdminAPI(env, `
+    query UnitsSold($q: String!) {
+      orders(first: 250, query: $q) {
+        nodes {
+          lineItems(first: 100) {
+            nodes { quantity }
+          }
+        }
+      }
+    }
+  `, { q: `created_at:>='${from}' created_at:<='${to}' financial_status:paid` });
+
+  return (data?.orders?.nodes ?? []).reduce((total: number, order: any) =>
+    total + (order.lineItems?.nodes ?? []).reduce((sum: number, item: any) =>
+      sum + (item.quantity ?? 0), 0), 0);
+}
+
+async function getGlobalStats(context: AppLoadContext) {
+  const { env } = context;
+  const thisMonday = getMondayISO(0);
+  const lastMonday = getMondayISO(-1);
+  const today = new Date().toISOString().split('T')[0];
+  // Last Sunday = day before this Monday
+  const lastSundayDate = new Date(thisMonday);
+  lastSundayDate.setDate(lastSundayDate.getDate() - 1);
+  const lastSunday = lastSundayDate.toISOString().split('T')[0];
+
+  try {
+    const [thisWeekUnits, lastWeekUnits, subscribersData] = await Promise.all([
+      getUnitsSold(env, thisMonday, today),
+      getUnitsSold(env, lastMonday, lastSunday),
+      fetchAdminAPI(env, `{ customersCount(query: "email_marketing_consent_state:SUBSCRIBED") { count } }`),
+    ]);
+
+    return {
+      productsSoldThisWeek: thisWeekUnits,
+      productsSoldLastWeek: Math.floor(((lastWeekUnits-thisWeekUnits)/lastWeekUnits)*100),
+      newsletterSubscribers: subscribersData?.customersCount?.count ?? 0,
+    };
+  } catch (err) {
+    console.error('[globalStats]', err);
+    return {
+      productsSoldThisWeek: 0,
+      productsSoldLastWeek: 0,
+      newsletterSubscribers: 0,
+    };
   }
 }
 

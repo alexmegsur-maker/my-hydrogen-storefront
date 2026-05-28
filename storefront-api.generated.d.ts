@@ -1608,6 +1608,20 @@ export type CustomerCreateMutation = {
   }>;
 };
 
+export type LiveActivityQueryVariables = StorefrontAPI.Exact<{
+  first: StorefrontAPI.Scalars['Int']['input'];
+}>;
+
+export type LiveActivityQuery = {
+  metaobjects: {
+    nodes: Array<
+      Pick<StorefrontAPI.Metaobject, 'id'> & {
+        fields: Array<Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>>;
+      }
+    >;
+  };
+};
+
 export type PredictiveArticleFragment = {__typename: 'Article'} & Pick<
   StorefrontAPI.Article,
   'id' | 'title' | 'handle' | 'trackingParameters'
@@ -3889,6 +3903,10 @@ interface GeneratedQueryTypes {
   '#graphql\n      query SitemapCatalog {\n        products(first: 250) {\n          nodes {\n            handle\n            updatedAt\n          }\n        }\n        collections(first: 250) {\n          nodes {\n            handle\n            updatedAt\n          }\n        }\n      }\n    ': {
     return: SitemapCatalogQuery;
     variables: SitemapCatalogQueryVariables;
+  };
+  '#graphql\n  query LiveActivity($first: Int!) {\n    metaobjects(type: "live_system", first: $first) {\n      nodes {\n        id\n        fields {\n          key\n          value\n        }\n      }\n    }\n  }\n': {
+    return: LiveActivityQuery;
+    variables: LiveActivityQueryVariables;
   };
   '#graphql\n  fragment PredictiveArticle on Article {\n    __typename\n    id\n    title\n    handle\n    blog {\n      handle\n    }\n    image {\n      url\n      altText\n      width\n      height\n    }\n    trackingParameters\n  }\n  fragment PredictiveCollection on Collection {\n    __typename\n    id\n    title\n    handle\n    image {\n      url\n      altText\n      width\n      height\n    }\n    trackingParameters\n  }\n  fragment PredictivePage on Page {\n    __typename\n    id\n    title\n    handle\n    trackingParameters\n  }\n  fragment PredictiveProduct on Product {\n    __typename\n    id\n    title\n    handle\n    trackingParameters\n    vendor\n    featuredImage {\n      url\n      altText\n      width\n      height\n    }\n    selectedOrFirstAvailableVariant(\n      selectedOptions: []\n      ignoreUnknownOptions: true\n      caseInsensitiveMatch: true\n    ) {\n      id\n      price {\n        amount\n        currencyCode\n      }\n      compareAtPrice {\n        amount\n        currencyCode\n      }\n      selectedOptions {\n        name\n        value\n      }\n    }\n  }\n  fragment PredictiveQuery on SearchQuerySuggestion {\n    __typename\n    text\n    styledText\n    trackingParameters\n  }\n  query predictiveSearch(\n    $country: CountryCode\n    $language: LanguageCode\n    $limit: Int!\n    $limitScope: PredictiveSearchLimitScope!\n    $searchTerm: String!\n    $types: [PredictiveSearchType!]\n  ) @inContext(country: $country, language: $language) {\n    predictiveSearch(\n      limit: $limit,\n      limitScope: $limitScope,\n      query: $searchTerm,\n      types: $types,\n    ) {\n      articles {\n        ...PredictiveArticle\n      }\n      collections {\n        ...PredictiveCollection\n      }\n      pages {\n        ...PredictivePage\n      }\n      products {\n        ...PredictiveProduct\n      }\n      queries {\n        ...PredictiveQuery\n      }\n    }\n  }\n': {
     return: PredictiveSearchQuery;

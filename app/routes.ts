@@ -42,6 +42,7 @@ export default hydrogenRoutes([
       route(":version/graphql.json", "routes/api/graphql.json.ts"),
       route("product/:productHandle/reviews?", "routes/api/product.ts"),
       route("reviews", "routes/api/reviews.ts"),
+      route("live-activity", "routes/api/live-activity.ts"),
       route("nfc-auth", "routes/api/nfc-auth.ts"),
       route("ga4-purchase", "routes/api/ga4-purchase.ts"),
     ]),
