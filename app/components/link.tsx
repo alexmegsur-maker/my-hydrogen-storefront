@@ -107,6 +107,8 @@ function checkExternal(to: LinkProps["to"]) {
   return false;
 }
 
+const LOCALE_PREFIXES = ["/en", "/de", "/fr", "/it"];
+
 function useHrefWithLocale(href: LinkProps["to"]) {
   const rootData = useRouteLoaderData<RootLoader>("root");
   const selectedLocale = rootData?.selectedLocale;
@@ -120,7 +122,7 @@ function useHrefWithLocale(href: LinkProps["to"]) {
   if (
     typeof toWithLocale === "string" &&
     selectedLocale?.pathPrefix &&
-    !toWithLocale.toLowerCase().startsWith(selectedLocale.pathPrefix)
+    !LOCALE_PREFIXES.some((p) => toWithLocale.toLowerCase().startsWith(p))
   ) {
     toWithLocale = `${selectedLocale.pathPrefix}${href}`;
   }

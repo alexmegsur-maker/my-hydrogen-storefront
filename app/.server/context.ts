@@ -52,6 +52,13 @@ export async function createHydrogenRouterContext(
 
   const weaverse = new WeaverseClient({
     ...hydrogenContext,
+    // Override pathPrefix to empty so Weaverse uses the full URL path as the page handle.
+    // This allows locale-specific custom pages (e.g. handle "en/garantia-base") to be
+    // matched by their full URL (/en/garantia-base) without the locale being stripped.
+    storefront: {
+      ...hydrogenContext.storefront,
+      i18n: { ...hydrogenContext.storefront.i18n, pathPrefix: "" },
+    },
     request,
     cache,
     themeSchema,

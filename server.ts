@@ -62,19 +62,13 @@ function shouldAutoRedirect(url: URL): boolean {
 }
 
 function detectTargetLocale(request: Request): string {
-  // En Oxygen/Cloudflare, este header contiene el código de país ISO 3166-1
+  // CF-IPCountry solo existe en Oxygen/Cloudflare (producción)
   const cfCountry = request.headers.get("CF-IPCountry");
   if (cfCountry && cfCountry !== "XX" && cfCountry !== "T1") {
     return COUNTRY_TO_LOCALE[cfCountry] ?? "";
   }
-
-  // Fallback para desarrollo local: Accept-Language
-  const acceptLang = request.headers.get("Accept-Language") ?? "";
-  const primaryLang = acceptLang
-    .split(",")[0]
-    ?.split(/[-;]/)[0]
-    ?.toLowerCase();
-  return (primaryLang && LANGUAGE_TO_LOCALE[primaryLang]) || "";
+  // En desarrollo local no hay CF-IPCountry → no forzar redirección automática
+  return "";
 }
 
 function getLocaleCookie(cookieHeader: string): string | null {
