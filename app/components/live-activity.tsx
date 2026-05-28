@@ -109,7 +109,6 @@ async function fetchLiveActivity(limit: number): Promise<LiveActivityItem[]> {
     const res = await fetch(`/api/live-activity?limit=${limit}`);
     if (!res.ok) return [];
     const { items } = (await res.json()) as { items: RawItem[] };
-    console.log("res,items",items)
     return items
       .filter((r) => r.nombre && r.type && r.date)
       .map((r) => ({
