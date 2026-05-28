@@ -1,24 +1,123 @@
 // app/routes/api/nfc-auth.ts
+// Verificación NTAG 424 DNA — AES-128 CMAC / NXP SDM (AN12196)
+// Compatible con Cloudflare Workers (Web Crypto API nativa, sin dependencias npm)
 
 import { data, type LoaderFunctionArgs } from "react-router";
 
-// ─── Web Crypto API ───────────────────────────────────────────────────────────
+// ─── AES-ECB single block via AES-CBC con IV=0 ───────────────────────────────
+// Web Crypto no expone AES-ECB directamente. Usamos AES-CBC con IV cero:
+// C[0] = AES_K(P[0] XOR 0) = AES_K(P[0])  ← equivalente a ECB para un bloque.
 
-async function computeHmacSha256(secret: string, message: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
+async function aesBlock(key: Uint8Array, block: Uint8Array): Promise<Uint8Array> {
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw", key, { name: "AES-CBC" }, false, ["encrypt"],
   );
-  const signature = await crypto.subtle.sign("HMAC", keyMaterial, encoder.encode(message));
-  return Array.from(new Uint8Array(signature))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
-    .toUpperCase()
-    .substring(0, 16);
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-CBC", iv: new Uint8Array(16) },
+    cryptoKey,
+    block,
+  );
+  // AES-CBC con un bloque produce 32 bytes (bloque + padding PKCS7).
+  // Solo nos interesa el primer bloque = AES_K(block).
+  return new Uint8Array(encrypted).slice(0, 16);
+}
+
+// ─── AES-128 CMAC (RFC 4493) ─────────────────────────────────────────────────
+
+function xor16(a: Uint8Array, b: Uint8Array): Uint8Array {
+  return new Uint8Array(16).map((_, i) => a[i] ^ b[i]);
+}
+
+function shiftLeft(buf: Uint8Array): Uint8Array {
+  const out = new Uint8Array(buf.length);
+  for (let i = 0; i < buf.length - 1; i++) {
+    out[i] = ((buf[i] << 1) | (buf[i + 1] >> 7)) & 0xff;
+  }
+  out[buf.length - 1] = (buf[buf.length - 1] << 1) & 0xff;
+  return out;
+}
+
+async function aesCmac(key: Uint8Array, msg: Uint8Array): Promise<Uint8Array> {
+  const Rb = new Uint8Array(16);
+  Rb[15] = 0x87;
+
+  const L = await aesBlock(key, new Uint8Array(16));
+  const K1 = L[0] & 0x80 ? xor16(shiftLeft(L), Rb) : shiftLeft(L);
+  const K2 = K1[0] & 0x80 ? xor16(shiftLeft(K1), Rb) : shiftLeft(K1);
+
+  let n = Math.ceil(msg.length / 16);
+  let complete: boolean;
+  if (n === 0) { n = 1; complete = false; }
+  else complete = msg.length % 16 === 0;
+
+  // Preparar último bloque
+  let mLast: Uint8Array;
+  if (complete) {
+    mLast = xor16(msg.slice((n - 1) * 16) as Uint8Array, K1);
+  } else {
+    const pad = new Uint8Array(16);
+    const tail = msg.slice((n - 1) * 16);
+    pad.set(tail);
+    pad[tail.length] = 0x80;
+    mLast = xor16(pad, K2);
+  }
+
+  let X = new Uint8Array(16);
+  for (let i = 0; i < n - 1; i++) {
+    X = await aesBlock(key, xor16(X, msg.slice(i * 16, i * 16 + 16) as Uint8Array));
+  }
+  return aesBlock(key, xor16(X, mLast));
+}
+
+// ─── Verificación NXP SDM (AN12196) ──────────────────────────────────────────
+// SV2 = 0x3C 0xC3 0x00 0x01 0x00 0x80 | UID[7] | CTR_LE[3]   (16 bytes)
+// K_ses = AES-CMAC(masterKey, SV2)
+// MAC   = AES-CMAC(K_ses, "")   ← SUN sin datos de fichero
+// MAC_t = bytes [1,3,5,7,9,11,13,15] de MAC  (8 bytes = 16 hex)
+
+function fromHex(hex: string): Uint8Array {
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    out[i / 2] = parseInt(hex.slice(i, i + 2), 16);
+  }
+  return out;
+}
+
+function toHex(b: Uint8Array): string {
+  return Array.from(b).map(x => x.toString(16).padStart(2, "0")).join("").toUpperCase();
+}
+
+async function verifyNtag424Mac(params: {
+  masterKey: string; // 32 hex chars = 16 bytes
+  uid: string;       // 14 hex chars = 7 bytes
+  counter: string;   // 6 hex chars LE (ej: "0A0000") o número decimal
+  mac: string;       // 16 hex chars = 8 bytes (MAC truncada)
+}): Promise<boolean> {
+  const { masterKey, uid, counter, mac } = params;
+
+  const keyBytes = fromHex(masterKey);
+  const uidBytes = fromHex(uid);
+
+  // Contador: 6 chars hex LE ("0A0000") o decimal → 3 bytes LE
+  let ctrBytes: Uint8Array;
+  if (/^[0-9a-fA-F]{6}$/.test(counter)) {
+    ctrBytes = fromHex(counter); // ya viene en LE desde el chip
+  } else {
+    const v = parseInt(counter, 10);
+    ctrBytes = new Uint8Array([v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff]);
+  }
+
+  // SV2: 16 bytes
+  const sv2 = new Uint8Array([0x3c, 0xc3, 0x00, 0x01, 0x00, 0x80, ...uidBytes, ...ctrBytes]);
+
+  const sessionKey = await aesCmac(keyBytes, sv2);
+  const fullMac    = await aesCmac(sessionKey, new Uint8Array(0));
+
+  // Truncar: bytes en posiciones impares [1,3,5,7,9,11,13,15]
+  const truncated = new Uint8Array(8);
+  for (let i = 0; i < 8; i++) truncated[i] = fullMac[i * 2 + 1];
+
+  return mac.toUpperCase() === toHex(truncated);
 }
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -39,7 +138,7 @@ interface AuthResponse {
   error?: string;
 }
 
-// ─── Mutation GraphQL Admin API ───────────────────────────────────────────────
+// ─── Registro de alerta de falsificación via Admin API ───────────────────────
 
 const CREATE_FAKE_ALERT = `
   mutation CreateFakeAlert($fields: [MetaobjectFieldInput!]!) {
@@ -47,27 +146,16 @@ const CREATE_FAKE_ALERT = `
       type: "alerta_falsificacion"
       fields: $fields
     }) {
-      metaobject {
-        id
-        handle
-      }
-      userErrors {
-        field
-        message
-        code
-      }
+      metaobject { id handle }
+      userErrors { field message code }
     }
   }
 `;
 
-// ─── Registro de alerta via Admin API REST ────────────────────────────────────
-// Hydrogen no expone context.admin en rutas públicas.
-// La Admin API se llama directamente con fetch + token privado.
-
 async function createFakeAlertMetaobject(
   details: SecurityMetadata,
   shopDomain: string,
-  adminToken: string
+  adminToken: string,
 ): Promise<void> {
   try {
     const response = await fetch(
@@ -91,45 +179,35 @@ async function createFakeAlertMetaobject(
             ],
           },
         }),
-      }
+      },
     );
 
     const result = await response.json() as any;
-
-    if (result.errors) {
-      console.error("[PHOENIX] Error GraphQL:", result.errors);
-      return;
-    }
-
-    const userErrors = result.data?.metaobjectCreate?.userErrors;
-    if (userErrors?.length > 0) {
-      console.error("[PHOENIX] userErrors al crear metaobject:", userErrors);
-    } else {
-      console.warn("[PHOENIX] Alerta registrada:", result.data?.metaobjectCreate?.metaobject?.id);
-    }
-  } catch (error) {
-    console.error("[PHOENIX] Fallo al llamar a la Admin API:", error);
+    if (result.errors) { console.error("[PHOENIX] GraphQL error:", result.errors); return; }
+    const ue = result.data?.metaobjectCreate?.userErrors;
+    if (ue?.length) console.error("[PHOENIX] userErrors:", ue);
+    else console.warn("[PHOENIX] Alerta registrada:", result.data?.metaobjectCreate?.metaobject?.id);
+  } catch (err) {
+    console.error("[PHOENIX] Fallo Admin API:", err);
   }
 }
 
 // ─── Loader ───────────────────────────────────────────────────────────────────
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const uid = url.searchParams.get("uid");
-  const ctr = url.searchParams.get("ctr");
-  const mac = url.searchParams.get("mac");
+  const url   = new URL(request.url);
+  const uid   = url.searchParams.get("uid");
+  const ctr   = url.searchParams.get("ctr");
+  const mac   = url.searchParams.get("mac");
 
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Cache-Control": "no-store",
   };
 
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
-    "IP Desconocida";
+  const ip        = request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "IP Desconocida";
   const userAgent = request.headers.get("user-agent") ?? "Desconocido";
-  const now = new Date();
+  const now       = new Date();
 
   const metadata: SecurityMetadata = {
     uid: uid ?? "N/A",
@@ -140,37 +218,42 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   };
 
   if (!uid || !ctr || !mac) {
-    return data<AuthResponse>(
-      { status: "INVALID_REQUEST" },
-      { status: 400, headers: corsHeaders }
-    );
+    return data<AuthResponse>({ status: "INVALID_REQUEST" }, { status: 400, headers: corsHeaders });
   }
 
   const SECRET = context.env.NFC_MASTER_KEY;
   if (!SECRET) {
-    console.error("[PHOENIX] NFC_MASTER_KEY no está definida.");
+    console.error("[PHOENIX] NFC_MASTER_KEY no definida.");
     return data<AuthResponse>(
       { status: "SERVER_ERROR", error: "Configuración incompleta." },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: corsHeaders },
     );
   }
 
-  // Lee las variables necesarias para la Admin API
-  const SHOP_DOMAIN = context.env.PUBLIC_STORE_DOMAIN;
-  const ADMIN_TOKEN = context.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
+  const SHOP_DOMAIN  = context.env.PUBLIC_STORE_DOMAIN;
+  const ADMIN_TOKEN  = context.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
 
-  const dataToVerify = uid + ctr;
-  const expectedMac = await computeHmacSha256(SECRET, dataToVerify);
-  const isOriginal = mac.toUpperCase() === expectedMac;
+  try {
+    const isOriginal = await verifyNtag424Mac({
+      masterKey: SECRET,
+      uid,
+      counter: ctr,
+      mac,
+    });
 
-  if (!isOriginal) {
-    if (SHOP_DOMAIN && ADMIN_TOKEN) {
-      await createFakeAlertMetaobject(metadata, SHOP_DOMAIN, ADMIN_TOKEN);
-    } else {
-      console.error("[PHOENIX] PUBLIC_STORE_DOMAIN o SHOPIFY_ADMIN_API_TOKEN no definidos.");
+    if (!isOriginal) {
+      if (SHOP_DOMAIN && ADMIN_TOKEN) {
+        await createFakeAlertMetaobject(metadata, SHOP_DOMAIN, ADMIN_TOKEN);
+      }
+      return data<AuthResponse>({ status: "FAKE" }, { status: 200, headers: corsHeaders });
     }
-    return data<AuthResponse>({ status: "FAKE" }, { status: 200, headers: corsHeaders });
-  }
 
-  return data<AuthResponse>({ status: "SUCCESS", uid }, { status: 200, headers: corsHeaders });
+    return data<AuthResponse>({ status: "SUCCESS", uid }, { status: 200, headers: corsHeaders });
+  } catch (err) {
+    console.error("[PHOENIX] Error en validación criptográfica:", err);
+    return data<AuthResponse>(
+      { status: "SERVER_ERROR", error: "Error interno." },
+      { status: 500, headers: corsHeaders },
+    );
+  }
 }

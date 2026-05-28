@@ -1,4 +1,3 @@
-import { Value } from '@radix-ui/react-select';
 import { useThemeSettings } from '@weaverse/hydrogen';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -17,25 +16,17 @@ export function LanguageSelector() {
   const currentLocale = COUNTRIES[currentPathPart] ? currentPathPart : 'default';
 
   const handleChange = (e:string,c:string) => {
-    const newPrefix = e;
-    if(newPrefix === "default"){
-      setSelectLang(`ES / ${c.toUpperCase()}`)
-      
-    }else{
-      setSelectLang(`${e.replace("/","").toUpperCase()} / ${c.toUpperCase()}`)
-    }
-    // Limpiamos el pathname actual de cualquier prefijo previo
-    const pathWithoutLocale = COUNTRIES[currentPathPart] 
-      ? pathname.replace(currentPathPart, '') 
+    const newPrefix = e === 'default' ? '' : e;
+    setSelectLang(newPrefix === '' ? `ES / ${c.toUpperCase()}` : `${newPrefix.replace('/','').toUpperCase()} / ${c.toUpperCase()}`);
+
+    // Guardar preferencia para que el geo-redirect no sobreescriba la elección
+    document.cookie = `locale_pref=${encodeURIComponent(newPrefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
+
+    const pathWithoutLocale = COUNTRIES[currentPathPart]
+      ? pathname.replace(currentPathPart, '')
       : pathname;
 
-    // Construimos la nueva ruta: prefijo + resto del path + query params
-    const newPath = `${newPrefix === 'default' ? '' : newPrefix}${pathWithoutLocale}${search}`;
-    
-    // Redirigimos
-    window.location.href = newPath; 
-    // Usamos window.location en lugar de navigate para forzar 
-    // la recarga del contexto del servidor con el nuevo i18n
+    window.location.href = `${newPrefix}${pathWithoutLocale || '/'}${search}`;
   };
 
   useEffect(()=>{

@@ -16,10 +16,10 @@ export const themeSchema: HydrogenThemeSchema = {
     urlStructure: "url-path",
     defaultLocale: {
       pathPrefix: "",
-      label: "United States (USD $)",
-      language: "EN",
-      country: "US",
-      currency: "USD",
+      label: "Español",
+      language: "ES",
+      country: "ES",
+      currency: "EUR",
     },
     shopLocales: Object.entries(COUNTRIES).map(
       ([pathPrefix, { label, language, country }]) => {

@@ -12,7 +12,7 @@ import {
   useSubmit,
 } from "react-router";
 import type { RootLoader } from "~/root";
-import type { I18nLocale, Localizations } from "~/types/others";
+import type { Localizations } from "~/types/others";
 import { DEFAULT_LOCALE } from "~/utils/const";
 
 export function CountrySelector() {
@@ -27,10 +27,6 @@ export function CountrySelector() {
   )}${search}`;
 
   const countries = (fetcher.data ?? {}) as Localizations;
-  const defaultLocale = countries?.default;
-  const defaultLocalePrefix = defaultLocale
-    ? `${defaultLocale?.language}-${defaultLocale?.country}`
-    : "";
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -97,24 +93,25 @@ export function CountrySelector() {
                   const isSelected =
                     countryLocale.language === selectedLocale.language &&
                     countryLocale.country === selectedLocale.country;
+                  // El prefijo real es la clave del mapa ("default" → sin prefijo)
+                  const localePrefix =
+                    countryPath === "default" ? "" : countryPath;
 
                   return (
                     <Popover.Close
                       aria-label={`Select ${countryLocale.label} country`}
                       key={countryPath}
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
+                        // Guardar la elección manual en cookie para que el geo-redirect la respete
+                        document.cookie = `locale_pref=${encodeURIComponent(localePrefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
                         handleLocaleChange({
-                          redirectTo: getCountryUrlPath({
-                            countryLocale,
-                            defaultLocalePrefix,
-                            pathWithoutLocale,
-                          }),
+                          redirectTo: `${localePrefix}${pathWithoutLocale}`,
                           buyerIdentity: {
                             countryCode: countryLocale.country,
                           },
-                        })
-                      }
+                        });
+                      }}
                       className="flex w-full cursor-pointer items-center gap-2 bg-neutral-800 p-2 px-4 py-2 text-left text-sm text-white transition hover:bg-neutral-600"
                     >
                       <ReactCountryFlag
@@ -139,19 +136,3 @@ export function CountrySelector() {
   );
 }
 
-function getCountryUrlPath({
-  countryLocale,
-  defaultLocalePrefix,
-  pathWithoutLocale,
-}: {
-  countryLocale: I18nLocale;
-  pathWithoutLocale: string;
-  defaultLocalePrefix: string;
-}) {
-  let countryPrefixPath = "";
-  const countryLocalePrefix = `${countryLocale.language}-${countryLocale.country}`;
-  if (countryLocalePrefix !== defaultLocalePrefix) {
-    countryPrefixPath = `/${countryLocalePrefix.toLowerCase()}`;
-  }
-  return `${countryPrefixPath}${pathWithoutLocale}`;
-}
