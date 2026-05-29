@@ -362,7 +362,7 @@ async function getGlobalStats(context: AppLoadContext) {
 
     return {
       productsSoldThisWeek: thisWeekUnits,
-      productsSoldLastWeek: Math.floor(((lastWeekUnits-thisWeekUnits)/lastWeekUnits)*100),
+      productsSoldLastWeek: Math.abs(Math.floor(((lastWeekUnits-thisWeekUnits)/lastWeekUnits)*100)),
       newsletterSubscribers: subscribersData?.customersCount?.count ?? 0,
     };
   } catch (err) {

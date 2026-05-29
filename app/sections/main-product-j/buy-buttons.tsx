@@ -254,6 +254,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
       setIdsVariants(newIds)
       setCartIdsVariants(newCartIds)
       setCartIdsSeo(seoCartIds)
+      console.log("product",product)
     }, [crossell,currentProd]);
   
   useEffect(()=>{
@@ -502,6 +503,9 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                 <span>{mcLabel1}</span>
                 <span>{mcLabel2}</span>
                 <span>{mcLabel3}</span>
+                {product.variants.nodes[0].currentlyNotInStock ? 
+                <span>entra</span>:<span>noEntra</span>  
+              }
             </div>
           </div>
           

@@ -3,6 +3,8 @@ import type {
   HydrogenComponentSchema,
 } from "@weaverse/hydrogen";
 import { forwardRef, useEffect, useRef, useState } from "react";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -367,6 +369,9 @@ function ActivityRow({
   avatarFontSize: string;
   typeColor: string;
 }) {
+
+  const lang= useLanguage()
+  const t= translations[lang] ?? translations["ES"]
   return (
     <div
       style={{
@@ -418,16 +423,16 @@ function ActivityRow({
         <TypeIcon type={item.type} color={typeColor} />
         <strong style={{ color: nameColor, fontWeight: 500 }}>{item.name}</strong>
         {item.type === "newsletter-signup" && (
-          <span>se suscribió a la newsletter</span>
+          <span>{t.suscribe_to_newsletter}</span>
         )}
         {item.type === "compra" && (
           <span>
-            compró{item.product ? <> <em style={{ color: nameColor, fontStyle: "normal" }}>{item.product}</em></> : ""}
+            {t.bought}{item.product ? <> <em style={{ color: nameColor, fontStyle: "normal" }}>{item.product}</em></> : ""}
           </span>
         )}
         {item.type === "reseña" && (
           <span>
-            dejó una reseña{" "}
+            {t.leave_a_review}{" "}
             {item.rating != null && <Stars rating={item.rating} color={starColor} />}
             {item.product && <> de <em style={{ color: nameColor, fontStyle: "normal" }}>{item.product}</em></>}
           </span>

@@ -1320,7 +1320,7 @@ export type ProductQuery = {
         nodes: Array<
           Pick<
             StorefrontAPI.ProductVariant,
-            'id' | 'quantityAvailable' | 'availableForSale'
+            'id' | 'quantityAvailable' | 'availableForSale' | 'currentlyNotInStock'
           > & {
             selectedOptions: Array<
               Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>

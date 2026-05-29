@@ -139,6 +139,7 @@ export const PRODUCT_QUERY = `#graphql
           id
           quantityAvailable
           availableForSale
+          currentlyNotInStock
           selectedOptions{
             name
             value
