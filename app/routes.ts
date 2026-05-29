@@ -45,6 +45,7 @@ export default hydrogenRoutes([
       route("live-activity", "routes/api/live-activity.ts"),
       route("nfc-auth", "routes/api/nfc-auth.ts"),
       route("ga4-purchase", "routes/api/ga4-purchase.ts"),
+      route("newsletter-popup", "routes/api/newsletter-popup.ts"),
     ]),
     ...prefix("blogs", [
       route(":blogHandle", "routes/blogs/blog.tsx"),

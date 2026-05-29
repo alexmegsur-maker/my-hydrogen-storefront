@@ -157,6 +157,7 @@ import * as PhoenixAtuh from "~/sections/phoenixAuth"
 import * as ChairSection from "~/sections/scrollanimation-section"
 import * as SliderVideoV2 from "~/sections/video-slider-v2"
 import * as SlideVideoV2 from "~/sections/video-slider-v2/slide"
+import * as NewsletterPopup from "~/sections/newsletter-popup"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -190,6 +191,7 @@ export const components: HydrogenComponent[] = [
   CountDownTimer,
   NewsLetter,
   NewsLetterForm,
+  NewsletterPopup,
   /* DUPLICADOS ELIMINADOS AQUÍ:
      - Blogs (Ya estaba arriba)
      - BlogPost (Ya estaba arriba)

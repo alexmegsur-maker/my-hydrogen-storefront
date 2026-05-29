@@ -11,7 +11,7 @@ export const translations: Record<string, Record<string, string>> = {
     specifications:"Especificaciones",
     identifier:"Identificador",
     back:"Atrás",
-    sucribe_to_newsletter:"se suscribió a la newsletter",
+    suscribe_to_newsletter:"se suscribió a la newsletter",
     bought:"compró",
     leave_a_review:"dejó una reseña"
   },
@@ -27,7 +27,7 @@ export const translations: Record<string, Record<string, string>> = {
     specifications:"Specifications",
     identifier:"Identifier",
     back:"Back",
-    sucribe_to_newsletter:"subscribed to the newsletter",
+    suscribe_to_newsletter:"subscribed to the newsletter",
     bought:"purchased",
     leave_a_review:"left a review"
   },
