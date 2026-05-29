@@ -10,7 +10,7 @@ export const COUNTRIES: Localizations = {
   "/en": {
     label: "English",
     language: "EN",
-    country: "US",
+    country: "DE",
     currency: "EUR",
   },
   // "/en-au": {

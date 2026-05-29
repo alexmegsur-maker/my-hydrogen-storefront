@@ -2,7 +2,7 @@ import { CartForm, ShopPayButton } from "@shopify/hydrogen";
 import type { CartLineInput } from "@shopify/hydrogen/storefront-api-types";
 import { createSchema } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
-import { useLoaderData, type FetcherWithComponents } from "react-router";
+import { useLoaderData, useLocation, type FetcherWithComponents } from "react-router";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
 import { Section } from "~/components/section";
 import { useCrossell } from "~/stores/crosssellStore";
@@ -146,6 +146,9 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
   ...rest}=props
   const { product ,storeDomain ,language } = useLoaderData<typeof productRouteLoader>();
   const t = translations[language]??translations["ES"]
+  const { pathname } = useLocation();
+  const pathPrefix = pathname.split('/')[1];
+  const cartRoute = ['en','de','fr','it'].includes(pathPrefix) ? `/${pathPrefix}/cart` : '/cart';
   const currentProd = useCurrentProduct((state) => state.currentProduct);
   const crossell = useCrossell((state) => state.crossellObjects);
   // const [productTitle,setProductTitle] = useState(product.title) 
@@ -391,25 +394,22 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
               idsVariants.length > 0 && 
               currentProd?.selectedVariant?.availableForSale ?          
                 <>
-                  {currentProd?.selectedVariant?.quantityAvailable <= 0 ? 
+                  {currentProd?.selectedVariant?.quantityAvailable <= 0 ?
                     <div className="relative w-full">
                       <CartForm
-                        route="/cart"
+                        route={cartRoute}
                         action={CartForm.ACTIONS.LinesAdd}
-                        inputs={{
-                          lines:cartIdsVariants,
-                        }}
+                        inputs={{ lines: cartIdsVariants }}
                       >
-                        {(fetcher:FetcherWithComponents<any>)=>(
+                        {(fetcher: FetcherWithComponents<any>) => (
                           <>
-                      
                             <input type="hidden" name="buyNow" value="true" />
                             <button
                               type="submit"
                               disabled={fetcher.state !== 'idle'}
                               onMouseLeave={() => setHoverBuy(false)}
                               onMouseOver={() => setHoverBuy((state) => state == false && true)}
-                              className="w-full py-5 px-2 border-solid border-2 uppercase border-[#3790b0] text-[16px] text-[#3790b0] hover:border-[#000] hover:text-[#000] font-bold z-10 gap-2"
+                              className="w-full py-5 px-2 border-solid border-2 uppercase text-[16px] font-bold z-10 gap-2"
                               style={{
                                 color: resColor,
                                 borderColor: !hoverBuy ? resBgColor : resHBgColor,
@@ -422,7 +422,9 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                                 ...selectorPaddingMargin("margin", resMarginSelect, resMarginText),
                               }}
                             >
-                              {fetcher.state !== 'idle' ? t.loading : (<> {t.reserve} <span className={`border-l border-l-[${resPColor}] pl-1 font-bold`} style={{color:resPColor}}>{totalPrice} €</span> </> )}
+                              {fetcher.state !== 'idle' ? t.loading : (
+                                <>{t.reserve} <span className={`border-l border-l-[${resPColor}] pl-1 font-bold`} style={{color:resPColor}}>{totalPrice} €</span></>
+                              )}
                             </button>
                           </>
                         )}
@@ -503,9 +505,6 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                 <span>{mcLabel1}</span>
                 <span>{mcLabel2}</span>
                 <span>{mcLabel3}</span>
-                {product.variants.nodes[0].currentlyNotInStock ? 
-                <span>activo</span>:<span>calidad premium</span>  
-              }
             </div>
           </div>
           
