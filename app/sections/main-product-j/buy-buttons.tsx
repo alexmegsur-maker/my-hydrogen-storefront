@@ -504,7 +504,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                 <span>{mcLabel2}</span>
                 <span>{mcLabel3}</span>
                 {product.variants.nodes[0].currentlyNotInStock ? 
-                <span>entra</span>:<span>noEntra</span>  
+                <span>activo</span>:<span>calidad premium</span>  
               }
             </div>
           </div>
