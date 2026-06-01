@@ -29,7 +29,7 @@ interface ChairSectionLoaderData {
 
 interface ChairSectionProps extends ChairSectionLoaderData {
   loaderData: ChairSectionLoaderData | null;
-  metaobject: string; // el handle que el usuario escribe en el Studio
+  metaobject: string;
   index?: number;
   isLast?: boolean;
 }
@@ -62,7 +62,7 @@ const CHAIR_METAOBJECT_QUERY = `#graphql
 ` as const;
 
 // ---------------------------------------------------------------------------
-// Loader  (mismo patrón que CollectionSlider)
+// Loader
 // ---------------------------------------------------------------------------
 
 export const loader = async ({
@@ -90,18 +90,13 @@ export const loader = async ({
     fieldsRaw.forEach((field: any) => {
       const key = field.key;
 
-      // Lista de imágenes (imagenes, imagenes_360)
       if (field.references?.nodes?.length > 0) {
         formattedData[key] = field.references.nodes
           .map((node: any) => node.image)
           .filter(Boolean);
-      }
-      // Imagen única (imgTitulo)
-      else if (field.reference?.image) {
+      } else if (field.reference?.image) {
         formattedData[key] = field.reference.image;
-      }
-      // Texto / url / cualquier valor escalar
-      else {
+      } else {
         formattedData[key] = field.value;
       }
     });
@@ -126,78 +121,99 @@ function toUrl(img: WeaverseImage | undefined): string {
 // Imagen sub-componente
 // ---------------------------------------------------------------------------
 
-function Imagen({ clase, img ,estilo=null,estiloImg=null}: { clase: string; img: string, estilo:CSSProperties,estiloImg:CSSProperties }) {
+function Imagen({
+  clase,
+  img,
+  estilo = null,
+  estiloImg = null,
+}: {
+  clase: string;
+  img: string;
+  estilo: CSSProperties;
+  estiloImg: CSSProperties;
+}) {
   return (
-    <div className={clase} style={estilo} >
-      <img 
-        src={img} 
-        alt="" 
-        loading="lazy" 
+    <div className={clase} style={estilo}>
+      <img
+        src={img}
+        alt=""
+        loading="lazy"
         style={{
-          width:"100%",
-          height:"100%",
-          objectFit:"cover",
-          ...estiloImg
-          }} 
-        />
-      <Expandicon clase ="expand-icon"/>
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          ...estiloImg,
+        }}
+      />
+      <Expandicon clase="expand-icon" />
     </div>
   );
 }
 
-function Expandicon ({clase}:{clase:string}){
+function Expandicon({ clase }: { clase: string }) {
   return (
-    <span 
+    <span
       className={clase}
       style={{
-        width:"4em",
-        height:"4em",
-        position:"absolute",
-        bottom:"1.5rem",
-        right:"1.5rem",
-        backgroundColor:"#050505",
-        padding:"1em",
-        borderRadius:"50%"
+        width: "4em",
+        height: "4em",
+        position: "absolute",
+        bottom: "1.5rem",
+        right: "1.5rem",
+        backgroundColor: "#050505",
+        padding: "1em",
+        borderRadius: "50%",
       }}
-      >
-      <svg 
-        viewBox="0 0 24 24"  
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg" 
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
         transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)"
       >
-          <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-          <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.048"></g>
-          <g id="SVGRepo_iconCarrier"> 
-            <path d="M14 10L21 3M21 3H16.5M21 3V7.5M10 14L3 21M3 21H7.5M3 21L3 16.5" 
-              stroke="#fff9cb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path> 
-          </g>
+        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+        <g
+          id="SVGRepo_tracerCarrier"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          stroke="#CCCCCC"
+          strokeWidth="0.048"
+        ></g>
+        <g id="SVGRepo_iconCarrier">
+          <path
+            d="M14 10L21 3M21 3H16.5M21 3V7.5M10 14L3 21M3 21H7.5M3 21L3 16.5"
+            stroke="#fff9cb"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          ></path>
+        </g>
       </svg>
     </span>
-  )
+  );
 }
+
 // ---------------------------------------------------------------------------
 // ChairSection
 // ---------------------------------------------------------------------------
 
 export default function ChairSection(props: ChairSectionProps) {
-  const actualFrameRef= useRef(0);
+  const actualFrameRef = useRef(0);
   const [zIndex, setZIndex] = useState(10);
 
-  // Los datos vienen de loaderData (igual que en CollectionSlider)
   const {
     loaderData,
     index = 0,
     isLast = false,
   } = props;
 
-  const titulo      = loaderData?.titulo      ?? "";
-  const imgTitulo   = loaderData?.imgTitulo;
-  const subtitle    = loaderData?.subtitle    ?? "";
-  const description = loaderData?.description ?? "";
-  const button_text = loaderData?.button_text ?? "Comprar ahora";
-  const link        = loaderData?.link        ?? "#";
-  const imagenes    = loaderData?.imagenes    ?? [];
+  const titulo       = loaderData?.titulo       ?? "";
+  const imgTitulo    = loaderData?.imgTitulo;
+  const subtitle     = loaderData?.subtitle     ?? "";
+  const description  = loaderData?.description  ?? "";
+  const button_text  = loaderData?.button_text  ?? "Comprar ahora";
+  const link         = loaderData?.link         ?? "#";
+  const imagenes     = loaderData?.imagenes     ?? [];
   const imagenes_360 = loaderData?.imagenes_360 ?? [];
 
   const numImg = imagenes_360.length;
@@ -205,15 +221,15 @@ export default function ChairSection(props: ChairSectionProps) {
   const imgsPreloadRef = useRef<HTMLImageElement[]>([]);
   const ctxCanvasRef   = useRef<CanvasRenderingContext2D | null>(null);
 
-  const chairContainer = useRef<HTMLDivElement>(null);
+  const chairContainer  = useRef<HTMLDivElement>(null);
   const canvasContainer = useRef<HTMLDivElement>(null);
-  const infoContent    = useRef<HTMLDivElement>(null);
-  const canvas         = useRef<HTMLCanvasElement>(null);
-  const overlayCanvas  = useRef<HTMLDivElement>(null);
+  const infoContent     = useRef<HTMLDivElement>(null);
+  const canvas          = useRef<HTMLCanvasElement>(null);
+  const overlayCanvas   = useRef<HTMLDivElement>(null);
 
   // ── Pre-cargar frames 360 e inicializar canvas ───────────────────────────
 
- useLayoutEffect(() => {
+  useLayoutEffect(() => {
     setZIndex(10 - index);
     if (!canvas.current || imagenes_360.length === 0) return;
 
@@ -252,109 +268,93 @@ export default function ChairSection(props: ChairSectionProps) {
       updateImageCanva(ctx, width, height, imgsPreloadRef.current);
   }, [imagenes_360, index]);
 
-
   // ── GSAP scroll animation ─────────────────────────────────────────────────
 
   useGSAP(
     () => {
+      gsap.registerPlugin(ScrollTrigger)
       if (!chairContainer.current) return;
 
-      const isMobile = window.innerWidth < 700
-  //     // const lastpost = isLast && isMobile ? isLast : false;
-  //     // const chairContainerHeight = chairContainer.current.getBoundingClientRect()
-      // const pinSpacing=!(isLast && isMobile)
-      ScrollTrigger.create({
-        trigger:chairContainer.current,
-        start:"top top",
-        markers:true,
-        scrub:1,
-        onUpdate:(self)=>{
-          const p = self.progress * 100 
-          if(p> 30){
-            gsap.to(canvas.current,{
-              filter:"blur(0)"
-              }
-            ) 
-            gsap.to(overlayCanvas.current,{
-              opacity:"1"
-              }
-            ) 
+      const isMobile = window.innerWidth < 700;
 
+      ScrollTrigger.create({
+        trigger: chairContainer.current,
+        start: "top top",
+        // FIX 1: end definido → self.progress avanza de 0 a 1
+        end: "bottom bottom",
+        // FIX 2: pinear solo el canvasContainer, no todo el section
+        pin: canvasContainer.current,
+        pinSpacing: false,
+        scrub: 1,
+
+        onUpdate: (self) => {
+          const p   = self.progress;
+          const ctx = ctxCanvasRef.current;
+          const cvs = canvas.current;
+          const ovl = overlayCanvas.current;
+          const inf = infoContent.current;
+
+          // ── FASE 1 (0 → 0.3): canvas aparece quitando blur, overlay desaparece ──
+          if (p <= 0.3) {
+            const t = p / 0.3; // 0 → 1
+
+            if (cvs) {
+              // FIX 3: animamos blur (no opacity) — canvas empieza en opacity:1
+              cvs.style.filter = `blur(${(1 - t)}rem)`;
+            }
+            if (ovl) ovl.style.opacity = String(1 - t);
+            if (inf) inf.style.transform = "translate(0, 100vh)";
           }
 
-        }
-      })
-  //     ScrollTrigger.create({
-  //       trigger:    chairContainer.current,
-  //       start:      "top top",
-  //       // 200vh de scroll para cubrir las 3 fases (0-0.3 / 0.3-0.6 / 0.6-1.0)
-  //       end:        "bottom bottom",
-  //       pin:        true,
-  //       pinSpacing: pinSpacing,
-  //       markers:true,
-  //       scrub:      1,
+          // ── FASE 2 (0.3 → 0.6): rotación 360 en canvas ──────────────────
+          if (p > 0.3 && p <= 0.6) {
+            const t          = (p - 0.3) / 0.3; // 0 → 1
+            const frameIndex = Math.min(
+              Math.round(t * (numImg - 1)),
+              numImg - 1
+            );
 
-  //       onUpdate: (self) => {
-  //         const p   = self.progress;
-  //         const ctx = ctxCanvasRef.current;
-  //         const cvs = canvas.current;
-  //         const ovl = overlayCanvas.current;
-  //         const inf = infoContent.current;
+            if (frameIndex !== actualFrameRef.current) {
+              actualFrameRef.current = frameIndex;
 
-  //         // ── FASE 1 (0 → 0.3): aparece canvas, desaparece overlay negro ──
-  //         if (p <= 0.3) {
-  //           const t      = p / 0.3;           // 0 → 1
-  //           const invert = 1 - t;             // 1 → 0
-  //           if (cvs) {
-  //             cvs.style.opacity = String(t);
-  //             cvs.style.filter  = `blur(${invert}rem)`;
-  //           }
-  //           if (ovl) ovl.style.opacity = String(invert);
-  //           if (inf) inf.style.transform = "translate(0, 100vh)";
-  //         }
+              if (imgsPreloadRef.current[frameIndex]?.complete && cvs && ctx) {
+                if (isMobile) {
+                  const heroImg =
+                    document.querySelector<HTMLImageElement>(".hero-fondo");
+                  if (heroImg) {
+                    const pct      = (100 * window.innerHeight) / heroImg.naturalHeight;
+                    const newWidth = (heroImg.naturalWidth * pct) / 100;
+                    cvs.width  = Math.round(newWidth);
+                    cvs.height = window.innerHeight;
+                  }
+                }
+                updateImageCanva(
+                  ctx,
+                  cvs.width,
+                  cvs.height,
+                  imgsPreloadRef.current,
+                  frameIndex
+                );
+              }
+            }
+          }
 
-  //         // ── FASE 2 (0.3 → 0.6): rotación 360 en canvas ──────────────────
-  //         if (p > 0.3 && p <= 0.6) {
-  //           const t          = (p - 0.3) / 0.3;                // 0 → 1
-  //           const frameIndex = Math.min(
-  //             Math.round(t * (numImg - 1)),
-  //             numImg - 1                                        // nunca fuera de rango
-  //           );
+          // ── FASE 3 (0.6 → 1.0): info sube, canvas se desvanece ──────────
+          if (p > 0.6 && inf && cvs) {
+            const t          = (p - 0.6) / 0.4; // 0 → 1
+            const invertProg = Math.max(0, 1 - t * 2.2); // 1 → 0
+            const topVh      = 100 * invertProg;
 
-  //           if (frameIndex !== actualFrameRef.current) {
-  //             actualFrameRef.current = frameIndex;
-
-  //             if (imgsPreloadRef.current[frameIndex]?.complete && cvs && ctx) {
-  //               if (isMobile) {
-  //                 const heroImg = document.querySelector<HTMLImageElement>(".hero-fondo");
-  //                 if (heroImg) {
-  //                   const pct      = (100 * window.innerHeight) / heroImg.naturalHeight;
-  //                   const newWidth = (heroImg.naturalWidth * pct) / 100;
-  //                   cvs.width  = Math.round(newWidth);
-  //                   cvs.height = window.innerHeight;
-  //                 }
-  //               }
-  //               updateImageCanva(ctx, cvs.width, cvs.height, imgsPreloadRef.current, frameIndex);
-  //             }
-  //           }
-  //         }
-
-  //         // ── FASE 3 (0.6 → 1.0): info sube, canvas se desvanece ──────────
-  //         if (p > 0.6 && inf && cvs) {
-  //           const t           = (p - 0.6) / 0.4;             // 0 → 1
-  //           const invertProg  = Math.max(0, 1 - t * 2.2);    // 1 → 0
-  //           const topVh       = 100 * invertProg;
-
-  //           inf.style.background = `linear-gradient(180deg,
-  //             rgba(0,0,0,0) 0%,
-  //             rgba(17,17,23,${t}) 30%,
-  //             var(--bg-primary) 70%,
-  //             transparent 100%)`;
-  //           inf.style.transform = `translate(0, ${topVh}vh)`;
-  //           cvs.style.opacity   = String(invertProg);
-  //         }
-  //       },
-  //     });
+            inf.style.background = `linear-gradient(180deg,
+              rgba(0,0,0,0) 0%,
+              rgba(17,17,23,${t}) 30%,
+              var(--bg-primary) 70%,
+              transparent 100%)`;
+            inf.style.transform = `translate(0, ${topVh}vh)`;
+            cvs.style.opacity   = String(invertProg);
+          }
+        },
+      });
     },
     { scope: chairContainer, dependencies: [numImg, isLast] }
   );
@@ -371,212 +371,212 @@ export default function ChairSection(props: ChairSectionProps) {
   return (
     <div
       style={{
-         "--indexChair": zIndex,
-         height:"auto",
-         position:"relative",
-         overflow:"hidden"
-        } as React.CSSProperties}
+        "--indexChair": zIndex,
+        // FIX 4: altura fija (400vh) para que ScrollTrigger pueda medir el recorrido
+        height: "400vh",
+        position: "relative",
+        overflow: "hidden",
+      } as React.CSSProperties}
       ref={chairContainer}
     >
-      {/* Canvas layer */}
-      <div 
-        className="canvasContainer" 
+      {/* Canvas layer — sticky, se queda fijo mientras scrolleas los 400vh */}
+      <div
+        className="canvasContainer"
         ref={canvasContainer}
         style={{
-          position:"sticky",
-          top:0,
-          inset:0,
-          width:"100vw",
-          height:"200vh"
+          position: "sticky",
+          top: 0,
+          inset: 0,
+          width: "100vw",
+          // FIX 5: 100vh (no 200vh) para que ocupe exactamente la ventana
+          height: "100vh",
         }}
-        >
-        <canvas 
-          ref={canvas} 
+      >
+        <canvas
+          ref={canvas}
           style={{
-            position:"absolute",
-            top:0,
-            left:0,
-            width:"100vw",
-            height:"100vh",
-            filter:"blur(0.9rem)",
-            opacity:0,
-          }} 
-          />
-        <div 
-          className="overlay-canvas" 
-          ref={overlayCanvas} 
-          style={{
-            position:"absolute",
-            width:"100vw",
-            height:"100vh",
-            top:0,
-            left:0,
-            backgroundColor:"#050505",
-            transform:"scaleY(1.1)",
-            opacity:1,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            // FIX 6: opacity 1 desde el inicio — el efecto de entrada es el blur
+            filter: "blur(1rem)",
+            opacity: 1,
           }}
-          />
+        />
+        <div
+          className="overlay-canvas"
+          ref={overlayCanvas}
+          style={{
+            position: "absolute",
+            width: "100vw",
+            height: "100vh",
+            top: 0,
+            left: 0,
+            backgroundColor: "#050505",
+            transform: "scaleY(1.1)",
+            opacity: 1,
+          }}
+        />
       </div>
 
       {/* Info layer */}
-      <div 
-        className="infoContent" 
-        ref={infoContent} 
+      <div
+        className="infoContent"
+        ref={infoContent}
         style={{
-          position:"relative",
-          top:0,
-          left:0,
-          width:"100%",
-          // transform:"translate(0,130vh)",
-          display:"grid",
-          gridTemplateColumns:"repeat(12,1fr)",
-          gap:"25px",
-          paddingInline:"13vw",
+          position: "relative",
+          top: 0,
+          left: 0,
+          width: "100%",
+          transform: "translate(0, 100vh)",
+          display: "grid",
+          gridTemplateColumns: "repeat(12,1fr)",
+          gap: "25px",
+          paddingInline: "13vw",
         }}
-        >
-
+      >
         {/* Section 1 */}
-        <div 
+        <div
           className="section-1 wrapContent-6fr"
           style={{
-            gridColumn:"span 6",
-            gap:"25px",
-            display:"grid",
-            gridTemplateColumns:"repeat(6,1fr)"
+            gridColumn: "span 6",
+            gap: "25px",
+            display: "grid",
+            gridTemplateColumns: "repeat(6,1fr)",
           }}
         >
-          <div 
+          <div
             className="title"
             style={{
-              gridColumn:"2/span 5",
-              textAlign:"left",
-              fontFamily:"'EB Garamond',serif",
-              direction:"ltr",
-              width:"100%",
-              display:"flex",
-              height:"auto",
-              alignItems:"center",
-              fontSize:"4rem",
-              textTransform:"uppercase"
+              gridColumn: "2/span 5",
+              textAlign: "left",
+              fontFamily: "'EB Garamond',serif",
+              direction: "ltr",
+              width: "100%",
+              display: "flex",
+              height: "auto",
+              alignItems: "center",
+              fontSize: "4rem",
+              textTransform: "uppercase",
             }}
-            >
+          >
             {titleImgUrl ? (
               <img src={titleImgUrl} alt={titulo || "titulo"} />
             ) : (
-              <h2>
-                {titulo}
-              </h2>
+              <h2>{titulo}</h2>
             )}
           </div>
-          <div 
-            className="sub-container" 
-            style={{ 
+          <div
+            className="sub-container"
+            style={{
               gridColumn: "2 / span 4",
-              marginBottom:"6vh",
-              display:"flex",
-              flexDirection:"column",
-              gap:"3vh",
-              direction:"ltr"
+              marginBottom: "6vh",
+              display: "flex",
+              flexDirection: "column",
+              gap: "3vh",
+              direction: "ltr",
             }}
-            >
-            <h3 
+          >
+            <h3
               className="subtitle"
               style={{
-                textAlign:"left",
-                fontFamily:"'EB Garamond',serif",
-                direction:"ltr",
-                fontSize:"45px",
-                lineHeight:"1.1",
-                color:"red",
-                fontWeight:"600"
+                textAlign: "left",
+                fontFamily: "'EB Garamond',serif",
+                direction: "ltr",
+                fontSize: "45px",
+                lineHeight: "1.1",
+                color: "red",
+                fontWeight: "600",
               }}
-              >
+            >
               {subtitle}
             </h3>
-            <p 
+            <p
               className="description"
               style={{
-                textAlign:"left",
-                fontSize:"25px",
-                lineHeight:"1.3",
-                fontFamily:"Helvetica,sans-serif"
+                textAlign: "left",
+                fontSize: "25px",
+                lineHeight: "1.3",
+                fontFamily: "Helvetica,sans-serif",
               }}
-              >
+            >
               {description}
             </p>
           </div>
-          {img1 && 
-            <Imagen 
-              clase="maskImg-1" 
-              img={img1} 
+          {img1 && (
+            <Imagen
+              clase="maskImg-1"
+              img={img1}
               estilo={{
-                aspectRatio:"9/16",
-                gridColumn:"2 / span 5",
-                position:"relative",
-                border:"0 solid transparent",
-                transition:"border-width .6s ease, border-color .3s ease .3s"
+                aspectRatio: "9/16",
+                gridColumn: "2 / span 5",
+                position: "relative",
+                border: "0 solid transparent",
+                transition: "border-width .6s ease, border-color .3s ease .3s",
               }}
               estiloImg={{
-                objectPosition:"center",
-                
+                objectPosition: "center",
               }}
-              
-              />
-          }
+            />
+          )}
         </div>
 
         {/* Section 2 */}
-        <div 
+        <div
           className="section-2"
           style={{
-            gridColumn:"span 6",
-            paddingTop:"calc(100vh/6)"
+            gridColumn: "span 6",
+            paddingTop: "calc(100vh/6)",
           }}
-          >
-          <div 
+        >
+          <div
             className="wrapContent-6fr two-img-content"
             style={{
-              display:"flex",
-              gap:"25px",
-              flexDirection:"column"
+              display: "flex",
+              gap: "25px",
+              flexDirection: "column",
             }}
           >
-            {img2 && 
-              <Imagen 
-                clase="maskImg-2" 
-                img={img2} 
+            {img2 && (
+              <Imagen
+                clase="maskImg-2"
+                img={img2}
                 estilo={{
-                  aspectRatio:"1/1",
-                  width:"calc(100% + 13vw)",
-                  position:"relative",
-                  border:"0 solid transparent",
-                  transition:"border-width .6s ease, border-color .3s ease .3s"
-                }} 
-                estiloImg={{
-                  objectPosition:"50% center"
-                }}
-                />
-            }
-            {img3 && 
-              <Imagen 
-                clase="maskImg-3" 
-                img={img3}  
-                estilo={{
-                  aspectRatio:"1/1",
-                  gridColumn:"span 5",
-                  position:"relative",
-                  border:"0 solid transparent",
-                  transition:"border-width .6s ease, border-color .3s ease .3s"
+                  aspectRatio: "1/1",
+                  width: "calc(100% + 13vw)",
+                  position: "relative",
+                  border: "0 solid transparent",
+                  transition:
+                    "border-width .6s ease, border-color .3s ease .3s",
                 }}
                 estiloImg={{
-                  objectPosition:"53% center"
+                  objectPosition: "50% center",
                 }}
-                />
-              }
-            <div 
+              />
+            )}
+            {img3 && (
+              <Imagen
+                clase="maskImg-3"
+                img={img3}
+                estilo={{
+                  aspectRatio: "1/1",
+                  gridColumn: "span 5",
+                  position: "relative",
+                  border: "0 solid transparent",
+                  transition:
+                    "border-width .6s ease, border-color .3s ease .3s",
+                }}
+                estiloImg={{
+                  objectPosition: "53% center",
+                }}
+              />
+            )}
+            <div
               className="boton-compra botton-desktop"
               style={{
-                backgroundColor:"#2e2e2e",
+                backgroundColor: "#2e2e2e",
                 border: "1px solid #fef289",
                 gridColumn: "span 5",
                 height: "4rem",
@@ -585,8 +585,8 @@ export default function ChairSection(props: ChairSectionProps) {
                 alignItems: "center",
                 cursor: "pointer",
               }}
-              >
-              <a 
+            >
+              <a
                 href={link}
                 style={{
                   width: "100%",
@@ -595,13 +595,13 @@ export default function ChairSection(props: ChairSectionProps) {
                   justifyContent: "center",
                   alignItems: "center",
                   textDecoration: "none",
-                  fontSize:"18px",
+                  fontSize: "18px",
                   color: "#fef289",
                   fontWeight: "900",
                   fontFamily: "'EB Garamond', serif",
-                }}    
-                >
-                  {button_text}
+                }}
+              >
+                {button_text}
               </a>
             </div>
           </div>
@@ -617,17 +617,17 @@ export default function ChairSection(props: ChairSectionProps) {
 
 export const schema = createSchema({
   title: "Scroll Chair",
-  type:  "scroll-chair",
+  type: "scroll-chair",
   settings: [
     {
       group: "General",
       inputs: [
         {
-          type:         "text",
-          label:        "Handle del metaobjeto",
-          name:         "metaobject",
+          type: "text",
+          label: "Handle del metaobjeto",
+          name: "metaobject",
           defaultValue: "",
-          placeholder:  "ej: rivendell",
+          placeholder: "ej: rivendell",
         },
       ],
     },

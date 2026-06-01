@@ -372,6 +372,16 @@ function ActivityRow({
 
   const lang= useLanguage()
   const t= translations[lang] ?? translations["ES"]
+  const [name,setName]=useState(item.name)
+
+  useEffect(()=>{
+    if(item.name.includes("@")){
+      const splitName = item.name.split("@")
+      const aux = splitName[0].substring(0,4)
+      setName(aux+"***@"+splitName[1])
+    }
+  },[item])
+
   return (
     <div
       style={{
@@ -421,7 +431,7 @@ function ActivityRow({
       {/* Texto */}
       <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>
         <TypeIcon type={item.type} color={typeColor} />
-        <strong style={{ color: nameColor, fontWeight: 500 }}>{item.name}</strong>
+        <strong style={{ color: nameColor, fontWeight: 500 }}>{name}</strong>
         {item.type === "newsletter-signup" && (
           <span>{t.suscribe_to_newsletter}</span>
         )}

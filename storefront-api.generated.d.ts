@@ -1320,7 +1320,10 @@ export type ProductQuery = {
         nodes: Array<
           Pick<
             StorefrontAPI.ProductVariant,
-            'id' | 'quantityAvailable' | 'availableForSale' | 'currentlyNotInStock'
+            | 'id'
+            | 'quantityAvailable'
+            | 'availableForSale'
+            | 'currentlyNotInStock'
           > & {
             selectedOptions: Array<
               Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
@@ -1620,6 +1623,54 @@ export type LiveActivityQuery = {
       }
     >;
   };
+};
+
+export type NewsletterPopupCustomerCreateMutationVariables =
+  StorefrontAPI.Exact<{
+    input: StorefrontAPI.CustomerCreateInput;
+  }>;
+
+export type NewsletterPopupCustomerCreateMutation = {
+  customerCreate?: StorefrontAPI.Maybe<{
+    customer?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Customer, 'id' | 'email' | 'acceptsMarketing'>
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'field' | 'message' | 'code'>
+    >;
+  }>;
+};
+
+export type NewsletterPopupTokenCreateMutationVariables = StorefrontAPI.Exact<{
+  input: StorefrontAPI.CustomerAccessTokenCreateInput;
+}>;
+
+export type NewsletterPopupTokenCreateMutation = {
+  customerAccessTokenCreate?: StorefrontAPI.Maybe<{
+    customerAccessToken?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.CustomerAccessToken, 'accessToken'>
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'message'>
+    >;
+  }>;
+};
+
+export type NewsletterPopupCustomerUpdateMutationVariables =
+  StorefrontAPI.Exact<{
+    customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+    customer: StorefrontAPI.CustomerUpdateInput;
+  }>;
+
+export type NewsletterPopupCustomerUpdateMutation = {
+  customerUpdate?: StorefrontAPI.Maybe<{
+    customer?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Customer, 'id' | 'email' | 'acceptsMarketing'>
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'message'>
+    >;
+  }>;
 };
 
 export type PredictiveArticleFragment = {__typename: 'Article'} & Pick<
@@ -3880,7 +3931,7 @@ interface GeneratedQueryTypes {
     return: GetMaterialsQuery;
     variables: GetMaterialsQueryVariables;
   };
-  '#graphql\n  query product(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      id\n      title\n      vendor\n      handle\n      publishedAt\n      descriptionHtml\n      description\n      summary: description(truncateAt: 200)\n      encodedVariantExistence\n      encodedVariantAvailability\n      tags\n      featuredImage {\n        id\n        url\n        altText\n      }\n      priceRange {\n        minVariantPrice {\n          amount\n          currencyCode\n        }\n        maxVariantPrice {\n          amount\n          currencyCode\n        }\n      }\n      badges: metafields(identifiers: [\n        { namespace: "custom", key: "best_seller" }\n      ]) {\n        key\n        namespace\n        value\n      }\n      options {\n        ...ProductOption\n      }\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {\n        ...ProductVariant\n      }\n      logoMetafield:metafield(namespace:"custom",key:"logo") {\n        key\n        value\n        reference{\n          ... on Media{\n            previewImage{\n              altText  \n              url\n            }\n          }\n        }\n      }\n      principalImg:metafield(namespace:"custom",key:"img_principal") {\n        key\n        value\n        reference{\n          ... on Media{\n            previewImage{\n              altText  \n              url\n            }\n          }\n        }\n      }\n     material:metafield(namespace:"custom",key:"material") {\n        key\n        type\n        value\n      }\n      imagenes360:metafield(namespace:"custom",key:"imagen360") {\n        key\n        value\n        references(first:50){\n          nodes{\n            ... on Media{\n              previewImage{\n                altText  \n                url\n              }\n            }\n          }\n        }\n      }\n      videosMetafield:metafield(namespace:"custom",key:"videos"){\n        id\n        type\n        references(first:2){\n          nodes{\n            ... on Video{\n              id\n              alt\n              sources{\n                url\n              }\n            }\n          }\n        }\n      }\n      pageMetafield:metafield(namespace:"custom",key:"page"){\n        id\n        type\n        value\n        reference{\n          ... on Page{\n            id\n            title\n            body\n            onlineStoreUrl\n          }\n        }\n      }\n      especificaciones:metafield(namespace:"custom",key:"especificaciones"){\n        id\n        value\n      }\n      fechaReserva:metafield(namespace:"custom",key:"fecha_recepcion"){\n        id\n        value\n      }\n      nombre:metafield(namespace:"custom",key:"name_style_secret"){\n        id\n        value\n      }\n      tooltip:metafield(namespace:"custom",key:"tooltip"){\n        id\n        value\n      }\n      variants(first:10){\n        nodes{\n          id\n          quantityAvailable\n          availableForSale\n          selectedOptions{\n            name\n            value\n          }\n          price{\n            amount\n            currencyCode\n          }\n          compareAtPrice{\n            amount\n            currencyCode\n          }\n          tooltip:metafield(namespace:"custom",key:"tooltip"){\n            id\n            value\n          }\n          fechaReserva:metafield(namespace:"custom",key:"fecha_reserva"){\n            id\n            value\n          }\n          totalReserva:metafield(namespace:"custom",key:"preventa_total"){\n            id\n            value\n          }\n          pedidosReserva:metafield(namespace:"custom",key:"preventa_pedidos"){\n            id\n            value\n          }\n        } \n      }\n      adjacentVariants(selectedOptions: $selectedOptions) {\n        ...ProductVariant\n      }\n      # Check if the product is a bundle\n      isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {\n        ...on ProductVariant { \n          requiresComponents\n          components(first: 100) { \n             nodes {\n                productVariant {\n                  ...ProductVariant\n                }\n                quantity\n             }\n          }\n          groupedBy(first: 100) {\n            nodes {\n                id\n              }\n            }\n          }\n      }\n      media(first: 50) {\n        nodes {\n          ...Media\n        }\n      }\n      seo {\n        description\n        title\n      }\n    }\n    shop {\n      name\n      primaryDomain {\n        url\n      }\n      shippingPolicy {\n        body\n        handle\n      }\n      refundPolicy {\n        body\n        handle\n      }\n    }\n  }\n  #graphql\n  fragment Media on Media {\n    __typename\n    mediaContentType\n    alt\n    previewImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    ... on MediaImage {\n      id\n      image {\n        id\n        url\n        width\n        height\n      }\n    }\n    ... on Video {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on Model3d {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on ExternalVideo {\n      id\n      embedUrl\n      host\n    }\n  }\n\n  #graphql\n  fragment ProductOption on ProductOption {\n    name\n    optionValues {\n      name\n      firstSelectableVariant {\n        ...ProductVariant\n      }\n      swatch {\n        color\n        image {\n          previewImage {\n            url\n            altText\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    quantityAvailable\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    requiresComponents\n    components(first: 10) {\n      nodes {\n        productVariant {\n          id\n          title\n          product {\n            handle\n          }\n        }\n        quantity\n      }\n    }\n    groupedBy(first: 10) {\n      nodes {\n        id\n        title\n        product {\n          handle\n        }\n      }\n    }\n  }\n\n\n': {
+  '#graphql\n  query product(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      id\n      title\n      vendor\n      handle\n      publishedAt\n      descriptionHtml\n      description\n      summary: description(truncateAt: 200)\n      encodedVariantExistence\n      encodedVariantAvailability\n      tags\n      featuredImage {\n        id\n        url\n        altText\n      }\n      priceRange {\n        minVariantPrice {\n          amount\n          currencyCode\n        }\n        maxVariantPrice {\n          amount\n          currencyCode\n        }\n      }\n      badges: metafields(identifiers: [\n        { namespace: "custom", key: "best_seller" }\n      ]) {\n        key\n        namespace\n        value\n      }\n      options {\n        ...ProductOption\n      }\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {\n        ...ProductVariant\n      }\n      logoMetafield:metafield(namespace:"custom",key:"logo") {\n        key\n        value\n        reference{\n          ... on Media{\n            previewImage{\n              altText  \n              url\n            }\n          }\n        }\n      }\n      principalImg:metafield(namespace:"custom",key:"img_principal") {\n        key\n        value\n        reference{\n          ... on Media{\n            previewImage{\n              altText  \n              url\n            }\n          }\n        }\n      }\n     material:metafield(namespace:"custom",key:"material") {\n        key\n        type\n        value\n      }\n      imagenes360:metafield(namespace:"custom",key:"imagen360") {\n        key\n        value\n        references(first:50){\n          nodes{\n            ... on Media{\n              previewImage{\n                altText  \n                url\n              }\n            }\n          }\n        }\n      }\n      videosMetafield:metafield(namespace:"custom",key:"videos"){\n        id\n        type\n        references(first:2){\n          nodes{\n            ... on Video{\n              id\n              alt\n              sources{\n                url\n              }\n            }\n          }\n        }\n      }\n      pageMetafield:metafield(namespace:"custom",key:"page"){\n        id\n        type\n        value\n        reference{\n          ... on Page{\n            id\n            title\n            body\n            onlineStoreUrl\n          }\n        }\n      }\n      especificaciones:metafield(namespace:"custom",key:"especificaciones"){\n        id\n        value\n      }\n      fechaReserva:metafield(namespace:"custom",key:"fecha_recepcion"){\n        id\n        value\n      }\n      nombre:metafield(namespace:"custom",key:"name_style_secret"){\n        id\n        value\n      }\n      tooltip:metafield(namespace:"custom",key:"tooltip"){\n        id\n        value\n      }\n      variants(first:10){\n        nodes{\n          id\n          quantityAvailable\n          availableForSale\n          currentlyNotInStock\n          selectedOptions{\n            name\n            value\n          }\n          price{\n            amount\n            currencyCode\n          }\n          compareAtPrice{\n            amount\n            currencyCode\n          }\n          tooltip:metafield(namespace:"custom",key:"tooltip"){\n            id\n            value\n          }\n          fechaReserva:metafield(namespace:"custom",key:"fecha_reserva"){\n            id\n            value\n          }\n          totalReserva:metafield(namespace:"custom",key:"preventa_total"){\n            id\n            value\n          }\n          pedidosReserva:metafield(namespace:"custom",key:"preventa_pedidos"){\n            id\n            value\n          }\n        } \n      }\n      adjacentVariants(selectedOptions: $selectedOptions) {\n        ...ProductVariant\n      }\n      # Check if the product is a bundle\n      isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {\n        ...on ProductVariant { \n          requiresComponents\n          components(first: 100) { \n             nodes {\n                productVariant {\n                  ...ProductVariant\n                }\n                quantity\n             }\n          }\n          groupedBy(first: 100) {\n            nodes {\n                id\n              }\n            }\n          }\n      }\n      media(first: 50) {\n        nodes {\n          ...Media\n        }\n      }\n      seo {\n        description\n        title\n      }\n    }\n    shop {\n      name\n      primaryDomain {\n        url\n      }\n      shippingPolicy {\n        body\n        handle\n      }\n      refundPolicy {\n        body\n        handle\n      }\n    }\n  }\n  #graphql\n  fragment Media on Media {\n    __typename\n    mediaContentType\n    alt\n    previewImage {\n      id\n      url\n      altText\n      width\n      height\n    }\n    ... on MediaImage {\n      id\n      image {\n        id\n        url\n        width\n        height\n      }\n    }\n    ... on Video {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on Model3d {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on ExternalVideo {\n      id\n      embedUrl\n      host\n    }\n  }\n\n  #graphql\n  fragment ProductOption on ProductOption {\n    name\n    optionValues {\n      name\n      firstSelectableVariant {\n        ...ProductVariant\n      }\n      swatch {\n        color\n        image {\n          previewImage {\n            url\n            altText\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    quantityAvailable\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    requiresComponents\n    components(first: 10) {\n      nodes {\n        productVariant {\n          id\n          title\n          product {\n            handle\n          }\n        }\n        quantity\n      }\n    }\n    groupedBy(first: 10) {\n      nodes {\n        id\n        title\n        product {\n          handle\n        }\n      }\n    }\n  }\n\n\n': {
     return: ProductQuery;
     variables: ProductQueryVariables;
   };
@@ -3998,6 +4049,18 @@ interface GeneratedMutationTypes {
   '#graphql\n  mutation customerCreate($input: CustomerCreateInput!) {\n    customerCreate(input: $input) {\n      customer {\n        firstName\n        lastName\n        email\n        phone\n        acceptsMarketing\n      }\n      customerUserErrors {\n        field\n        message\n        code\n      }\n    }\n  }\n': {
     return: CustomerCreateMutation;
     variables: CustomerCreateMutationVariables;
+  };
+  '#graphql\n  mutation newsletterPopupCustomerCreate($input: CustomerCreateInput!) {\n    customerCreate(input: $input) {\n      customer {\n        id\n        email\n        acceptsMarketing\n      }\n      customerUserErrors {\n        field\n        message\n        code\n      }\n    }\n  }\n': {
+    return: NewsletterPopupCustomerCreateMutation;
+    variables: NewsletterPopupCustomerCreateMutationVariables;
+  };
+  '#graphql\n  mutation newsletterPopupTokenCreate($input: CustomerAccessTokenCreateInput!) {\n    customerAccessTokenCreate(input: $input) {\n      customerAccessToken {\n        accessToken\n      }\n      customerUserErrors {\n        code\n        message\n      }\n    }\n  }\n': {
+    return: NewsletterPopupTokenCreateMutation;
+    variables: NewsletterPopupTokenCreateMutationVariables;
+  };
+  '#graphql\n  mutation newsletterPopupCustomerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {\n    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {\n      customer {\n        id\n        email\n        acceptsMarketing\n      }\n      customerUserErrors {\n        code\n        message\n      }\n    }\n  }\n': {
+    return: NewsletterPopupCustomerUpdateMutation;
+    variables: NewsletterPopupCustomerUpdateMutationVariables;
   };
 }
 
