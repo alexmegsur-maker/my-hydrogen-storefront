@@ -11,7 +11,8 @@ import { hydrogenRoutes } from "@shopify/hydrogen";
 // See https://remix.run/docs/en/main/guides/routing for more details
 export default hydrogenRoutes([
   route("robots.txt", "routes/seo/robots.ts"),
-  
+  route("feed.xml", "routes/[feed.xml].tsx"),
+
   ...prefix(":locale?", [
     index("routes/home.tsx"),
     route("search", "routes/search/index.tsx"),
