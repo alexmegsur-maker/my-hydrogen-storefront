@@ -6,51 +6,50 @@ interface SitemapUrl {
   lastMod?: string;
 }
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
-  // 1. Traer URLs de la Storefront API (Productos y Colecciones)
-  const shopifySitemaps = await getShopifySitemaps(context);
+const STATIC_ROUTES: SitemapUrl[] = [
+  // Español (Raíz)
+  { url: 'https://phoenixchairs.eu/' },
+  { url: 'https://phoenixchairs.eu/devolucion' },
+  { url: 'https://phoenixchairs.eu/legado' },
+  { url: 'https://phoenixchairs.eu/garantia-base' },
+  { url: 'https://phoenixchairs.eu/private' },
+  { url: 'https://phoenixchairs.eu/tecnologia' },
+  { url: 'https://phoenixchairs.eu/privacidad' },
+  { url: 'https://phoenixchairs.eu/extension-de-garantia' },
+  { url: 'https://phoenixchairs.eu/aviso-legal' },
+  { url: 'https://phoenixchairs.eu/landing-founders' },
+  { url: 'https://phoenixchairs.eu/contact' },
+  // Inglés
+  { url: 'https://phoenixchairs.eu/en/' },
+  { url: 'https://phoenixchairs.eu/en/devolucion' },
+  { url: 'https://phoenixchairs.eu/en/legado' },
+  { url: 'https://phoenixchairs.eu/en/garantia-base' },
+  { url: 'https://phoenixchairs.eu/en/private' },
+  { url: 'https://phoenixchairs.eu/en/tecnologia' },
+  { url: 'https://phoenixchairs.eu/en/privacidad' },
+  { url: 'https://phoenixchairs.eu/en/extension-de-garantia' },
+  { url: 'https://phoenixchairs.eu/en/aviso-legal' },
+  { url: 'https://phoenixchairs.eu/en/landing-founders' },
+  { url: 'https://phoenixchairs.eu/en/contact' },
+  // Alemán
+  { url: 'https://phoenixchairs.eu/de' },
+];
 
-  // 2. Array de rutas estáticas de Weaverse/Remix con sus variantes de idioma
-  const staticRoutes: SitemapUrl[] = [
-    // Español (Raíz) [cite: 220]
-    { url: 'https://phoenixchairs.eu/' },
-    { url: 'https://phoenixchairs.eu/devolucion' },
-    { url: 'https://phoenixchairs.eu/legado' },
-    { url: 'https://phoenixchairs.eu/garantia-base' },
-    { url: 'https://phoenixchairs.eu/private' },
-    { url: 'https://phoenixchairs.eu/tecnologia' },
-    { url: 'https://phoenixchairs.eu/privacidad' },
-    { url: 'https://phoenixchairs.eu/extension-de-garantia' },
-    { url: 'https://phoenixchairs.eu/aviso-legal' },
-    { url: 'https://phoenixchairs.eu/landing-founders' },
-    { url: 'https://phoenixchairs.eu/contact' },
-    
-    // Inglés [cite: 220]
-    { url: 'https://phoenixchairs.eu/en/' },
-    { url: 'https://phoenixchairs.eu/en/devolucion' },
-    { url: 'https://phoenixchairs.eu/en/legado' },
-    { url: 'https://phoenixchairs.eu/en/garantia-base' },
-    { url: 'https://phoenixchairs.eu/en/private' },
-    { url: 'https://phoenixchairs.eu/en/tecnologia' },
-    { url: 'https://phoenixchairs.eu/en/privacidad' },
-    { url: 'https://phoenixchairs.eu/en/extension-de-garantia' },
-    { url: 'https://phoenixchairs.eu/en/aviso-legal' },
-    { url: 'https://phoenixchairs.eu/en/landing-founders' },
-    { url: 'https://phoenixchairs.eu/en/contact' },
-    
-    // Alemán [cite: 220]
-    { url: 'https://phoenixchairs.eu/de' },
-  ];
+const SITEMAP_HEADERS = {
+  'Content-Type': 'application/xml; charset=utf-8',
+  'Cache-Control': 'public, max-age=3600',
+};
 
-  // 3. Fusionar y retornar el XML final [cite: 221]
-  const sitemapXml = generateSitemapXml(shopifySitemaps, staticRoutes);
-
-  return new Response(sitemapXml, {
-    headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': 'max-age=3600, s-maxage=86400', // Cache por 24 horas en Oxygen [cite: 222]
-    },
-  });
+export async function loader({ context }: LoaderFunctionArgs) {
+  try {
+    const shopifySitemaps = await getShopifySitemaps(context);
+    const sitemapXml = generateSitemapXml(shopifySitemaps, STATIC_ROUTES);
+    return new Response(sitemapXml, { headers: SITEMAP_HEADERS });
+  } catch (error) {
+    console.error('Sitemap loader failed, returning static-only sitemap:', error);
+    const fallbackXml = generateSitemapXml([], STATIC_ROUTES);
+    return new Response(fallbackXml, { headers: SITEMAP_HEADERS });
+  }
 }
 
 /**
