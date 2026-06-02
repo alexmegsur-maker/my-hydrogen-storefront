@@ -51,7 +51,7 @@ const LANGUAGE_TO_LOCALE: Record<string, string> = {
 const KNOWN_PREFIXES = ["/en", "/de", "/fr", "/it"];
 
 // Rutas que nunca deben redirigirse
-const SKIP_PREFIXES = ["/api/", "/robots.txt", "/sitemap", "/_", "/favicon"];
+const SKIP_PREFIXES = ["/api/", "/robots.txt", "/sitemap", "/_", "/favicon", "/feed.xml"];
 
 function shouldAutoRedirect(url: URL): boolean {
   const path = url.pathname;
