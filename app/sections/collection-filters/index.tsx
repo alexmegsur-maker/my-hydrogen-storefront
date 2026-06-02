@@ -11,6 +11,7 @@ import { ProductsPagination } from "./products-pagination";
 import { ToolsBar } from "./tools-bar";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { Description } from "@radix-ui/react-dialog";
 
 export interface CollectionFiltersData {
   showBreadcrumb: boolean;
@@ -57,7 +58,7 @@ interface CollectionFiltersProps extends SectionProps, CollectionFiltersData {
   colMarginSelect: string;
   colMarginText: string;
   colWeight: string;
-  descText: string;
+  descText: HTMLElement;
   coldColor: string;
   coldSize: string;
   coldFamily: string;
@@ -295,7 +296,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
       collections: Array<{ handle: string; title: string }>;
     }
   >();
-  const description =descText && descText.length> 15 ? descText:  collection.description  
+  const description =descText ? descText:  collection.descriptionHtml 
 
   const [gridSizeDesktop, setGridSizeDesktop] = useState(
     Number(productsPerRowDesktop) || 3,
@@ -387,12 +388,12 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
                   fontSize:coldSize,
                   textAlign:coldAlignment,
                   fontFamily:coldFamily,
-                  fontWeight:coldWeight,
                   ...selectorPaddingMargin("padding",coldPaddingSelect,coldPaddingText),
                   ...selectorPaddingMargin("margin",coldMarginSelect,coldMarginText),
                 }}
-              >
-              </div>
+              />
+              
+              
             )}
           </div>
         </div>

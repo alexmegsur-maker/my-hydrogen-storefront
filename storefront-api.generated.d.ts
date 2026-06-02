@@ -2119,7 +2119,7 @@ export type CollectionQuery = {
   collection?: StorefrontAPI.Maybe<
     Pick<
       StorefrontAPI.Collection,
-      'id' | 'handle' | 'title' | 'description'
+      'id' | 'handle' | 'title' | 'description' |'descriptionHtml'
     > & {
       seo: Pick<StorefrontAPI.Seo, 'description' | 'title'>;
       metafield?: StorefrontAPI.Maybe<

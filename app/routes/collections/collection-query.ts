@@ -20,6 +20,7 @@ export const COLLECTION_QUERY = `#graphql
       handle
       title
       description
+      descriptionHtml
       seo {
         description
         title

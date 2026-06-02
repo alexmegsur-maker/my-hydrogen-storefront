@@ -209,7 +209,7 @@ export default function ChairSection(props: ChairSectionProps) {
 
   // SUPERPOSICIÓN: el primer elemento tiene z-index más alto.
   // index=0 → z-index:10, index=1 → z-index:9, etc.
-  const zIndex = 10 - index;
+  const zIndex = 30 - index;
 
   const titulo       = loaderData?.titulo       ?? "";
   const imgTitulo    = loaderData?.imgTitulo;
@@ -231,6 +231,7 @@ export default function ChairSection(props: ChairSectionProps) {
   const canvas          = useRef<HTMLCanvasElement>(null);
   const overlayCanvas   = useRef<HTMLDivElement>(null);
   const [position,setPosition]=useState(0)
+  const [last,setLast]=useState(false)
 
   const parentInstance  = useParentInstance()
   const selfInstance = useItemInstance()
@@ -242,7 +243,7 @@ export default function ChairSection(props: ChairSectionProps) {
     parentInstance.data.children.map((child,index)=>{
       if(child.id ==selfInstance.data.id){
         setPosition(index)
-        console.log("")
+        console.log("index",index)
       }
     })
     
@@ -423,7 +424,7 @@ export default function ChairSection(props: ChairSectionProps) {
         position: "relative",
         // FIX: altura fija para que ScrollTrigger pueda medir el recorrido
         height: "400vh",
-        overflow: "hidden",
+        // overflow: "hidden",
       } as React.CSSProperties}
       ref={chairContainer}
     >
