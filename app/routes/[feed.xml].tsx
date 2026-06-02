@@ -89,7 +89,7 @@ function generateFeed(products: any[]): string {
         salePriceLine,
         `      <g:availability>${availability}</g:availability>`,
         `      <g:condition>new</g:condition>`,
-        `      <g:brand>${escapeXml(product.vendor || "Phoenix Chairs")}</g:brand>`,
+        `      <g:brand>${escapeXml("Phoenix Chairs")}</g:brand>`,
         gtinLine,
         mpnLine,
         colorLine,
