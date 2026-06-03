@@ -272,9 +272,9 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
 
   useEffect(() => {
     if (height > 179 || weight > 99) {
-      setRecommendation("MONARCH XL");
+      setRecommendation("EXTRA LARGE (XL)");
     } else {
-      setRecommendation("REGULAR");
+      setRecommendation("REGULAR (R)");
     }
   }, [height, weight]);
 
