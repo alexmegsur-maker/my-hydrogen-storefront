@@ -63,13 +63,13 @@ async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
   }
  
   try {
-    // Ejecutamos la consulta GraphQL pidiendo los primeros 250 productos y colecciones [cite: 226, 228]
     const data: any = await context.storefront.query(`#graphql
       query SitemapCatalog {
-        products(first: 250) {
+        products(first: 250, query: "available_for_sale:true") {
           nodes {
             handle
             updatedAt
+            availableForSale
           }
         }
         collections(first: 250) {
@@ -81,21 +81,29 @@ async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
       }
     `);
 
-    // Mapeamos los productos dinámicos de Shopify a URLs absolutas 
     if (data?.products?.nodes) {
-      data.products.nodes.forEach((product: any) => {
-        urls.push({
-          url: `https://phoenixchairs.eu/products/${product.handle}`,
-          lastMod: product.updatedAt ? product.updatedAt.split('T')[0] : undefined,
+      data.products.nodes
+        .filter((product: any) => product.availableForSale)
+        .forEach((product: any) => {
+          const encodedHandle = product.handle
+            .split('/')
+            .map((segment: string) => encodeURIComponent(segment))
+            .join('/');
+          urls.push({
+            url: `https://phoenixchairs.eu/products/${encodedHandle}`,
+            lastMod: product.updatedAt ? product.updatedAt.split('T')[0] : undefined,
+          });
         });
-      });
     }
 
-    // Mapeamos las colecciones dinámicas de Shopify a URLs absolutas 
     if (data?.collections?.nodes) {
       data.collections.nodes.forEach((collection: any) => {
+        const encodedHandle = collection.handle
+          .split('/')
+          .map((segment: string) => encodeURIComponent(segment))
+          .join('/');
         urls.push({
-          url: `https://phoenixchairs.eu/collections/${collection.handle}`,
+          url: `https://phoenixchairs.eu/collections/${encodedHandle}`,
           lastMod: collection.updatedAt ? collection.updatedAt.split('T')[0] : undefined,
         });
       });
