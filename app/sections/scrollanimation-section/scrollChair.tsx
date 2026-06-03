@@ -34,6 +34,27 @@ interface ChairSectionProps extends ChairSectionLoaderData {
   metaobject: string;
   index?: number;
   isLast?: boolean;
+  changePosition:boolean;
+  // Estilos — Título
+  tituloFamily?: string;
+  tituloSize?: string;
+  tituloColor?: string;
+  tituloWeight?: string;
+  // Estilos — Subtítulo
+  subtitleColor?: string;
+  subtitleSize?: string;
+  subtitleFamily?: string;
+  subtitleWeight?: string;
+  // Estilos — Descripción
+  descColor?: string;
+  descSize?: string;
+  descFamily?: string;
+  // Estilos — Botón
+  btnTextColor?: string;
+  btnBgColor?: string;
+  btnBorderColor?: string;
+  btnFontSize?: string;
+  btnFontFamily?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -177,7 +198,7 @@ function Expandicon({ clase }: { clase: string }) {
           id="SVGRepo_tracerCarrier"
           strokeLinecap="round"
           strokeLinejoin="round"
-          stroke="#CCCCCC"
+          stroke="#ffffff"
           strokeWidth="0.048"
         ></g>
         <g id="SVGRepo_iconCarrier">
@@ -205,11 +226,24 @@ export default function ChairSection(props: ChairSectionProps) {
     loaderData,
     index = 0,
     isLast = false,
+    changePosition,
+    tituloFamily = "'EB Garamond', serif",
+    tituloSize = "4rem",
+    tituloColor = "#fff",
+    tituloWeight = "400",
+    subtitleColor = "#fff",
+    subtitleSize = "45px",
+    subtitleFamily = "'EB Garamond', serif",
+    subtitleWeight = "600",
+    descColor = "#fff",
+    descSize = "25px",
+    descFamily = "Helvetica, sans-serif",
+    btnTextColor = "#fef289",
+    btnBgColor = "#2e2e2e",
+    btnBorderColor = "#fef289",
+    btnFontSize = "18px",
+    btnFontFamily = "'EB Garamond', serif",
   } = props;
-
-  // SUPERPOSICIÓN: el primer elemento tiene z-index más alto.
-  // index=0 → z-index:10, index=1 → z-index:9, etc.
-  const zIndex = 30 - index;
 
   const titulo       = loaderData?.titulo       ?? "";
   const imgTitulo    = loaderData?.imgTitulo;
@@ -230,7 +264,7 @@ export default function ChairSection(props: ChairSectionProps) {
   const infoContent     = useRef<HTMLDivElement>(null);
   const canvas          = useRef<HTMLCanvasElement>(null);
   const overlayCanvas   = useRef<HTMLDivElement>(null);
-  const [position,setPosition]=useState(0)
+  const [zIndex,setZindex]=useState(10)
   const [last,setLast]=useState(false)
 
   const parentInstance  = useParentInstance()
@@ -242,10 +276,15 @@ export default function ChairSection(props: ChairSectionProps) {
     console.log("selfInstance.data",selfInstance.data)
     parentInstance.data.children.map((child,index)=>{
       if(child.id ==selfInstance.data.id){
-        setPosition(index)
-        console.log("index",index)
+        let totalChildren =parentInstance.data.children.length - 1
+        setZindex(state=>state +(totalChildren - index))
+        console.log("index",index)    
+        if(index == parentInstance.data.children.length-1){
+          setLast(true)
+        }
       }
     })
+
     
   },[parentInstance])
 
@@ -343,7 +382,7 @@ export default function ChairSection(props: ChairSectionProps) {
               cvs.style.opacity = index > 0 ? String(t) : "1";
             }
             if (ovl) ovl.style.opacity = String(1 - t);
-            if (inf) inf.style.transform = "translate(0, 100vh)";
+            // if (inf) inf.style.transform = "translate(0, 100vh)";
           }
 
           // ── FASE 2 (0.3 → 0.6): rotación 360 en canvas ──────────────────
@@ -396,7 +435,7 @@ export default function ChairSection(props: ChairSectionProps) {
               rgba(17,17,23,${t}) 30%,
               var(--bg-primary) 70%,
               transparent 100%)`;
-            inf.style.transform = `translate(0, ${topVh}vh)`;
+            // inf.style.transform = `translate(0, ${topVh}vh)`;
             cvs.style.opacity   = String(invertProg);
           }
         },
@@ -420,11 +459,10 @@ export default function ChairSection(props: ChairSectionProps) {
         // SUPERPOSICIÓN: z-index inverso al índice.
         // La primera sección (index=0) tiene z-index:10 y queda ENCIMA.
         // Las siguientes van por debajo hasta que su scroll las eleva.
-        zIndex,
+        zIndex:zIndex,
         position: "relative",
         // FIX: altura fija para que ScrollTrigger pueda medir el recorrido
-        height: "400vh",
-        // overflow: "hidden",
+        height: last?"auto":"400vh",
       } as React.CSSProperties}
       ref={chairContainer}
     >
@@ -481,11 +519,13 @@ export default function ChairSection(props: ChairSectionProps) {
           top: 0,
           left: 0,
           width: "100%",
-          transform: "translate(0, 100vh)",
+          transform: last ? "unset":`translate(0, 120vh)`, 
           display: "grid",
           gridTemplateColumns: "repeat(12,1fr)",
           gap: "25px",
           paddingInline: "13vw",
+          paddingTop:last ? "100vh":"unset",
+          direction:changePosition?"rtl":"ltr"
         }}
       >
         {/* Section 1 */}
@@ -503,13 +543,15 @@ export default function ChairSection(props: ChairSectionProps) {
             style={{
               gridColumn: "2/span 5",
               textAlign: "left",
-              fontFamily: "'EB Garamond',serif",
+              fontFamily: tituloFamily,
               direction: "ltr",
               width: "100%",
               display: "flex",
               height: "auto",
               alignItems: "center",
-              fontSize: "4rem",
+              fontSize: tituloSize,
+              color: tituloColor,
+              fontWeight: tituloWeight,
               textTransform: "uppercase",
             }}
           >
@@ -522,7 +564,7 @@ export default function ChairSection(props: ChairSectionProps) {
           <div
             className="sub-container"
             style={{
-              gridColumn: "2 / span 4",
+              gridColumn: changePosition ? "3 / span 4":"2 / span 4",
               marginBottom: "6vh",
               display: "flex",
               flexDirection: "column",
@@ -534,12 +576,12 @@ export default function ChairSection(props: ChairSectionProps) {
               className="subtitle"
               style={{
                 textAlign: "left",
-                fontFamily: "'EB Garamond',serif",
+                fontFamily: subtitleFamily,
                 direction: "ltr",
-                fontSize: "45px",
+                fontSize: subtitleSize,
                 lineHeight: "1.1",
-                color: "red",
-                fontWeight: "600",
+                color: subtitleColor,
+                fontWeight: subtitleWeight,
               }}
             >
               {subtitle}
@@ -548,9 +590,10 @@ export default function ChairSection(props: ChairSectionProps) {
               className="description"
               style={{
                 textAlign: "left",
-                fontSize: "25px",
+                fontSize: descSize,
                 lineHeight: "1.3",
-                fontFamily: "Helvetica,sans-serif",
+                fontFamily: descFamily,
+                color: descColor,
               }}
             >
               {description}
@@ -627,8 +670,8 @@ export default function ChairSection(props: ChairSectionProps) {
             <div
               className="boton-compra botton-desktop"
               style={{
-                backgroundColor: "#2e2e2e",
-                border: "1px solid #fef289",
+                backgroundColor: btnBgColor,
+                border: `1px solid ${btnBorderColor}`,
                 gridColumn: "span 5",
                 height: "4rem",
                 display: "flex",
@@ -646,10 +689,10 @@ export default function ChairSection(props: ChairSectionProps) {
                   justifyContent: "center",
                   alignItems: "center",
                   textDecoration: "none",
-                  fontSize: "18px",
-                  color: "#fef289",
+                  fontSize: btnFontSize,
+                  color: btnTextColor,
                   fontWeight: "900",
-                  fontFamily: "'EB Garamond', serif",
+                  fontFamily: btnFontFamily,
                 }}
               >
                 {button_text}
@@ -671,7 +714,7 @@ export const schema = createSchema({
   type: "scroll-chair",
   settings: [
     {
-      group: "General",
+      group: "360 / Metaobject",
       inputs: [
         {
           type: "text",
@@ -680,7 +723,152 @@ export const schema = createSchema({
           defaultValue: "",
           placeholder: "ej: rivendell",
         },
+        {
+          type:'switch',
+          label:'change Position',
+          name:'changePosition',
+          defaultValue:false,
+        },
       ],
     },
+    {
+      group: "Estilos — Título",
+      inputs: [
+        {
+          type: "color",
+          label: "Color",
+          name: "tituloColor",
+          defaultValue: "#fff",
+        },
+        {
+          type: "text",
+          label: "Tamaño de fuente",
+          name: "tituloSize",
+          defaultValue: "4rem",
+        },
+        {
+          type: "text",
+          label: "Familia de fuente",
+          name: "tituloFamily",
+          defaultValue: "'EB Garamond', serif",
+        },
+        {
+          type: "select",
+          label: "Peso de fuente",
+          name: "tituloWeight",
+          configs: {
+            options: [
+              { value: "300", label: "300" },
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+              { value: "600", label: "600" },
+              { value: "700", label: "700" },
+              { value: "800", label: "800" },
+              { value: "900", label: "900" },
+            ],
+          },
+          defaultValue: "400",
+        },
+      ],
+    },
+    {
+      group: "Estilos — Subtítulo",
+      inputs: [
+        {
+          type: "color",
+          label: "Color",
+          name: "subtitleColor",
+          defaultValue: "#fff",
+        },
+        {
+          type: "text",
+          label: "Tamaño de fuente",
+          name: "subtitleSize",
+          defaultValue: "45px",
+        },
+        {
+          type: "text",
+          label: "Familia de fuente",
+          name: "subtitleFamily",
+          defaultValue: "'EB Garamond', serif",
+        },
+        {
+          type: "select",
+          label: "Peso de fuente",
+          name: "subtitleWeight",
+          configs: {
+            options: [
+              { value: "300", label: "300" },
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+              { value: "600", label: "600" },
+              { value: "700", label: "700" },
+              { value: "800", label: "800" },
+              { value: "900", label: "900" },
+            ],
+          },
+          defaultValue: "600",
+        },
+      ],
+    },
+    {
+      group: "Estilos — Descripción",
+      inputs: [
+        {
+          type: "color",
+          label: "Color",
+          name: "descColor",
+          defaultValue: "#fff",
+        },
+        {
+          type: "text",
+          label: "Tamaño de fuente",
+          name: "descSize",
+          defaultValue: "25px",
+        },
+        {
+          type: "text",
+          label: "Familia de fuente",
+          name: "descFamily",
+          defaultValue: "Helvetica, sans-serif",
+        },
+      ],
+    },
+    {
+      group: "Estilos — Botón",
+      inputs: [
+        {
+          type: "color",
+          label: "Color del texto",
+          name: "btnTextColor",
+          defaultValue: "#fef289",
+        },
+        {
+          type: "color",
+          label: "Color de fondo",
+          name: "btnBgColor",
+          defaultValue: "#2e2e2e",
+        },
+        {
+          type: "color",
+          label: "Color del borde",
+          name: "btnBorderColor",
+          defaultValue: "#fef289",
+        },
+        {
+          type: "text",
+          label: "Tamaño de fuente",
+          name: "btnFontSize",
+          defaultValue: "18px",
+        },
+        {
+          type: "text",
+          label: "Familia de fuente",
+          name: "btnFontFamily",
+          defaultValue: "'EB Garamond', serif",
+        },
+      ],
+    },
+    
   ],
 });

@@ -21,15 +21,16 @@ function root({
   url: Request["url"];
 }): SeoConfig {
 
-  let origin = 'https://phoenixchairs.eu';
-
+  let canonicalUrl = url;
   try {
-    if(url){
-      const urlObj = typeof url === "string" ? new URL(url):url;
-      origin = urlObj.origin
+    if (url) {
+      const urlObj = new URL(url);
+      urlObj.host = 'phoenixchairs.eu';
+      urlObj.protocol = 'https:';
+      canonicalUrl = urlObj.toString();
     }
-  }catch(e){
-    console.error("Mini-Oxygen SEO URL Warning:",e);
+  } catch (e) {
+    console.error("Mini-Oxygen SEO URL Warning:", e);
   }
 
   return {
@@ -37,7 +38,7 @@ function root({
     titleTemplate: "%s | Phoenixchairs",
     description: truncate(shop?.description ?? ""),
     handle: "@weaverse",
-    url,
+    url: canonicalUrl,
     robots: {
       noIndex: false,
       noFollow: false,
@@ -53,10 +54,10 @@ function root({
         "https://instagram.com/weaverse.io",
         "https://youtube.com/@weaverse",
       ],
-      url,
+      url: canonicalUrl,
       potentialAction: {
         "@type": "SearchAction",
-        target: `${origin}/search?q={search_term}`,
+        target: `https://phoenixchairs.eu/search?q={search_term}`,
         query: "required name='search_term'",
       },
     },
