@@ -217,7 +217,9 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     "Cache-Control": "no-store",
   };
 
-  const ip        = request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "IP Desconocida";
+  const ip        = request.headers.get("cf-connecting-ip")
+                  ?? request.headers.get("x-forwarded-for")?.split(",")[0].trim()
+                  ?? "IP Desconocida";
   const userAgent = request.headers.get("user-agent") ?? "Desconocido";
   const now       = new Date();
 
