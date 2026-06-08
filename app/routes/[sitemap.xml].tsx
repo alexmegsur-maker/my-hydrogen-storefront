@@ -18,17 +18,8 @@ const STATIC_ROUTES: SitemapUrl[] = [
   { url: 'https://phoenixchairs.eu/aviso-legal' },
   { url: 'https://phoenixchairs.eu/landing-founders' },
   { url: 'https://phoenixchairs.eu/contact' },
-  // Inglés
+  // Inglés (redirigen a versión española vía catch-all)
   { url: 'https://phoenixchairs.eu/en/' },
-  { url: 'https://phoenixchairs.eu/en/devolucion' },
-  { url: 'https://phoenixchairs.eu/en/legado' },
-  { url: 'https://phoenixchairs.eu/en/garantia-base' },
-  { url: 'https://phoenixchairs.eu/en/tecnologia' },
-  { url: 'https://phoenixchairs.eu/en/privacidad' },
-  { url: 'https://phoenixchairs.eu/en/extension-de-garantia' },
-  { url: 'https://phoenixchairs.eu/en/aviso-legal' },
-  { url: 'https://phoenixchairs.eu/en/landing-founders' },
-  { url: 'https://phoenixchairs.eu/en/contact' },
   // Alemán
   { url: 'https://phoenixchairs.eu/de' },
 ];
