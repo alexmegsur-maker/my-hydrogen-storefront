@@ -107,13 +107,23 @@ async function verifyNtag424Mac(params: {
   const keyBytes = fromHex(masterKey);
   const uidBytes = fromHex(uid);
 
-  // Contador: 6 chars hex LE ("0A0000") o decimal → 3 bytes LE
+  // Contador: puede llegar como:
+  //   - 6 hex chars LE con letras (estándar NXP SDM): "1A0000" → counter=26
+  //   - 6 hex chars LE solo dígitos: "180000" → counter=24
+  //   - decimal puro con ceros: "000018" = 18 (algunos programadores NFC usan decimal)
+  // Regla: si contiene letras a-f es hex LE; si son solo dígitos y empieza con ceros
+  // significativos (ej. "0001XX") es decimal, pues LE empezaría por el byte bajo.
   let ctrBytes: Uint8Array;
-  if (/^[0-9a-fA-F]{6}$/.test(counter)) {
-    ctrBytes = fromHex(counter); // ya viene en LE desde el chip
-  } else {
+  if (/[a-fA-F]/.test(counter)) {
+    // Contiene letras → hex LE directo del chip
+    ctrBytes = fromHex(counter);
+  } else if (/^0{3}/.test(counter)) {
+    // Empieza con 3+ ceros → casi seguro decimal (en LE hex el byte bajo iría primero)
     const v = parseInt(counter, 10);
     ctrBytes = new Uint8Array([v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff]);
+  } else {
+    // 6 dígitos sin ceros líderes significativos → tratar como hex LE
+    ctrBytes = fromHex(counter);
   }
 
   // SV2: 16 bytes
