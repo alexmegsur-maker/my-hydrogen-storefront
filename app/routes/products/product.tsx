@@ -80,9 +80,13 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
 }
 
 export const meta = ({ matches }: MetaArgs<typeof loader>) => {
-  return getSeoMeta(
-    ...matches.map((match) => (match.data as any)?.seo).filter(Boolean),
-  );
+  return [
+    ...getSeoMeta(
+      ...matches.map((match) => (match.data as any)?.seo).filter(Boolean),
+    ),
+    { property: "og:type", content: "product" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ];
 };
 
 export default function Product() {

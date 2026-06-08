@@ -19,9 +19,13 @@ import { COLLECTION_QUERY } from "./collection-query";
 import { getSortValuesFromParam, parseAsCurrency } from "./utils";
 
 export const meta = ({ matches }: MetaArgs<typeof loader>) => {
-  return getSeoMeta(
-    ...matches.map((match) => (match.data as any)?.seo).filter(Boolean),
-  );
+  return [
+    ...getSeoMeta(
+      ...matches.map((match) => (match.data as any)?.seo).filter(Boolean),
+    ),
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ];
 };
 
 export const headers = routeHeaders;

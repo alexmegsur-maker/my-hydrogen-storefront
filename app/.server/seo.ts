@@ -37,7 +37,7 @@ function root({
     title: shop?.name,
     titleTemplate: "%s | Phoenixchairs",
     description: truncate(shop?.description ?? ""),
-    handle: "@phoenixchairs",
+    handle: "@Phoenix_es",
     url: canonicalUrl,
     robots: {
       noIndex: false,
@@ -49,8 +49,10 @@ function root({
       name: shop.name,
       logo: shop.brand?.logo?.image?.url,
       sameAs: [
-        "https://www.instagram.com/phoenixchairs/",
-        "https://www.tiktok.com/@phoenixchairs",
+        "https://www.instagram.com/phoenix_official.eu/",
+        "https://www.tiktok.com/@phoenixtechnologiesspain",
+        "https://x.com/Phoenix_es",
+        "https://www.youtube.com/@PhoenixChairsEU",
       ],
       url: canonicalUrl,
       potentialAction: {
@@ -232,7 +234,7 @@ function collectionJsonLd({
           "@type": "ListItem",
           position: 1,
           name: "Collections",
-          item: `${siteUrl.host}/collections`,
+          item: `${siteUrl.origin}/collections`,
         },
         {
           "@type": "ListItem",
@@ -266,21 +268,24 @@ function collection({
   url: Request["url"];
 }): SeoConfig {
   const rawTitle = collectionData?.seo?.title ?? collectionData?.title ?? "";
+  const imageUrl = collectionData?.image?.url;
   return {
     title: truncate(rawTitle, 55),
     description: truncate(
       collectionData?.seo?.description ?? collectionData?.description ?? "",
     ),
     titleTemplate: "%s | Phoenix Chairs",
-    handle: "@phoenixchairs",
+    handle: "@Phoenix_es",
     url,
-    media: {
-      type: "image",
-      url: collectionData?.image?.url,
-      height: collectionData?.image?.height,
-      width: collectionData?.image?.width,
-      altText: collectionData?.image?.altText,
-    },
+    ...(imageUrl ? {
+      media: {
+        type: "image" as const,
+        url: imageUrl,
+        height: collectionData?.image?.height,
+        width: collectionData?.image?.width,
+        altText: collectionData?.image?.altText,
+      },
+    } : {}),
     jsonLd: collectionJsonLd({ collection: collectionData, url }),
   };
 }
