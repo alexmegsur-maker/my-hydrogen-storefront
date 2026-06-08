@@ -1,4 +1,4 @@
-import { Money, mapSelectedProductOptionToObject } from "@shopify/hydrogen";
+import { Money } from "@shopify/hydrogen";
 import type { MoneyV2 } from "@shopify/hydrogen/storefront-api-types";
 import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
@@ -70,11 +70,6 @@ export function ProductCard({
   const { minVariantPrice, maxVariantPrice } = priceRange;
 
   const firstVariant = product.selectedOrFirstAvailableVariant;
-  const params = new URLSearchParams(
-    mapSelectedProductOptionToObject(
-      (selectedVariant || firstVariant)?.selectedOptions || [],
-    ),
-  );
 
   const isVertical = pcardTitlePricesAlignment === "vertical";
   const isBestSellerProduct = badges
@@ -106,7 +101,7 @@ export function ProductCard({
       <div className="group relative">
         {image && (
           <Link
-            to={`/products/${product.handle}?${params.toString()}`}
+            to={`/products/${product.handle}`}
             prefetch="intent"
             className="group relative block aspect-(--pcard-image-ratio) overflow-hidden rounded-t-(--pcard-radius) bg-gray-100"
           >
@@ -208,7 +203,7 @@ export function ProductCard({
           )}
         >
           <Link
-            to={`/products/${product.handle}?${params.toString()}`}
+            to={`/products/${product.handle}`}
             prefetch="intent"
             className="inline-block font-bold"
           >
