@@ -37,7 +37,7 @@ function root({
     title: shop?.name,
     titleTemplate: "%s | Phoenixchairs",
     description: truncate(shop?.description ?? ""),
-    handle: "@weaverse",
+    handle: "@phoenixchairs",
     url: canonicalUrl,
     robots: {
       noIndex: false,
@@ -49,10 +49,8 @@ function root({
       name: shop.name,
       logo: shop.brand?.logo?.image?.url,
       sameAs: [
-        "https://twitter.com/weaverseio",
-        "https://facebook.com/weaverse",
-        "https://instagram.com/weaverse.io",
-        "https://youtube.com/@weaverse",
+        "https://www.instagram.com/phoenixchairs/",
+        "https://www.tiktok.com/@phoenixchairs",
       ],
       url: canonicalUrl,
       potentialAction: {
@@ -181,8 +179,10 @@ function product({
   );
   const selectedVariant = productData?.selectedOrFirstAvailableVariant;
   return {
-    title: productData?.seo?.title ?? productData?.title,
+    title: truncate(productData?.seo?.title ?? productData?.title ?? "", 55),
     description,
+    titleTemplate: "%s | Phoenix Chairs",
+    handle: "@phoenixchairs",
     media: selectedVariant?.image,
     jsonLd: productJsonLd({ product: productData, selectedVariant, url }),
   };
@@ -265,12 +265,14 @@ function collection({
   collection: CollectionRequiredFields;
   url: Request["url"];
 }): SeoConfig {
+  const rawTitle = collectionData?.seo?.title ?? collectionData?.title ?? "";
   return {
-    title: collectionData?.seo?.title,
+    title: truncate(rawTitle, 55),
     description: truncate(
       collectionData?.seo?.description ?? collectionData?.description ?? "",
     ),
-    titleTemplate: "%s | Collection",
+    titleTemplate: "%s | Phoenix Chairs",
+    handle: "@phoenixchairs",
     url,
     media: {
       type: "image",
