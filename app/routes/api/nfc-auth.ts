@@ -217,16 +217,9 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     "Cache-Control": "no-store",
   };
 
-  // DEBUG TEMPORAL: log todos los headers para ver cuál contiene la IP real
-  const allHeaders: Record<string, string> = {};
-  request.headers.forEach((value, key) => { allHeaders[key] = value; });
-  console.log("[PHOENIX DEBUG] Headers recibidos:", JSON.stringify(allHeaders));
-
-  const ip        = request.headers.get("cf-connecting-ip")
-                  ?? request.headers.get("x-forwarded-for")?.split(",")[0].trim()
-                  ?? request.headers.get("x-real-ip")
+  const ip        = request.headers.get("oxygen-buyer-ip")
+                  ?? request.headers.get("x-shopify-client-ip")
                   ?? "IP Desconocida";
-  console.log("[PHOENIX DEBUG] IP detectada:", ip);
   const userAgent = request.headers.get("user-agent") ?? "Desconocido";
   const now       = new Date();
 
