@@ -365,7 +365,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
                 }}
                 />
             )}
-            <h3
+            <h1
               style={{
                 textTransform:colUppercase && "uppercase",
                 color:colColor,
@@ -378,7 +378,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
               }}
             >
                 {collection.title}
-            </h3>
+            </h1>
             {showDescription && description && (
               <div
                 className="mt-2.5 text-body-subtle"
