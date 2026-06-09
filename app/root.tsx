@@ -66,14 +66,27 @@ export const links: LinksFunction = () => {
     {
       rel: "preconnect",
       href: "https://cdn.judge.me",
+      crossOrigin: "anonymous",
     },
     {
       rel: "preconnect",
       href: "https://cache.judge.me",
+      crossOrigin: "anonymous",
+    },
+    {
+      rel: "preconnect",
+      href: "https://api.judge.me",
+      crossOrigin: "anonymous",
+    },
+    {
+      rel: "preconnect",
+      href: "https://cdnwidget.judge.me",
+      crossOrigin: "anonymous",
     },
     {
       rel: "preconnect",
       href: "https://studio.weaverse.io",
+      crossOrigin: "anonymous",
     },
     { rel: "icon", type: "image/svg+xml", href: "https://cdn.shopify.com/s/files/1/0777/6370/7216/files/favicon.png?v=1694621278" },
   ];
@@ -178,11 +191,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           nonce={nonce}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            __html: `window.dataLayer=window.dataLayer||[];
+            function loadGTM(){(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-5SSSMFKJ');`,
+            })(window,document,'script','dataLayer','GTM-5SSSMFKJ');}
+            if('requestIdleCallback' in window){requestIdleCallback(loadGTM,{timeout:4000});}
+            else{setTimeout(loadGTM,3500);}`,
             }}
           />
       </head>

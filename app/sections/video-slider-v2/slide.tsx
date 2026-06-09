@@ -89,7 +89,6 @@ function SlideVideoV2(props:SlideProps){
           <div className="h-full w-full">
             <video
               className="object-cover w-full h-full hidden lg:block"
-              preload="none"
               autoPlay
               muted
               loop={loop}
