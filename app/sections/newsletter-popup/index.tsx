@@ -99,7 +99,7 @@ export default function NewsletterPopup(
     if (!shown) {
       const timer = setTimeout(() => {
         setIsOpen(true);
-      }, (delaySeconds ?? 3) * 1000);
+      }, (delaySeconds ?? 5) * 1000);
       return () => clearTimeout(timer);
     } else {
       setShowIcon(true);
@@ -173,6 +173,8 @@ export default function NewsletterPopup(
                       : bannerImage
                   }
                   className="w-full h-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
                 />
               </div>
             )}
@@ -395,7 +397,7 @@ export const schema = createSchema({
           name: "delaySeconds",
           label: "Delay before showing (seconds)",
           configs: { min: 0, max: 30, step: 1, unit: "s" },
-          defaultValue: 3,
+          defaultValue: 5,
         },
       ],
     },
