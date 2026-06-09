@@ -288,7 +288,7 @@ function collection({
   const imageUrl = collectionData?.image?.url;
   const canonicalUrl = toCanonicalUrl(url);
   return {
-    title: truncate(rawTitle, 55),
+    title: truncate(rawTitle, 22),
     description: truncate(
       collectionData?.seo?.description ?? collectionData?.description ?? "",
     ),
