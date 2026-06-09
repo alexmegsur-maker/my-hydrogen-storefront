@@ -104,6 +104,8 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
     <Section
       ref={ref}
       {...rest}
+      loading="eager"
+      fetchPriority="high"
       containerClassName={cn(
         variants({
           contentPosition,
