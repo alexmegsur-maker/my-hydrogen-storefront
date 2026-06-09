@@ -248,6 +248,7 @@
     @apply font-cabin;
     scroll-padding-top: 10rem;
     overflow-x: hidden;
+    scrollbar-gutter: stable;
   }
 
   button,

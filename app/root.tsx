@@ -1,7 +1,7 @@
 // Supports weights 400-700
 import "@fontsource-variable/cabin";
-import "@fontsource-variable/montserrat";
-import "@fontsource-variable/outfit";
+import "@fontsource/montserrat/latin.css";
+import "@fontsource/outfit/latin.css";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
