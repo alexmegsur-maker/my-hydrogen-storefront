@@ -60,6 +60,10 @@ export const links: LinksFunction = () => {
       crossOrigin: "anonymous",
     },
     {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap",
+    },
+    {
       rel: "preconnect",
       href: "https://cdn.judge.me",
     },
@@ -167,19 +171,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
-        <link
-          rel="preload"
-          as="style"
-          href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
-          // @ts-expect-error onLoad works as a non-blocking font loader
-          onLoad="this.rel='stylesheet'"
-        />
-        <noscript>
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
-          />
-        </noscript>
         <Meta />
         <Links />
         <GlobalStyle /> 
