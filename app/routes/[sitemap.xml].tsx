@@ -18,10 +18,6 @@ const STATIC_ROUTES: SitemapUrl[] = [
   { url: 'https://phoenixchairs.eu/aviso-legal' },
   { url: 'https://phoenixchairs.eu/landing-founders' },
   { url: 'https://phoenixchairs.eu/contact' },
-  // Inglés (redirigen a versión española vía catch-all)
-  { url: 'https://phoenixchairs.eu/en/' },
-  // Alemán
-  { url: 'https://phoenixchairs.eu/de' },
 ];
 
 const SITEMAP_HEADERS = {
