@@ -42,7 +42,7 @@ function root({
       const urlObj = new URL(url);
       urlObj.host = 'phoenixchairs.eu';
       urlObj.protocol = 'https:';
-      canonicalUrl = urlObj.toString();
+      canonicalUrl = toCanonicalUrl(urlObj.toString());
     }
   } catch (e) {
     console.error("Mini-Oxygen SEO URL Warning:", e);
@@ -79,11 +79,13 @@ function root({
   };
 }
 
-function home(): SeoConfig {
+function home({ url }: { url?: Request["url"] } = {}): SeoConfig {
+  const canonicalUrl = url ? toCanonicalUrl(url) : undefined;
   return {
     title: "Home",
     titleTemplate: "%s | PhoenixChairs",
     description: "The best store of gaming chairs",
+    ...(canonicalUrl ? { url: canonicalUrl } : {}),
     robots: {
       noIndex: false,
       noFollow: false,
