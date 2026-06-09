@@ -1,5 +1,7 @@
 // Supports weights 400-700
 import "@fontsource-variable/cabin";
+import "@fontsource-variable/montserrat";
+import "@fontsource-variable/outfit";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
@@ -49,19 +51,6 @@ export const links: LinksFunction = () => {
     {
       rel: "preconnect",
       href: "https://shop.app",
-    },
-    {
-      rel: "preconnect",
-      href: "https://fonts.googleapis.com",
-    },
-    {
-      rel: "preconnect",
-      href: "https://fonts.gstatic.com",
-      crossOrigin: "anonymous",
-    },
-    {
-      rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap",
     },
     {
       rel: "preconnect",

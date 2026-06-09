@@ -1,4 +1,10 @@
-@import "swiper/css/bundle" layer(base);
+@import "swiper/css" layer(base);
+@import "swiper/css/navigation" layer(base);
+@import "swiper/css/pagination" layer(base);
+@import "swiper/css/effect-fade" layer(base);
+@import "swiper/css/zoom" layer(base);
+@import "swiper/css/thumbs" layer(base);
+@import "swiper/css/free-mode" layer(base);
 @import "tailwindcss" source("../../app");
 @plugin "@tailwindcss/typography";
 @theme {
