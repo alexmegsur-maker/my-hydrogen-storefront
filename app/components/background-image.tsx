@@ -33,10 +33,12 @@ export type BackgroundImageProps = VariantProps<typeof variants> & {
   backgroundImage?: WeaverseImage | string;
   style?:CSSProperties;
   backgroundGrayscale?:number;
+  loading?: "lazy" | "eager";
+  fetchPriority?: "high" | "low" | "auto";
 };
 
 export function BackgroundImage(props: BackgroundImageProps) {
-  const { backgroundImage,style,backgroundGrayscale, backgroundFit, backgroundPosition } = props;
+  const { backgroundImage,style,backgroundGrayscale, backgroundFit, backgroundPosition, loading, fetchPriority } = props;
   if (backgroundImage) {
     const {filter:externalFilter,...restStyle}=style || {};
 
@@ -49,15 +51,17 @@ export function BackgroundImage(props: BackgroundImageProps) {
         className={variants({ backgroundFit, backgroundPosition })}
         data={data}
         sizes="auto"
-         style={{
-      ...restStyle,
-      filter: [
-        externalFilter,
-        backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined
-      ]
-        .filter(Boolean)
-        .join(" ") || undefined,
-    }}
+        loading={loading}
+        fetchPriority={fetchPriority}
+        style={{
+          ...restStyle,
+          filter: [
+            externalFilter,
+            backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined,
+        }}
       />
     );
   }

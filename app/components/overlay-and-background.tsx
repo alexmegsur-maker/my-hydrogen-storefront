@@ -17,6 +17,8 @@ export function OverlayAndBackground(props: OverlayAndBackgroundProps) {
     overlayColorHover,
     overlayOpacity,
     backgroundGrayscale,
+    loading,
+    fetchPriority,
   } = props;
   return (
     <>
@@ -25,6 +27,8 @@ export function OverlayAndBackground(props: OverlayAndBackgroundProps) {
         backgroundImage={backgroundImage}
         backgroundFit={backgroundFit}
         backgroundPosition={backgroundPosition}
+        loading={loading}
+        fetchPriority={fetchPriority}
       />
       <Overlay
         enableOverlay={enableOverlay}

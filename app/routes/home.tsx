@@ -1,7 +1,6 @@
-import type { SeoConfig } from "@shopify/hydrogen";
 import { AnalyticsPageType, getSeoMeta } from "@shopify/hydrogen";
 import type { PageType } from "@weaverse/hydrogen";
-import type { LoaderFunctionArgs, MetaFunction } from "react-router";
+import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import type { ShopQuery } from "storefront-api.generated";
 import { seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
@@ -42,8 +41,12 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return getSeoMeta(data?.seo as SeoConfig);
+export const meta = ({ matches }: MetaArgs<typeof loader>) => {
+  return [
+    ...getSeoMeta(...matches.map((match) => (match.data as any)?.seo).filter(Boolean)),
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ];
 };
 export default function Homepage() {
   return <WeaverseContent />;

@@ -50,6 +50,27 @@ export const links: LinksFunction = () => {
       rel: "preconnect",
       href: "https://shop.app",
     },
+    {
+      rel: "preconnect",
+      href: "https://fonts.googleapis.com",
+    },
+    {
+      rel: "preconnect",
+      href: "https://fonts.gstatic.com",
+      crossOrigin: "anonymous",
+    },
+    {
+      rel: "preconnect",
+      href: "https://cdn.judge.me",
+    },
+    {
+      rel: "preconnect",
+      href: "https://cache.judge.me",
+    },
+    {
+      rel: "preconnect",
+      href: "https://studio.weaverse.io",
+    },
     { rel: "icon", type: "image/svg+xml", href: "https://cdn.shopify.com/s/files/1/0777/6370/7216/files/favicon.png?v=1694621278" },
   ];
 };
@@ -146,6 +167,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
+        <link
+          rel="preload"
+          as="style"
+          href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
+          // @ts-expect-error onLoad works as a non-blocking font loader
+          onLoad="this.rel='stylesheet'"
+        />
+        <noscript>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&display=swap"
+          />
+        </noscript>
         <Meta />
         <Links />
         <GlobalStyle /> 

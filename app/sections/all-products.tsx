@@ -23,7 +23,7 @@ export default function AllProducts(props: AllProductsProps) {
   return (
     <Section ref={ref} {...rest} overflow="unset">
       <BreadCrumb page={heading} className="mb-4 justify-center" />
-      <h4 className="mb-8 text-center font-medium lg:mb-20">{heading}</h4>
+      <h1 className="mb-8 text-center font-medium lg:mb-20">{heading}</h1>
       <Pagination connection={products}>
         {({
           nodes,

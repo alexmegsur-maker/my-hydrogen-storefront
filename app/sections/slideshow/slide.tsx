@@ -74,6 +74,7 @@ export interface SlideProps
   multipleDevice?:string,
   marginSelect?:string;
   showSmoke?:boolean;
+  isHero?:boolean;
 }
 
 export default function Slide(props: SlideProps) {
@@ -98,6 +99,7 @@ export default function Slide(props: SlideProps) {
     multipleDevice,
     marginSelect,
     showSmoke,
+    isHero,
     ...rest
   } = props;
 
@@ -115,6 +117,8 @@ export default function Slide(props: SlideProps) {
         overlayOpacity={overlayOpacity}
         overlayColor={overlayColor}
         overlayColorHover={overlayColorHover}
+        loading={isHero ? "eager" : "lazy"}
+        fetchPriority={isHero ? "high" : undefined}
       />
       <div
         className={variants({ contentPosition, width, gap, verticalPadding })}
@@ -136,6 +140,12 @@ export const schema = createSchema({
     {
       group: "Slide",
       inputs: [
+        {
+          type: "switch",
+          label: "Hero slide (load first, improves PageSpeed)",
+          name: "isHero",
+          defaultValue: false,
+        },
         {
           type:'text',
           label:'name of option bar',

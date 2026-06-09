@@ -48,12 +48,14 @@ function root({
     console.error("Mini-Oxygen SEO URL Warning:", e);
   }
 
+  const brandLogoUrl = shop?.brand?.logo?.image?.url;
   return {
     title: shop?.name,
     titleTemplate: "%s | Phoenixchairs",
     description: truncate(shop?.description ?? ""),
     handle: "@Phoenix_es",
     url: canonicalUrl,
+    ...(brandLogoUrl ? { media: { type: "image" as const, url: brandLogoUrl } } : {}),
     robots: {
       noIndex: false,
       noFollow: false,
