@@ -13,6 +13,21 @@ import type {
   ShopFragment,
 } from "storefront-api.generated";
 
+const LOCALE_PREFIXES = ["/en", "/de", "/fr", "/it"];
+
+function toCanonicalUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    for (const prefix of LOCALE_PREFIXES) {
+      if (u.pathname === prefix || u.pathname.startsWith(prefix + "/")) {
+        u.pathname = u.pathname.slice(prefix.length) || "/";
+        return u.toString();
+      }
+    }
+  } catch {}
+  return url;
+}
+
 function root({
   shop,
   url,
@@ -180,13 +195,15 @@ function product({
     productData?.seo?.description ?? productData?.description ?? "",
   );
   const selectedVariant = productData?.selectedOrFirstAvailableVariant;
+  const canonicalUrl = toCanonicalUrl(url);
   return {
     title: truncate(productData?.seo?.title ?? productData?.title ?? "", 55),
     description,
     titleTemplate: "%s | Phoenix Chairs",
     handle: "@phoenixchairs",
+    url: canonicalUrl,
     media: selectedVariant?.image,
-    jsonLd: productJsonLd({ product: productData, selectedVariant, url }),
+    jsonLd: productJsonLd({ product: productData, selectedVariant, url: canonicalUrl }),
   };
 }
 
@@ -269,6 +286,7 @@ function collection({
 }): SeoConfig {
   const rawTitle = collectionData?.seo?.title ?? collectionData?.title ?? "";
   const imageUrl = collectionData?.image?.url;
+  const canonicalUrl = toCanonicalUrl(url);
   return {
     title: truncate(rawTitle, 55),
     description: truncate(
@@ -276,7 +294,7 @@ function collection({
     ),
     titleTemplate: "%s | Phoenix Chairs",
     handle: "@Phoenix_es",
-    url,
+    url: canonicalUrl,
     ...(imageUrl ? {
       media: {
         type: "image" as const,
@@ -286,7 +304,7 @@ function collection({
         altText: collectionData?.image?.altText,
       },
     } : {}),
-    jsonLd: collectionJsonLd({ collection: collectionData, url }),
+    jsonLd: collectionJsonLd({ collection: collectionData, url: canonicalUrl }),
   };
 }
 
