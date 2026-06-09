@@ -199,7 +199,7 @@ function product({
   const selectedVariant = productData?.selectedOrFirstAvailableVariant;
   const canonicalUrl = toCanonicalUrl(url);
   return {
-    title: truncate(productData?.seo?.title ?? productData?.title ?? "", 55),
+    title: truncate(productData?.seo?.title ?? productData?.title ?? "", 22),
     description,
     titleTemplate: "%s | Phoenix Chairs",
     handle: "@phoenixchairs",
