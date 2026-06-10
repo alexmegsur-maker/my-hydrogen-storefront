@@ -42,8 +42,6 @@ import styles from "./styles/app.css?url";
 import { DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
 import { useJudgeme } from '@judgeme/shopify-hydrogen';
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import gsap from "gsap";
 import { GoogleTagManager } from "./components/google-tag-manager";
 import CookieConsentBanner from "./components/CookieConsent";
 
@@ -148,13 +146,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
   useJudgeme(data?.judgeme ?? { shopDomain: '', publicToken: '', cdnHost: '', delay: 500 });
 
   useEffect(() => {
-    setIsHydrated(true)
-    gsap.registerPlugin(ScrollTrigger);
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => ScrollTrigger.refresh(), { timeout: 2000 });
-    } else {
-      setTimeout(() => ScrollTrigger.refresh(), 1000);
-    }
+    setIsHydrated(true);
+    Promise.all([
+      import('gsap').then(m => m.default),
+      import('gsap/ScrollTrigger').then(m => m.ScrollTrigger),
+    ]).then(([gsap, ScrollTrigger]) => {
+      gsap.registerPlugin(ScrollTrigger);
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => ScrollTrigger.refresh(), { timeout: 2000 });
+      } else {
+        setTimeout(() => ScrollTrigger.refresh(), 1000);
+      }
+    });
   }, []);
 
   if (

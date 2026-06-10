@@ -51,9 +51,9 @@ function root({
   const brandLogoUrl = shop?.brand?.logo?.image?.url;
   return {
     title: shop?.name,
-    titleTemplate: "%s | Phoenixchairs",
-    description: truncate(shop?.description ?? ""),
-    handle: "@Phoenix_es",
+    titleTemplate: "%s | PhoenixChairs",
+    description: truncate(shop?.description ?? "Sillas gaming premium con tecnología biomecánica patentada. Envío a toda Europa."),
+    handle: "@phoenix_official.eu",
     url: canonicalUrl,
     ...(brandLogoUrl ? { media: { type: "image" as const, url: brandLogoUrl } } : {}),
     robots: {
@@ -84,22 +84,58 @@ function root({
 function home({ url }: { url?: Request["url"] } = {}): SeoConfig {
   const canonicalUrl = url ? toCanonicalUrl(url) : undefined;
   return {
-    title: "Home",
+    title: "Sillas Gaming Premium — Monarch Remaster",
     titleTemplate: "%s | PhoenixChairs",
-    description: "The best store of gaming chairs",
+    description:
+      "Sillas gaming de alto rendimiento con biomecánica patentada. Monarch Remaster en ediciones limitadas con licencias oficiales. Envío premium a toda Europa, impuestos incluidos.",
     ...(canonicalUrl ? { url: canonicalUrl } : {}),
     robots: {
       noIndex: false,
       noFollow: false,
     },
-    jsonLd: {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: "Home page",
-    },
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "PhoenixChairs",
+        url: "https://phoenixchairs.eu",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: "https://phoenixchairs.eu/search?q={search_term_string}",
+          "query-input": "required name=search_term_string", 
+        } as any,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "PhoenixChairs — Sillas Gaming Premium",
+        description:
+          "Sillas gaming de alto rendimiento con biomecánica patentada. Ediciones limitadas con licencias oficiales. Envío a Europa con impuestos incluidos.",
+        url: canonicalUrl ?? "https://phoenixchairs.eu",
+        isPartOf: {
+          "@type": "WebSite",
+          url: "https://phoenixchairs.eu",
+        },
+        about: {
+          "@type": "Organization",
+          name: "PhoenixChairs",
+          url: "https://phoenixchairs.eu",
+        },
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Inicio",
+              item: "https://phoenixchairs.eu",
+            },
+          ],
+        },
+      },
+    ],
   };
 }
-
 function productJsonLd({
   product: productData,
   selectedVariant,
@@ -203,7 +239,7 @@ function product({
   return {
     title: truncate(productData?.seo?.title ?? productData?.title ?? "", 22),
     description,
-    titleTemplate: "%s | Phoenix Chairs",
+    titleTemplate: "%s — PhoenixChairs",
     handle: "@phoenixchairs",
     url: canonicalUrl,
     media: selectedVariant?.image,
@@ -296,7 +332,7 @@ function collection({
     description: truncate(
       collectionData?.seo?.description ?? collectionData?.description ?? "",
     ),
-    titleTemplate: "%s | Phoenix Chairs",
+    titleTemplate: "%s — PhoenixChairs",
     handle: "@Phoenix_es",
     url: canonicalUrl,
     ...(imageUrl ? {
@@ -353,7 +389,7 @@ function listCollections({
 }): SeoConfig {
   return {
     title: "Collections",
-    titleTemplate: "%s | Collections",
+    titleTemplate: "%s — PhoenixChairs",
     description: "All hydrogen collections",
     url,
     jsonLd: collectionsJsonLd({ collections, url }),
@@ -378,7 +414,7 @@ function article({
   return {
     title: articleData?.seo?.title ?? articleData?.title,
     description: truncate(articleData?.seo?.description ?? ""),
-    titleTemplate: "%s | Journal",
+    titleTemplate: "%s — PhoenixChairs",
     url,
     media: {
       type: "image",
@@ -413,7 +449,7 @@ function blog({
   return {
     title: blogData?.seo?.title,
     description: truncate(blogData?.seo?.description || ""),
-    titleTemplate: "%s | Blog",
+    titleTemplate: "%s — PhoenixChairs",
     url,
     jsonLd: {
       "@context": "https://schema.org",
@@ -435,7 +471,7 @@ function page({
   return {
     description: truncate(pageData?.seo?.description || ""),
     title: pageData?.seo?.title ?? pageData?.title,
-    titleTemplate: "%s | Page",
+    titleTemplate: "%s — PhoenixChairs",
     url,
     jsonLd: {
       "@context": "https://schema.org",
@@ -455,7 +491,7 @@ function policy({
   return {
     description: truncate(policyData?.body ?? ""),
     title: policyData?.title,
-    titleTemplate: "%s | Policy",
+    titleTemplate: "%s — PhoenixChairs",
     url,
   };
 }
@@ -480,7 +516,7 @@ function policies({
     });
   return {
     title: "Policies",
-    titleTemplate: "%s | Policies",
+    titleTemplate: "%s — PhoenixChairs",
     description: "phoenixchairs store policies",
     jsonLd: [
       {

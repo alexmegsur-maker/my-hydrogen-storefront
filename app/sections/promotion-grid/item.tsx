@@ -116,13 +116,15 @@ function PromotionGridItem(props: PromotionItemProps) {
       onMouseLeave={()=>setIsHover(false)}
       onClick={showLink}
     >
-      <BackgroundImage 
-       backgroundImage={backgroundImage}
+      <BackgroundImage
+        backgroundImage={backgroundImage}
         backgroundGrayscale={
           !isMobile && activeGrayscale && !isHover ? grayscale : 0
         }
         fetchPriority="high"
         loading="eager"
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        width={1200}
         style={{
           transform: isHover ? "scale(1.05)" : "scale(1)",
           transition: "all 0.4s ease"

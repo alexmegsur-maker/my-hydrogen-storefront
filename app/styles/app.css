@@ -6,6 +6,13 @@
 @import "swiper/css/thumbs" layer(base);
 @import "swiper/css/free-mode" layer(base);
 @import "tailwindcss" source("../../app");
+
+/* LCP fix: first slide visible before Swiper JS initializes */
+.swiper:not(.swiper-initialized) .swiper-slide:first-child {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
 @plugin "@tailwindcss/typography";
 @theme {
   --font-cabin: Cabin Variable, ui-sans-serif, system-ui, sans-serif;

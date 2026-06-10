@@ -35,10 +35,16 @@ export type BackgroundImageProps = VariantProps<typeof variants> & {
   backgroundGrayscale?:number;
   loading?: "lazy" | "eager";
   fetchPriority?: "high" | "low" | "auto";
+  sizes?: string;
+  width?: number;
 };
 
+function addWidth(url: string, w: number) {
+  return `${url}${url.includes('?') ? '&' : '?'}width=${w}`;
+}
+
 export function BackgroundImage(props: BackgroundImageProps) {
-  const { backgroundImage,style,backgroundGrayscale, backgroundFit, backgroundPosition, loading, fetchPriority } = props;
+  const { backgroundImage, style, backgroundGrayscale, backgroundFit, backgroundPosition, loading, fetchPriority, sizes = "100vw", width = 1920 } = props;
   if (backgroundImage) {
     const {filter:externalFilter,...restStyle}=style || {};
 
@@ -46,23 +52,43 @@ export function BackgroundImage(props: BackgroundImageProps) {
       typeof backgroundImage === "string"
         ? { url: backgroundImage, altText: "Section background" }
         : backgroundImage;
+
+    const preloadSrcSet = fetchPriority === "high" && data?.url
+      ? [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 1920]
+          .map(w => `${addWidth(data.url, w)} ${w}w`)
+          .join(', ')
+      : null;
+
     return (
-      <Image
-        className={variants({ backgroundFit, backgroundPosition })}
-        data={data}
-        sizes="auto"
-        loading={loading}
-        fetchPriority={fetchPriority}
-        style={{
-          ...restStyle,
-          filter: [
-            externalFilter,
-            backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined
-          ]
-            .filter(Boolean)
-            .join(" ") || undefined,
-        }}
-      />
+      <>
+        {preloadSrcSet && (
+          <link
+            rel="preload"
+            as="image"
+            // @ts-ignore — React 19 hoists this to <head>
+            imageSrcSet={preloadSrcSet}
+            imageSizes="100vw"
+            href={addWidth(data.url, 800)}
+          />
+        )}
+        <Image
+          className={variants({ backgroundFit, backgroundPosition })}
+          data={data}
+          sizes={sizes}
+          width={width}
+          loading={loading}
+          fetchPriority={fetchPriority}
+          style={{
+            ...restStyle,
+            filter: [
+              externalFilter,
+              backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined,
+          }}
+        />
+      </>
     );
   }
   return null;

@@ -89,18 +89,33 @@ function SlideVideoV2(props:SlideProps){
         loading="eager"
         />:
         <div className="h-[75dvh] min-h-[700px] lg:h-[80dvh] absolute top-0 left-0 lg:min-h-auto w-full transition-[transform] duration-500 ease-in-out ">
-          <div className="h-full w-full">
-            {
-              poster.url&&
-              <link rel="preload" as="image" fetchPriority="high" href={poster?.url ? `${poster.url}&width=1920&format=webp` : undefined}></link>
-            }
+          <div className="h-full w-full relative">
+            {poster?.url && isHero && (
+              <link
+                rel="preload"
+                as="image"
+                // @ts-ignore
+                imageSrcSet={[750,1080,1440,1920].map(w=>`${poster.url}${poster.url.includes('?')? '&':'?'}width=${w} ${w}w`).join(', ')}
+                imageSizes="100vw"
+                href={`${poster.url}${poster.url.includes('?')? '&':'?'}width=1080`}
+              />
+            )}
+            {/* Mobile fallback: poster shown as background on mobile */}
+            {poster?.url && (
+              <img
+                src={`${poster.url}${poster.url.includes('?')? '&':'?'}width=750`}
+                alt=""
+                className="object-cover w-full h-full block lg:hidden absolute inset-0"
+                fetchPriority={isHero ? "high" : undefined}
+                loading={isHero ? "eager" : "lazy"}
+              />
+            )}
             <video
               className="object-cover w-full h-full hidden lg:block"
               autoPlay
               muted
               loop={loop}
-              poster={poster?.url ? `${poster.url}&width=1920&format=webp` : undefined}
-              {...(isHero ? { fetchpriority: "high" } : {})}
+              poster={poster?.url ? `${poster.url}${poster.url.includes('?')? '&':'?'}width=1920` : undefined}
             >
               <source src={video?.url} type="video/mp4" />
             </video>

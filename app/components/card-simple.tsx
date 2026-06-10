@@ -141,18 +141,20 @@ export default function CardSimple(
       <div
         className="universe-img"
         style={{
-          height: imageAspectRatio ? "auto":"400px", 
+          aspectRatio: calculateAspectRatio(image, imageAspectRatio) ?? (imageAspectRatio && imageAspectRatio !== "adapt" ? imageAspectRatio : "3/4"),
           width: "100%",
           filter:isMobile || isHover ? "grayscale(0%) brightness(1)":"grayscale(100%) brightness(0.6)",
           transform:isHover?"scale(1.08)":"unset",
           transition: "all 0.8s ease",
+          overflow: "hidden",
         }}
       >
         <Image
           data={image}
           className="h-full object-cover rounded-(--radius)"
           aspectRatio={calculateAspectRatio(image, imageAspectRatio)}
-          sizes="auto"
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          width={600}
         />
       </div>
       <div
