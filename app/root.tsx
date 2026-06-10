@@ -142,21 +142,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setIsHydrated(true)
-    if (typeof window !== "undefined") {
-      gsap.registerPlugin(ScrollTrigger);
-      ScrollTrigger.refresh();
+    gsap.registerPlugin(ScrollTrigger);
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => ScrollTrigger.refresh(), { timeout: 2000 });
+    } else {
+      setTimeout(() => ScrollTrigger.refresh(), 1000);
     }
-    const timer = setTimeout(() => {
-      if (typeof window !== "undefined") {
-        ScrollTrigger.refresh();
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => ScrollTrigger.refresh(), 500);
+    const timer = setTimeout(() => ScrollTrigger.refresh(), 800);
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
