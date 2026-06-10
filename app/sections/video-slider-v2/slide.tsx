@@ -93,7 +93,7 @@ function SlideVideoV2(props:SlideProps){
               autoPlay
               muted
               loop={loop}
-              poster={poster?.url}
+              poster={poster?.url ? `${poster.url}&width=1920&format=webp` : undefined}
               {...(isHero ? { fetchpriority: "high" } : {})}
             >
               <source src={video?.url} type="video/mp4" />

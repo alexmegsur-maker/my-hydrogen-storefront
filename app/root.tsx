@@ -109,7 +109,7 @@ export async function loader(args: LoaderFunctionArgs) {
       shopDomain: context.env.JUDGEME_SHOP_DOMAIN,
       publicToken: context.env.JUDGEME_PUBLIC_TOKEN,
       cdnHost: context.env.JUDGEME_CDN_HOST,
-      delay: 500,
+      delay: 3000,
     },
   };
 }
