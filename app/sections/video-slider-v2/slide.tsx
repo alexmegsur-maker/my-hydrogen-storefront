@@ -64,13 +64,14 @@ interface SlideProps extends VariantProps<typeof variants>,
     video:WeaverseVideo;
     poster:WeaverseImage;
     loop:boolean;
+    isHero?:boolean;
   }
 
 
 function SlideVideoV2(props:SlideProps){
   const {contWidth,contentPosition,width,gap,verticalPadding,backgroundImage,
     backgroundFit,backgroundPosition,enableOverlay,overlayOpacity,overlayColor,
-    overlayColorHover,showMedia,video, poster ,children ,loop}=props
+    overlayColorHover,showMedia,video, poster ,children ,loop, isHero}=props
 
   const isMobile = useIsMobile(600)
   return (
@@ -93,6 +94,7 @@ function SlideVideoV2(props:SlideProps){
               muted
               loop={loop}
               poster={poster?.url}
+              {...(isHero ? { fetchpriority: "high" } : {})}
             >
               <source src={video?.url} type="video/mp4" />
             </video>
@@ -121,6 +123,12 @@ export const schema = createSchema({
     {
       group:"Slide",
       inputs:[
+        {
+          type: "switch",
+          label: "Hero slide (mejora PageSpeed LCP)",
+          name: "isHero",
+          defaultValue: true,
+        },
         {
           type:'text',
           label:'title Bar',
