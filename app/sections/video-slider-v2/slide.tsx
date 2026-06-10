@@ -85,9 +85,15 @@ function SlideVideoV2(props:SlideProps){
         overlayOpacity={overlayOpacity}
         overlayColor={overlayColor}
         overlayColorHover={overlayColorHover}
+        fetchPriority="high"
+        loading="eager"
         />:
         <div className="h-[75dvh] min-h-[700px] lg:h-[80dvh] absolute top-0 left-0 lg:min-h-auto w-full transition-[transform] duration-500 ease-in-out ">
           <div className="h-full w-full">
+            {
+              poster.url&&
+              <link rel="preload" as="image" fetchPriority="high" href={poster?.url ? `${poster.url}&width=1920&format=webp` : undefined}></link>
+            }
             <video
               className="object-cover w-full h-full hidden lg:block"
               autoPlay
