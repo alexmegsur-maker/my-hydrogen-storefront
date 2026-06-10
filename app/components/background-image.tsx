@@ -1,3 +1,4 @@
+import { Image } from "@shopify/hydrogen";
 import type { InspectorGroup, WeaverseImage } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
@@ -38,12 +39,6 @@ export type BackgroundImageProps = VariantProps<typeof variants> & {
   width?: number;
 };
 
-const SRCSET_WIDTHS = [320, 480, 640, 800, 1024, 1280, 1600, 1920];
-
-function addWidth(url: string, w: number) {
-  return `${url}${url.includes('?') ? '&' : '?'}width=${w}`;
-}
-
 export function BackgroundImage(props: BackgroundImageProps) {
   const { backgroundImage, style, backgroundGrayscale, backgroundFit, backgroundPosition, loading, fetchPriority, sizes = "100vw", width = 1920 } = props;
   if (backgroundImage) {
@@ -54,42 +49,27 @@ export function BackgroundImage(props: BackgroundImageProps) {
         ? { url: backgroundImage, altText: "Section background" }
         : backgroundImage;
 
-    const src = addWidth(data.url, width);
-    const srcSet = SRCSET_WIDTHS.map(w => `${addWidth(data.url, w)} ${w}w`).join(', ');
-    const imgStyle: CSSProperties = {
-      ...restStyle,
-      filter: [
-        externalFilter,
-        backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined,
-      ]
-        .filter(Boolean)
-        .join(" ") || undefined,
-    };
+    // Strip width/height from data so Image generates ?width=N only (no ?height=M&crop=center)
+    const imageData = { url: data.url, altText: data.altText ?? '' };
 
     return (
-      <>
-        {fetchPriority === "high" && (
-          <link
-            rel="preload"
-            as="image"
-            // @ts-ignore — React 19 hoists this to <head>
-            imageSrcSet={srcSet}
-            imageSizes={sizes}
-            href={src}
-          />
-        )}
-        <img
-          className={variants({ backgroundFit, backgroundPosition })}
-          src={src}
-          srcSet={srcSet}
-          sizes={sizes}
-          loading={loading}
-          fetchPriority={fetchPriority}
-          alt={data.altText ?? ''}
-          decoding="async"
-          style={imgStyle}
-        />
-      </>
+      <Image
+        className={variants({ backgroundFit, backgroundPosition })}
+        data={imageData}
+        sizes={sizes}
+        width={width}
+        loading={loading}
+        fetchPriority={fetchPriority}
+        style={{
+          ...restStyle,
+          filter: [
+            externalFilter,
+            backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined,
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined,
+        }}
+      />
     );
   }
   return null;
