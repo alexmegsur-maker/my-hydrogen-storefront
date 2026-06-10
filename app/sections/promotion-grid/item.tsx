@@ -121,6 +121,8 @@ function PromotionGridItem(props: PromotionItemProps) {
         backgroundGrayscale={
           !isMobile && activeGrayscale && !isHover ? grayscale : 0
         }
+        fetchPriority="high"
+        loading="eager"
         style={{
           transform: isHover ? "scale(1.05)" : "scale(1)",
           transition: "all 0.4s ease"

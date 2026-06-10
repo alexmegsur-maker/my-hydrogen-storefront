@@ -172,6 +172,8 @@ export default function NewsletterPopup(
                       ? { url: bannerImage, altText: "" }
                       : bannerImage
                   }
+                  loading="eager"
+                  fetchPriority="high"
                   className="w-full h-full object-cover"
                 />
               </div>
