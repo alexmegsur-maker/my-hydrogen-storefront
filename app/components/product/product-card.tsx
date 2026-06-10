@@ -13,7 +13,6 @@ import { Link } from "~/components/link";
 import { RevealUnderline } from "~/components/reveal-underline";
 import { Spinner } from "~/components/spinner";
 import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
-import JudgemeStarsRating from "~/sections/main-product/judgeme-stars-rating";
 import { isCombinedListing } from "~/utils/combined-listings";
 import { calculateAspectRatio } from "~/utils/image";
 import {
@@ -178,15 +177,6 @@ export function ProductCard({
         {pcardShowVendor && (
           <div className="text-body-subtle uppercase">Phoenix Chairs</div>
         )}
-        {pcardShowReviews && (
-          <JudgemePreviewBadge id={product.id} template=""/>
-          
-    // <JudgemeStarsRating
-          //   productHandle={product.handle}
-          //   ratingText="{{rating}} ({{total_reviews}} reviews)"
-          //   errorText=""
-          // />
-        )}
         <div
           className={clsx(
             "flex",
@@ -247,6 +237,11 @@ export function ProductCard({
             ],
           )}
         />
+        {pcardShowReviews && (
+          <div className="min-h-5">
+            <JudgemePreviewBadge id={product.id} template="" />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,15 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+const fontDisplayOptional = {
+  name: "font-display-optional",
+  transform(code: string, id: string) {
+    if (id.includes("@fontsource") && id.endsWith(".css")) {
+      return { code: code.replace(/font-display:\s*swap/g, "font-display: optional") };
+    }
+  },
+};
+
 export default defineConfig({
   plugins: [
     hydrogen(),
@@ -12,6 +21,7 @@ export default defineConfig({
     reactRouter(),
     tsconfigPaths(),
     tailwindcss(),
+    fontDisplayOptional,
   ],
   build: {
     // Allow a strict Content-Security-Policy

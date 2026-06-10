@@ -1,4 +1,3 @@
-import { Image } from "@shopify/hydrogen";
 import type { InspectorGroup, WeaverseImage } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
@@ -39,6 +38,8 @@ export type BackgroundImageProps = VariantProps<typeof variants> & {
   width?: number;
 };
 
+const SRCSET_WIDTHS = [320, 480, 640, 800, 1024, 1280, 1600, 1920];
+
 function addWidth(url: string, w: number) {
   return `${url}${url.includes('?') ? '&' : '?'}width=${w}`;
 }
@@ -46,47 +47,47 @@ function addWidth(url: string, w: number) {
 export function BackgroundImage(props: BackgroundImageProps) {
   const { backgroundImage, style, backgroundGrayscale, backgroundFit, backgroundPosition, loading, fetchPriority, sizes = "100vw", width = 1920 } = props;
   if (backgroundImage) {
-    const {filter:externalFilter,...restStyle}=style || {};
+    const { filter: externalFilter, ...restStyle } = style || {};
 
     const data =
       typeof backgroundImage === "string"
         ? { url: backgroundImage, altText: "Section background" }
         : backgroundImage;
 
-    const preloadSrcSet = fetchPriority === "high" && data?.url
-      ? [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 1920]
-          .map(w => `${addWidth(data.url, w)} ${w}w`)
-          .join(', ')
-      : null;
+    const src = addWidth(data.url, width);
+    const srcSet = SRCSET_WIDTHS.map(w => `${addWidth(data.url, w)} ${w}w`).join(', ');
+    const imgStyle: CSSProperties = {
+      ...restStyle,
+      filter: [
+        externalFilter,
+        backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined,
+      ]
+        .filter(Boolean)
+        .join(" ") || undefined,
+    };
 
     return (
       <>
-        {preloadSrcSet && (
+        {fetchPriority === "high" && (
           <link
             rel="preload"
             as="image"
             // @ts-ignore — React 19 hoists this to <head>
-            imageSrcSet={preloadSrcSet}
-            imageSizes="100vw"
-            href={addWidth(data.url, 800)}
+            imageSrcSet={srcSet}
+            imageSizes={sizes}
+            href={src}
           />
         )}
-        <Image
+        <img
           className={variants({ backgroundFit, backgroundPosition })}
-          data={data}
+          src={src}
+          srcSet={srcSet}
           sizes={sizes}
-          width={width}
           loading={loading}
           fetchPriority={fetchPriority}
-          style={{
-            ...restStyle,
-            filter: [
-              externalFilter,
-              backgroundGrayscale ? `grayscale(${backgroundGrayscale}%)` : undefined
-            ]
-              .filter(Boolean)
-              .join(" ") || undefined,
-          }}
+          alt={data.altText ?? ''}
+          decoding="async"
+          style={imgStyle}
         />
       </>
     );

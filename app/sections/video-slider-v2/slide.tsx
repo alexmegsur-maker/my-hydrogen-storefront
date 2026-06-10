@@ -1,10 +1,10 @@
 import { createSchema, type HydrogenComponentProps, type WeaverseImage, type WeaverseVideo } from "@weaverse/hydrogen"
 import { cva, type VariantProps } from "class-variance-authority"
+import type { CSSProperties } from "react"
 import { SwiperSlide } from "swiper/react"
 import { backgroundInputs } from "~/components/background-image"
 import { OverlayAndBackground, type OverlayAndBackgroundProps } from "~/components/overlay-and-background"
 import { layoutInputs } from "~/components/section"
-import { useIsMobile } from "~/hooks/use-is-mobile"
 
 const variants = cva("flex h-full w-full flex-col [&_.paragraph]:mx-[unset]",{
 variants: {
@@ -73,9 +73,8 @@ function SlideVideoV2(props:SlideProps){
     backgroundFit,backgroundPosition,enableOverlay,overlayOpacity,overlayColor,
     overlayColorHover,showMedia,video, poster ,children ,loop, isHero}=props
 
-  const isMobile = useIsMobile(600)
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full relative">
       {showMedia=="image"?
       <OverlayAndBackground
         backgroundImage={backgroundImage}
@@ -123,10 +122,8 @@ function SlideVideoV2(props:SlideProps){
         </div>
       }
       <div
-        className={variants({contentPosition,width,gap,verticalPadding})}
-        style={{
-          width:!isMobile ? `${contWidth}%`:"100%"
-        }}
+        className={`${variants({contentPosition,width,gap,verticalPadding})} slide-cont-width`}
+        style={{ "--slide-cont-width": `${contWidth}%` } as CSSProperties}
         >
         {children}
       </div>
