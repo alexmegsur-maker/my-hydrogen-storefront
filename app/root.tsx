@@ -192,13 +192,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `window.dataLayer=window.dataLayer||[];
-            function loadGTM(){(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','GTM-5SSSMFKJ');}
-            if('requestIdleCallback' in window){requestIdleCallback(loadGTM,{timeout:4000});}
-            else{setTimeout(loadGTM,3500);}`,
+            function loadGTM(){
+              if(window._gtmLoaded)return;
+              window._gtmLoaded=true;
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','GTM-5SSSMFKJ');
+            }
+            function scheduleGTM(){
+              if('requestIdleCallback' in window){requestIdleCallback(loadGTM,{timeout:4000});}
+              else{setTimeout(loadGTM,3500);}
+            }
+            function checkConsentAndLoad(){
+              try{
+                var c=localStorage.getItem('cookie_consent');
+                if(!c)return;
+                var consent=JSON.parse(c);
+                if(consent.analytics||consent.marketing){scheduleGTM();}
+              }catch(e){}
+            }
+            checkConsentAndLoad();
+            window.addEventListener('storage',function(e){if(e.key==='cookie_consent')checkConsentAndLoad();});
+            window.addEventListener('cookie_consent_updated',checkConsentAndLoad);`,
             }}
           />
       </head>

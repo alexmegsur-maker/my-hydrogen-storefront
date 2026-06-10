@@ -77,6 +77,7 @@ export default function CookieConsentBanner() {
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(consent));
+      window.dispatchEvent(new Event('cookie_consent_updated'));
     } catch {
       // localStorage no disponible (p. ej. SSR o modo privado bloqueado)
     }
