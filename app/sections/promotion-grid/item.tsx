@@ -123,8 +123,8 @@ function PromotionGridItem(props: PromotionItemProps) {
         }
         fetchPriority="high"
         loading="eager"
-        sizes="(min-width: 1024px) 50vw, 100vw"
-        width={1200}
+        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+        width={750}
         style={{
           transform: isHover ? "scale(1.05)" : "scale(1)",
           transition: "all 0.4s ease"

@@ -1,14 +1,6 @@
 import "@fontsource-variable/cabin";
-import "@fontsource/montserrat/300.css";
-import "@fontsource/montserrat/400.css";
-import "@fontsource/montserrat/500.css";
-import "@fontsource/montserrat/600.css";
-import "@fontsource/montserrat/700.css";
-import "@fontsource/outfit/300.css";
-import "@fontsource/outfit/400.css";
-import "@fontsource/outfit/500.css";
-import "@fontsource/outfit/600.css";
-import "@fontsource/outfit/700.css";
+import "@fontsource-variable/montserrat";
+import "@fontsource-variable/outfit";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
@@ -56,31 +48,6 @@ export const links: LinksFunction = () => {
     {
       rel: "preconnect",
       href: "https://shop.app",
-    },
-    {
-      rel: "preconnect",
-      href: "https://cdn.judge.me",
-      crossOrigin: "anonymous",
-    },
-    {
-      rel: "preconnect",
-      href: "https://cache.judge.me",
-      crossOrigin: "anonymous",
-    },
-    {
-      rel: "preconnect",
-      href: "https://api.judge.me",
-      crossOrigin: "anonymous",
-    },
-    {
-      rel: "preconnect",
-      href: "https://cdnwidget.judge.me",
-      crossOrigin: "anonymous",
-    },
-    {
-      rel: "preconnect",
-      href: "https://studio.weaverse.io",
-      crossOrigin: "anonymous",
     },
     { rel: "icon", type: "image/svg+xml", href: "https://cdn.shopify.com/s/files/1/0777/6370/7216/files/favicon.png?v=1694621278" },
   ];
@@ -152,11 +119,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       import('gsap/ScrollTrigger').then(m => m.ScrollTrigger),
     ]).then(([gsap, ScrollTrigger]) => {
       gsap.registerPlugin(ScrollTrigger);
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => ScrollTrigger.refresh(), { timeout: 2000 });
-      } else {
-        setTimeout(() => ScrollTrigger.refresh(), 1000);
-      }
     });
   }, []);
 

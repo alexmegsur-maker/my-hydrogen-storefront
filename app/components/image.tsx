@@ -59,9 +59,9 @@ export function Image({ ref, className,containerStyle, onLoad, ...rest }: ImageP
       <HydrogenImage
         ref={hydrogenImageRef}
         className={cn(
-          "[transition:filter_500ms_cubic-bezier(.4,0,.2,1)] z-2",
+          "transition-opacity duration-500 ease-out z-2",
           "h-full max-h-full w-full object-cover object-center",
-          loaded ? "blur-0" : "blur-xl",
+          loaded ? "opacity-100" : "opacity-0",
         )}
         onLoad={(e) => {
           setLoaded(true);
