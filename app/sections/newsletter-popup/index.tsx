@@ -126,23 +126,28 @@ export default function NewsletterPopup(
 
   return (
     <>
-      {/* Overlay + popup */}
-      {isOpen && (
+      {/* Overlay + popup — always in DOM, visibility via opacity to avoid CLS */}
+      <div
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-opacity duration-300"
+        style={{
+          background: overlayColor ?? "rgba(0,0,0,0.6)",
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? "auto" : "none",
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) handleClose();
+        }}
+        aria-hidden={!isOpen}
+      >
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-          style={{ background: overlayColor ?? "rgba(0,0,0,0.6)" }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) handleClose();
+          className="relative w-full overflow-hidden flex flex-col transition-transform duration-300"
+          style={{
+            maxWidth: popupMaxWidth ?? "520px",
+            background: popupBg ?? "#111111",
+            borderRadius: popupBorderRadius ?? "8px",
+            transform: isOpen ? "translateY(0)" : "translateY(16px)",
           }}
         >
-          <div
-            className="relative w-full overflow-hidden flex flex-col"
-            style={{
-              maxWidth: popupMaxWidth ?? "520px",
-              background: popupBg ?? "#111111",
-              borderRadius: popupBorderRadius ?? "8px",
-            }}
-          >
             {/* Close button */}
             <button
               onClick={handleClose}
@@ -249,14 +254,15 @@ export default function NewsletterPopup(
             </div>
           </div>
         </div>
-      )}
 
-      {/* Floating icon */}
-      {showIcon && !isOpen && (
-        <button
+      {/* Floating icon — always in DOM, visibility via opacity to avoid CLS */}
+      <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-[9998] flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-110"
+          className="fixed bottom-6 right-6 z-[9998] flex items-center justify-center rounded-full shadow-lg transition-all duration-300"
           style={{
+            pointerEvents: showIcon && !isOpen ? "auto" : "none",
+            opacity: showIcon && !isOpen ? 1 : 0,
+            transform: showIcon && !isOpen ? "scale(1)" : "scale(0.8)",
             width: iconSize ?? "52px",
             height: iconSize ?? "52px",
             background: iconBg ?? "#ffffff",
@@ -281,7 +287,6 @@ export default function NewsletterPopup(
             />
           </svg>
         </button>
-      )}
     </>
   );
 }

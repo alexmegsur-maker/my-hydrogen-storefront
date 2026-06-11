@@ -24,6 +24,15 @@
   pointer-events: auto !important;
 }
 
+.mySwiper:not(.swiper-initialized) .swiper-wrapper {
+  display: flex;
+}
+
+.mySwiper:not(.swiper-initialized) .swiper-slide {
+  width: 100% !important;
+  flex-shrink: 0;
+}
+
 @plugin "@tailwindcss/typography";
 @theme {
   --font-cabin: Cabin Variable, ui-sans-serif, system-ui, sans-serif;

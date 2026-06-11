@@ -94,7 +94,7 @@ function SlideVideoV2(props:SlideProps){
   }, [])
 
   return (
-    <div className="h-full w-full relative">
+    <div className="h-full  relative overflow-hidden">
       {showMedia=="image"?
       <OverlayAndBackground
         backgroundImage={backgroundImage}

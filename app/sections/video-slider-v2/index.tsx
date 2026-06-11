@@ -1,5 +1,5 @@
 import { createSchema, useChildInstances, useThemeSettings, type HydrogenComponentProps } from "@weaverse/hydrogen"
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type{ Swiper as SwiperType } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
 import{Pagination,Navigation,Autoplay} from "swiper/modules"
@@ -72,44 +72,54 @@ function VideoSliderV2( props:VideoSliderV2Props){
   const childInstances = useChildInstances()
   const childrenInfo=childInstances.map((el)=>{return el.data})
 
+  // Re-calculate Swiper layout once children finish loading (Weaverse async hydration)
+  useEffect(() => {
+    if (!swiperRef || children.length === 0) return
+    const raf = requestAnimationFrame(() => { swiperRef.update() })
+    return () => cancelAnimationFrame(raf)
+  }, [swiperRef, children.length])
+
   return(
-    <section className={variants({height,enableTransparentHeader})}>
-      <Swiper
-        loop = {loop}
-        effect = "slide"
-        onSwiper = {setSwiperRef}
-        className = "mySwiper w-full"
-        navigation = {
-          {
-            nextEl:".slideshow-arrow-next",
-            prevEl:".slideshow-arrow-prev"
+    <section className={variants({height,enableTransparentHeader}) + " overflow-hidden"}>
+      <div className="relative w-full h-full">
+        <Swiper
+          loop = {loop}
+          effect = "slide"
+          onSwiper = {setSwiperRef}
+          className = "mySwiper w-full h-full overflow-hidden"
+          navigation = {
+            {
+              nextEl:".slideshow-arrow-next",
+              prevEl:".slideshow-arrow-prev"
+            }
           }
-        }
-        slidesPerView={1}
-        pagination={{
-          el:".slidesShow-dots",
-          clickable:true,
-          bulletClass:"dot",
-          bulletActiveClass:"active",
-          type:"custom",
-        }}
-        onSlideChange={(s)=>{
-          setActiveIndex(s.realIndex)
-          setCurrentElm(s.realIndex)
-        }}
-        autoplay={{
-          delay:timeSwiper,
-          disableOnInteraction:false
-        }}
-        modules={[Pagination,Navigation,Autoplay]}
-        >
-          {children.map((child,idx)=>{
-            return(
-              <SwiperSlide key={idx}> 
-                {child}
-              </SwiperSlide>
-            )
-          })}
+          slidesPerView={1}
+          pagination={{
+            el:".slidesShow-dots",
+            clickable:true,
+            bulletClass:"dot",
+            bulletActiveClass:"active",
+            type:"custom",
+          }}
+          onSlideChange={(s)=>{
+            setActiveIndex(s.realIndex)
+            setCurrentElm(s.realIndex)
+          }}
+          autoplay={{
+            delay:timeSwiper,
+            disableOnInteraction:false
+          }}
+          modules={[Pagination,Navigation,Autoplay]}
+          >
+            {children.map((child,idx)=>{
+              return(
+                <SwiperSlide key={idx}>
+                  {child}
+                </SwiperSlide>
+              )
+            })}
+        </Swiper>
+        {showBar  &&
           <VideoSliderBar
             activeIndex={activeIndex}
             sliderElements={childrenInfo}
@@ -129,8 +139,8 @@ function VideoSliderV2( props:VideoSliderV2Props){
             showBorder={showBorder}
             fontSize={fontSize}
             />
-
-      </Swiper>
+        }
+      </div>
     </section>
   )
 }
