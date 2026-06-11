@@ -1,6 +1,5 @@
 import "@fontsource-variable/cabin";
-import "@fontsource-variable/montserrat";
-import "@fontsource-variable/outfit";
+import "./styles/fonts.css";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
