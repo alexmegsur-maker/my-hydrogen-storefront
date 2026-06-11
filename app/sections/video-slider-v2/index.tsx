@@ -86,6 +86,8 @@ function VideoSliderV2( props:VideoSliderV2Props){
           loop = {loop}
           effect = "slide"
           onSwiper = {setSwiperRef}
+          observer={true}
+          observeParents={true}
           className = "mySwiper w-full h-full overflow-hidden"
           navigation = {
             {

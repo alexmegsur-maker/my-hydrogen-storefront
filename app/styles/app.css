@@ -7,6 +7,9 @@
 @import "swiper/css/free-mode" layer(base);
 @import "tailwindcss" source("../../app");
 
+html{
+  scrollbar-gutter: stable;
+}
 /* CLS fix: slide content width — CSS-driven, no JS hydration mismatch */
 .slide-cont-width {
   width: var(--slide-cont-width, 100%);
