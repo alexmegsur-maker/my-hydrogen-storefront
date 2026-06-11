@@ -136,11 +136,11 @@ export default function CommunityPost(props:CommunityPostProps){
       className={variants({ size, rowSize })+ " overflow-hidden relative"}
       style = {{ 
         background:isHover ? bgHColor : bgColor,
-        transform:isHover?"scale(1.02)":"unset",
-        boxShadow:isHover || isMobile?"0 10px 30px #000000cc":"unset",
+        transform:isHover?"scale(1.02)":"scale(1)",
+        boxShadow:isHover || isMobile?"0 10px 30px #000000cc":"none",
         border:`1px solid ${isHover || isMobile ?borderHColor:borderColor}`,
         borderRadius:`${rounded}px`,
-        transition:"all 0.4s ease",
+        transition:"transform 0.4s ease",
       }}
     
 
@@ -154,7 +154,7 @@ export default function CommunityPost(props:CommunityPostProps){
             alignSelf:"center",
             justifySelf:"center",
             filter: activeGrayscale ? isHover || isMobile?"grayscale(0%)":`grayscale(${grayscale}%)`:"unset",
-            transition:"all 0.3s ease"
+            transition:"filter 0.3s ease"
 
           } as CSSProperties}
           aspectRatio={calculateAspectRatio(image, imageAspectRatio)}

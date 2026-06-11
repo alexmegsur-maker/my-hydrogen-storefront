@@ -35,12 +35,14 @@ export type BackgroundImageProps = VariantProps<typeof variants> & {
   backgroundGrayscale?:number;
   loading?: "lazy" | "eager";
   fetchPriority?: "high" | "low" | "auto";
+  /** CSS sizes attribute. Defaults to "auto" — browser measures the rendered element
+   *  and picks the right srcset entry automatically (works best with loading="lazy"). */
   sizes?: string;
   width?: number;
 };
 
 export function BackgroundImage(props: BackgroundImageProps) {
-  const { backgroundImage, style, backgroundGrayscale, backgroundFit, backgroundPosition, loading, fetchPriority, sizes = "100vw", width = 1920 } = props;
+  const { backgroundImage, style, backgroundGrayscale, backgroundFit, backgroundPosition, loading, fetchPriority, sizes = "auto", width = 1920 } = props;
   if (backgroundImage) {
     const { filter: externalFilter, ...restStyle } = style || {};
 

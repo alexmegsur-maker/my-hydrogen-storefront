@@ -121,14 +121,9 @@ function PromotionGridItem(props: PromotionItemProps) {
         backgroundGrayscale={
           !isMobile && activeGrayscale && !isHover ? grayscale : 0
         }
-        fetchPriority="high"
-        loading="eager"
-        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-        width={750}
         style={{
           transform: isHover ? "scale(1.05)" : "scale(1)",
-          transition: "all 0.4s ease"
-          // Ya no pones filter aquí
+          transition: "transform 0.4s ease",
         }}
       />
       <Overlay
@@ -141,8 +136,8 @@ function PromotionGridItem(props: PromotionItemProps) {
       />
       <div
         style={{
-          transform:isHover?"translateY(-10%)":"unset",
-          transition:"all 0.4s ease"
+          transform:isHover?"translateY(-10%)":"translateY(0)",
+          transition:"transform 0.4s ease",
         }}
       >
         {children}

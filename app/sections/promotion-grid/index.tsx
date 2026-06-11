@@ -105,7 +105,7 @@ function PromotionGrid(props: PromotionGridProps & HydrogenComponentProps) {
           scrollTrigger: {
             trigger: container.current,
             start: "top 85%",   // empieza cuando el top del contenedor alcanza el 85% del viewport
-            toggleActions: "play none none none", // solo se reproduce una vez
+            once: true,
           },
         });
       },

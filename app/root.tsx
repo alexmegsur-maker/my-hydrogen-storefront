@@ -1,4 +1,3 @@
-import "@fontsource-variable/cabin";
 import "./styles/fonts.css";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";

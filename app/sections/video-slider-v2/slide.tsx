@@ -2,6 +2,7 @@ import { createSchema, type HydrogenComponentProps, type WeaverseImage, type Wea
 import { cva, type VariantProps } from "class-variance-authority"
 import type { CSSProperties } from "react"
 import { useEffect, useRef } from "react"
+import { preload } from "react-dom"
 import { SwiperSlide } from "swiper/react"
 import { backgroundInputs } from "~/components/background-image"
 import { OverlayAndBackground, type OverlayAndBackgroundProps } from "~/components/overlay-and-background"
@@ -74,6 +75,18 @@ function SlideVideoV2(props:SlideProps){
     backgroundFit,backgroundPosition,enableOverlay,overlayOpacity,overlayColor,
     overlayColorHover,showMedia,video, poster ,children ,loop, isHero}=props
 
+  // Preload the mobile poster image for the hero slide during render (React 19 API)
+  if (isHero && showMedia === 'video' && poster?.url) {
+    const q = (w: number) => `${poster.url}${poster.url.includes('?') ? '&' : '?'}width=${w}`
+    preload(q(750), {
+      as: 'image',
+      // @ts-ignore — fetchPriority + imageSrcSet are React 19 preload options
+      fetchPriority: 'high',
+      imageSrcSet: [750, 1080, 1440, 1920].map(w => `${q(w)} ${w}w`).join(', '),
+      imageSizes: '100vw',
+    })
+  }
+
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -109,16 +122,6 @@ function SlideVideoV2(props:SlideProps){
         />:
         <div className="h-[75dvh] min-h-[700px] lg:h-[80dvh] absolute top-0 left-0 lg:min-h-auto w-full transition-[transform] duration-500 ease-in-out ">
           <div className="h-full w-full relative">
-            {poster?.url && isHero && (
-              <link
-                rel="preload"
-                as="image"
-                // @ts-ignore
-                imageSrcSet={[750,1080,1440,1920].map(w=>`${poster.url}${poster.url.includes('?')? '&':'?'}width=${w} ${w}w`).join(', ')}
-                imageSizes="100vw"
-                href={`${poster.url}${poster.url.includes('?')? '&':'?'}width=1080`}
-              />
-            )}
             {/* Mobile fallback: poster shown as background on mobile */}
             {poster?.url && (
               <img

@@ -36,6 +36,15 @@ html{
   flex-shrink: 0;
 }
 
+/* Neon glow pulse — CSS animation runs off the JS thread, uses filter:brightness (GPU-composited) */
+@keyframes neon-pulse {
+  0%, 100% { filter: brightness(1.8) drop-shadow(0 0 8px currentColor); }
+  50%       { filter: brightness(1)   drop-shadow(0 0 2px currentColor); }
+}
+.animate-neon-pulse {
+  animation: neon-pulse 1.5s ease-in-out infinite;
+}
+
 @plugin "@tailwindcss/typography";
 @theme {
   --font-cabin: Cabin Variable, ui-sans-serif, system-ui, sans-serif;
