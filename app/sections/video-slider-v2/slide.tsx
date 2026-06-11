@@ -1,6 +1,7 @@
 import { createSchema, type HydrogenComponentProps, type WeaverseImage, type WeaverseVideo } from "@weaverse/hydrogen"
 import { cva, type VariantProps } from "class-variance-authority"
 import type { CSSProperties } from "react"
+import { useEffect, useRef } from "react"
 import { SwiperSlide } from "swiper/react"
 import { backgroundInputs } from "~/components/background-image"
 import { OverlayAndBackground, type OverlayAndBackgroundProps } from "~/components/overlay-and-background"
@@ -73,6 +74,25 @@ function SlideVideoV2(props:SlideProps){
     backgroundFit,backgroundPosition,enableOverlay,overlayOpacity,overlayColor,
     overlayColorHover,showMedia,video, poster ,children ,loop, isHero}=props
 
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const el = videoRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.play().catch(() => {})
+        } else {
+          el.pause()
+        }
+      },
+      { threshold: 0.5 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="h-full w-full relative">
       {showMedia=="image"?
@@ -110,10 +130,12 @@ function SlideVideoV2(props:SlideProps){
               />
             )}
             <video
+              ref={videoRef}
               className="object-cover w-full h-full hidden lg:block"
-              autoPlay
+              preload="none"
               muted
               loop={loop}
+              playsInline
               poster={poster?.url ? `${poster.url}${poster.url.includes('?')? '&':'?'}width=1920` : undefined}
             >
               <source src={video?.url} type="video/mp4" />
