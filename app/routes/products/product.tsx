@@ -21,6 +21,7 @@ import {
   isCombinedListing,
 } from "~/utils/combined-listings";
 import { WeaverseContent } from "~/weaverse";
+import { useGA4ProductView } from "~/hooks/use-ga4-product-view";
 import { getRecommendedProducts } from "./recommended-product";
 import { PRODUCT_QUERY } from "~/graphql/queries";
 
@@ -92,6 +93,7 @@ export const meta = ({ matches }: MetaArgs<typeof loader>) => {
 export default function Product() {
   const { product, reviews, url } = useLoaderData<typeof loader>();
   const combinedListing = isCombinedListing(product);
+  useGA4ProductView();
 
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,
