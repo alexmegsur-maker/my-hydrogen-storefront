@@ -33,7 +33,7 @@ export const COUNTRIES: Localizations = {
   // },
   "/de": {
     label: "Deutsch",
-    language: "EN",
+    language: "DE",
     country: "DE",
     currency: "EUR",
   },
