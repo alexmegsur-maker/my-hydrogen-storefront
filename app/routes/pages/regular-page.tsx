@@ -5,7 +5,7 @@ import type { MetaFunction } from "react-router";
 import type { PageDetailsQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
-import { seoPayload } from "~/.server/seo";
+import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
 import { WeaverseContent } from "~/weaverse";
 
@@ -37,7 +37,7 @@ export async function loader({ request, params, context }: RouteLoaderArgs) {
     data: page,
   });
 
-  const seo = seoPayload.page({ page, url: request.url });
+  const seo = applyWeaverseSeo(seoPayload.page({ page, url: request.url }), weaverseData);
   return { page, seo, weaverseData };
 }
 

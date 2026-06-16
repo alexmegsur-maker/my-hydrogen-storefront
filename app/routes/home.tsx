@@ -2,7 +2,7 @@ import { AnalyticsPageType, getSeoMeta } from "@shopify/hydrogen";
 import type { PageType } from "@weaverse/hydrogen";
 import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import type { ShopQuery } from "storefront-api.generated";
-import { seoPayload } from "~/.server/seo";
+import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
 import { validateWeaverseData, WeaverseContent } from "~/weaverse";
 
@@ -13,14 +13,13 @@ export async function loader(args: LoaderFunctionArgs) {
   const { pathPrefix } = context.storefront.i18n;
   const locale = pathPrefix?.slice(1) || "";
   let type: PageType = "INDEX";
+  const isCustomPage =
+    !!params.locale && params.locale.toLowerCase() !== locale;
 
-  if (params.locale && params.locale.toLowerCase() !== locale) {
+  if (isCustomPage) {
     // Update for Weaverse: if it not locale, it probably is a custom page handle
     type = "CUSTOM";
   }
-
-  // Calculate seo payload synchronously
-  const seo = seoPayload.home({ url: request.url });
 
   // Load async data in parallel for better performance
   const [weaverseData, { shop }] = await Promise.all([
@@ -30,6 +29,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Check weaverseData after parallel loading
   validateWeaverseData(weaverseData);
+
+  const seo = applyWeaverseSeo(seoPayload.home({ url: request.url }), weaverseData);
 
   return {
     shop,
@@ -42,8 +43,11 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 export const meta = ({ matches }: MetaArgs<typeof loader>) => {
+  const tags = getSeoMeta(
+    ...matches.map((match) => (match.data as any)?.seo).filter(Boolean),
+  );
   return [
-    ...getSeoMeta(...matches.map((match) => (match.data as any)?.seo).filter(Boolean)),
+    ...tags,
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ];

@@ -1,5 +1,8 @@
-import type { LoaderFunctionArgs } from "react-router";
+import type { SeoConfig } from "@shopify/hydrogen";
+import { getSeoMeta } from "@shopify/hydrogen";
+import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { redirect } from "react-router";
+import { applyWeaverseSeo } from "~/.server/seo";
 import { COUNTRIES } from "~/utils/const";
 import { validateWeaverseData, WeaverseContent } from "~/weaverse";
 
@@ -26,8 +29,25 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     throw e;
   }
 
-  return { weaverseData };
+  const seo = applyWeaverseSeo(
+    {
+      title: "",
+      description: "",
+      titleTemplate: "%s | PhoenixChairs",
+      url: request.url,
+      robots: { noIndex: false, noFollow: false },
+    },
+    weaverseData,
+  );
+
+  return { weaverseData, seo };
 }
+
+export const meta = ({ matches }: MetaArgs<typeof loader>) => {
+  return getSeoMeta(
+    ...matches.map((m) => (m.data as any)?.seo as SeoConfig).filter(Boolean),
+  );
+};
 
 export default function Component() {
   return <WeaverseContent />;

@@ -535,6 +535,25 @@ function policies({
   };
 }
 
+/**
+ * Overrides a base SeoConfig with any title/description set in the Weaverse editor.
+ * Weaverse stores page SEO at weaverseData.page.seo.{ title, description }.
+ */
+export function applyWeaverseSeo(
+  base: SeoConfig,
+  weaverseData: unknown,
+): SeoConfig {
+  const ws = (weaverseData as any)?.page?.seo as
+    | { title?: string; description?: string }
+    | undefined;
+  if (!ws?.title && !ws?.description) return base;
+  return {
+    ...base,
+    ...(ws.title ? { title: ws.title } : {}),
+    ...(ws.description ? { description: ws.description } : {}),
+  };
+}
+
 export const seoPayload = {
   article,
   blog,

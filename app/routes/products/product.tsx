@@ -20,6 +20,7 @@ import {
   COMBINED_LISTINGS_CONFIGS,
   isCombinedListing,
 } from "~/utils/combined-listings";
+import { applyWeaverseSeo } from "~/.server/seo";
 import { WeaverseContent } from "~/weaverse";
 import { useGA4ProductView } from "~/hooks/use-ga4-product-view";
 import { getRecommendedProducts } from "./recommended-product";
@@ -68,7 +69,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     product,
     weaverseData,
     storeDomain: shop.primaryDomain.url,
-    seo: seoPayload.product({ product, url: request.url }),
+    seo: applyWeaverseSeo(seoPayload.product({ product, url: request.url }), weaverseData),
     recommended,
     selectedOptions,
     language: storefront.i18n.language,

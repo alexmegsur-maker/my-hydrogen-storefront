@@ -5,7 +5,7 @@ import { data } from "react-router";
 import type { BlogQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
-import { seoPayload } from "~/.server/seo";
+import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
 import { WeaverseContent } from "~/weaverse";
 
@@ -47,7 +47,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
-  const seo = seoPayload.blog({ blog, url: request.url });
+  const seo = applyWeaverseSeo(seoPayload.blog({ blog, url: request.url }), weaverseData);
 
   return data({ blog, articles, seo, weaverseData });
 };

@@ -10,7 +10,7 @@ import { redirect, useLoaderData } from "react-router";
 import type { CollectionQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
-import { seoPayload } from "~/.server/seo";
+import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import type { SortParam } from "~/types/others";
 import { routeHeaders } from "~/utils/cache";
 import { FILTER_URL_PREFIX } from "~/utils/const";
@@ -103,7 +103,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     data: collection,
   });
 
-  const seo = seoPayload.collection({ collection, url: request.url });
+  const seo = applyWeaverseSeo(seoPayload.collection({ collection, url: request.url }), weaverseData);
   const allFilterValues = collection.products.filters.flatMap(
     (filter) => filter.values,
   );
