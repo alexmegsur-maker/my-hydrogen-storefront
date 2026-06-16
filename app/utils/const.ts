@@ -23,7 +23,7 @@ export const COUNTRIES: Localizations = {
   //   label: "Canada (CAD $)",
   //   language: "EN",
   //   country: "CA",
-  //   currency: "CAD",
+  //   currency: "CAD", 
   // },
   // "/en-cn": {
   //   label: "China (CNY ¥)",
