@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { cn } from '~/utils/cn'
 import { StepLogin } from './stepLogin'
 import { StepSummary } from './stepSummary'
-import { StepCreate } from './stepCreate'
-import { StepDetail } from './stepDetail'
+// import { StepCreate } from './stepCreate'
+// import { StepDetail } from './stepDetail'
 import { create } from 'zustand'
 type Step = 'login' | 'summary' | 'create' | 'detail'
 
@@ -204,15 +204,15 @@ export default function DesistimientoForm() {
             onViewRma={goToDetail}
           />
         )}
-        {step === 'create' && (
+        {/* {step === 'create' && (
           <StepCreate
             onBack={() => setStep('summary')}
             onNext={goToDetail}
           />
-        )}
-        {step === 'detail' && (
+        )} */}
+        {/* {step === 'detail' && (
           <StepDetail  onBack={() => setStep('summary')} />
-        )}
+        )} */}
       </div>
     </div>
   )
