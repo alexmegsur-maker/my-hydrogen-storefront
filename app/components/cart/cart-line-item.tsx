@@ -1,4 +1,4 @@
-import { TrashIcon } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import {
   CartForm,
   Money,
@@ -6,7 +6,6 @@ import {
   OptimisticInput,
   useOptimisticData,
 } from "@shopify/hydrogen";
-import clsx from "clsx";
 import type { CartApiQueryFragment } from "storefront-api.generated";
 import { Image } from "~/components/image";
 import { Link } from "~/components/link";
@@ -25,7 +24,6 @@ export type CartLineOptimisticData = {
 
 export function CartLineItem({
   line,
-  layout,
 }: {
   line: CartLine;
   layout: CartLayoutType;
@@ -57,7 +55,7 @@ export function CartLineItem({
 
   return (
     <li
-      className="flex gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4"
+      className="flex gap-4 border-b border-white/[0.06] py-4 first:pt-0 last:border-b-0"
       style={{
         display: optimisticData?.action === "remove" ? "none" : "flex",
       }}
@@ -69,58 +67,52 @@ export function CartLineItem({
             width={200}
             height={200}
             data={image}
-            className="h-20 w-20 rounded-xl object-cover"
+            className="h-20 w-20 rounded-lg object-cover bg-white/[0.05]"
             sizes="80px"
             alt={title}
             aspectRatio={calculateAspectRatio(image, "adapt")}
           />
         ) : (
-          <div className="h-20 w-20 rounded-xl bg-white/[0.05]" />
+          <div className="h-20 w-20 rounded-lg bg-white/[0.05]" />
         )}
       </div>
 
       {/* Contenido */}
-      <div className="flex min-w-0 grow flex-col gap-2">
-        {/* Título + precio */}
-        <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 grow flex-col justify-between gap-2">
+        {/* Fila 1: Título + X */}
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             {product?.handle ? (
               <Link
                 to={url}
-                className="block font-[Outfit] text-[0.9rem] font-medium leading-snug text-white hover:text-zinc-300 transition-colors"
+                className="block font-[Outfit] text-[0.78rem] font-semibold uppercase leading-snug tracking-wide text-white hover:text-zinc-300 transition-colors"
                 onClick={closeCartDrawer}
               >
                 {product?.title || ""}
               </Link>
             ) : (
-              <p className="font-[Outfit] text-[0.9rem] font-medium text-white">
+              <p className="font-[Outfit] text-[0.78rem] font-semibold uppercase tracking-wide text-white">
                 {product?.title || ""}
               </p>
             )}
             {!isDefaultVariant && (
-              <p className="mt-0.5 text-xs text-zinc-500">{title}</p>
+              <p className="mt-0.5 text-[0.7rem] leading-tight text-zinc-500">{title}</p>
             )}
           </div>
-          <CartLinePrice line={line} isOptimistic={isOptimistic} />
+          <ItemRemoveButton lineId={id} />
         </div>
 
-        {/* Cantidad + eliminar */}
+        {/* Fila 2: Cantidad + Precio */}
         <div className="flex items-center justify-between">
           <CartLineQuantityAdjust line={line} />
-          <ItemRemoveButton lineId={id} />
+          <CartLinePrice line={line} isOptimistic={isOptimistic} />
         </div>
       </div>
     </li>
   );
 }
 
-function ItemRemoveButton({
-  lineId,
-  className,
-}: {
-  lineId: CartLine["id"];
-  className?: string;
-}) {
+function ItemRemoveButton({ lineId }: { lineId: CartLine["id"] }) {
   return (
     <CartForm
       route="/cart"
@@ -128,14 +120,11 @@ function ItemRemoveButton({
       inputs={{ lineIds: [lineId] }}
     >
       <button
-        className={clsx(
-          "flex h-7 w-7 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition-all duration-200 hover:border-red-500/40 hover:text-red-400",
-          className,
-        )}
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition-all duration-200 hover:border-red-500/40 hover:text-red-400"
         type="submit"
         aria-label="Eliminar"
       >
-        <TrashIcon aria-hidden="true" className="size-3.5" />
+        <XIcon aria-hidden="true" className="size-3" />
       </button>
       <OptimisticInput id={lineId} data={{ action: "remove" }} />
     </CartForm>
@@ -144,31 +133,37 @@ function ItemRemoveButton({
 
 function CartLinePrice({
   line,
-  priceType = "regular",
   isOptimistic,
 }: {
   line: CartLine;
-  priceType?: "regular" | "compareAt";
   isOptimistic?: boolean;
 }) {
-  if (!(line?.cost?.amountPerQuantity && line?.cost?.totalAmount)) return null;
+  if (!line?.cost?.amountPerQuantity) return null;
 
-  const moneyV2 =
-    priceType === "regular"
-      ? line.cost.totalAmount
-      : line.cost.compareAtAmountPerQuantity;
+  const currentPrice = line.cost.amountPerQuantity;
+  const compareAtPrice = line.cost.compareAtAmountPerQuantity;
+  const hasDiscount =
+    compareAtPrice &&
+    parseFloat(compareAtPrice.amount) > parseFloat(currentPrice.amount);
 
-  if (moneyV2 == null) return null;
-
-  if (isOptimistic)
-    return <Skeleton as="span" className="h-4 w-14 rounded" />;
+  if (isOptimistic) return <Skeleton as="span" className="h-4 w-16 rounded" />;
 
   return (
-    <Money
-      withoutTrailingZeros
-      as="span"
-      data={moneyV2}
-      className="shrink-0 font-[Outfit] text-[0.9rem] font-semibold text-white"
-    />
+    <div className="flex shrink-0 items-baseline gap-1.5">
+      <Money
+        withoutTrailingZeros
+        as="span"
+        data={currentPrice}
+        className="font-[Outfit] text-[0.85rem] font-semibold text-white"
+      />
+      {hasDiscount && (
+        <Money
+          withoutTrailingZeros
+          as="span"
+          data={compareAtPrice}
+          className="font-[Outfit] text-[0.75rem] font-normal text-zinc-500 line-through"
+        />
+      )}
+    </div>
   );
 }

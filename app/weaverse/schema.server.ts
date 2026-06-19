@@ -2,6 +2,19 @@ import type { HydrogenThemeSchema } from "@weaverse/hydrogen";
 import { COUNTRIES } from "~/utils/const";
 import { version } from "../../package.json";
 
+const BENEFIT_ICON_OPTIONS = [
+  { value: "truck", label: "Camión (envío)" },
+  { value: "seal-check", label: "Sello verificado (garantía)" },
+  { value: "shield-check", label: "Escudo (protección)" },
+  { value: "credit-card", label: "Tarjeta (pago)" },
+  { value: "lock", label: "Candado (seguridad)" },
+  { value: "star", label: "Estrella (premium)" },
+  { value: "headset", label: "Auriculares (soporte)" },
+  { value: "clock", label: "Reloj (tiempo)" },
+  { value: "package", label: "Paquete (producto)" },
+  { value: "check-circle", label: "Círculo check" },
+];
+
 export const themeSchema: HydrogenThemeSchema = {
   info: {
     version,
@@ -1080,6 +1093,91 @@ export const themeSchema: HydrogenThemeSchema = {
           name: "checkoutButtonText",
           defaultValue: "Continue to Checkout",
           placeholder: "Continue to Checkout",
+        },
+        {
+          type: "heading",
+          label: "Cart benefits",
+        },
+        {
+          type: "switch",
+          label: "Show benefits section",
+          name: "showCartBenefits",
+          defaultValue: true,
+        },
+        {
+          type: "text",
+          label: "Benefits title",
+          name: "cartBenefitsTitle",
+          defaultValue: "Ventajas de Phoenix Chairs",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "select",
+          label: "Benefit 1 — icon",
+          name: "cartBenefit1Icon",
+          configs: {
+            options: BENEFIT_ICON_OPTIONS,
+          },
+          defaultValue: "truck",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "text",
+          label: "Benefit 1 — label",
+          name: "cartBenefit1Label",
+          defaultValue: "Envío prioritario",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "select",
+          label: "Benefit 2 — icon",
+          name: "cartBenefit2Icon",
+          configs: {
+            options: BENEFIT_ICON_OPTIONS,
+          },
+          defaultValue: "seal-check",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "text",
+          label: "Benefit 2 — label",
+          name: "cartBenefit2Label",
+          defaultValue: "5 años de garantía",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "select",
+          label: "Benefit 3 — icon",
+          name: "cartBenefit3Icon",
+          configs: {
+            options: BENEFIT_ICON_OPTIONS,
+          },
+          defaultValue: "shield-check",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "text",
+          label: "Benefit 3 — label",
+          name: "cartBenefit3Label",
+          defaultValue: "Protección total",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "select",
+          label: "Benefit 4 — icon",
+          name: "cartBenefit4Icon",
+          configs: {
+            options: BENEFIT_ICON_OPTIONS,
+          },
+          defaultValue: "credit-card",
+          condition: (theme) => theme.showCartBenefits === true,
+        },
+        {
+          type: "text",
+          label: "Benefit 4 — label",
+          name: "cartBenefit4Label",
+          defaultValue: "Acceso flexible",
+          condition: (theme) => theme.showCartBenefits === true,
         },
       ],
     },

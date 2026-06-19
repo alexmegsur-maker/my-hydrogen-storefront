@@ -1,12 +1,36 @@
-import { CaretDownIcon, TagIcon, XIcon } from "@phosphor-icons/react";
+import {
+  CheckCircleIcon,
+  ClockIcon,
+  CreditCardIcon,
+  HeadsetIcon,
+  LockIcon,
+  PackageIcon,
+  SealCheckIcon,
+  ShieldCheckIcon,
+  StarIcon,
+  TruckIcon,
+  type Icon,
+} from "@phosphor-icons/react";
 import { CartForm, Money, type OptimisticCart } from "@shopify/hydrogen";
 import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { CartApiQueryFragment } from "storefront-api.generated";
-import { Spinner } from "~/components/spinner";
 import type { CartLayoutType } from "~/types/others";
+
+const ICON_MAP: Record<string, Icon> = {
+  truck: TruckIcon,
+  "seal-check": SealCheckIcon,
+  "shield-check": ShieldCheckIcon,
+  "credit-card": CreditCardIcon,
+  lock: LockIcon,
+  star: StarIcon,
+  headset: HeadsetIcon,
+  clock: ClockIcon,
+  package: PackageIcon,
+  "check-circle": CheckCircleIcon,
+};
 
 export function CartSummary({
   cart,
@@ -15,171 +39,247 @@ export function CartSummary({
   cart: OptimisticCart<CartApiQueryFragment>;
   layout: CartLayoutType;
 }) {
-  const { enableDiscountCode, checkoutButtonText } = useThemeSettings();
-  const [discountOpen, setDiscountOpen] = useState(false);
+  const {
+    checkoutButtonText,
+    showCartBenefits,
+    cartBenefitsTitle,
+    cartBenefit1Icon,
+    cartBenefit1Label,
+    cartBenefit2Icon,
+    cartBenefit2Label,
+    cartBenefit3Icon,
+    cartBenefit3Label,
+    cartBenefit4Icon,
+    cartBenefit4Label,
+  } = useThemeSettings();
+
+  const benefits = [
+    {
+      iconKey: cartBenefit1Icon ?? "truck",
+      label: cartBenefit1Label ?? "Envío prioritario",
+    },
+    {
+      iconKey: cartBenefit2Icon ?? "seal-check",
+      label: cartBenefit2Label ?? "5 años de garantía",
+    },
+    {
+      iconKey: cartBenefit3Icon ?? "shield-check",
+      label: cartBenefit3Label ?? "Protección total",
+    },
+    {
+      iconKey: cartBenefit4Icon ?? "credit-card",
+      label: cartBenefit4Label ?? "Acceso flexible",
+    },
+  ];
   const [discountInput, setDiscountInput] = useState("");
-  const [removingCode, setRemovingCode] = useState<string | null>(null);
-  const dcRemoveFetcher = useFetcher({ key: "discount-code-remove" });
+  const dcFetcher = useFetcher({ key: "discount-code-remove" });
 
-  const { cost, discountCodes, isOptimistic, checkoutUrl } = cart;
+  const { cost, discountCodes, isOptimistic, checkoutUrl, lines } = cart;
 
-  const isCartUpdating =
-    isOptimistic || dcRemoveFetcher.state !== "idle";
+  const isCartUpdating = isOptimistic || dcFetcher.state !== "idle";
 
   const appliedCodes = (discountCodes ?? []).filter((d) => d.applicable);
+  const allAppliedCodeStrings = appliedCodes.map((d) => d.code);
+
+  // Calculate compareAt subtotal from line items
+  const lineNodes = (lines as any)?.nodes ?? [];
+  const compareAtSubtotal = lineNodes.reduce((acc: number, line: any) => {
+    const compareAt = line.cost?.compareAtAmountPerQuantity;
+    const current = line.cost?.amountPerQuantity;
+    const qty = line.quantity ?? 1;
+    if (compareAt) return acc + parseFloat(compareAt.amount) * qty;
+    if (current) return acc + parseFloat(current.amount) * qty;
+    return acc;
+  }, 0);
+
+  const subtotal = parseFloat(cost?.subtotalAmount?.amount ?? "0");
+  const finalTotal = parseFloat(cost?.totalAmount?.amount ?? "0");
+  const currencyCode = cost?.totalAmount?.currencyCode ?? "EUR";
+  const currencySymbol = currencyCode === "EUR" ? "€" : currencyCode;
+
+  // When coupon is applied and saves money, show totalAmount vs subtotalAmount
+  // Otherwise show subtotalAmount vs compareAt total (if there are product savings)
+  const hasCouponSavings = appliedCodes.length > 0 && subtotal > finalTotal;
+  const hasCompareAtSavings = compareAtSubtotal > subtotal + 0.01;
+
+  const mainMoney = hasCouponSavings ? cost?.totalAmount : cost?.subtotalAmount;
+  const strikethroughAmount: number | null = hasCouponSavings
+    ? subtotal
+    : hasCompareAtSavings
+      ? compareAtSubtotal
+      : null;
 
   return (
     <div
       className={clsx(
-        "border-t border-white/10 bg-[#050505]",
+        "bg-[#050505]",
         layout === "drawer" && "px-6 pb-6 pt-4",
         layout === "page" &&
           "sticky top-(--height-nav) rounded-xl border border-white/10 p-6",
       )}
     >
-      {/* Códigos de descuento aplicados */}
+      {/* Benefits — drawer only */}
+      {layout === "drawer" && showCartBenefits !== false && (
+        <div className="mb-5 border-y border-white/[0.06] py-4">
+          <p className="mb-3 font-[Outfit] text-[0.6rem] font-semibold uppercase tracking-[2px] text-zinc-500">
+            {cartBenefitsTitle || "Ventajas de Phoenix Chairs"}
+          </p>
+          <div className="grid grid-cols-4 gap-2 text-center">
+            {benefits.map(({ iconKey, label }) => {
+              const BenefitIcon = ICON_MAP[iconKey] ?? TruckIcon;
+              return (
+                <div key={label} className="flex flex-col items-center gap-1.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
+                    <BenefitIcon className="size-3.5 text-zinc-400" />
+                  </div>
+                  <span className="font-[Outfit] text-[0.6rem] leading-tight text-zinc-500">
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Applied discount codes */}
       {appliedCodes.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-2">
           {appliedCodes.map((discount) => {
-            const allCodes = appliedCodes.map((d) => d.code);
-            const updatedCodes = allCodes.filter((c) => c !== discount.code);
-            const isRemoving =
-              dcRemoveFetcher.state !== "idle" &&
-              removingCode === discount.code;
+            const updatedCodes = allAppliedCodeStrings.filter(
+              (c) => c !== discount.code,
+            );
             return (
-              <div
+              <CartForm
                 key={discount.code}
-                className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-3 py-1 text-xs text-white"
+                route="/cart"
+                action={CartForm.ACTIONS.DiscountCodesUpdate}
+                inputs={{ discountCodes: updatedCodes }}
+                fetcherKey="discount-code-remove"
               >
-                <TagIcon className="size-3 text-zinc-400" />
-                <span>{discount.code}</span>
-                <CartForm
-                  route="/cart"
-                  action={CartForm.ACTIONS.DiscountCodesUpdate}
-                  inputs={{ discountCodes: updatedCodes }}
-                  fetcherKey="discount-code-remove"
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-3 py-1 text-xs text-white transition hover:border-red-500/40 hover:text-red-400"
                 >
-                  <button
-                    type="submit"
-                    aria-label={`Quitar ${discount.code}`}
-                    className="ml-0.5 text-zinc-500 transition hover:text-red-400"
-                    onClick={() => setRemovingCode(discount.code)}
-                  >
-                    {isRemoving ? <Spinner size={12} /> : <XIcon className="size-3" />}
-                  </button>
-                </CartForm>
-              </div>
+                  <span>{discount.code}</span>
+                  <span aria-hidden="true">×</span>
+                </button>
+              </CartForm>
             );
           })}
         </div>
       )}
 
-      {/* Toggle código de descuento */}
-      {enableDiscountCode !== false && (
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={() => setDiscountOpen((v) => !v)}
-            className="flex w-full items-center justify-between text-left"
-          >
-            <span className="font-[Outfit] text-sm text-zinc-400">
-              ¿Tienes un código de descuento?
-            </span>
-            <span className="font-[Outfit] text-sm font-medium text-white flex items-center gap-1 transition-all duration-200">
-              Aplicar código
-              <CaretDownIcon
-                className={clsx(
-                  "size-3.5 transition-transform duration-200",
-                  discountOpen && "rotate-180",
-                )}
+      {/* Subtotal with optional comparison */}
+      <div className="mb-4 flex items-baseline justify-between">
+        <span className="font-[Outfit] text-sm font-semibold uppercase tracking-[2px] text-white">
+          Subtotal:
+        </span>
+        <div className="flex items-baseline gap-2">
+          {isCartUpdating ? (
+            <div className="h-5 w-20 animate-pulse rounded bg-white/10" />
+          ) : (
+            <>
+              <Money
+                data={mainMoney}
+                className="font-[Outfit] text-base font-bold text-white"
+                withoutTrailingZeros
               />
-            </span>
-          </button>
-
-          {discountOpen && (
-            <CartForm
-              route="/cart"
-              action={CartForm.ACTIONS.DiscountCodesUpdate}
-              inputs={{
-                discountCodes: [
-                  ...appliedCodes.map((d) => d.code),
-                  discountInput,
-                ],
-              }}
-            >
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="text"
-                  name="discountCode"
-                  value={discountInput}
-                  onChange={(e) => setDiscountInput(e.target.value)}
-                  placeholder="Código de descuento"
-                  autoComplete="off"
-                  className="flex-1 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-white focus:outline-none transition-all duration-200"
-                />
-                <button
-                  type="submit"
-                  className="rounded-full border border-white/20 px-4 py-2 font-[Outfit] text-sm font-semibold uppercase tracking-widest text-white transition-all duration-200 hover:border-white hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]"
-                >
-                  OK
-                </button>
-              </div>
-            </CartForm>
+              {strikethroughAmount !== null && (
+                <span className="font-[Outfit] text-sm text-zinc-500 line-through">
+                  {Math.round(strikethroughAmount)}&nbsp;{currencySymbol}
+                </span>
+              )}
+            </>
           )}
         </div>
-      )}
+      </div>
 
-      {/* Separador */}
-      <div className="mb-4 h-px bg-white/10" />
-
-      {/* Total */}
-      <div className="mb-5 flex items-center justify-between">
-        <span className="font-[Outfit] text-base font-semibold text-white">
-          Total:
-        </span>
-        {isCartUpdating ? (
-          <div className="h-5 w-20 animate-pulse rounded bg-white/10" />
-        ) : (
-          <Money
-            data={cost?.totalAmount}
-            className="font-[Outfit] text-base font-bold text-white"
+      {/* Coupon input — always visible, inline */}
+      <CartForm
+        route="/cart"
+        action={CartForm.ACTIONS.DiscountCodesUpdate}
+        inputs={{ discountCodes: [...allAppliedCodeStrings, discountInput] }}
+      >
+        <div className="mb-5 flex">
+          <input
+            type="text"
+            name="discountCode"
+            value={discountInput}
+            onChange={(e) => setDiscountInput(e.target.value)}
+            placeholder="Introduce tu cupón"
+            autoComplete="off"
+            className="flex-1 border border-r-0 border-white/15 bg-transparent px-4 py-2.5 font-[Outfit] text-sm text-white placeholder:text-zinc-600 focus:border-white focus:outline-none transition-colors duration-200"
           />
+          <button
+            type="submit"
+            className="shrink-0 border border-white/20 px-5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-white transition-colors duration-200 hover:border-white hover:bg-white/5"
+          >
+            Aplicar
+          </button>
+        </div>
+      </CartForm>
+
+      {/* Action buttons */}
+      <div className="flex gap-3">
+        <a href="/cart" className="flex-1">
+          <button
+            type="button"
+            className="w-full border border-white/20 py-3.5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-white transition-colors duration-200 hover:border-white hover:bg-white/5"
+          >
+            Ver carrito
+          </button>
+        </a>
+        {checkoutUrl && (
+          <a href={checkoutUrl} target="_self" className="flex-1">
+            <button
+              type="button"
+              className="w-full bg-white py-3.5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-[#050505] transition-all duration-200 hover:bg-zinc-100"
+            >
+              {checkoutButtonText || "Checkout"}
+            </button>
+          </a>
         )}
       </div>
 
-      {/* Botón checkout */}
-      {checkoutUrl && (
-        <a href={checkoutUrl} target="_self">
-          <button
-            type="button"
-            className="w-full rounded-full bg-[#f59e0b] py-4 font-[Outfit] text-sm font-bold uppercase tracking-[2px] text-[#050505] transition-all duration-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.5)] hover:-translate-y-0.5"
+      {/* Payment icons */}
+      <div className=" w-full mt-4 flex flex-wrap items-center justify-center gap-2">
+        <ul
+          className="flex  w-full justify-between list-unstyled mb-0 mt-3"
+          role="list"
           >
-            {checkoutButtonText || "Finalizar compra"}
-          </button>
-        </a>
-      )}
-
-      {/* Métodos de pago */}
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
-        {PAYMENT_ICONS.map((src) => (
-          <img
-            key={src}
-            src={src}
-            alt=""
-            aria-hidden="true"
-            className="h-5 w-auto rounded opacity-60"
-          />
-        ))}
+          <li className="as-payment-icon-wrap mt-0">
+            <span className="icon-wrap-custom">
+             <svg fill="#ffffff" width="30px" height="30px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M8.25 10.435l-2.165 0.46-0.010 7.12c0 1.315 0.99 2.165 2.305 2.165 0.73 0 1.265-0.135 1.56-0.295v-1.69c-0.285 0.115-1.685 0.525-1.685-0.785v-3.16h1.685v-1.89h-1.685zM12.705 13.015l-0.135-0.655h-1.92v7.66h2.215v-5.155c0.525-0.69 1.41-0.555 1.695-0.465v-2.040c-0.3-0.105-1.335-0.3-1.855 0.655zM17.32 9.4l-2.23 0.475v1.81l2.23-0.475zM2.245 14.615c0-0.345 0.29-0.48 0.755-0.485 0.675 0 1.535 0.205 2.21 0.57v-2.090c-0.735-0.29-1.47-0.405-2.205-0.405-1.8 0-3 0.94-3 2.51 0 2.46 3.375 2.060 3.375 3.12 0 0.41-0.355 0.545-0.85 0.545-0.735 0-1.685-0.305-2.43-0.71v2c0.825 0.355 1.66 0.505 2.425 0.505 1.845 0 3.115-0.79 3.115-2.39 0-2.645-3.395-2.17-3.395-3.17zM32 16.28c0-2.275-1.1-4.070-3.21-4.070s-3.395 1.795-3.395 4.055c0 2.675 1.515 3.91 3.675 3.91 1.060 0 1.855-0.24 2.46-0.575v-1.67c-0.605 0.305-1.3 0.49-2.18 0.49-0.865 0-1.625-0.305-1.725-1.345h4.345c0.010-0.115 0.030-0.58 0.030-0.795zM27.605 15.44c0-1 0.615-1.42 1.17-1.42 0.545 0 1.125 0.42 1.125 1.42zM21.96 12.21c-0.87 0-1.43 0.41-1.74 0.695l-0.115-0.55h-1.955v10.24l2.22-0.47 0.005-2.51c0.32 0.235 0.795 0.56 1.57 0.56 1.59 0 3.040-1.16 3.040-3.98 0.005-2.58-1.465-3.985-3.025-3.985zM21.43 18.335c-0.52 0-0.83-0.19-1.045-0.42l-0.015-3.3c0.23-0.255 0.55-0.44 1.060-0.44 0.81 0 1.37 0.91 1.37 2.070 0.005 1.195-0.545 2.090-1.37 2.090zM15.095 20.020h2.23v-7.66h-2.23z"></path> </g></svg>
+            </span>
+          </li>
+          <li className="as-payment-icon-wrap mt-0">
+            <span className="icon-wrap-custom">
+             <svg fill="#ffffff" width="30px" height="30px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>visa</title> <path d="M15.854 11.329l-2.003 9.367h-2.424l2.006-9.367zM26.051 17.377l1.275-3.518 0.735 3.518zM28.754 20.696h2.242l-1.956-9.367h-2.069c-0.003-0-0.007-0-0.010-0-0.459 0-0.853 0.281-1.019 0.68l-0.003 0.007-3.635 8.68h2.544l0.506-1.4h3.109zM22.429 17.638c0.010-2.473-3.419-2.609-3.395-3.714 0.008-0.336 0.327-0.694 1.027-0.785 0.13-0.013 0.28-0.021 0.432-0.021 0.711 0 1.385 0.162 1.985 0.452l-0.027-0.012 0.425-1.987c-0.673-0.261-1.452-0.413-2.266-0.416h-0.001c-2.396 0-4.081 1.275-4.096 3.098-0.015 1.348 1.203 2.099 2.122 2.549 0.945 0.459 1.262 0.754 1.257 1.163-0.006 0.63-0.752 0.906-1.45 0.917-0.032 0.001-0.071 0.001-0.109 0.001-0.871 0-1.691-0.219-2.407-0.606l0.027 0.013-0.439 2.052c0.786 0.315 1.697 0.497 2.651 0.497 0.015 0 0.030-0 0.045-0h-0.002c2.546 0 4.211-1.257 4.22-3.204zM12.391 11.329l-3.926 9.367h-2.562l-1.932-7.477c-0.037-0.364-0.26-0.668-0.57-0.82l-0.006-0.003c-0.688-0.338-1.488-0.613-2.325-0.786l-0.066-0.011 0.058-0.271h4.124c0 0 0.001 0 0.001 0 0.562 0 1.028 0.411 1.115 0.948l0.001 0.006 1.021 5.421 2.522-6.376z"></path> </g></svg>
+            </span>
+          </li>
+          <li className="as-payment-icon-wrap mt-0">
+            <span className="icon-wrap-custom">
+              <svg width="30px" height="30px" viewBox="0 -28.5 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg"  preserveAspectRatio="xMidYMid" fill="#050505" stroke="#050505" stroke-width="1.28"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M46.5392504,198.011312 L46.5392504,184.839826 C46.5392504,179.790757 43.4659038,176.497885 38.1973096,176.497885 C35.5630125,176.497885 32.7091906,177.375984 30.7334678,180.229806 C29.1967945,177.815034 27.0015469,176.497885 23.7086756,176.497885 C21.513428,176.497885 19.3181804,177.15646 17.5619824,179.571233 L17.5619824,176.936935 L12.9519625,176.936935 L12.9519625,198.011312 L17.5619824,198.011312 L17.5619824,186.3765 C17.5619824,182.644579 19.5377052,180.888381 22.6110518,180.888381 C25.6843984,180.888381 27.2210717,182.864103 27.2210717,186.3765 L27.2210717,198.011312 L31.8310916,198.011312 L31.8310916,186.3765 C31.8310916,182.644579 34.0263392,180.888381 36.880161,180.888381 C39.9535076,180.888381 41.490181,182.864103 41.490181,186.3765 L41.490181,198.011312 L46.5392504,198.011312 L46.5392504,198.011312 Z M114.81145,176.936935 L107.347608,176.936935 L107.347608,170.570717 L102.737589,170.570717 L102.737589,176.936935 L98.566618,176.936935 L98.566618,181.107905 L102.737589,181.107905 L102.737589,190.766995 C102.737589,195.59654 104.713311,198.450362 109.981906,198.450362 C111.957628,198.450362 114.152876,197.791787 115.689549,196.913688 L114.372401,192.962243 C113.055252,193.840341 111.518579,194.059866 110.420955,194.059866 C108.225708,194.059866 107.347608,192.742718 107.347608,190.54747 L107.347608,181.107905 L114.81145,181.107905 L114.81145,176.936935 L114.81145,176.936935 Z M153.886857,176.497885 C151.25256,176.497885 149.496362,177.815034 148.398738,179.571233 L148.398738,176.936935 L143.788718,176.936935 L143.788718,198.011312 L148.398738,198.011312 L148.398738,186.156975 C148.398738,182.644579 149.935411,180.668856 152.789233,180.668856 C153.667332,180.668856 154.764956,180.888381 155.643055,181.107905 L156.960204,176.71741 C156.082105,176.497885 154.764956,176.497885 153.886857,176.497885 L153.886857,176.497885 L153.886857,176.497885 Z M94.834697,178.693133 C92.6394495,177.15646 89.566103,176.497885 86.2732315,176.497885 C81.0046375,176.497885 77.492241,179.132183 77.492241,183.303153 C77.492241,186.81555 80.1265385,188.791272 84.736558,189.449847 L86.931806,189.669371 C89.346578,190.10842 90.6637265,190.766995 90.6637265,191.864619 C90.6637265,193.401292 88.9075285,194.498916 85.834182,194.498916 C82.7608355,194.498916 80.346063,193.401292 78.8093895,192.303668 L76.614142,195.816065 C79.0289145,197.572262 82.321786,198.450362 85.614657,198.450362 C91.7613505,198.450362 95.2737465,195.59654 95.2737465,191.645094 C95.2737465,187.913173 92.4199245,185.937451 88.0294295,185.278876 L85.834182,185.059351 C83.858459,184.839826 82.321786,184.400777 82.321786,183.083629 C82.321786,181.546955 83.858459,180.668856 86.2732315,180.668856 C88.9075285,180.668856 91.5418255,181.76648 92.858974,182.425054 L94.834697,178.693133 L94.834697,178.693133 Z M217.329512,176.497885 C214.695215,176.497885 212.939017,177.815034 211.841393,179.571233 L211.841393,176.936935 L207.231373,176.936935 L207.231373,198.011312 L211.841393,198.011312 L211.841393,186.156975 C211.841393,182.644579 213.378066,180.668856 216.231888,180.668856 C217.109987,180.668856 218.207611,180.888381 219.08571,181.107905 L220.402859,176.71741 C219.52476,176.497885 218.207611,176.497885 217.329512,176.497885 L217.329512,176.497885 L217.329512,176.497885 Z M158.496877,187.474123 C158.496877,193.840341 162.887372,198.450362 169.69264,198.450362 C172.765986,198.450362 174.961234,197.791787 177.156481,196.035589 L174.961234,192.303668 C173.205036,193.620817 171.448838,194.279391 169.473115,194.279391 C165.741194,194.279391 163.106897,191.645094 163.106897,187.474123 C163.106897,183.522678 165.741194,180.888381 169.473115,180.668856 C171.448838,180.668856 173.205036,181.32743 174.961234,182.644579 L177.156481,178.912658 C174.961234,177.15646 172.765986,176.497885 169.69264,176.497885 C162.887372,176.497885 158.496877,181.107905 158.496877,187.474123 L158.496877,187.474123 L158.496877,187.474123 Z M201.08468,187.474123 L201.08468,176.936935 L196.47466,176.936935 L196.47466,179.571233 C194.937987,177.595509 192.742739,176.497885 189.888917,176.497885 C183.961749,176.497885 179.351729,181.107905 179.351729,187.474123 C179.351729,193.840341 183.961749,198.450362 189.888917,198.450362 C192.962264,198.450362 195.157512,197.352737 196.47466,195.377015 L196.47466,198.011312 L201.08468,198.011312 L201.08468,187.474123 Z M184.181274,187.474123 C184.181274,183.742202 186.596046,180.668856 190.547492,180.668856 C194.279413,180.668856 196.91371,183.522678 196.91371,187.474123 C196.91371,191.206044 194.279413,194.279391 190.547492,194.279391 C186.596046,194.059866 184.181274,191.206044 184.181274,187.474123 L184.181274,187.474123 Z M129.080559,176.497885 C122.933866,176.497885 118.543371,180.888381 118.543371,187.474123 C118.543371,194.059866 122.933866,198.450362 129.300084,198.450362 C132.373431,198.450362 135.446777,197.572262 137.861549,195.59654 L135.666302,192.303668 C133.910104,193.620817 131.714856,194.498916 129.519609,194.498916 C126.665787,194.498916 123.811965,193.181768 123.153391,189.449847 L138.739648,189.449847 L138.739648,187.693648 C138.959173,180.888381 135.007727,176.497885 129.080559,176.497885 L129.080559,176.497885 L129.080559,176.497885 Z M129.080559,180.449331 C131.934381,180.449331 133.910104,182.20553 134.349153,185.498401 L123.372916,185.498401 C123.811965,182.644579 125.787688,180.449331 129.080559,180.449331 L129.080559,180.449331 Z M243.452958,187.474123 L243.452958,168.594995 L238.842938,168.594995 L238.842938,179.571233 C237.306265,177.595509 235.111017,176.497885 232.257196,176.497885 C226.330027,176.497885 221.720007,181.107905 221.720007,187.474123 C221.720007,193.840341 226.330027,198.450362 232.257196,198.450362 C235.330542,198.450362 237.52579,197.352737 238.842938,195.377015 L238.842938,198.011312 L243.452958,198.011312 L243.452958,187.474123 Z M226.549552,187.474123 C226.549552,183.742202 228.964324,180.668856 232.91577,180.668856 C236.647691,180.668856 239.281988,183.522678 239.281988,187.474123 C239.281988,191.206044 236.647691,194.279391 232.91577,194.279391 C228.964324,194.059866 226.549552,191.206044 226.549552,187.474123 L226.549552,187.474123 Z M72.443172,187.474123 L72.443172,176.936935 L67.833152,176.936935 L67.833152,179.571233 C66.2964785,177.595509 64.101231,176.497885 61.247409,176.497885 C55.3202405,176.497885 50.7102205,181.107905 50.7102205,187.474123 C50.7102205,193.840341 55.3202405,198.450362 61.247409,198.450362 C64.3207555,198.450362 66.5160035,197.352737 67.833152,195.377015 L67.833152,198.011312 L72.443172,198.011312 L72.443172,187.474123 Z M55.3202405,187.474123 C55.3202405,183.742202 57.735013,180.668856 61.6864585,180.668856 C65.4183795,180.668856 68.0526765,183.522678 68.0526765,187.474123 C68.0526765,191.206044 65.4183795,194.279391 61.6864585,194.279391 C57.735013,194.059866 55.3202405,191.206044 55.3202405,187.474123 Z" fill="#ffffff"> </path> <rect fill="#ffffff" x="93.2980455" y="16.9034088" width="69.1502985" height="124.251009"> </rect> <path d="M97.688519,79.0288935 C97.688519,53.783546 109.542856,31.3920209 127.763411,16.9033869 C114.3724,6.3661985 97.468994,-1.94737475e-05 79.0289145,-1.94737475e-05 C35.3434877,-1.94737475e-05 1.7258174e-06,35.3434665 1.7258174e-06,79.0288935 C1.7258174e-06,122.71432 35.3434877,158.057806 79.0289145,158.057806 C97.468994,158.057806 114.3724,151.691588 127.763411,141.1544 C109.542856,126.88529 97.688519,104.274241 97.688519,79.0288935 Z" fill="#ffffff"> </path> <path d="M255.746345,79.0288935 C255.746345,122.71432 220.402859,158.057806 176.717432,158.057806 C158.277352,158.057806 141.373945,151.691588 127.982936,141.1544 C146.423015,126.665766 158.057827,104.274241 158.057827,79.0288935 C158.057827,53.783546 146.20349,31.3920209 127.982936,16.9033869 C141.373945,6.3661985 158.277352,-1.94737475e-05 176.717432,-1.94737475e-05 C220.402859,-1.94737475e-05 255.746345,35.5629913 255.746345,79.0288935 Z" fill="#ffffff"> </path> </g> </g></svg>
+            </span>
+          </li>
+          <li className="as-payment-icon-wrap mt-0">
+            <span className="icon-wrap-custom">
+              <svg fill="#fff" width="30px" height="30px" viewBox="0 -6 36 36" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="m33.6 24h-31.2c-1.325 0-2.4-1.075-2.4-2.4v-10.096h1.729l.39-.944h.873l.389.94h3.402v-.715l.304.72h1.766l.304-.732v.73h8.453v-1.544h.16c.114.004.147.014.147.204v1.342h4.373v-.359c.447.227.974.36 1.533.36.032 0 .063 0 .095-.001h-.005 1.84l.394-.94h.873l.385.94h3.546v-.894l.536.894h2.836v-5.904h-2.807v.697l-.393-.697h-2.886v.697l-.361-.697h-3.897c-.05-.003-.11-.004-.169-.004-.553 0-1.076.128-1.54.357l.021-.009v-.344h-2.688v.344c-.276-.218-.628-.349-1.011-.349-.047 0-.093.002-.138.006h.006-9.823l-.659 1.525-.677-1.525h-3.094v.697l-.341-.697h-2.64l-1.223 2.8v-6c0-1.325 1.075-2.4 2.4-2.4h31.2c1.325 0 2.4 1.075 2.4 2.4v10.48h-1.873c-.03-.002-.066-.002-.101-.002-.434 0-.837.13-1.173.353l.008-.005v-.346h-2.77c-.03-.002-.066-.003-.102-.003-.414 0-.799.13-1.113.352l.006-.004v-.346h-4.946v.346c-.382-.218-.84-.346-1.327-.346-.013 0-.026 0-.039 0h.002-3.263v.346c-.346-.223-.768-.355-1.221-.355-.072 0-.144.003-.215.01l.009-.001h-3.651l-.836.904-.782-.904h-5.454v5.908h5.352l.861-.918.811.918h3.299v-1.383h.46c.037.002.081.002.125.002.413 0 .808-.078 1.171-.219l-.022.008v1.594h2.72v-1.539h.131c.166 0 .183.006.183.174v1.366h8.266c.03.001.066.002.101.002.474 0 .916-.142 1.284-.385l-.009.005v.378h2.622c.037.001.081.002.125.002.491 0 .958-.101 1.382-.284l-.023.009v3.082c0 1.325-1.075 2.4-2.4 2.4zm-12.495-6.039h-1.018v-4.235h2.336c.067-.006.144-.01.223-.01.36 0 .702.077 1.01.216l-.016-.006c.313.172.522.5.522.876 0 .023-.001.045-.002.067v-.003c0 .011.001.025.001.038 0 .486-.293.904-.713 1.086l-.008.003c.201.072.369.195.494.354l.002.002c.11.181.176.401.176.635 0 .049-.003.096-.008.144l.001-.006v.838h-1.016v-.53c.01-.059.016-.128.016-.198 0-.233-.066-.451-.179-.636l.003.005c-.163-.124-.37-.199-.594-.199-.052 0-.104.004-.154.012l.006-.001h-1.082v1.547zm0-3.36v.951h1.23c.027.003.057.004.089.004.149 0 .291-.034.417-.094l-.006.003c.127-.083.21-.224.21-.385 0-.008 0-.015-.001-.023v.001c.001-.008.001-.017.001-.026 0-.152-.084-.285-.208-.354l-.002-.001c-.117-.053-.253-.084-.397-.084-.029 0-.058.001-.087.004h.004zm-9.025 3.359h-4.007v-4.234h4.07l1.245 1.388 1.287-1.388h3.233c1.148 0 1.706.457 1.706 1.395 0 .955-.577 1.419-1.76 1.419h-1.265v1.419h-1.967l-1.246-1.399-1.295 1.4zm3.501-3.78-1.554 1.67 1.554 1.724zm-6.499 2.055v.842h2.488l1.15-1.242-1.106-1.234h-2.533v.77h2.222v.863zm7.507-1.633v1.078h1.307c.4 0 .63-.204.63-.56 0-.34-.214-.519-.619-.519zm18.038 3.36h-1.954v-.91h1.946c.023.003.049.005.076.005.125 0 .241-.041.335-.111l-.001.001c.073-.068.119-.165.119-.273 0-.001 0-.002 0-.003 0-.004 0-.009 0-.013 0-.107-.048-.202-.123-.266-.084-.061-.189-.097-.302-.097-.019 0-.038.001-.056.003h.002l-.187-.006c-.914-.024-1.949-.052-1.949-1.305 0-.61.382-1.261 1.451-1.261h2.017v.902h-1.845c-.023-.003-.049-.004-.076-.004-.122 0-.236.031-.336.086l.004-.002c-.089.059-.148.16-.148.273 0 .01 0 .019.001.029v-.001.011c0 .142.092.262.22.304l.002.001c.099.031.213.05.331.05.02 0 .041-.001.061-.002h-.003l.549.014c.046-.005.1-.008.154-.008.377 0 .724.131.997.351l-.003-.002c.03.024.056.05.079.079l.001.001.012 1.612c-.291.338-.72.551-1.199.551-.062 0-.123-.004-.182-.01zm-3.949 0h-1.972v-.91h1.962c.022.003.048.005.074.005.127 0 .245-.041.341-.111l-.002.001c.073-.068.118-.166.118-.273 0-.001 0-.002 0-.003 0-.002 0-.005 0-.007 0-.108-.048-.206-.123-.272-.085-.061-.192-.097-.307-.097-.019 0-.038.001-.056.003h.002l-.186-.006c-.911-.024-1.945-.052-1.945-1.305 0-.61.38-1.261 1.447-1.261h2.028v.902h-1.856c-.023-.003-.049-.004-.075-.004-.121 0-.235.031-.334.086l.004-.002c-.093.065-.153.171-.153.291 0 .148.091.275.219.328l.002.001c.1.031.214.05.333.05.021 0 .043-.001.064-.002h-.003l.545.014c.046-.005.099-.007.152-.007.38 0 .73.131 1.006.351l-.003-.003c.19.21.307.489.307.796 0 .035-.002.071-.005.105v-.005c.003.883-.532 1.333-1.587 1.333zm-2.578 0h-3.38v-4.237h3.377v.875h-2.367v.77h2.312v.863h-2.312v.842l2.37.004v.88zm1.97-7.286h-2.061l-.394-.944h-2.102l-.382.944h-1.184c-.033.002-.072.003-.111.003-.514 0-.987-.177-1.361-.474l.005.003c-.341-.377-.549-.878-.549-1.429 0-.066.003-.132.009-.196l-.001.008c-.005-.056-.008-.121-.008-.187 0-.564.21-1.078.556-1.47l-.002.002c.357-.312.827-.502 1.342-.502.069 0 .136.003.203.01l-.008-.001h.98v.903h-.96c-.036-.005-.078-.008-.121-.008-.255 0-.486.098-.659.259l.001-.001c-.184.235-.295.535-.295.86 0 .035.001.07.004.104v-.005c-.004.038-.006.083-.006.128 0 .326.107.627.287.87l-.003-.004c.169.138.386.222.624.222.029 0 .057-.001.085-.004h-.004.454l1.431-3.33h1.52l1.713 4v-4h1.541l1.778 2.948v-2.948h1.04v4.232h-1.444l-1.92-3.178v3.178zm-3.499-3.518-.697 1.688h1.397zm-9.799 3.516h-1.012v-4.234h2.328c.072-.008.156-.012.241-.012.357 0 .696.079 1 .221l-.015-.006c.309.173.514.498.514.871 0 .024-.001.047-.002.07v-.003.031c0 .487-.29.906-.706 1.094l-.008.003c.201.076.37.198.499.354l.002.002c.11.18.176.398.176.632 0 .051-.003.101-.009.151l.001-.006v.831h-1.021l-.004-.534v-.08c.006-.045.01-.097.01-.151 0-.22-.063-.425-.173-.598l.003.005c-.163-.12-.368-.193-.59-.193-.052 0-.104.004-.154.012l.006-.001h-1.085v1.54zm0-3.353v.94h1.228c.029.003.063.005.097.005.147 0 .285-.034.408-.095l-.005.002c.127-.078.21-.216.21-.373 0-.009 0-.019-.001-.028v.001c.001-.008.001-.017.001-.026 0-.151-.086-.282-.212-.347l-.002-.001c-.12-.052-.259-.083-.406-.083-.026 0-.052.001-.077.003h.003zm-10.716 3.353h-2.056l-.389-.944h-2.108l-.392.944h-1.1l1.813-4.234h1.503l1.721 4.007v-4.007h1.651l1.324 2.871 1.217-2.871h1.685v4.232h-1.04l-.002-3.312-1.467 3.313h-.888l-1.471-3.318v3.318zm-3.504-3.516-.689 1.688h1.382zm18.888 3.515h-1.032v-4.233h1.033v4.232zm-6.386 0h-3.374v-4.233h3.38v.88h-2.368v.763h2.311v.869h-2.313v.846h2.368v.874z"></path></g></svg>
+            </span>
+          </li>
+          <li className="as-payment-icon-wrap mt-0">
+            <span className="icon-wrap-custom">
+              <svg version="1.1" id="Layer_1"  width="30px" height="30px" viewBox="0 0 780 501" enable-background="new 0 0 780 501" fill="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>amex-outline</title> <desc>Created with Sketch.</desc> <g> <path fill="#ffffff" d="M168.379,169.853c-8.399-5.774-19.359-8.668-32.88-8.668H83.153c-4.145,0-6.435,2.073-6.87,6.215 L55.018,300.883c-0.221,1.311,0.107,2.51,0.981,3.6c0.869,1.092,1.962,1.635,3.271,1.635h24.864c4.361,0,6.758-2.068,7.198-6.215 l5.888-35.986c0.215-1.744,0.982-3.162,2.291-4.254c1.308-1.09,2.944-1.803,4.907-2.13c1.963-0.324,3.814-0.487,5.562-0.487 c1.743,0,3.814,0.11,6.217,0.327c2.397,0.218,3.925,0.324,4.58,0.324c18.756,0,33.478-5.285,44.167-15.866 c10.684-10.577,16.032-25.243,16.032-44.004C180.976,184.96,176.774,175.636,168.379,169.853z M141.389,209.933 c-1.094,7.635-3.926,12.649-8.506,15.049c-4.581,2.403-11.124,3.598-19.629,3.598l-10.797,0.327l5.563-35.007 c0.434-2.397,1.851-3.597,4.252-3.597h6.218c8.72,0,15.049,1.257,18.975,3.761C141.389,196.574,142.698,201.865,141.389,209.933z"></path> <path fill="#ffffff" d="M720.794,161.185h-24.208c-2.405,0-3.821,1.2-4.253,3.6l-21.267,136.099l-0.328,0.654 c0,1.096,0.437,2.127,1.311,3.109c0.868,0.98,1.963,1.471,3.27,1.471h21.595c4.138,0,6.429-2.068,6.871-6.215l21.265-133.813 v-0.325C725.049,162.712,723.627,161.185,720.794,161.185z"></path> <path fill="#ffffff" d="M428.31,213.856c0-1.088-0.439-2.126-1.306-3.106c-0.875-0.981-1.858-1.474-2.945-1.474h-25.192 c-2.404,0-4.366,1.096-5.889,3.271l-34.679,51.04l-14.395-49.075c-1.095-3.487-3.492-5.236-7.197-5.236h-24.541 c-1.093,0-2.074,0.492-2.941,1.474c-0.875,0.98-1.309,2.019-1.309,3.106c0,0.44,2.127,6.871,6.379,19.303 c4.252,12.435,8.832,25.849,13.74,40.245c4.908,14.393,7.469,22.031,7.688,22.898c-17.886,24.43-26.826,37.517-26.826,39.259 c0,2.838,1.416,4.254,4.253,4.254h25.192c2.398,0,4.36-1.088,5.889-3.27l83.427-120.399 C428.092,215.713,428.31,214.953,428.31,213.856z"></path> <path fill="#ffffff" d="M662.887,209.276h-24.866c-3.055,0-4.904,3.6-5.558,10.798c-5.677-8.721-16.031-13.088-31.083-13.088 c-15.704,0-29.066,5.89-40.077,17.668c-11.016,11.778-16.521,25.631-16.521,41.551c0,12.871,3.761,23.121,11.285,30.752 c7.525,7.639,17.612,11.451,30.266,11.451c6.323,0,12.757-1.311,19.3-3.926c6.544-2.617,11.665-6.105,15.379-10.469 c0,0.219-0.222,1.199-0.655,2.943c-0.44,1.748-0.655,3.059-0.655,3.926c0,3.494,1.414,5.234,4.254,5.234h22.576 c4.138,0,6.541-2.068,7.194-6.215l13.415-85.39c0.215-1.309-0.112-2.507-0.982-3.599 C665.284,209.823,664.196,209.276,662.887,209.276z M620.193,273.729c-5.562,5.453-12.268,8.178-20.12,8.178 c-6.328,0-11.449-1.742-15.377-5.234c-3.927-3.484-5.89-8.283-5.89-14.395c0-8.065,2.726-14.886,8.18-20.447 c5.447-5.562,12.214-8.343,20.285-8.343c6.101,0,11.173,1.8,15.212,5.397c4.032,3.6,6.054,8.563,6.054,14.889 C628.536,261.625,625.754,268.279,620.193,273.729z"></path> <path fill="#ffffff" d="M291.231,209.276h-24.865c-3.058,0-4.908,3.6-5.563,10.798c-5.889-8.721-16.25-13.088-31.081-13.088 c-15.704,0-29.065,5.89-40.078,17.668c-11.016,11.778-16.521,25.631-16.521,41.551c0,12.871,3.763,23.121,11.288,30.752 c7.525,7.639,17.61,11.451,30.262,11.451c6.104,0,12.433-1.311,18.975-3.926c6.543-2.617,11.778-6.105,15.704-10.469 c-0.875,2.617-1.309,4.908-1.309,6.869c0,3.494,1.417,5.234,4.253,5.234h22.574c4.141,0,6.543-2.068,7.198-6.215l13.413-85.39 c0.215-1.309-0.111-2.507-0.981-3.599C293.627,209.823,292.537,209.276,291.231,209.276z M248.535,273.891 c-5.563,5.35-12.382,8.016-20.447,8.016c-6.329,0-11.4-1.742-15.214-5.234c-3.819-3.484-5.726-8.283-5.726-14.395 c0-8.065,2.725-14.886,8.18-20.447c5.449-5.562,12.211-8.343,20.284-8.343c6.104,0,11.175,1.8,15.214,5.397 c4.032,3.6,6.052,8.563,6.052,14.889C256.878,261.844,254.097,268.553,248.535,273.891z"></path> <path fill="#ffffff" d="M540.036,169.853c-8.398-5.774-19.356-8.668-32.879-8.668h-52.019c-4.365,0-6.765,2.073-7.198,6.215 l-21.265,133.483c-0.221,1.311,0.106,2.51,0.981,3.6c0.866,1.092,1.962,1.635,3.271,1.635h26.826c2.617,0,4.361-1.416,5.235-4.252 l5.89-37.949c0.216-1.744,0.98-3.162,2.29-4.254c1.309-1.09,2.943-1.803,4.908-2.13c1.962-0.324,3.813-0.487,5.562-0.487 c1.743,0,3.814,0.11,6.214,0.327c2.399,0.218,3.93,0.324,4.58,0.324c18.759,0,33.479-5.285,44.168-15.866 c10.687-10.577,16.031-25.243,16.031-44.004C552.632,184.96,548.431,175.636,540.036,169.853z M506.502,223.673 c-4.799,3.271-11.997,4.906-21.592,4.906l-10.47,0.327l5.563-35.007c0.432-2.397,1.849-3.597,4.252-3.597h5.887 c4.797,0,8.614,0.218,11.454,0.653c2.831,0.439,5.561,1.799,8.178,4.089c2.619,2.29,3.926,5.618,3.926,9.979 C513.7,214.185,511.298,220.399,506.502,223.673z"></path> </g> </g></svg>
+            </span>
+          </li>
+          <li className="as-payment-icon-wrap mt-0">
+            <span className="icon-wrap-custom">
+              <svg fill="#ffffff" version="1.1" id="Capa_1" width="30px" height="30px" viewBox="0 0 49.864 49.865" ><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g id="Layer_1_copy_14_"> <path d="M39.115,25.145c0.021,1.926,0.008,3.85,0.008,5.772c0,0.451-0.053,0.502-0.514,0.502c-0.533,0.003-1.068,0.003-1.602,0 c-0.417,0-0.464-0.045-0.464-0.452c0-1.868,0.006-3.735-0.006-5.604c0-0.312-0.043-0.625-0.1-0.933 c-0.081-0.445-0.383-0.698-0.814-0.769c-0.783-0.13-1.487,0.118-2.143,0.522c-0.087,0.054-0.121,0.249-0.121,0.379 c-0.009,1.572-0.006,3.144-0.006,4.716c0,0.592-0.007,1.182,0.003,1.772c0.005,0.271-0.114,0.375-0.378,0.372 c-0.591-0.011-1.182-0.003-1.773-0.005c-0.342-0.002-0.436-0.098-0.436-0.447c-0.001-2.973-0.001-5.945,0-8.918 c0-0.313,0.094-0.411,0.408-0.413c0.533-0.005,1.065-0.004,1.602-0.001c0.338,0.002,0.396,0.065,0.404,0.401 c0.002,0.129,0.014,0.256,0.022,0.461c0.175-0.111,0.277-0.173,0.379-0.241c1.041-0.706,2.197-0.878,3.41-0.663 c1.111,0.194,1.716,0.937,1.941,1.992C39.048,24.099,39.109,24.625,39.115,25.145z M49.704,20.967L49.581,21.3 c-0.029,0.087-0.055,0.162-0.072,0.232h-0.001c-0.021-0.072-0.042-0.148-0.07-0.232l-0.117-0.333h-0.113l-0.047,0.688h0.084 l0.02-0.296c0.006-0.104,0.011-0.219,0.013-0.304h0.002c0.021,0.081,0.047,0.17,0.079,0.267l0.112,0.329h0.067l0.121-0.335 c0.035-0.095,0.062-0.181,0.086-0.261h0.002c0,0.084,0.006,0.202,0.013,0.297l0.016,0.303h0.09l-0.043-0.688H49.704z M22.763,24.495c0.057,2.178,0.046,4.36,0.059,6.541c0.001,0.291-0.105,0.386-0.404,0.388c-0.515,0.002-1.029,0.001-1.543,0 c-0.436,0-0.49-0.054-0.512-0.484c-0.002-0.047-0.011-0.093-0.023-0.184c-0.293,0.163-0.542,0.319-0.804,0.446 c-0.915,0.443-1.868,0.484-2.83,0.201c-0.866-0.258-1.396-0.854-1.608-1.729c-0.153-0.632-0.166-1.267-0.039-1.896 c0.198-0.974,0.855-1.515,1.769-1.789c0.885-0.268,1.796-0.298,2.71-0.289c0.654,0.008,0.655,0.002,0.653-0.661 c0-0.171,0.012-0.347-0.019-0.513c-0.098-0.534-0.456-0.867-1.046-0.867c-0.988,0-1.977,0.042-2.964,0.098 c-0.484,0.029-0.548,0.005-0.548-0.484c0-0.343,0.006-0.687-0.002-1.028c-0.004-0.191,0.071-0.322,0.253-0.36 c1.533-0.327,3.074-0.553,4.629-0.167C21.896,22.063,22.725,23.038,22.763,24.495z M20.252,28.917 c-0.023-0.227-0.005-0.457-0.005-0.687c0-0.295,0.011-0.591-0.008-0.885c-0.005-0.074-0.106-0.203-0.159-0.201 c-0.596,0.021-1.195,0.037-1.787,0.11c-0.363,0.046-0.629,0.311-0.702,0.673c-0.068,0.339-0.088,0.697-0.06,1.044 c0.032,0.38,0.306,0.602,0.68,0.666c0.601,0.104,1.167-0.013,1.727-0.23C20.179,29.315,20.282,29.181,20.252,28.917z M48.216,25.034c0.005,1.982,0.003,3.965,0.002,5.947c0,0.393-0.049,0.438-0.448,0.438c-0.496,0.003-0.99,0.003-1.486,0 c-0.426,0-0.453-0.025-0.475-0.44c-0.002-0.049-0.007-0.096-0.017-0.144c-0.002-0.018-0.02-0.029-0.049-0.073 c-0.062,0.028-0.119,0.046-0.164,0.078c-0.664,0.495-1.428,0.688-2.239,0.751c-1.605,0.13-2.832-0.926-2.908-2.534 c-0.019-0.396-0.029-0.8,0.03-1.189c0.146-0.938,0.724-1.561,1.615-1.812c0.672-0.188,1.377-0.268,2.072-0.35 c0.404-0.049,0.819-0.014,1.229-0.008c0.18,0.006,0.269-0.056,0.259-0.244c-0.015-0.283,0.011-0.574-0.037-0.854 c-0.107-0.625-0.461-0.95-1.093-0.948c-0.979,0.006-1.958,0.05-2.938,0.105c-0.492,0.026-0.562-0.013-0.562-0.519 c0-0.314,0.001-0.629,0-0.943c-0.001-0.244,0.104-0.38,0.354-0.438c1.139-0.257,2.289-0.396,3.453-0.323 c0.487,0.031,0.982,0.138,1.446,0.293c1.107,0.369,1.718,1.183,1.896,2.323C48.201,24.444,48.215,24.741,48.216,25.034z M45.697,29.008c-0.012-0.259-0.002-0.515-0.004-0.771c0-0.274-0.005-0.552,0.004-0.828c0.004-0.188-0.061-0.283-0.264-0.274 c-0.361,0.008-0.726-0.021-1.085,0.007c-1.203,0.091-1.421,0.538-1.436,1.527c-0.008,0.582,0.263,0.896,0.726,0.975 c0.643,0.105,1.244-0.028,1.829-0.287C45.626,29.286,45.704,29.19,45.697,29.008z M13.201,18.264c-0.553,0-1.105,0-1.658,0 c-0.415,0.001-0.454,0.042-0.454,0.462c0,2.029,0,4.059,0,6.088c0,2.067,0,4.134,0,6.203c0,0.343,0.059,0.4,0.397,0.402 c0.542,0.003,1.085,0,1.629,0c0.511,0,0.558-0.045,0.558-0.549c0-3.478,0-6.956,0-10.433c0-0.572,0.001-1.143,0-1.715 C13.672,18.333,13.6,18.265,13.201,18.264z M48.592,21.042h0.21v0.613h0.09v-0.613h0.21v-0.075h-0.51V21.042z M29.326,21.522 c-0.744,0.032-1.416,0.266-2.018,0.701c-0.082,0.06-0.164,0.115-0.287,0.203c-0.01-0.137-0.021-0.218-0.021-0.3 c-0.008-0.41-0.08-0.486-0.481-0.486c-0.517-0.002-1.029-0.001-1.544-0.001c-0.471,0.001-0.549,0.077-0.549,0.546 c0,1.314,0,2.63,0,3.944c0,1.594-0.001,3.185,0,4.774c0,0.422,0.093,0.516,0.494,0.516c0.542,0.003,1.087,0.003,1.63,0 c0.438,0,0.508-0.066,0.508-0.518c0.001-2.113,0.003-4.229-0.004-6.347c0-0.209,0.061-0.328,0.253-0.419 c0.636-0.299,1.288-0.523,2.003-0.494c0.262,0.011,0.389-0.088,0.383-0.365c-0.011-0.468-0.009-0.933-0.001-1.4 C29.693,21.621,29.579,21.512,29.326,21.522z M2.339,18.265c-0.505-0.003-1.01-0.005-1.516,0.001C0.293,18.274,0,18.576,0,19.108 c0,1.963,0,3.927,0,5.89C0,26.991,0,28.981,0,30.974c0,0.349,0.047,0.396,0.397,0.396c0.514,0.004,1.029,0.004,1.543,0 c0.54-0.004,0.811-0.273,0.811-0.81c0-3.955,0-7.912,0-11.866C2.752,18.347,2.679,18.268,2.339,18.265z M8.019,27.235 c-1.104-1.154-2.462-1.789-3.943-1.936c-0.478-0.009-0.482-0.009-0.469,0.352c0.005,0.133,0.031,0.264,0.051,0.396 c0.265,1.755,1.123,3.153,2.551,4.198c0.936,0.688,1.995,1.045,3.148,1.153c0.343,0.033,0.401,0.009,0.367-0.327 C9.577,29.607,9.044,28.308,8.019,27.235z M9.365,18.297c-0.131,0.021-0.267,0.013-0.397,0.033 c-1.502,0.239-2.777,0.904-3.791,2.043c-0.929,1.042-1.445,2.271-1.567,3.659c-0.031,0.362-0.011,0.363,0.37,0.412 c0.523-0.129,1.067-0.208,1.567-0.398c2.497-0.948,3.863-2.788,4.178-5.428C9.765,18.283,9.709,18.245,9.365,18.297z"></path> </g> </g> </g></svg>
+            </span>
+          </li>
+        </ul>
       </div>
     </div>
   );
 }
-
-const PAYMENT_ICONS = [
-  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/0169ce6e23043e3c22960f0a7ee21e41.svg", // Visa
-  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/ae9ceec48985d7f5e94d55b61f2b6977.svg", // Mastercard
-  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/f5d91f3e27dd5a1df37e58b99d9b4240.svg", // Amex
-  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/6e8cbf9b7b37a5a4eeeb40f16c8d60ea.svg", // PayPal
-  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/apple-pay.svg",                       // Apple Pay
-  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/google-pay.svg",                      // Google Pay
-];

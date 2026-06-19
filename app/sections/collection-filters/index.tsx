@@ -311,6 +311,15 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     setGridSizeMobile(Number(productsPerRowMobile) || 1);
   }, [productsPerRowDesktop, productsPerRowMobile]);
 
+  const [descExpanded, setDescExpanded] = useState(false);
+
+  const descHtml = typeof description === 'string' ? description : String(description ?? '');
+  const firstParagraph = (() => {
+    const match = descHtml.match(/<p[^>]*>[\s\S]*?<\/p>/i);
+    return match ? match[0] : descHtml;
+  })();
+  const descHasMore = descHtml.length > 0 && firstParagraph !== descHtml;
+
 
 
   if (collection?.products && collections) {
@@ -379,21 +388,38 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
             >
                 {collection.title}
             </h1>
-            {showDescription && description && (
-              <div
-                className="mt-2.5 text-body-subtle"
-                dangerouslySetInnerHTML={{__html:description}}
-                style={{
-                  color:coldColor,
-                  fontSize:coldSize,
-                  textAlign:coldAlignment,
-                  fontFamily:coldFamily,
-                  ...selectorPaddingMargin("padding",coldPaddingSelect,coldPaddingText),
-                  ...selectorPaddingMargin("margin",coldMarginSelect,coldMarginText),
-                }}
-              />
-              
-              
+            {showDescription && descHtml && (
+              <div className="mt-2.5 flex flex-col">
+                <div
+                  className="text-body-subtle"
+                  dangerouslySetInnerHTML={{ __html: descExpanded ? descHtml : firstParagraph }}
+                  style={{
+                    color: coldColor,
+                    fontSize: coldSize,
+                    textAlign: coldAlignment,
+                    fontFamily: coldFamily,
+                    ...selectorPaddingMargin("padding", coldPaddingSelect, coldPaddingText),
+                    ...selectorPaddingMargin("margin", coldMarginSelect, coldMarginText),
+                  }}
+                />
+                {descHasMore && (
+                  <button
+                    type="button"
+                    onClick={() => setDescExpanded((v) => !v)}
+                    style={{ 
+                      color: "#fff", 
+                      fontSize: coldSize, 
+                      fontFamily: coldFamily, 
+                      textAlign: coldAlignment,
+                      ...selectorPaddingMargin("padding", coldPaddingSelect, coldPaddingText),
+                      ...selectorPaddingMargin("margin", coldMarginSelect, coldMarginText),
+                    }}
+                    className=" underline-offset-2 opacity-70 hover:opacity-100 transition-opacity w-full"
+                  >
+                    {descExpanded ? "Ver menos ↑" : "Ver más ↓"}
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

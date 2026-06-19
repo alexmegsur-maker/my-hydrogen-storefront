@@ -79,7 +79,7 @@ export function CartDrawer() {
                 <Dialog.Content
                   onCloseAutoFocus={(e) => e.preventDefault()}
                   className={clsx(
-                    "fixed inset-y-0 right-0 z-10 w-screen max-w-[440px]",
+                    "fixed inset-y-0 right-0 z-10 w-screen max-w-[600px] w-[40vw]",
                     "bg-[#050505] text-white",
                     "flex flex-col",
                     "data-[state=open]:animate-[enter-from-right_200ms_ease-out]",
