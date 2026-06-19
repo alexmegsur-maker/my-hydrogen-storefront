@@ -160,6 +160,7 @@ import * as SliderVideoV2 from "~/sections/video-slider-v2"
 import * as SlideVideoV2 from "~/sections/video-slider-v2/slide"
 import * as NewsletterPopup from "~/sections/newsletter-popup"
 import * as DesistimientoForm from "~/sections/desistimiento"
+import * as ReturnForm from "~/sections/form-return"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -328,4 +329,5 @@ export const components: HydrogenComponent[] = [
   SlideVideoV2,
   GtaSection,
   DesistimientoForm,
+  ReturnForm
 ];

@@ -15,15 +15,11 @@ export function CartLineQuantityAdjust({
   line: OptimisticCart<CartApiQueryFragment>["lines"]["nodes"][0];
 }) {
   const optimisticId = line?.id;
-  const optimisticData =
-    useOptimisticData<CartLineOptimisticData>(optimisticId);
+  const optimisticData = useOptimisticData<CartLineOptimisticData>(optimisticId);
 
-  if (!line || typeof line?.quantity === "undefined") {
-    return null;
-  }
+  if (!line || typeof line?.quantity === "undefined") return null;
 
   const optimisticQuantity = optimisticData?.quantity || line.quantity;
-
   const { id: lineId, isOptimistic } = line;
   const prevQuantity = Number(Math.max(0, optimisticQuantity - 1).toFixed(0));
   const nextQuantity = Number((optimisticQuantity + 1).toFixed(0));
@@ -31,44 +27,41 @@ export function CartLineQuantityAdjust({
   return (
     <>
       <label htmlFor={`quantity-${lineId}`} className="sr-only">
-        Quantity, {optimisticQuantity}
+        Cantidad, {optimisticQuantity}
       </label>
-      <div className="flex min-w-30 items-center justify-evenly border border-line-subtle">
+      <div className="flex h-8 items-center rounded-full border border-white/15">
         <UpdateCartButton lines={[{ id: lineId, quantity: prevQuantity }]}>
           <button
             type="submit"
             name="decrease-quantity"
-            aria-label="Decrease quantity"
-            className="inline-flex size-9 items-center justify-center transition disabled:cursor-not-allowed disabled:text-body-subtle"
+            aria-label="Reducir cantidad"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             value={prevQuantity}
             disabled={optimisticQuantity <= 1 || isOptimistic}
           >
-            <MinusIcon />
-            <OptimisticInput
-              id={optimisticId}
-              data={{ quantity: prevQuantity }}
-            />
+            <MinusIcon className="size-3" />
+            <OptimisticInput id={optimisticId} data={{ quantity: prevQuantity }} />
           </button>
         </UpdateCartButton>
 
-        <div className="min-w-8 px-2 text-center" data-test="item-quantity">
+        <span
+          id={`quantity-${lineId}`}
+          className="min-w-7 text-center font-[Outfit] text-sm text-white"
+        >
           {optimisticQuantity}
-        </div>
+        </span>
 
         <UpdateCartButton lines={[{ id: lineId, quantity: nextQuantity }]}>
           <button
             type="submit"
-            className="inline-flex size-9 items-center justify-center transition disabled:cursor-not-allowed disabled:text-body-subtle"
             name="increase-quantity"
+            aria-label="Aumentar cantidad"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
             value={nextQuantity}
-            aria-label="Increase quantity"
             disabled={isOptimistic}
           >
-            <PlusIcon />
-            <OptimisticInput
-              id={optimisticId}
-              data={{ quantity: nextQuantity }}
-            />
+            <PlusIcon className="size-3" />
+            <OptimisticInput id={optimisticId} data={{ quantity: nextQuantity }} />
           </button>
         </UpdateCartButton>
       </div>

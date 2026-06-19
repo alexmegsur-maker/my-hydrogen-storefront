@@ -46,7 +46,7 @@ export function getWeaverseCsp(
       "'sha256-wT4ini02jKYQW3youIvCKsg9ACax0pk1uKpAaIy00Yc='",
       "'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='",
       "https://connect.facebook.net",
-      "https://www.facebook.com"
+      "https://www.facebook.com",
     ],
     styleSrc: [
       ...weaverseHosts,

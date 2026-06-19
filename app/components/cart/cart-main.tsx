@@ -27,8 +27,8 @@ function CartEmpty({
       ref={scrollRef}
       className={clsx(
         layout === "drawer" && [
-          "flex h-screen-dynamic flex-col content-start justify-center space-y-12 overflow-y-scroll px-5 pb-5 text-center transition",
-          y > 0 && "border-t",
+          "flex h-screen-dynamic flex-col content-start justify-center space-y-12 overflow-y-scroll px-6 pb-6 text-center transition",
+          y > 0 && "border-t border-white/10",
         ],
         layout === "page" && [
           "w-full gap-4 pb-12 md:items-start md:gap-8 lg:gap-12",
@@ -37,20 +37,18 @@ function CartEmpty({
       hidden={hidden}
     >
       <div className={clsx(layout === "page" && "text-center")}>
-        <p className="mb-4">
-          Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
-          started!
+        <p className="mb-6 font-[Outfit] text-sm text-zinc-400">
+          Tu carrito está vacío.
         </p>
         <Link
-          variant="outline"
           to="/products"
           className={clsx(
             layout === "drawer" ? "w-full" : "min-w-48",
-            "justify-center",
+            "justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition-all duration-300 hover:border-white",
           )}
           onClick={onClose}
         >
-          Start Shopping
+          Ver productos
         </Link>
       </div>
       {layout === "page" && (
@@ -89,7 +87,7 @@ export function CartMain({
       <div
         className={clsx(
           layout === "drawer" &&
-            "grid grow grid-cols-1 grid-rows-[1fr_auto] px-4",
+            "grid grow grid-cols-1 grid-rows-[1fr_auto] overflow-hidden",
           layout === "page" && [
             "mx-auto w-full max-w-(--page-width) pb-12",
             "grid md:items-start lg:grid-cols-[1fr_480px]",
@@ -97,24 +95,24 @@ export function CartMain({
           ],
         )}
       >
+        {/* Line items */}
         <div
           ref={scrollRef}
           className={clsx([
-            "-mx-4 pb-4",
-            y > 0 ? "border-line-subtle border-t" : "",
+            layout === "drawer" && "overflow-hidden",
             layout === "page" && "grow md:translate-y-4",
-            layout === "drawer" && "transition",
           ])}
         >
           <ScrollArea
-            className={clsx(layout === "drawer" && "max-h-[calc(100vh-312px)]")}
+            className={clsx(
+              layout === "drawer" && "max-h-[calc(100vh-280px)]",
+            )}
             size="sm"
           >
             <ul
               className={clsx(
-                "grid px-4",
-                layout === "page" && "gap-9",
-                layout === "drawer" && "gap-5",
+                layout === "page" && "grid gap-9 px-0",
+                layout === "drawer" && "grid gap-3 px-6 py-4",
               )}
             >
               {(cart?.lines?.nodes ?? []).map((line) => (
@@ -123,6 +121,7 @@ export function CartMain({
             </ul>
           </ScrollArea>
         </div>
+
         {cartHasItems && <CartSummary cart={cart} layout={layout} />}
       </div>
     </>

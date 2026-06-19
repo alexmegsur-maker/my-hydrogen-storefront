@@ -98,6 +98,14 @@ function getGradient(seed: string): string {
   return GRADIENTS[Math.abs(hash) % GRADIENTS.length];
 }
 
+function maskName(name: string): string {
+  const p = name.trim().split(/\s+/)
+  if (p.length === 1) return name                                   // "Alex"
+  if (p.length === 2) return `${p[0]} ${p[1][0]}.`                 // "Alex G."
+  if (p.length === 3) return `${p[0]} ${p[1]} ${p[2][0]}.`         // "Juan Francisco S."
+  return `${p[0]} ${p[1][0]}. ${p[2][0]}.`                         // "Juan F. S."
+}
+
 function relativeTime(ms: number): string {
   const diff = (Date.now() - ms) / 1000;
   if (diff < 60) return `${Math.floor(diff)}s`;
@@ -374,13 +382,14 @@ function ActivityRow({
   const t= translations[lang] ?? translations["ES"]
   const [name,setName]=useState(item.name)
 
-  useEffect(()=>{
-    if(item.name.includes("@")){
-      const splitName = item.name.split("@")
-      const aux = splitName[0].substring(0,4)
-      setName(aux+"***@"+splitName[1])
+  useEffect(() => {
+    if (item.name.includes("@")) {
+      const [local, domain] = item.name.split("@")
+      setName(local.substring(0, 4) + "***@" + domain)
+    } else {
+      setName(maskName(item.name))
     }
-  },[item])
+  }, [item])
 
   return (
     <div

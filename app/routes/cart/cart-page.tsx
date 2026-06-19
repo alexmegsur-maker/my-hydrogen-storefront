@@ -36,6 +36,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
   switch (cartFormAction) {
     case CartForm.ACTIONS.LinesAdd:
+      console.log("[CartAction] LinesAdd lines:", JSON.stringify(inputs.lines));
       const isBuyNow = formData.get('buyNow')==='true'
       if(isBuyNow){
         result = await cart.create({
@@ -43,6 +44,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
         });
       }else{
         result = await cart.addLines(inputs.lines as CartLineInput[]);
+        console.log("[CartAction] cart.id:", result?.cart?.id, 
+        "totalQty:", result?.cart?.totalQuantity, 
+        "errors:", JSON.stringify(result?.errors), 
+        "userErrors:", JSON.stringify(result?.userErrors));
       }
       break;
     case CartForm.ACTIONS.LinesUpdate:
@@ -106,7 +111,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   if (typeof redirectTo === "string" && isLocalPath(redirectTo)) {
     // status = 303;
     // headers.set("Location", redirectTo);
-    return redirect(redirectTo);
+    return redirect(redirectTo, { headers });
   }
 
   const { cart: cartResult, errors, userErrors } = result || {};
@@ -114,7 +119,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
   if(formData.get('buyNow')==='true'&& result?.cart?.checkoutUrl){
     return redirect(result.cart.checkoutUrl,{headers});
   }
-
+  // TEMPORAL - borrar después
+  console.log("[CartAction] redirectTo:", formData.get("redirectTo"));
+  console.log("[CartAction] headers:", JSON.stringify(Object.fromEntries(headers instanceof Headers ? headers.entries() : Object.entries(headers))));
+  
   return data({ cart: cartResult, userErrors, errors }, { status, headers });
 }
 

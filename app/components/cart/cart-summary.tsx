@@ -1,21 +1,12 @@
-import { GiftIcon, TagIcon, XIcon } from "@phosphor-icons/react";
-import * as Dialog from "@radix-ui/react-dialog";
+import { CaretDownIcon, TagIcon, XIcon } from "@phosphor-icons/react";
 import { CartForm, Money, type OptimisticCart } from "@shopify/hydrogen";
 import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { CartApiQueryFragment } from "storefront-api.generated";
-import { Button } from "~/components/button";
-import { Link } from "~/components/link";
-import { Skeleton } from "~/components/skeleton";
 import { Spinner } from "~/components/spinner";
 import type { CartLayoutType } from "~/types/others";
-import {
-  DiscountDialog,
-  GiftCardDialog,
-  NoteDialog,
-} from "./cart-summary-actions";
 
 export function CartSummary({
   cart,
@@ -24,88 +15,57 @@ export function CartSummary({
   cart: OptimisticCart<CartApiQueryFragment>;
   layout: CartLayoutType;
 }) {
-  const {
-    enableCartNote,
-    cartNoteButtonText,
-    enableDiscountCode,
-    discountCodeButtonText,
-    enableGiftCard,
-    giftCardButtonText,
-    checkoutButtonText,
-  } = useThemeSettings();
-  const [removingDiscountCode, setRemovingDiscountCode] = useState<
-    string | null
-  >(null);
-  const [removingGiftCard, setRemovingGiftCard] = useState<string | null>(null);
+  const { enableDiscountCode, checkoutButtonText } = useThemeSettings();
+  const [discountOpen, setDiscountOpen] = useState(false);
+  const [discountInput, setDiscountInput] = useState("");
+  const [removingCode, setRemovingCode] = useState<string | null>(null);
   const dcRemoveFetcher = useFetcher({ key: "discount-code-remove" });
-  const gcRemoveFetcher = useFetcher({ key: "gift-card-remove" });
-  const {
-    cost,
-    discountCodes,
-    isOptimistic,
-    checkoutUrl,
-    appliedGiftCards,
-    note,
-  } = cart;
 
-  // Show loading state for optimistic line item changes or pending cart actions
+  const { cost, discountCodes, isOptimistic, checkoutUrl } = cart;
+
   const isCartUpdating =
-    isOptimistic ||
-    dcRemoveFetcher.state !== "idle" ||
-    gcRemoveFetcher.state !== "idle";
+    isOptimistic || dcRemoveFetcher.state !== "idle";
+
+  const appliedCodes = (discountCodes ?? []).filter((d) => d.applicable);
+
   return (
     <div
       className={clsx(
-        layout === "drawer" && "grid border-line-subtle border-t pt-4",
+        "border-t border-white/10 bg-[#050505]",
+        layout === "drawer" && "px-6 pb-6 pt-4",
         layout === "page" &&
-          "sticky top-(--height-nav) grid w-full rounded-sm py-4 md:translate-y-4 md:px-6 lg:py-0",
+          "sticky top-(--height-nav) rounded-xl border border-white/10 p-6",
       )}
     >
-      <h2 id="summary-heading" className="sr-only">
-        Order summary
-      </h2>
-      {appliedGiftCards?.length > 0 && (
-        <div className="mb-4 flex flex-wrap justify-end gap-2">
-          {appliedGiftCards.map((giftCard) => {
-            // Check if this specific gift card is being removed
-            const isGCRemoving =
-              gcRemoveFetcher.state !== "idle" &&
-              removingGiftCard === giftCard.lastCharacters;
+      {/* Códigos de descuento aplicados */}
+      {appliedCodes.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {appliedCodes.map((discount) => {
+            const allCodes = appliedCodes.map((d) => d.code);
+            const updatedCodes = allCodes.filter((c) => c !== discount.code);
+            const isRemoving =
+              dcRemoveFetcher.state !== "idle" &&
+              removingCode === discount.code;
             return (
               <div
-                key={giftCard.id}
-                className="flex items-center justify-center gap-2 rounded-md bg-gray-200 px-2 py-1.5 [&>form]:flex"
+                key={discount.code}
+                className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-3 py-1 text-xs text-white"
               >
-                <GiftIcon className="h-4.5 w-4.5" aria-hidden="true" />
-                <div className="flex items-center gap-1 leading-normal">
-                  <span>***{giftCard.lastCharacters}</span>
-                  <span className="inline-flex items-center">
-                    (-{<Money data={giftCard.amountUsed} />})
-                  </span>
-                </div>
+                <TagIcon className="size-3 text-zinc-400" />
+                <span>{discount.code}</span>
                 <CartForm
                   route="/cart"
-                  action={CartForm.ACTIONS.GiftCardCodesRemove}
-                  inputs={{
-                    giftCardCodes: [giftCard.id],
-                  }}
-                  fetcherKey="gift-card-remove"
+                  action={CartForm.ACTIONS.DiscountCodesUpdate}
+                  inputs={{ discountCodes: updatedCodes }}
+                  fetcherKey="discount-code-remove"
                 >
                   <button
                     type="submit"
-                    className="relative ml-1 size-4 transition-colors hover:text-red-600"
-                    aria-label={`Remove gift card code ${giftCard.id}`}
-                    onClick={() => setRemovingGiftCard(giftCard.lastCharacters)}
+                    aria-label={`Quitar ${discount.code}`}
+                    className="ml-0.5 text-zinc-500 transition hover:text-red-400"
+                    onClick={() => setRemovingCode(discount.code)}
                   >
-                    {isGCRemoving ? (
-                      <Spinner size={16} />
-                    ) : (
-                      <XIcon
-                        className="size-4"
-                        weight="regular"
-                        aria-hidden="true"
-                      />
-                    )}
+                    {isRemoving ? <Spinner size={12} /> : <XIcon className="size-3" />}
                   </button>
                 </CartForm>
               </div>
@@ -113,144 +73,113 @@ export function CartSummary({
           })}
         </div>
       )}
-      {discountCodes?.length > 0 && (
-        <div className="mb-4 flex flex-wrap justify-end gap-2">
-          {discountCodes
-            .filter((discount) => discount.applicable)
-            .map((discount) => {
-              const codes = discountCodes
-                .filter((d) => d.applicable)
-                .map((d) => d.code);
-              const updatedCodes = codes.filter((c) => c !== discount.code);
 
-              // Check if this specific discount is being removed
-              const isDCRemoving =
-                dcRemoveFetcher.state !== "idle" &&
-                removingDiscountCode === discount.code;
+      {/* Toggle código de descuento */}
+      {enableDiscountCode !== false && (
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={() => setDiscountOpen((v) => !v)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <span className="font-[Outfit] text-sm text-zinc-400">
+              ¿Tienes un código de descuento?
+            </span>
+            <span className="font-[Outfit] text-sm font-medium text-white flex items-center gap-1 transition-all duration-200">
+              Aplicar código
+              <CaretDownIcon
+                className={clsx(
+                  "size-3.5 transition-transform duration-200",
+                  discountOpen && "rotate-180",
+                )}
+              />
+            </span>
+          </button>
 
-              return (
-                <div
-                  key={discount.code}
-                  className="flex items-center justify-center gap-2 rounded-md bg-gray-200 px-2 py-1.5 [&>form]:flex"
+          {discountOpen && (
+            <CartForm
+              route="/cart"
+              action={CartForm.ACTIONS.DiscountCodesUpdate}
+              inputs={{
+                discountCodes: [
+                  ...appliedCodes.map((d) => d.code),
+                  discountInput,
+                ],
+              }}
+            >
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="text"
+                  name="discountCode"
+                  value={discountInput}
+                  onChange={(e) => setDiscountInput(e.target.value)}
+                  placeholder="Código de descuento"
+                  autoComplete="off"
+                  className="flex-1 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white placeholder:text-zinc-600 focus:border-white focus:outline-none transition-all duration-200"
+                />
+                <button
+                  type="submit"
+                  className="rounded-full border border-white/20 px-4 py-2 font-[Outfit] text-sm font-semibold uppercase tracking-widest text-white transition-all duration-200 hover:border-white hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]"
                 >
-                  <TagIcon className="h-4.5 w-4.5" aria-hidden="true" />
-                  <span className="leading-normal">{discount.code}</span>
-                  <CartForm
-                    route="/cart"
-                    action={CartForm.ACTIONS.DiscountCodesUpdate}
-                    inputs={{ discountCodes: updatedCodes || [] }}
-                    fetcherKey="discount-code-remove"
-                  >
-                    <button
-                      type="submit"
-                      className="relative ml-1 size-4 transition-colors hover:text-red-600"
-                      aria-label={`Remove discount code ${discount.code}`}
-                      onClick={() => setRemovingDiscountCode(discount.code)}
-                    >
-                      {isDCRemoving ? (
-                        <Spinner size={16} />
-                      ) : (
-                        <XIcon
-                          className="size-4"
-                          weight="regular"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </button>
-                  </CartForm>
-                </div>
-              );
-            })}
+                  OK
+                </button>
+              </div>
+            </CartForm>
+          )}
         </div>
       )}
-      <dl className="mb-4 grid">
-        <div
-          className={clsx(
-            "flex items-center justify-between font-medium",
-            layout === "page" && "text-xl",
-          )}
-        >
-          <dt>Estimated total:</dt>
-          {isCartUpdating ? (
-            <Skeleton className="h-4 w-20 rounded" />
-          ) : (
-            <dd>
-              {cost?.totalAmount?.amount ? (
-                <Money data={cost?.totalAmount} />
-              ) : (
-                "-"
-              )}
-            </dd>
-          )}
-        </div>
-      </dl>
-      <div className="mb-2 text-right text-body-subtle">
-        Taxes, discounts and{" "}
-        <Link
-          target="_blank"
-          to="/policies/shipping-policy"
-          variant="underline"
-          className="text-current after:bg-current"
-        >
-          shipping
-        </Link>{" "}
-        calculated at checkout.
+
+      {/* Separador */}
+      <div className="mb-4 h-px bg-white/10" />
+
+      {/* Total */}
+      <div className="mb-5 flex items-center justify-between">
+        <span className="font-[Outfit] text-base font-semibold text-white">
+          Total:
+        </span>
+        {isCartUpdating ? (
+          <div className="h-5 w-20 animate-pulse rounded bg-white/10" />
+        ) : (
+          <Money
+            data={cost?.totalAmount}
+            className="font-[Outfit] text-base font-bold text-white"
+          />
+        )}
       </div>
-      {(enableCartNote || enableDiscountCode || enableGiftCard) && (
-        <div className="mb-4 flex items-center justify-end gap-2">
-          {enableCartNote && (
-            <>
-              <Dialog.Root>
-                <Dialog.Trigger asChild>
-                  <Button variant="underline">
-                    {cartNoteButtonText || "Add a note"}
-                  </Button>
-                </Dialog.Trigger>
-                <NoteDialog cartNote={note} />
-              </Dialog.Root>
-              {(enableDiscountCode || enableGiftCard) && <span>/</span>}
-            </>
-          )}
-          {enableDiscountCode && (
-            <>
-              <Dialog.Root>
-                <Dialog.Trigger asChild>
-                  <Button variant="underline">
-                    {discountCodeButtonText || "Add a discount code"}
-                  </Button>
-                </Dialog.Trigger>
-                <DiscountDialog discountCodes={discountCodes} />
-              </Dialog.Root>
-              {enableGiftCard && <span>/</span>}
-            </>
-          )}
-          {enableGiftCard && (
-            <Dialog.Root>
-              <Dialog.Trigger asChild>
-                <Button variant="underline">
-                  {giftCardButtonText || "Redeem a gift card"}
-                </Button>
-              </Dialog.Trigger>
-              <GiftCardDialog appliedGiftCards={appliedGiftCards} />
-            </Dialog.Root>
-          )}
-        </div>
-      )}
+
+      {/* Botón checkout */}
       {checkoutUrl && (
-        <div className="mt-4 flex flex-col gap-3">
-          <a href={checkoutUrl} target="_self">
-            <Button className="w-full">
-              {checkoutButtonText || "Continue to Checkout"}
-            </Button>
-          </a>
-          {/* @todo: <CartShopPayButton cart={cart} /> */}
-          {layout === "drawer" && (
-            <Link variant="underline" to="/cart" className="mx-auto w-fit">
-              View cart
-            </Link>
-          )}
-        </div>
+        <a href={checkoutUrl} target="_self">
+          <button
+            type="button"
+            className="w-full rounded-full bg-[#f59e0b] py-4 font-[Outfit] text-sm font-bold uppercase tracking-[2px] text-[#050505] transition-all duration-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.5)] hover:-translate-y-0.5"
+          >
+            {checkoutButtonText || "Finalizar compra"}
+          </button>
+        </a>
       )}
+
+      {/* Métodos de pago */}
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+        {PAYMENT_ICONS.map((src) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            aria-hidden="true"
+            className="h-5 w-auto rounded opacity-60"
+          />
+        ))}
+      </div>
     </div>
   );
 }
+
+const PAYMENT_ICONS = [
+  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/0169ce6e23043e3c22960f0a7ee21e41.svg", // Visa
+  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/ae9ceec48985d7f5e94d55b61f2b6977.svg", // Mastercard
+  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/f5d91f3e27dd5a1df37e58b99d9b4240.svg", // Amex
+  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/6e8cbf9b7b37a5a4eeeb40f16c8d60ea.svg", // PayPal
+  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/apple-pay.svg",                       // Apple Pay
+  "https://cdn.shopify.com/shopifycloud/checkout-web/assets/google-pay.svg",                      // Google Pay
+];

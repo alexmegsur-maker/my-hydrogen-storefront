@@ -1,7 +1,7 @@
 import { CartForm, ShopPayButton } from "@shopify/hydrogen";
 import type { CartLineInput } from "@shopify/hydrogen/storefront-api-types";
 import { createSchema } from "@weaverse/hydrogen";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLoaderData, useLocation, type FetcherWithComponents } from "react-router";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
 import { Section } from "~/components/section";
@@ -12,6 +12,7 @@ import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
 import { translations } from "~/utils/translations";
 import { pushDoubleShot } from "~/utils/dataLayer";
+import { Image } from "~/components/image";
 
 interface BuyButtonsProductJProps {
   showCart:boolean;
@@ -155,7 +156,6 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
   const [totalPrice,setTotalPrice] = useState(0)
   const [comparePrice,setComparePrice]=useState(0)
   const [idsVariants,setIdsVariants]=useState<variantIdsAndQuantities[]>([])
-  const [cartIdsVariants,setCartIdsVariants]=useState<CartLineInput[]>([])
   const [cartIdsSeo,setCartIdsSeo]=useState([])
   const [hoverBuy,setHoverBuy]=useState(false);
   const [hoverAddCart,setHoverAddCart]=useState(false);
@@ -163,17 +163,36 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
   const container = useRef(null)
   const [size,setSize]=useState(0)
 
+  const cartIdsVariants = useMemo((): CartLineInput[] => {
+    const result: CartLineInput[] = []
+    if (currentProd?.selectedVariant) {
+      const variant = currentProd.selectedVariant
+      if (variant.availableForSale && variant.quantityAvailable <= 0) {
+        result.push({ merchandiseId: variant.id, quantity: 1, attributes: [{ key: "Tipo", value: "Reserva" }] })
+      } else {
+        result.push({ merchandiseId: variant.id, quantity: 1 })
+      }
+    }
+    if (crossell?.crossell) {
+      for (const elm of crossell.crossell.filter(e => e.selecteds.length > 0)) {
+        for (const sel of elm.selecteds) {
+          const prod = elm.products.find(p => p.id === sel.id)
+          if (prod) result.push({ merchandiseId: prod.variantId, quantity: sel.quantity })
+        }
+      }
+    }
+    return result
+  }, [currentProd, crossell])
+
   useEffect(() => {
       let newTotal=0;
       let newCompare=0
       const newIds:variantIdsAndQuantities[]=[]
-      const newCartIds:CartLineInput[]=[]
       const seoCartIds = []
-  
+
       if(currentProd){
-  
+
         let variant = currentProd.selectedVariant
-        
 
         const variantTitle = variant.selectedOptions
           ?.map((o: any) => o.value)
@@ -186,11 +205,6 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
             quantity:1,
             attributes:[{key:"Tipo",value:"Reserva"}]
           })
-          newCartIds.push({
-            merchandiseId:currentProd.selectedVariant.id,
-            quantity:1,
-            attributes:[{key:"Tipo",value:"Reserva"}]
-          })
           seoCartIds.push({
             item_id:currentProd.selectedVariant.id,
             item_name:currentProd.title,
@@ -199,14 +213,10 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
             item_category: "Sillas Gaming Premium",
             quantity: 1,
           })
-          
+
         }else{
           newIds.push({
             id:currentProd.selectedVariant.id,
-            quantity:1
-          })
-          newCartIds.push({
-            merchandiseId:currentProd.selectedVariant.id,
             quantity:1
           })
           seoCartIds.push({
@@ -219,7 +229,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
           })
         }
       }
-      
+
       if(crossell?.crossell){
         let filter = crossell.crossell.filter((elm)=>elm.selecteds.length != 0)
         filter.forEach((elm)=>{
@@ -230,15 +240,10 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
               if(findProd.comparePrice){
                 newCompare += parseFloat(findProd.comparePrice)*e.quantity
               }
-          
+
               newIds.push({
                 id:findProd.variantId,
                 quantity:e.quantity
-              })
-          
-              newCartIds.push({
-                merchandiseId:findProd.variantId,
-                quantity:1
               })
               seoCartIds.push({
                 item_id:findProd.variantId,
@@ -255,9 +260,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
       setTotalPrice( newTotal)
       setComparePrice(newCompare)
       setIdsVariants(newIds)
-      setCartIdsVariants(newCartIds)
       setCartIdsSeo(seoCartIds)
-      console.log("product",product)
     }, [crossell,currentProd]);
   
   useEffect(()=>{
@@ -274,6 +277,10 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
     }  
   },[container.current])
   
+  useEffect(() => {
+    console.log("cartIdsVariants:", cartIdsVariants)
+    console.log("selectedVariant id:", currentProd?.selectedVariant?.id)
+  }, [cartIdsVariants, currentProd])
 
   const buyProducts=()=>{
     pushDoubleShot(cartIdsSeo,totalPrice)
@@ -314,11 +321,12 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
              {currentProd?.selectedVariant?.quantityAvailable <=0 && currentProd?.selectedVariant?.availableForSale ? 
                 <></>
               :
-              showCart ? 
+              showCart ?
                 <AddToCartButton
                   disabled={!currentProd?.selectedVariant?.availableForSale}
                   onMouseLeave={()=>setHoverAddCart(false)}
                   onMouseOver={()=>setHoverAddCart((state)=>state==false && true)}
+                  route={cartRoute}
                   lines={cartIdsVariants}
                   className="flex gap-2 items-center justify-center text-center p-5 uppercase text-cta-small font-bold w-full border-none e2e-button-confirm-selection cursor-pointer"
                   style={{
@@ -390,7 +398,8 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                 </AddToCartButton>:<></>
              }
     
-            { showBuy && 
+            { showBuy && (
+
               idsVariants.length > 0 && 
               currentProd?.selectedVariant?.availableForSale ?          
                 <>
@@ -488,9 +497,27 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                   
     
                 </>
-
-              
+            )
             }
+            <div className="flex gap-2 px-2 justify-center">
+              <div className="flex h-full align-center">
+              <svg role="img" xmlns="http://www.w3.org/2000/svg" width="50" height="20" viewBox="0 0 71.25 30" aria-label="Klarna" version="2.1"
+              >
+                <g clip-path="url(#a)">
+                  <path fill="#FFA8CD" d="M62.7688 0H8.48123C3.79718 0 0 3.79718 0 8.48123V21.5188C0 26.2028 3.79718 30 8.48123 30H62.7688c4.684 0 8.4812-3.7972 8.4812-8.4812V8.48123C71.25 3.79718 67.4528 0 62.7688 0Z"></path>
+                  <path fill="#0B051D" d="M57.412 19.1418c-1.2436 0-2.2134-1.0286-2.2134-2.2776 0-1.2491.9698-2.2776 2.2134-2.2776 1.2441 0 2.2135 1.0285 2.2135 2.2776 0 1.249-.9694 2.2776-2.2135 2.2776Zm-.6215 2.4062c1.0608 0 2.4145-.4041 3.1645-1.9837l.0731.0367c-.329.8633-.329 1.3776-.329 1.5062v.202h2.6704v-8.8901h-2.6704v.2021c0 .1286 0 .6428.329 1.5061l-.0731.0368c-.75-1.5797-2.1037-1.9838-3.1645-1.9838-2.543 0-4.3355 2.0205-4.3355 4.6839 0 2.6633 1.7925 4.6838 4.3355 4.6838Zm-8.9822-9.3677c-1.2073 0-2.1586.4225-2.9268 1.9838l-.0732-.0368c.3292-.8633.3292-1.3775.3292-1.5061v-.2021h-2.6708v8.8901h2.744v-4.6838c0-1.2307.7134-2.0021 1.8659-2.0021 1.1526 0 1.7193.6612 1.7193 1.9837v4.7022H51.54v-5.6573c0-2.0205-1.5731-3.4716-3.7317-3.4716Zm-9.3112 1.9838-.0731-.0368c.3293-.8633.3293-1.3775.3293-1.5061v-.2021h-2.6708v8.8901h2.7439l.0183-4.2797c0-1.249.6586-2.0021 1.7379-2.0021.2926 0 .5305.0367.8048.1102v-2.7185c-1.2073-.2571-2.2866.2021-2.8903 1.745Zm-8.7257 4.9777c-1.244 0-2.2135-1.0286-2.2135-2.2776 0-1.2491.9695-2.2776 2.2135-2.2776 1.2439 0 2.2134 1.0285 2.2134 2.2776 0 1.249-.9695 2.2776-2.2134 2.2776Zm-.622 2.4062c1.061 0 2.4147-.4041 3.1647-1.9837l.0732.0367c-.3293.8633-.3293 1.3776-.3293 1.5062v.202h2.6708v-8.8901H32.058v.2021c0 .1286 0 .6428.3293 1.5061l-.0732.0368c-.75-1.5797-2.1037-1.9838-3.1647-1.9838-2.5428 0-4.3355 2.0205-4.3355 4.6839 0 2.6633 1.7927 4.6838 4.3355 4.6838Zm-8.1588-.2388h2.744V8.45166h-2.744V21.3092ZM18.9784 8.45166h-2.7988c0 2.29594-1.4086 4.35314-3.5489 5.82264l-.8415.5878V8.45166H8.88062V21.3092h2.90858v-6.3736l4.8111 6.3736h3.5489L15.521 15.211c2.1037-1.5245 3.4757-3.894 3.4574-6.75934Z"></path>
+                </g>
+                <defs>
+                  <clipPath id="a">
+                    <path fill="#fff" d="M0 0h71.25v30H0z"></path>
+                  </clipPath>
+                </defs>
+              </svg>
+              </div>
+              <p className=" text-[0.85rem] text-stone-500">
+                3 plazos de {Math.ceil(totalPrice/3)}€ sin intereses (0% TAE) con Klarna <a href="https://www.klarna.com/es/legal/" className="text-white underline">Más información</a>
+              </p>
+            </div>
             <div
               className="mini-concierge flex justify-center gap-[2rem]"
               style={{

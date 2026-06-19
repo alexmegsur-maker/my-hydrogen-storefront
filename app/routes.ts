@@ -48,6 +48,7 @@ export default hydrogenRoutes([
       route("ga4-purchase", "routes/api/ga4-purchase.ts"),
       route("newsletter-popup", "routes/api/newsletter-popup.ts"),
       route("desistimiento", "routes/api/desistimiento.ts"),
+      route("order-lookup", "routes/api/order-data.ts"),
     ]),
     ...prefix("blogs", [
       route(":blogHandle", "routes/blogs/blog.tsx"),

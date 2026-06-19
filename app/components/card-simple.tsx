@@ -9,7 +9,7 @@ import { Image } from "./image";
 import { calculateAspectRatio } from "~/utils/image";
 import type { ImageAspectRatio } from "~/types/others";
 import { selectorPaddingMargin } from "~/utils/general";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { Link } from "react-router";
 
@@ -23,6 +23,7 @@ interface CardSimpleProps {
   paragraph: string;
   linkText: string;
   link: string;
+  linkCard:boolean;
   linkDecoration: string;
   stColor: string;
   stSize: string;
@@ -79,6 +80,7 @@ export default function CardSimple(
     paragraph,
     linkText,
     link,
+    linkCard,
     linkDecoration,
     stColor,
     stSize,
@@ -125,6 +127,14 @@ export default function CardSimple(
 
   const [isHover,setIsHover] = useState(false)
   const isMobile =useIsMobile(600)
+  const linkElm = useRef(null)
+
+  const linkAllCard=()=>{
+    if(linkCard){
+      linkElm.current?.click()
+      console.log("entra a hacer click")
+    }
+  }
   return (
     <Section
       {...rest}
@@ -137,6 +147,7 @@ export default function CardSimple(
         borderRight: "1px solid #ffffff0d",
         transition: "filter 0.5s ease",
       }}
+      onClick={linkAllCard}
     >
       <div
         className="universe-img"
@@ -214,6 +225,7 @@ export default function CardSimple(
           {paragraph}
         </p>
         <Link
+          ref={linkElm}
           to={link}
           className="u-link"
           style={{
@@ -334,6 +346,12 @@ export const schema = createSchema({
           label: "link url",
           name: "link",
           defaultValue: "/products",
+        },
+        {
+          type:'switch',
+          label:'link card',
+          name:'linkCard',
+          defaultValue:false,
         },
         {
           type: "textarea",
