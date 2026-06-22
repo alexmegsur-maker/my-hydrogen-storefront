@@ -75,7 +75,7 @@ export function CartDrawer() {
               <Dialog.Portal>
                 <Dialog.Overlay
                   className={clsx(
-                    "fixed inset-0 z-10 bg-black/60",
+                    "fixed inset-0 z-40 bg-black/60",
                     "data-[state=open]:animate-[fade-in_150ms_ease-out]",
                     "data-[state=closed]:animate-[fade-out_150ms_ease-in]",
                   )}
@@ -83,7 +83,7 @@ export function CartDrawer() {
                 <Dialog.Content
                   onCloseAutoFocus={(e) => e.preventDefault()}
                   className={clsx(
-                    "fixed inset-y-0 right-0 z-10 w-screen max-w-[600px] w-[40vw]",
+                    "fixed inset-y-0 right-0 z-50 w-screen max-w-[900px] md:w-[35vw]",
                     "bg-[#050505] text-white",
                     "flex flex-col",
                     "data-[state=open]:animate-[enter-from-right_200ms_ease-out]",
