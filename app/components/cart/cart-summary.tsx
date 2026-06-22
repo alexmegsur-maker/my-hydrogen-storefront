@@ -18,6 +18,8 @@ import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { CartApiQueryFragment } from "storefront-api.generated";
 import type { CartLayoutType } from "~/types/others";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 
 const ICON_MAP: Record<string, Icon> = {
   truck: TruckIcon,
@@ -53,24 +55,28 @@ export function CartSummary({
     cartBenefit4Label,
   } = useThemeSettings();
 
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations["ES"];
+
   const benefits = [
     {
-      iconKey: cartBenefit1Icon ?? "truck",
-      label: cartBenefit1Label ?? "Envío prioritario",
+      iconKey: cartBenefit1Icon || "truck",
+      label: cartBenefit1Label || t.cartBenefit1Label,
     },
     {
-      iconKey: cartBenefit2Icon ?? "seal-check",
-      label: cartBenefit2Label ?? "5 años de garantía",
+      iconKey: cartBenefit2Icon || "seal-check",
+      label: cartBenefit2Label || t.cartBenefit2Label,
     },
     {
-      iconKey: cartBenefit3Icon ?? "shield-check",
-      label: cartBenefit3Label ?? "Protección total",
+      iconKey: cartBenefit3Icon || "shield-check",
+      label: cartBenefit3Label || t.cartBenefit3Label,
     },
     {
-      iconKey: cartBenefit4Icon ?? "credit-card",
-      label: cartBenefit4Label ?? "Acceso flexible",
+      iconKey: cartBenefit4Icon || "credit-card",
+      label: cartBenefit4Label || t.cartBenefit4Label,
     },
   ];
+
   const [discountInput, setDiscountInput] = useState("");
   const dcFetcher = useFetcher({ key: "discount-code-remove" });
 
@@ -113,26 +119,35 @@ export function CartSummary({
     <div
       className={clsx(
         "bg-[#050505]",
-        layout === "drawer" && "px-6 pb-6 pt-4",
+        layout === "drawer" && " pb-6 pt-4",
         layout === "page" &&
           "sticky top-(--height-nav) rounded-xl border border-white/10 p-6",
       )}
     >
       {/* Benefits — drawer only */}
       {layout === "drawer" && showCartBenefits !== false && (
-        <div className="mb-5 border-y border-white/[0.06] py-4">
-          <p className="mb-3 font-[Outfit] text-[0.6rem] font-semibold uppercase tracking-[2px] text-zinc-500">
-            {cartBenefitsTitle || "Ventajas de Phoenix Chairs"}
+        <div className="mb-5 border-y border-white/[0.06] py-4 ps-10">
+          <p className="mb-3 font-[Outfit]  text-[0.8rem] font-semibold uppercase tracking-[2px] text-white">
+            {cartBenefitsTitle || t.cartBenefitsTitle}
           </p>
-          <div className="grid grid-cols-4 gap-2 text-center">
+          <div className="grid grid-cols-4 gap-2 text-start">
             {benefits.map(({ iconKey, label }) => {
-              const BenefitIcon = ICON_MAP[iconKey] ?? TruckIcon;
+              const isSvg = typeof iconKey === "string" && iconKey.trim().startsWith("<");
+              const BenefitIcon = isSvg ? null : (ICON_MAP[iconKey] ?? TruckIcon);
               return (
-                <div key={label} className="flex flex-col items-center gap-1.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
-                    <BenefitIcon className="size-3.5 text-zinc-400" />
+                <div key={label} className="flex flex-col items-start gap-1.5">
+                  <div className="flex h-8 w-8 items-center justify-center">
+                    {isSvg ? (
+                      <span
+                        className="size-5   text-zinc-400"
+                        // SVG content is store-owner controlled (Weaverse editor), not user input
+                        dangerouslySetInnerHTML={{ __html: iconKey }}
+                      />
+                    ) : BenefitIcon ? (
+                      <BenefitIcon className="size-3.5 text-zinc-400" />
+                    ) : null}
                   </div>
-                  <span className="font-[Outfit] text-[0.6rem] leading-tight text-zinc-500">
+                  <span className="uppercase font-[Outfit] text-[0.6rem] leading-tight text-zinc-500">
                     {label}
                   </span>
                 </div>
@@ -171,9 +186,16 @@ export function CartSummary({
       )}
 
       {/* Subtotal with optional comparison */}
-      <div className="mb-4 flex items-baseline justify-between">
+      <div 
+        className={clsx(
+          "mb-4 flex items-baseline justify-between",
+          layout === "drawer" && "px-10",
+          layout === "page" &&
+            "",
+          )}
+        >
         <span className="font-[Outfit] text-sm font-semibold uppercase tracking-[2px] text-white">
-          Subtotal:
+          {t.subtotal}:
         </span>
         <div className="flex items-baseline gap-2">
           {isCartUpdating ? (
@@ -207,36 +229,53 @@ export function CartSummary({
             name="discountCode"
             value={discountInput}
             onChange={(e) => setDiscountInput(e.target.value)}
-            placeholder="Introduce tu cupón"
+            placeholder={t.couponPlaceholder}
             autoComplete="off"
-            className="flex-1 border border-r-0 border-white/15 bg-transparent px-4 py-2.5 font-[Outfit] text-sm text-white placeholder:text-zinc-600 focus:border-white focus:outline-none transition-colors duration-200"
+            className="flex-1 border border-r-0 border-white/15 bg-transparent px-10 py-2.5 font-[Outfit] text-sm text-white placeholder:text-zinc-600 focus:border-white focus:outline-none transition-colors duration-200"
           />
           <button
             type="submit"
-            className="shrink-0 border border-white/20 px-5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-white transition-colors duration-200 hover:border-white hover:bg-white/5"
+            className="shrink-0 border border-white/20 px-10 font-[Outfit] hover:text-white text-black text-xs font-bold uppercase tracking-[2px] bg-white transition-colors duration-200 hover:border-white hover:bg-white/5"
           >
-            Aplicar
+            {t.applyCoupon}
           </button>
         </div>
       </CartForm>
 
       {/* Action buttons */}
-      <div className="flex gap-3">
+      <div 
+        className={clsx(
+        "flex",
+        layout === "drawer" && "",
+        layout === "page" &&
+          "gap-3",
+        )}
+      >
         <a href="/cart" className="flex-1">
           <button
             type="button"
-            className="w-full border border-white/20 py-3.5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-white transition-colors duration-200 hover:border-white hover:bg-white/5"
+            className={clsx(
+              "w-full border border-white/20 py-3.5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-white transition-colors duration-200 hover:border-white hover:bg-white/5",
+              layout === "drawer" && "text-start ps-10",
+              layout === "page" &&
+                "",
+              )}
           >
-            Ver carrito
+            {t.viewCart}
           </button>
         </a>
         {checkoutUrl && (
           <a href={checkoutUrl} target="_self" className="flex-1">
             <button
               type="button"
-              className="w-full bg-white py-3.5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-[#050505] transition-all duration-200 hover:bg-zinc-100"
+              className={clsx(
+                "w-full bg-white py-3.5 font-[Outfit] text-xs font-bold uppercase tracking-[2px] text-[#050505] transition-all duration-200 hover:bg-zinc-100",
+              layout === "drawer" && "text-end pe-10",
+              layout === "page" &&
+                "",
+              )}
             >
-              {checkoutButtonText || "Checkout"}
+              {checkoutButtonText || t.checkout}
             </button>
           </a>
         )}
@@ -245,7 +284,12 @@ export function CartSummary({
       {/* Payment icons */}
       <div className=" w-full mt-4 flex flex-wrap items-center justify-center gap-2">
         <ul
-          className="flex  w-full justify-between list-unstyled mb-0 mt-3"
+          className={clsx(
+              "flex  w-full justify-between list-unstyled mb-0 mt-3",
+              layout === "drawer" && "px-10",
+              layout === "page" &&
+                "",
+              )}
           role="list"
           >
           <li className="as-payment-icon-wrap mt-0">

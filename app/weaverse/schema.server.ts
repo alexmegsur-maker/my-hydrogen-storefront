@@ -2,18 +2,6 @@ import type { HydrogenThemeSchema } from "@weaverse/hydrogen";
 import { COUNTRIES } from "~/utils/const";
 import { version } from "../../package.json";
 
-const BENEFIT_ICON_OPTIONS = [
-  { value: "truck", label: "Camión (envío)" },
-  { value: "seal-check", label: "Sello verificado (garantía)" },
-  { value: "shield-check", label: "Escudo (protección)" },
-  { value: "credit-card", label: "Tarjeta (pago)" },
-  { value: "lock", label: "Candado (seguridad)" },
-  { value: "star", label: "Estrella (premium)" },
-  { value: "headset", label: "Auriculares (soporte)" },
-  { value: "clock", label: "Reloj (tiempo)" },
-  { value: "package", label: "Paquete (producto)" },
-  { value: "check-circle", label: "Círculo check" },
-];
 
 export const themeSchema: HydrogenThemeSchema = {
   info: {
@@ -1112,13 +1100,11 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme) => theme.showCartBenefits === true,
         },
         {
-          type: "select",
-          label: "Benefit 1 — icon",
+          type: "text",
+          label: "Benefit 1 — icono (clave o SVG)",
           name: "cartBenefit1Icon",
-          configs: {
-            options: BENEFIT_ICON_OPTIONS,
-          },
           defaultValue: "truck",
+          placeholder: 'truck | star | <svg xmlns="...">...</svg>',
           condition: (theme) => theme.showCartBenefits === true,
         },
         {
@@ -1129,13 +1115,11 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme) => theme.showCartBenefits === true,
         },
         {
-          type: "select",
-          label: "Benefit 2 — icon",
+          type: "text",
+          label: "Benefit 2 — icono (clave o SVG)",
           name: "cartBenefit2Icon",
-          configs: {
-            options: BENEFIT_ICON_OPTIONS,
-          },
           defaultValue: "seal-check",
+          placeholder: 'truck | star | <svg xmlns="...">...</svg>',
           condition: (theme) => theme.showCartBenefits === true,
         },
         {
@@ -1146,13 +1130,11 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme) => theme.showCartBenefits === true,
         },
         {
-          type: "select",
-          label: "Benefit 3 — icon",
+          type: "text",
+          label: "Benefit 3 — icono (clave o SVG)",
           name: "cartBenefit3Icon",
-          configs: {
-            options: BENEFIT_ICON_OPTIONS,
-          },
           defaultValue: "shield-check",
+          placeholder: 'truck | star | <svg xmlns="...">...</svg>',
           condition: (theme) => theme.showCartBenefits === true,
         },
         {
@@ -1163,13 +1145,11 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme) => theme.showCartBenefits === true,
         },
         {
-          type: "select",
-          label: "Benefit 4 — icon",
+          type: "text",
+          label: "Benefit 4 — icono (clave o SVG)",
           name: "cartBenefit4Icon",
-          configs: {
-            options: BENEFIT_ICON_OPTIONS,
-          },
           defaultValue: "credit-card",
+          placeholder: 'truck | star | <svg xmlns="...">...</svg>',
           condition: (theme) => theme.showCartBenefits === true,
         },
         {

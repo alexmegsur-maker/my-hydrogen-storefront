@@ -7,6 +7,8 @@ import { Await, useFetchers, useLocation, useRouteLoaderData } from "react-route
 import { CartMain } from "~/components/cart/cart-main";
 import Link from "~/components/link";
 import type { RootLoader } from "~/root";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 import { useCartDrawerStore } from "./store";
 
 export function CartDrawer() {
@@ -19,6 +21,8 @@ export function CartDrawer() {
   } = useCartDrawerStore();
   const location = useLocation();
   const fetchers = useFetchers();
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations["ES"];
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: close on route change
   useEffect(() => {
@@ -101,18 +105,18 @@ export function CartDrawer() {
                   <div className="relative z-10 flex h-full flex-col">
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-                      <Dialog.Title className="font-[Outfit] text-base font-semibold uppercase tracking-[3px]">
-                        Tu carrito ({cart?.totalQuantity || 0})
-                      </Dialog.Title>
                       <Dialog.Close asChild>
                         <button
                           type="button"
-                          aria-label="Cerrar carrito"
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 text-zinc-400 transition-all duration-200 hover:border-white hover:text-white"
+                          aria-label={t.closeCart}
+                          className="flex h-8 items-center capitalize justify-center  text-zinc-400 transition-all duration-200 hover:border-white hover:text-white"
                         >
-                          <XIcon className="h-4 w-4" />
+                          {t.backLabel}
                         </button>
                       </Dialog.Close>
+                      <Dialog.Title className="font-[Outfit] text-base font-semibold uppercase tracking-[3px]">
+                        {t.yourCart} ({cart?.totalQuantity || 0})
+                      </Dialog.Title>
                     </div>
 
                     <CartMain layout="drawer" cart={cart as CartReturn} />

@@ -1,4 +1,6 @@
 import { XIcon } from "@phosphor-icons/react";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 import {
   CartForm,
   Money,
@@ -53,6 +55,12 @@ export function CartLineItem({
     selectedOptions[0].name === "Title" &&
     selectedOptions[0].value === "Default Title";
 
+  const nombreValue = (product as any).nombre?.value as string | undefined;
+  const tooltipValue = (product as any).tooltip?.value as string | undefined;
+  const variantLabel = [nombreValue, tooltipValue, isDefaultVariant ? null : title]
+    .filter(Boolean)
+    .join(" - ");
+
   return (
     <li
       className="flex gap-4 border-b border-white/[0.06] py-4 first:pt-0 last:border-b-0"
@@ -64,16 +72,16 @@ export function CartLineItem({
       <div className="relative shrink-0">
         {image ? (
           <Image
-            width={200}
-            height={200}
+            width={250}
+            height={250}
             data={image}
-            className="h-20 w-20 rounded-lg object-cover bg-white/[0.05]"
-            sizes="80px"
+            className="h-30 w-30 rounded-lg object-cover bg-white/[0.05]"
+            sizes="130px"
             alt={title}
             aspectRatio={calculateAspectRatio(image, "adapt")}
           />
         ) : (
-          <div className="h-20 w-20 rounded-lg bg-white/[0.05]" />
+          <div className="h-30 w-30 rounded-lg bg-white/[0.05]" />
         )}
       </div>
 
@@ -95,15 +103,15 @@ export function CartLineItem({
                 {product?.title || ""}
               </p>
             )}
-            {!isDefaultVariant && (
-              <p className="mt-0.5 text-[0.7rem] leading-tight text-zinc-500">{title}</p>
+            {variantLabel && (
+              <p className="mt-0.5 text-[0.7rem] leading-tight text-zinc-500">{variantLabel}</p>
             )}
           </div>
           <ItemRemoveButton lineId={id} />
         </div>
 
         {/* Fila 2: Cantidad + Precio */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-start gap-2 ">
           <CartLineQuantityAdjust line={line} />
           <CartLinePrice line={line} isOptimistic={isOptimistic} />
         </div>
@@ -113,6 +121,8 @@ export function CartLineItem({
 }
 
 function ItemRemoveButton({ lineId }: { lineId: CartLine["id"] }) {
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations["ES"];
   return (
     <CartForm
       route="/cart"
@@ -122,7 +132,7 @@ function ItemRemoveButton({ lineId }: { lineId: CartLine["id"] }) {
       <button
         className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition-all duration-200 hover:border-red-500/40 hover:text-red-400"
         type="submit"
-        aria-label="Eliminar"
+        aria-label={t.removeItem}
       >
         <XIcon aria-hidden="true" className="size-3" />
       </button>
