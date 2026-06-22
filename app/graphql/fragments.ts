@@ -261,6 +261,12 @@ export const CART_QUERY_FRAGMENT = `#graphql
           title
           id
           vendor
+          nombre: metafield(namespace: "custom", key: "name_style_secret") {
+            value
+          }
+          tooltip: metafield(namespace: "custom", key: "tooltip") {
+            value
+          }
         }
         selectedOptions {
           name
@@ -311,6 +317,12 @@ export const CART_QUERY_FRAGMENT = `#graphql
           title
           id
           vendor
+          nombre: metafield(namespace: "custom", key: "name_style_secret") {
+            value
+          }
+          tooltip: metafield(namespace: "custom", key: "tooltip") {
+            value
+          }
         }
         selectedOptions {
           name
