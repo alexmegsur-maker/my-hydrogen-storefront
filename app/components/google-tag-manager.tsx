@@ -27,36 +27,42 @@ export function GoogleTagManager() {
     // Add to cart
     subscribe('product_added_to_cart', (data) => {
       const line = data.currentLine;
-      const rawId = line?.merchandise?.product?.id ?? '';
+      if (!line) return; // guard: Hydrogen can return null for bulk updates
+      const rawId = line.merchandise?.product?.id ?? '';
       const itemId = rawId.split('/').pop() ?? rawId;
       window.dataLayer.push({ ecommerce: null });
       window.dataLayer.push({
         event: 'add_to_cart',
         ecommerce: {
-          currency: line?.cost?.totalAmount?.currencyCode ?? 'EUR',
-          value: parseFloat(line?.cost?.totalAmount?.amount ?? '0'),
+          currency: line.cost?.totalAmount?.currencyCode ?? 'EUR',
+          value: parseFloat(line.cost?.totalAmount?.amount ?? '0'),
           items: [{
             item_id: itemId,
-            item_name: line?.merchandise?.product?.title,
-            item_variant: line?.merchandise?.title,
-            price: parseFloat(line?.cost?.amountPerQuantity?.amount ?? '0'),
-            quantity: line?.quantity,
+            item_name: line.merchandise?.product?.title,
+            item_variant: line.merchandise?.title,
+            item_brand: line.merchandise?.product?.vendor,
+            price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
+            quantity: line.quantity,
           }],
         },
       });
     });
 
-    // Begin checkout — dispara justo antes de ir al checkout de Shopify
+    // View cart
     subscribe('cart_viewed', (data) => {
+      const currency = data.cart?.cost?.totalAmount?.currencyCode ?? 'EUR';
+      window.dataLayer.push({ ecommerce: null });
       window.dataLayer.push({
         event: 'view_cart',
         ecommerce: {
-          currency: data.cart?.cost?.totalAmount?.currencyCode,
-          value: parseFloat(data.cart?.cost?.totalAmount?.amount || '0'),
-          items: data.cart?.lines?.nodes?.map((line: any) => ({
-            item_id: line.merchandise?.product?.id,
+          currency,
+          value: parseFloat(data.cart?.cost?.totalAmount?.amount ?? '0'),
+          items: (data.cart?.lines?.nodes ?? []).map((line: any) => ({
+            item_id: (line.merchandise?.product?.id ?? '').split('/').pop(),
             item_name: line.merchandise?.product?.title,
-            price: parseFloat(line.cost?.amountPerQuantity?.amount || '0'),
+            item_variant: line.merchandise?.title,
+            item_brand: line.merchandise?.product?.vendor,
+            price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
             quantity: line.quantity,
           })),
         },
