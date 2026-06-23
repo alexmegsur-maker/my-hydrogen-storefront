@@ -8,6 +8,19 @@ function cleanItemId(id: string): string {
   return id.split("/").pop() ?? id;
 }
 
+export function pushAddToCart(items: any[], value: number, currency = "EUR") {
+  if (typeof window === "undefined" || !window.dataLayer) return;
+  window.dataLayer.push({ ecommerce: null });
+  window.dataLayer.push({
+    event: "add_to_cart",
+    ecommerce: {
+      currency,
+      value,
+      items: items.map(i => ({ ...i, item_id: cleanItemId(i.item_id ?? "") })),
+    },
+  });
+}
+
 export function pushBeginCheckout(items: any[], value: number, currency = "EUR") {
   if (typeof window === "undefined" || !window.dataLayer) return;
   window.dataLayer.push({ ecommerce: null });

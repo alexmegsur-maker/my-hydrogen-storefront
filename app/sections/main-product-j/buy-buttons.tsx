@@ -11,7 +11,7 @@ import type {loader as productRouteLoader } from "~/routes/products/product"
 import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
 import { translations } from "~/utils/translations";
-import { pushBeginCheckout } from "~/utils/dataLayer";
+import { pushAddToCart, pushBeginCheckout } from "~/utils/dataLayer";
 import { Image } from "~/components/image";
 
 interface BuyButtonsProductJProps {
@@ -277,10 +277,6 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
     }  
   },[container.current])
   
-  useEffect(() => {
-    console.log("cartIdsVariants:", cartIdsVariants)
-    console.log("selectedVariant id:", currentProd?.selectedVariant?.id)
-  }, [cartIdsVariants, currentProd])
 
   const buyProducts=()=>{
     pushBeginCheckout(cartIdsSeo, totalPrice)
@@ -326,6 +322,11 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
                   disabled={!currentProd?.selectedVariant?.availableForSale}
                   onMouseLeave={()=>setHoverAddCart(false)}
                   onMouseOver={()=>setHoverAddCart((state)=>state==false && true)}
+                  onClick={() => {
+                    if (currentProd?.selectedVariant?.availableForSale) {
+                      pushAddToCart(cartIdsSeo, totalPrice);
+                    }
+                  }}
                   route={cartRoute}
                   lines={cartIdsVariants}
                   className="flex gap-2 items-center justify-center text-center p-5 uppercase text-cta-small font-bold w-full border-none e2e-button-confirm-selection cursor-pointer"
