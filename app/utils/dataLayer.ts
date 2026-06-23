@@ -1,31 +1,35 @@
-// utils/dataLayer.ts (o al inicio del mismo archivo)
-export function pushDoubleShot(cartIdsSeo: any, totalPrice: number) {
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
+
+function cleanItemId(id: string): string {
+  return id.split("/").pop() ?? id;
+}
+
+export function pushAddToCart(items: any[], value: number, currency = "EUR") {
   if (typeof window === "undefined" || !window.dataLayer) return;
-
-
-  // Limpia el ecommerce anterior (buena práctica GTM)
   window.dataLayer.push({ ecommerce: null });
-
-  // 1️⃣ add_to_cart
   window.dataLayer.push({
     event: "add_to_cart",
     ecommerce: {
-      currency: "EUR",
-      value: totalPrice,
-      items: [cartIdsSeo],
+      currency,
+      value,
+      items: items.map(i => ({ ...i, item_id: cleanItemId(i.item_id ?? "") })),
     },
   });
+}
 
-  // Limpia de nuevo antes del segundo evento
+export function pushBeginCheckout(items: any[], value: number, currency = "EUR") {
+  if (typeof window === "undefined" || !window.dataLayer) return;
   window.dataLayer.push({ ecommerce: null });
-
-  // 2️⃣ begin_checkout
   window.dataLayer.push({
     event: "begin_checkout",
     ecommerce: {
-      currency: "EUR",
-      value: totalPrice,
-      items: [cartIdsSeo],
+      currency,
+      value,
+      items: items.map(i => ({ ...i, item_id: cleanItemId(i.item_id ?? "") })),
     },
   });
 }

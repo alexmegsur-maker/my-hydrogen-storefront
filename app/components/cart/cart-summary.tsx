@@ -20,6 +20,7 @@ import type { CartApiQueryFragment } from "storefront-api.generated";
 import type { CartLayoutType } from "~/types/others";
 import { useLanguage } from "~/hooks/useLanguage";
 import { translations } from "~/utils/translations";
+import { pushBeginCheckout } from "~/utils/dataLayer";
 
 const ICON_MAP: Record<string, Icon> = {
   truck: TruckIcon,
@@ -265,7 +266,24 @@ export function CartSummary({
           </button>
         </a>
         {checkoutUrl && (
-          <a href={checkoutUrl} target="_self" className="flex-1">
+          <a
+            href={checkoutUrl}
+            target="_self"
+            className="flex-1"
+            onClick={() => {
+              const nodes = (lines as any)?.nodes ?? [];
+              const currency = cost?.totalAmount?.currencyCode ?? "EUR";
+              const value = parseFloat(cost?.totalAmount?.amount ?? "0");
+              const items = nodes.map((line: any) => ({
+                item_id: line.merchandise?.product?.id ?? "",
+                item_name: line.merchandise?.product?.title,
+                item_variant: line.merchandise?.title,
+                price: parseFloat(line.cost?.amountPerQuantity?.amount ?? "0"),
+                quantity: line.quantity,
+              }));
+              pushBeginCheckout(items, value, currency);
+            }}
+          >
             <button
               type="button"
               className={clsx(

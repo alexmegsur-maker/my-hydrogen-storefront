@@ -17,6 +17,8 @@ export function StepSummary({
   const order = useOrder(state=>state.order)
   const checkExist = useOrder(state=>state.existingRequest)
   const date = new Date(order.createdAt)
+  const setOrder = useOrder(state=>state.setProductDetail)
+
   useEffect(()=>{
     if(checkExist){
       let barProgress = BARPROGRESS.find((elm)=>{if(elm.id == checkExist.state) return elm })
@@ -52,7 +54,10 @@ export function StepSummary({
          <button
            key={index}
            type="button"
-           onClick={() => onViewRma()}
+           onClick={() => {
+            setOrder(rma.node.product.id)
+            onViewRma()
+          }}
            className="w-full relative flex flex-col text-left bg-white/[0.02] border border-white/[0.07] rounded-lg p-5 mb-3 transition-all duration-[350ms] hover:border-white/15 hover:bg-white/[0.04] hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.5)] group"
          >
            <div className="flex items-center gap-4 justify-between w-full">

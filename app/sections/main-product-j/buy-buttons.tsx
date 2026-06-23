@@ -11,7 +11,7 @@ import type {loader as productRouteLoader } from "~/routes/products/product"
 import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
 import { translations } from "~/utils/translations";
-import { pushDoubleShot } from "~/utils/dataLayer";
+import { pushBeginCheckout } from "~/utils/dataLayer";
 import { Image } from "~/components/image";
 
 interface BuyButtonsProductJProps {
@@ -283,7 +283,7 @@ export default function BuyButtonsProductJ (props:BuyButtonsProductJProps){
   }, [cartIdsVariants, currentProd])
 
   const buyProducts=()=>{
-    pushDoubleShot(cartIdsSeo,totalPrice)
+    pushBeginCheckout(cartIdsSeo, totalPrice)
     if(buyButton.current){
       const shopPayComponent = buyButton.current.querySelector("shop-pay-button ")
       if(shopPayComponent && shopPayComponent.shadowRoot){

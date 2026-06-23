@@ -26,16 +26,21 @@ export function GoogleTagManager() {
 
     // Add to cart
     subscribe('product_added_to_cart', (data) => {
+      const line = data.currentLine;
+      const rawId = line?.merchandise?.product?.id ?? '';
+      const itemId = rawId.split('/').pop() ?? rawId;
+      window.dataLayer.push({ ecommerce: null });
       window.dataLayer.push({
         event: 'add_to_cart',
         ecommerce: {
-          currency: data.currentLine?.cost?.totalAmount?.currencyCode,
-          value: parseFloat(data.currentLine?.cost?.totalAmount?.amount || '0'),
+          currency: line?.cost?.totalAmount?.currencyCode ?? 'EUR',
+          value: parseFloat(line?.cost?.totalAmount?.amount ?? '0'),
           items: [{
-            item_id: data.currentLine?.merchandise?.product?.id,
-            item_name: data.currentLine?.merchandise?.product?.title,
-            price: parseFloat(data.currentLine?.cost?.amountPerQuantity?.amount || '0'),
-            quantity: data.currentLine?.quantity,
+            item_id: itemId,
+            item_name: line?.merchandise?.product?.title,
+            item_variant: line?.merchandise?.title,
+            price: parseFloat(line?.cost?.amountPerQuantity?.amount ?? '0'),
+            quantity: line?.quantity,
           }],
         },
       });

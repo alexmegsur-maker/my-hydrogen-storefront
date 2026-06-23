@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { cn } from '~/utils/cn'
 import { StepLogin } from './stepLogin'
 import { StepSummary } from './stepSummary'
-// import { StepCreate } from './stepCreate'
-// import { StepDetail } from './stepDetail'
+import { StepCreate } from './stepCreate'
+import { StepDetail } from './stepDetail'
 import { create } from 'zustand'
 type Step = 'login' | 'summary' | 'create' | 'detail'
 
@@ -48,15 +48,21 @@ export interface OrderQuery {
 
 type OrderStore = {
   order: OrderQuery,
+  productDetail:string | null,
   existingRequest: Record<string, string> | null,
   setOrder: (newOrder: OrderQuery, existingRequest?: Record<string, string> | null) => void
+  setProductDetail:(newOrderDetail:string)=>void,
 }
 
 export const useOrder = create<OrderStore>()((set) => ({
   order: null,
+  productDetail:null,
   existingRequest: null,
   setOrder: (newOrder: OrderQuery, existingRequest: Record<string, string> | null = null) => {
     set(() => ({ order: newOrder, existingRequest }))
+  },
+  setProductDetail:(newOrderDetail:string)=>{
+    set(()=>({productDetail:newOrderDetail}))
   }
 }))
 
@@ -204,15 +210,15 @@ export default function DesistimientoForm() {
             onViewRma={goToDetail}
           />
         )}
-        {/* {step === 'create' && (
+        {step === 'create' && (
           <StepCreate
             onBack={() => setStep('summary')}
             onNext={goToDetail}
           />
-        )} */}
-        {/* {step === 'detail' && (
+        )}
+        {step === 'detail' && (
           <StepDetail  onBack={() => setStep('summary')} />
-        )} */}
+        )}
       </div>
     </div>
   )
