@@ -1,4 +1,6 @@
 import "./styles/fonts.css";
+import cabinLatinUrl from "@fontsource-variable/cabin/files/cabin-latin-wght-normal.woff2?url";
+import montserratLatinUrl from "@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
@@ -39,6 +41,20 @@ export type RootLoader = typeof loader;
 
 export const links: LinksFunction = () => {
   return [
+    {
+      rel: "preload",
+      href: cabinLatinUrl,
+      as: "font",
+      type: "font/woff2",
+      crossOrigin: "anonymous",
+    },
+    {
+      rel: "preload",
+      href: montserratLatinUrl,
+      as: "font",
+      type: "font/woff2",
+      crossOrigin: "anonymous",
+    },
     {
       rel: "preconnect",
       href: "https://cdn.shopify.com",
