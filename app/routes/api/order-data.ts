@@ -27,6 +27,7 @@ const ORDER_QUERY = `
           email
           displayFulfillmentStatus
           displayFinancialStatus
+          cancelledAt
           createdAt
           totalPriceSet {
             shopMoney {
@@ -46,7 +47,7 @@ const ORDER_QUERY = `
                   url
                   altText
                 }
-                originalUnitPriceSet {
+                discountedUnitPriceAfterAllDiscountsSet {
                   shopMoney {
                     amount
                     currencyCode
@@ -129,6 +130,7 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 
     // Look for an existing return request in solicitud_de_devolucion metaobject
     let existingRequest: Record<string, string> | null = null;
+    let existingRequests: Record<string, string>[] = [];
     try {
       const metaRes = await fetch(
         `https://${shop}/admin/api/${apiVersion}/graphql.json`,
@@ -149,30 +151,34 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
         const { data: metaData } = await metaRes.json() as any;
         const nodes = metaData?.metaobjects?.edges ?? [];
 
-        const match = nodes.find(({ node }: any) => {
+        const orderNameNormalized = order.name.replace("#", "");
+        const allMatches = nodes.filter(({ node }: any) => {
           const fields: Record<string, string> = Object.fromEntries(
             node.fields.map((f: any) => [f.key, f.value])
           );
-          const orderNameNormalized = order.name.replace("#", "");
           return (
             (fields.pedido === orderNumber || fields.pedido === orderNameNormalized) &&
             fields.correo?.toLowerCase() === email.toLowerCase()
           );
         });
 
-        if (match) {
-          existingRequest = Object.fromEntries(
-            match.node.fields.map((f: any) => [f.key, f.value])
+        existingRequests = allMatches.map(({ node }: any) => {
+          const req: Record<string, string> = Object.fromEntries(
+            node.fields.map((f: any) => [f.key, f.value])
           );
-          existingRequest._id = match.node.id;
-          existingRequest._handle = match.node.handle;
-        }
+          req._id = node.id;
+          req._handle = node.handle;
+          if (req.producto) req.producto_return = req.producto;
+          return req;
+        });
+
+        existingRequest = existingRequests[0] ?? null;
       }
     } catch (_) {
       // metaobject lookup is best-effort; don't fail the whole request
     }
 
-    return Response.json({ order, existingRequest });
+    return Response.json({ order, existingRequest, existingRequests });
   } catch (e) {
     console.error("Error inesperado:", e);
     return Response.json({ error: "Error interno del servidor" }, { status: 500 });

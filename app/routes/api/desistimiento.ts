@@ -8,12 +8,31 @@ const GET_ORDER_BY_NAME = `
           id
           name
           createdAt
+          cancelledAt
           email
           customer {
             email
           }
         }
       }
+    }
+  }
+`;
+
+const ORDER_CANCEL_MUTATION = `
+  mutation CancelOrder($orderId: ID!, $reason: OrderCancelReason!, $refund: Boolean!, $restock: Boolean!) {
+    orderCancel(orderId: $orderId, reason: $reason, refund: $refund, restock: $restock) {
+      orderCancelUserErrors { field message code }
+      job { id }
+    }
+  }
+`;
+
+const ORDER_CLOSE_MUTATION = `
+  mutation CloseOrder($input: OrderCloseInput!) {
+    orderClose(input: $input) {
+      order { id }
+      userErrors { field message }
     }
   }
 `;
@@ -135,6 +154,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
     const orderNumber = (formData.get("orderNumber") as string)?.trim();
     const nombre = (formData.get("nombre") as string)?.trim();
     const correo = (formData.get("correo") as string)?.trim();
+    const motivo = (formData.get("motivo") as string)?.trim() ?? "";
 
     if (!orderNumber || !nombre || !correo) {
       return data(
@@ -144,16 +164,29 @@ export async function action({ request, context }: ActionFunctionArgs) {
     }
 
     try {
-      const handle = `desistimiento-${orderNumber}-${Date.now()}`;
+      // Verify the order is not cancelled before creating the metaobject
+      const orderCheck = await shopifyAdmin(adminUrl, adminToken, GET_ORDER_BY_NAME, {
+        query: `name:#${orderNumber}`,
+      });
+      const orderNode = orderCheck.data?.orders?.edges?.[0]?.node;
+      if (orderNode?.cancelledAt) {
+        return data(
+          { success: false, error: "Este pedido ha sido cancelado y no admite solicitudes de devolución." },
+          { status: 400 },
+        );
+      }
+
+      const handle = `solicitud-${orderNumber}-${Date.now()}`;
 
       const result = await shopifyAdmin(adminUrl, adminToken, CREATE_METAOBJECT_DESISTIMIENTO, {
         input: {
-          type: "desistimiento_de_pedido",
+          type: "solicitud_de_devolucion",
           handle,
           fields: [
             { key: "pedido", value: orderNumber },
-            { key: "nombre", value: nombre },
             { key: "correo", value: correo },
+            { key: "motivo", value: motivo },
+            { key: "state", value: "Solicitada" },
           ],
         },
       });
@@ -185,6 +218,50 @@ export async function action({ request, context }: ActionFunctionArgs) {
       console.error("[Desistimiento] Error al crear metaobjeto:", message);
       return data(
         { success: false, error: "Error al procesar la solicitud: " + message },
+        { status: 500 },
+      );
+    }
+  }
+
+  // ─── Cancelar y archivar pedido ──────────────────────────────────────────
+  if (actionType === "cancel") {
+    const orderId = (formData.get("orderId") as string)?.trim();
+
+    if (!orderId) {
+      return data({ success: false, error: "ID de pedido requerido." }, { status: 400 });
+    }
+
+    try {
+      const cancelResult = await shopifyAdmin(adminUrl, adminToken, ORDER_CANCEL_MUTATION, {
+        orderId,
+        reason: "CUSTOMER",
+        refund: true,
+        restock: true,
+      });
+
+      if (cancelResult.errors?.length) {
+        return data({ success: false, error: cancelResult.errors[0].message }, { status: 400 });
+      }
+
+      const cancelErrors = cancelResult.data?.orderCancel?.orderCancelUserErrors;
+      if (cancelErrors?.length) {
+        return data({ success: false, error: cancelErrors[0].message }, { status: 400 });
+      }
+
+      // Archive (close) the order — best-effort
+      const closeResult = await shopifyAdmin(adminUrl, adminToken, ORDER_CLOSE_MUTATION, {
+        input: { id: orderId },
+      });
+      if (closeResult.errors?.length) {
+        console.error("[Desistimiento] Archive failed:", closeResult.errors[0].message);
+      }
+
+      return data({ success: true });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Error desconocido";
+      console.error("[Desistimiento] Error al cancelar pedido:", message);
+      return data(
+        { success: false, error: "Error al cancelar el pedido: " + message },
         { status: 500 },
       );
     }

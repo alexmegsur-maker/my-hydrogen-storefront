@@ -1,8 +1,13 @@
 import { cn } from "~/utils/cn";
+import { useLanguage } from "~/hooks/useLanguage";
+import { interpolate, translations } from "~/utils/translations";
 import { BackButton, BARPROGRESS, MailIcon, PinIcon, ProgressBar, useOrder, UserIcon } from "./DesistimientoForm";
 import { Image } from "../image";
 
 export function StepDetail({ onBack }: { onBack: () => void }) {
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations["ES"];
+
   const order = useOrder(state => state.order)
   const productDetail = useOrder(state => state.productDetail)
   const existingRequest = useOrder(state => state.existingRequest)
@@ -21,10 +26,12 @@ export function StepDetail({ onBack }: { onBack: () => void }) {
 
   const date = new Date(order.createdAt)
   const unitPrice = selectedLine
-    ? parseFloat(selectedLine.originalUnitPriceSet.shopMoney.amount)
+    ? parseFloat(selectedLine.discountedUnitPriceAfterAllDiscountsSet.shopMoney.amount)
     : 0
-  const refundAmount = (unitPrice * (selectedLine?.quantity ?? 0)).toFixed(2)
-  const currencyCode = selectedLine?.originalUnitPriceSet.shopMoney.currencyCode ?? "EUR"
+  const grossRefund = unitPrice * (selectedLine?.quantity ?? 0)
+  const managementFee = existingRequest?.motivo === "Producto defectuoso" ? 0 : 45
+  const finalRefund = Math.max(0, grossRefund - managementFee).toFixed(2)
+  const currencyCode = selectedLine?.discountedUnitPriceAfterAllDiscountsSet.shopMoney.currencyCode ?? "EUR"
   const currencySymbol = currencyCode === "EUR" ? "€" : currencyCode
 
   return (
@@ -46,7 +53,7 @@ export function StepDetail({ onBack }: { onBack: () => void }) {
           {/* Status card */}
           <section className="bg-white/[0.02] border border-white/[0.07] rounded-lg p-[1.6rem] mb-5">
             <h2 className="font-[Outfit] font-semibold text-[11px] tracking-[2.5px] uppercase text-zinc-400 mb-4">
-              Estado del desistimiento
+              {t.rma_detailStatusTitle}
             </h2>
             <p
               className={cn(
@@ -61,14 +68,14 @@ export function StepDetail({ onBack }: { onBack: () => void }) {
               <ProgressBar progress={progressValue} approved={progressState} />
             </div>
             <p className="text-[0.85rem] text-zinc-400 font-light leading-relaxed">
-              En cuanto aprobemos tu solicitud, te avisaremos por correo electrónico.
+              {t.rma_detailStatusHint}
             </p>
           </section>
 
           {/* Items card */}
           <section className="bg-white/[0.02] border border-white/[0.07] rounded-lg p-[1.6rem] mb-5">
             <h2 className="font-[Outfit] font-semibold text-[11px] tracking-[2.5px] uppercase text-zinc-400 mb-5">
-              Qué vas a devolver
+              {t.rma_detailItemsTitle}
             </h2>
             {selectedLine ? (
               <div className="flex items-start gap-4 pb-5 border-b border-white/[0.07] mb-5">
@@ -80,25 +87,25 @@ export function StepDetail({ onBack }: { onBack: () => void }) {
                 <div className="flex-1 min-w-0">
                   <p className="font-[Outfit] font-semibold text-[0.95rem]">{selectedLine.title}</p>
                   {existingRequest?.motivo && (
-                    <p className="text-[0.82rem] text-zinc-600 mt-1 italic">Motivo: {existingRequest.motivo}</p>
+                    <p className="text-[0.82rem] text-zinc-600 mt-1 italic">{t.rma_detailMotivo} {existingRequest.motivo}</p>
                   )}
                 </div>
                 <span className="font-[Outfit] font-semibold text-[0.9rem] text-zinc-400 whitespace-nowrap">
-                  {selectedLine.originalUnitPriceSet.shopMoney.amount} {currencySymbol} ×{selectedLine.quantity}
+                  {selectedLine.discountedUnitPriceAfterAllDiscountsSet.shopMoney.amount} {currencySymbol}
                 </span>
               </div>
             ) : (
               <p className="text-[0.85rem] text-zinc-600 pb-5 mb-5 border-b border-white/[0.07]">
-                Sin producto seleccionado
+                {t.rma_detailNoProduct}
               </p>
             )}
             <div>
               <h3 className="font-[Outfit] font-semibold text-[11px] tracking-[2px] uppercase text-zinc-600 mb-2">
-                Método de devolución
+                {t.rma_detailReturnMethodTitle}
               </h3>
               <p className="text-[0.85rem] text-zinc-400 leading-relaxed">
-                <strong className="text-white font-medium">Envío con etiqueta de devolución.</strong>{' '}
-                Recibirás la etiqueta una vez aprobada la solicitud.
+                <strong className="text-white font-medium">{t.rma_detailReturnMethodText}</strong>{' '}
+                {t.rma_detailReturnMethodSubtext}
               </p>
             </div>
           </section>
@@ -106,7 +113,7 @@ export function StepDetail({ onBack }: { onBack: () => void }) {
           {/* Contact card */}
           <section className="bg-white/[0.02] border border-white/[0.07] rounded-lg p-[1.6rem]">
             <h2 className="font-[Outfit] font-semibold text-[11px] tracking-[2.5px] uppercase text-zinc-400 mb-4">
-              Datos de contacto
+              {t.rma_detailContactTitle}
             </h2>
             <div className="flex items-center gap-3 text-[0.86rem] text-zinc-400 mb-3">
               <UserIcon className="w-4 h-4 text-zinc-600 flex-shrink-0" />
@@ -127,28 +134,34 @@ export function StepDetail({ onBack }: { onBack: () => void }) {
         <div>
           <section className="bg-white/[0.02] border border-white/[0.07] rounded-lg p-[1.6rem]">
             <h2 className="font-[Outfit] font-semibold text-[11px] tracking-[2.5px] uppercase text-zinc-400 mb-4">
-              Resumen
+              {t.rma_detailSummaryTitle}
             </h2>
             {selectedLine && (
               <div className="flex justify-between items-center text-[0.88rem] text-zinc-400 py-2">
-                <span>Artículos a devolver ({selectedLine.quantity})</span>
-                <span>-{refundAmount} {currencySymbol}</span>
+                <span>{interpolate(t.rma_detailItemsToReturn, { quantity: selectedLine.quantity })}</span>
+                <span>{grossRefund.toFixed(2)} {currencySymbol}</span>
+              </div>
+            )}
+            {managementFee > 0 && (
+              <div className="flex justify-between items-center text-[0.88rem] text-amber-400/80 py-2">
+                <span>{t.rma_detailManagementFee}</span>
+                <span>- {managementFee.toFixed(2)} {currencySymbol}</span>
               </div>
             )}
             <div className="border-t border-white/[0.07] my-1" />
             <div className="flex justify-between items-baseline pt-3">
               <span className="font-[Outfit] font-semibold text-[0.85rem] tracking-wide uppercase">
-                Reembolso total
+                {t.rma_detailTotalRefund}
               </span>
               <span className="font-[Outfit] font-extrabold text-[1.3rem] [text-shadow:0_0_18px_rgba(255,255,255,0.2)]">
-                {refundAmount} {currencySymbol}
+                {finalRefund} {currencySymbol}
               </span>
             </div>
             <p className="text-[0.78rem] text-zinc-600 text-right mt-1">
-              Reembolso al método de pago original
+              {t.rma_detailRefundMethod}
             </p>
             <p className="text-[0.72rem] text-zinc-600 leading-relaxed mt-4">
-              *Según nuestra política de desistimiento y los descuentos, impuestos y gastos de envío aplicables.
+              {t.rma_detailDisclaimer}
             </p>
           </section>
         </div>

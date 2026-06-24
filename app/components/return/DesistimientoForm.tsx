@@ -15,6 +15,7 @@ export interface OrderQuery {
   email: string;
   displayFulfillmentStatus: string;
   displayFinancialStatus: string;
+  cancelledAt: string | null;
   createdAt: string;
   totalPriceSet: {
     shopMoney: { amount: string; currencyCode: string };
@@ -31,7 +32,7 @@ export interface OrderQuery {
           url:string;
           altText:string;
         };
-        originalUnitPriceSet: {
+        discountedUnitPriceAfterAllDiscountsSet: {
           shopMoney: { amount: string; currencyCode: string };
         };
       };
@@ -48,21 +49,23 @@ export interface OrderQuery {
 
 type OrderStore = {
   order: OrderQuery,
-  productDetail:string | null,
+  productDetail: string | null,
   existingRequest: Record<string, string> | null,
-  setOrder: (newOrder: OrderQuery, existingRequest?: Record<string, string> | null) => void
-  setProductDetail:(newOrderDetail:string)=>void,
+  existingRequests: Record<string, string>[],
+  setOrder: (newOrder: OrderQuery, existingRequest?: Record<string, string> | null, existingRequests?: Record<string, string>[]) => void
+  setProductDetail: (newOrderDetail: string) => void,
 }
 
 export const useOrder = create<OrderStore>()((set) => ({
   order: null,
-  productDetail:null,
+  productDetail: null,
   existingRequest: null,
-  setOrder: (newOrder: OrderQuery, existingRequest: Record<string, string> | null = null) => {
-    set(() => ({ order: newOrder, existingRequest }))
+  existingRequests: [],
+  setOrder: (newOrder: OrderQuery, existingRequest: Record<string, string> | null = null, existingRequests: Record<string, string>[] = []) => {
+    set(() => ({ order: newOrder, existingRequest, existingRequests }))
   },
-  setProductDetail:(newOrderDetail:string)=>{
-    set(()=>({productDetail:newOrderDetail}))
+  setProductDetail: (newOrderDetail: string) => {
+    set(() => ({ productDetail: newOrderDetail }))
   }
 }))
 
