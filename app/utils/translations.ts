@@ -6,8 +6,8 @@ export const translations: Record<string, Record<string, string>> = {
   ES: {
     home: "Inicio",
     from: "Desde",
-    addToSetup: "Añadir al setup",
-    addToCart: "Añadir al carrito",
+    addToSetup: "Comprar",
+    addToCart: "Añadir al setup",
     soldOut: "Agotado",
     reserve: "Reservar",
     loading: "Cargando...",
@@ -96,7 +96,7 @@ export const translations: Record<string, Record<string, string>> = {
   EN: {
     home: "Home",
     from: "From",
-    addToSetup: "Add to setup",
+    addToSetup: "Buy",
     addToCart: "Add to cart",
     soldOut: "Sold out",
     reserve: "Reserve",
@@ -186,8 +186,8 @@ export const translations: Record<string, Record<string, string>> = {
   DE: {
     home: "Startseite",
     from: "Ab",
-    addToSetup: "Zum Setup hinzufügen",
-    addToCart: "In den Warenkorb",
+    addToSetup: "Kaufen",
+    addToCart: "Zum Setup hinzufügen",
     soldOut: "Ausverkauft",
     reserve: "Reservieren",
     loading: "Laden...",
@@ -276,8 +276,8 @@ export const translations: Record<string, Record<string, string>> = {
   FR: {
     home: "Accueil",
     from: "À partir de",
-    addToSetup: "Ajouter au setup",
-    addToCart: "Ajouter au panier",
+    addToSetup: "Acheter",
+    addToCart: "Ajouter au setup",
     soldOut: "Épuisé",
     reserve: "Réserver",
     loading: "Chargement...",
@@ -366,8 +366,8 @@ export const translations: Record<string, Record<string, string>> = {
   IT: {
     home: "Home",
     from: "Da",
-    addToSetup: "Aggiungi al setup",
-    addToCart: "Aggiungi al carrello",
+    addToSetup: "Acquistare",
+    addToCart: "Aggiungi al setup",
     soldOut: "Esaurito",
     reserve: "Prenota",
     loading: "Caricamento...",
