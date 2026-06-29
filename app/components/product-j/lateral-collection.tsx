@@ -114,7 +114,7 @@ export default function  LateralCollection (props:LateralCollectionProps){
             </span>
           <div style={{width: "60px"}}></div>
         </div>
-        <div className=" content-drawer-panel flex-grow  overflow-y-auto relative"> 
+        <div className=" content-drawer-panel flex-grow  overflow-y-auto relative" data-lenis-prevent>
           {children}
         </div>
         {confirmBtn && 
