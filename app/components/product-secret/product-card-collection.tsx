@@ -6,6 +6,7 @@ import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { createCurProVar } from "~/routes/collections/utils";
 import type { ProductNode, RequestVariant } from "~/sections/secret-main-product/variants-secret";
 import { useCurrentProduct } from "~/stores/currentProduct";
+import { cn } from "~/utils/cn";
 
 interface tooltipProps{
   tooltipColor:string,
@@ -14,6 +15,8 @@ interface tooltipProps{
   tooltipTWeight:string,
   tooltipSubTSize:string,
   tooltipSubTWeight:string,
+  activeChair:boolean,
+  showFilters:boolean,
 }
 
 interface ProductCardProps{
@@ -120,10 +123,14 @@ function ProductCardCollection(props:ProductCardProps){
             borderRadius:rounded? `${rounded}px`:"10px"
           }}
         >
-          <div className="h-full w-full">
+          <div className={cn(
+            "h-full w-full",
+            !tooltipProps.activeChair && "flex"
+            )}  
+            >
             <img
               alt="Thumbnail "
-              className="object-cover scale-200 top-[30%] absolute"
+              className={cn( tooltipProps.activeChair?"object-cover scale-200 top-[30%] absolute":"object-contain")}
               src={imgProduct}
             />
           </div> 

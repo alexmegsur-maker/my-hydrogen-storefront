@@ -5,7 +5,11 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import type { SeoConfig } from "@shopify/hydrogen";
 import { Analytics, getSeoMeta, useNonce } from "@shopify/hydrogen";
 import { useThemeSettings, withWeaverse } from "@weaverse/hydrogen";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { ReactLenis } from "lenis/react";
+import type { LenisRef } from "lenis/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { LinksFunction, LoaderFunctionArgs, MetaArgs } from "react-router";
 import {
   isRouteErrorResponse,
@@ -89,7 +93,28 @@ export const meta = ({ data }: MetaArgs<typeof loader>) => {
 };
 
 function App() {
-  return <Outlet />;
+  const lenisRef = useRef<LenisRef>(null)
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger)
+
+    function update(time: number) {
+      lenisRef.current?.lenis?.raf(time * 1000)
+    }
+
+    gsap.ticker.add(update)
+    gsap.ticker.lagSmoothing(0)
+
+    return () => gsap.ticker.remove(update)
+  }, [])
+
+  return (
+    <>
+      <ReactLenis root options={{ autoRaf: false }} ref={lenisRef}/>
+      <Outlet />
+    </>
+    
+  )
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {

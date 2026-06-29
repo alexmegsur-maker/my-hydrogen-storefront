@@ -12,6 +12,8 @@ interface collectionListProps{
   tooltipTWeight:string;
   tooltipSubTSize:string;
   tooltipSubTWeight:string;
+  activeChair:boolean,
+  showFilters:boolean,
 }
 
 interface collectionVariantProps{
@@ -64,7 +66,9 @@ function CollectionVariant(props:collectionVariantProps){
                   tooltipTSize:estilos.tooltipTSize,
                   tooltipTWeight:estilos.tooltipTWeight,
                   tooltipSubTSize:estilos.tooltipSubTSize,
-                  tooltipSubTWeight:estilos.tooltipSubTWeight
+                  tooltipSubTWeight:estilos.tooltipSubTWeight,
+                  activeChair:estilos.activeChair,
+                  showFilters:estilos.showFilters,
                 }}
                 />
             )

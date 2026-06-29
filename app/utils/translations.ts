@@ -182,7 +182,6 @@ export const translations: Record<string, Record<string, string>> = {
     rma_detailRefundMethod: "Refund to original payment method",
     rma_detailDisclaimer: "*According to our withdrawal policy and applicable discounts, taxes and shipping costs.",
   },
-
   DE: {
     home: "Startseite",
     from: "Ab",

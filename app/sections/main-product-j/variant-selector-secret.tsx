@@ -162,7 +162,8 @@ interface SelectorVariantSecretProps extends HydrogenComponentProps {
   tooltipTWeight: string;
   tooltipSubTSize: string;
   tooltipSubTWeight: string;
-
+  activeChair:boolean;
+  showFilters:boolean;
   // section filter
   fColor: string;
   fSize: string;
@@ -317,6 +318,8 @@ export default function SelectorVariantSecret(
     pMarginText,
     pWeight,
     bgColor,
+    activeChair,
+    showFilters,
     // ❌ borderColor — se desestructura pero nunca se usa en el JSX
     lcPaddingSelect,
     lcPaddingText,
@@ -500,6 +503,8 @@ export default function SelectorVariantSecret(
     tooltipTWeight,
     tooltipSubTSize,
     tooltipSubTWeight,
+    showFilters,
+    activeChair,
   };
 
   const getApiUrl = usePrefixPathWithLocale(`api/collection`);
@@ -1480,6 +1485,18 @@ export const schema = createSchema({
           type: "text",
           label: "Margin text",
           name: "marginText",
+        },
+        {
+          type:'switch',
+          label:'activeChair image',
+          name:'activeChair',
+          defaultValue:true,
+        },
+        {
+          type:'switch',
+          label:'show filter',
+          name:'showFilters',
+          defaultValue:true,
         },
         // Title styles
         {

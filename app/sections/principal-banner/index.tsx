@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -7,17 +7,15 @@ import {
   type HydrogenComponentProps,
   type WeaverseImage,
 } from '@weaverse/hydrogen'
-import '~/styles/principal-banner.css'
 
 // ─── Animation constants ───────────────────────────────────────────────────
-// Modify these values to tune the scroll animation timing and scale behaviour.
 const ANIM = {
   desktop: {
-    fadeEnd: 0.15,          // hero copy/image is fully gone by this progress
-    revealStart: 0.25,      // overlay copy starts appearing
-    mid: 0.5,               // reveal → disappear phase boundary
-    heroFadeOut: 0.9,       // entire section fades at this progress
-    initOverlayScale: 1050, // SVG mask starting scale
+    fadeEnd: 0.15,
+    revealStart: 0.25,
+    mid: 0.5,
+    heroFadeOut: 0.9,
+    initOverlayScale: 1050,
     chairStartScale: 1.1,
     chairScaleRate: 0.5,
     copyStartScale: 1.25,
@@ -30,31 +28,26 @@ const ANIM = {
     revealEnd: 0.7,
   },
   gradient: {
-    spread: 100,  // wipe-band height (%)
-    base: 240,    // starting bottom position (%)
-    range: 280,   // total travel distance (%)
+    spread: 100,
+    base: 240,
+    range: 280,
   },
 } as const
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 interface PrincipalBannerProps extends HydrogenComponentProps {
-  // Images
   backgroundImage: WeaverseImage
   chairImage: WeaverseImage
   separatorImage: WeaverseImage
-  // Content
   phrase: string
   preorderLine1: string
   preorderLine2: string
   limitedEditionLabel: string
   scrollLabel: string
-  // Gradient colours
   gradientColor1: string
   gradientColor2: string
-  // Logo SVG mask
   logoData: string
-  // Logo position (per breakpoint)
   lh: number
   lv: number
   lv23: number
@@ -63,13 +56,25 @@ interface PrincipalBannerProps extends HydrogenComponentProps {
   lv30: number
   lv40: number
   extraH: number
-  // Animation
   pinMultiplier: number
 }
 
 function toUrl(img: WeaverseImage | undefined): string {
   if (!img) return ''
   return typeof img === 'string' ? img : img.url
+}
+
+// Parsea un SVG completo extrayendo viewBox e inner content.
+// También soporta el formato legado (solo el atributo d del path).
+function parseSvg(input: string): { viewBox: string; content: string } {
+  if (!input) return { viewBox: '0 0 100 100', content: '' }
+  if (input.trim().startsWith('<')) {
+    const viewBox = (input.match(/viewBox=["']([^"']+)["']/i) ?? [])[1] ?? '0 0 100 100'
+    const content = (input.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i) ?? [])[1]?.trim() ?? ''
+    return { viewBox, content }
+  }
+  // Legado: solo el valor del atributo d
+  return { viewBox: '0 0 342.7 163.4', content: `<path d="${input}" />` }
 }
 
 // ─── Section ────────────────────────────────────────────────────────────────
@@ -98,8 +103,10 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     pinMultiplier,
   } = props
 
+  const parsedLogo = parseSvg(logoData)
+
   const heroRef = useRef<HTMLElement>(null)
-  const logoMaskRef = useRef<SVGPathElement>(null)
+  const logoMaskRef = useRef<SVGSVGElement>(null)
   const logoContainerRef = useRef<HTMLDivElement>(null)
   const referenciaRef = useRef<HTMLDivElement>(null)
   const fadeOverlayRef = useRef<HTMLDivElement>(null)
@@ -107,213 +114,149 @@ function PrincipalBanner(props: PrincipalBannerProps) {
   const overlayImgRef = useRef<HTMLImageElement>(null)
   const overlayTextRef = useRef<HTMLParagraphElement>(null)
 
-  // Computes gradient top/bottom positions for the wipe animation
-  const gradPos = (progress: number) => {
-    const { spread, base, range } = ANIM.gradient
-    const bottom = base - progress * range
-    return { bottom, top: bottom - spread }
-  }
-
-  // Updates background-gradient on a text-clip element (reveal or hide direction)
-  const setGradient = (
-    el: HTMLElement | null,
-    direction: 'reveal' | 'hide',
-    progress: number,
-    isTitle: boolean,
-  ) => {
-    if (!el) return
-    const { bottom: gb, top: gt } = gradPos(progress)
-    el.style.background =
-      direction === 'reveal'
-        ? isTitle
-          ? `linear-gradient(151deg, var(--bg-primary) 0%, var(--bg-primary) ${gt}%, ${gradientColor1} ${gb}%, ${gradientColor2} 100%)`
-          : `linear-gradient(to bottom, var(--bg-primary) 0%, var(--bg-primary) ${gt}%, #fff ${gb}%, #fff 100%)`
-        : isTitle
-          ? `linear-gradient(151deg, ${gradientColor1} 0%, ${gradientColor2} ${gt}%, var(--bg-primary) ${gb}%, var(--bg-primary) 100%)`
-          : `linear-gradient(151deg, #fff 0%, #fff ${gt}%, var(--bg-primary) ${gb}%, var(--bg-primary) 100%)`
-    el.style.backgroundClip = 'text'
-  }
-
-  // ── Logo mask sizing & position ──────────────────────────────────────────
-  useGSAP(() => {
-    gsap.registerPlugin(ScrollTrigger)
-
-    const mask = logoMaskRef.current as SVGGraphicsElement | null
-    const container = logoContainerRef.current
-    const refBox = referenciaRef.current
-    if (!mask || !container || !refBox) return
-
-    const bbox = mask.getBBox()
-    const dims = container.getBoundingClientRect()
-    const refY = refBox.getBoundingClientRect().y
-    const scale = Math.min(dims.width / bbox.width, dims.height / bbox.height)
-
-    let vertY = refY - lv
-    const mobileH = dims.left + (dims.width - bbox.width * scale) / lh - bbox.x * scale + extraH
-
-    if (window.innerWidth >= 2300) {
-      vertY = refY - (window.innerHeight > 1280 ? lv23 - lhs23 : lv23 - lh23)
-    }
-    if (window.innerWidth >= 3000) vertY = refY - lv30
-    if (window.innerWidth >= 4000) vertY = refY - lv40
-
-    if (window.innerWidth > 800) {
-      const horiPct = ((bbox.width / window.innerWidth) * 100) / 2
-      gsap.to('#logoMask', {
-        transform: `translate(${(100 - horiPct) / 2}%, ${vertY}px) scale(${scale})`,
-      })
-    } else {
-      gsap.to('#logoRevealMask', { display: 'flex' })
-      gsap.to('#logoMask', { transform: `translate(${mobileH}px, 20vh) scale(1)`, width: '100vw' })
-    }
-  }, [])
-
-  // ── Scroll-driven animations ─────────────────────────────────────────────
   useGSAP(
-    () => {
-      if (!heroRef.current) return
+    ()=>{
+      gsap.registerPlugin(ScrollTrigger)
+      const container = heroRef.current!;
 
-      const mm = gsap.matchMedia()
-      const D = ANIM.desktop
-      const M = ANIM.mobile
-      const pinEnd = `${window.innerHeight * pinMultiplier}px`
+      const tlIntro = gsap.timeline({
+        scrollTrigger:{
+          trigger:container,
+          start:"top top",
+          end:"top+=20% top",
+          scrub:true,
+        },
+      })
+      tlIntro.fromTo(".video-icon-container",
+        {
+          display:"block",
+          opacity:1
+        },
+        {
+          display:"none",
+          opacity:0
+        },
+        
+      )
+      tlIntro.fromTo([".hero-img-logo",".hero-img-copy"] ,
+        {opacity:1},
+        {opacity:0},
+        "<"
+      )
 
-      // Desktop (≥ 800px) ──────────────────────────────────────────────────
-      mm.add('(min-width: 800px)', () => {
-        gsap.set('.hero', {
-          scrollTrigger: {
-            trigger: '.hero',
-            start: 'top top',
-            end: pinEnd,
-            pin: true,
-            pinSpacing: false,
-            scrub: 1,
-            onUpdate: ({ progress: raw }) => {
-              const p = raw * 2 // remap [0,1] → [0,2] for two-phase animation
+      const tlSecond = gsap.timeline({
+        scrollTrigger:{ 
+          trigger:container,
+          start:"top+=40% top",
+          end:"top+=50% top",
+          scrub:true   
+        }
+      })
+      
+      tlSecond.fromTo(".hero-principal-img",
+        {scale:'1'},{scale:'0.7'}
+      )
+      
+      
+      
+      tlSecond.fromTo(overlayTitleRef.current,
+        {backgroundImage:`linear-gradient(151deg,transparent 0%, ${gradientColor1} 99%, ${gradientColor2} 100%)`},
+        {backgroundImage:`linear-gradient(151deg,transparent 0%, ${gradientColor1} 2%, ${gradientColor2} 100%)`},"<"
+      )
 
-              // Phase 1 – fade out hero image & copy
-              if (p <= 0.2) {
-                const opacity = p < D.fadeEnd ? Math.max(0, 1 - p * (1 / D.fadeEnd)) : 0
-                gsap.set('.video-icon-container', { display: p < D.fadeEnd ? 'block' : 'none' })
-                gsap.set(['.hero-img-logo', '.hero-img-copy', '.video-icon-container'], { opacity })
-              }
+      tlSecond.fromTo(overlayTextRef.current,
+        {backgroundImage:`linear-gradient(151deg,transparent 0%, #fff 99%, #fff 100%)`},
+        {backgroundImage:`linear-gradient(151deg,transparent 0%,  #fff 2%, #fff 100%)`},"<"
+      )
+      
+      
+      tlSecond.fromTo([overlayTitleRef.current,overlayTextRef.current,overlayImgRef.current],
+        {
+          scale:1.25,
+          opacity:0
+        },
+        {
+          scale:1,
+          opacity:1
+        },"<"
+      )
+      
+      const tlSvg = gsap.timeline({
+        scrollTrigger:{
+          trigger:container,
+          start:"top+=10% top",
+          end:"top+=50% top",
+          scrub:true   
+        }
+      })
+      
+      tlSvg.fromTo(logoMaskRef.current,{scale:"270"},{scale:"0.3",y:"-70%" })
+      tlSvg.fromTo(fadeOverlayRef.current,
+        {opacity:0 ,background:"transparent"},
+        {opacity:1,background:`linear-gradient(151deg,${gradientColor1} 0%, ${gradientColor2} 100%)`,ease:"none"}
+        ,'<'
+      )
 
-              // Phase 2 – overlay reveal
-              if (p <= D.mid) {
-                const norm = Math.max(0, p * 2 - 0.02)
-                gsap.set('.hero-principal-img', { scale: (D.chairStartScale - D.chairScaleRate * norm) / 1.2 })
-                gsap.set('.overlay', {
-                  scale: D.initOverlayScale * Math.pow(1 / D.initOverlayScale, norm) * 2,
-                })
+      const tlRevert= gsap.timeline({
+        scrollTrigger:{
+          trigger:container,
+          start:"top+=50% top",
+          end:"top+=70% top",
+          scrub:true   
+        }
 
-                const revealP =
-                  p >= D.revealStart ? Math.min(1, (p - D.revealStart) / (D.mid - D.revealStart)) : 0
-                const copyScale = D.copyStartScale - D.copyScaleRate * revealP
-
-                if (fadeOverlayRef.current) {
-                  fadeOverlayRef.current.style.background = `linear-gradient(151deg, ${gradientColor1} 0%, ${gradientColor2} 100%)`
-                }
-                setGradient(overlayTitleRef.current, 'reveal', revealP, true)
-                setGradient(overlayTextRef.current, 'reveal', revealP, false)
-                gsap.set(fadeOverlayRef.current, { opacity: revealP })
-                gsap.set([overlayImgRef.current, overlayTitleRef.current, overlayTextRef.current], {
-                  scale: copyScale,
-                  opacity: revealP,
-                })
-              }
-
-              // Phase 3 – overlay disappear
-              if (p > D.mid) {
-                const prog = (p - D.mid) * 2
-                const { bottom: gb, top: gt } = gradPos(prog)
-                setGradient(overlayTitleRef.current, 'hide', prog, true)
-                setGradient(overlayTextRef.current, 'hide', prog, false)
-
-                if (fadeOverlayRef.current) {
-                  fadeOverlayRef.current.style.background =
-                    prog > 0.8
-                      ? 'var(--bg-primary)'
-                      : `linear-gradient(151deg, ${gradientColor2} 0%, ${gradientColor1} ${gt}%, var(--bg-primary) ${gb}%, var(--bg-primary) 100%)`
-                }
-                gsap.set([overlayTitleRef.current, overlayTextRef.current, overlayImgRef.current], {
-                  opacity: 1 - prog,
-                })
-                gsap.set('.overlay', { display: prog > 0.8 ? 'none' : 'block', transform: 'scale(1)' })
-                gsap.set(fadeOverlayRef.current, { opacity: 1 })
-              }
-
-              gsap.set(heroRef.current, { opacity: p > D.heroFadeOut ? 0 : 1 })
-            },
-          },
-        })
       })
 
-      // Mobile (< 800px) ───────────────────────────────────────────────────
-      mm.add('(max-width: 799px)', () => {
-        gsap.set(heroRef.current, {
-          scrollTrigger: {
-            trigger: '.hero',
-            start: 'top top',
-            end: pinEnd,
-            pin: true,
-            pinSpacing: false,
-            scrub: 1,
-            onUpdate: ({ progress: p }) => {
-              if (p < M.iconFadeEnd) {
-                const prog = p / M.iconFadeEnd
-                gsap.to('.video-icon-container', { opacity: 1 - prog })
-                gsap.to(overlayTitleRef.current, { opacity: prog })
-              }
+      tlRevert.to(fadeOverlayRef.current,
+        {background:`linear-gradient(151deg,${gradientColor2} 0%,#050505 4%, #050505 100%)`}
 
-              if (p < M.halfPoint) {
-                gsap.to('.overlay', { opacity: p * 2 })
-              }
+      )
+      tlRevert.to(overlayTitleRef.current,
+        {backgroundImage:`linear-gradient(151deg,${gradientColor2} 0%, #050505 98%, #050505 100%)`},"<"
+      )
 
-              if (p > M.revealStart && p < M.revealEnd) {
-                const prog = (p - M.revealStart) / (M.revealEnd - M.revealStart)
-                setGradient(overlayTitleRef.current, 'reveal', prog, true)
-                setGradient(overlayTextRef.current, 'reveal', prog, false)
-                gsap.to([fadeOverlayRef.current, overlayImgRef.current, overlayTextRef.current], {
-                  opacity: prog,
-                })
-              }
+      tlRevert.to(overlayTextRef.current,
+        {backgroundImage:`linear-gradient(151deg, #fff 0%, #050505 98%, #050505 100%)`},"<"
 
-              if (p >= M.revealEnd) {
-                const prog = (p - M.revealEnd) / (1 - M.revealEnd)
-                const { bottom: gb, top: gt } = gradPos(prog)
-                setGradient(overlayTitleRef.current, 'hide', prog, true)
-                setGradient(overlayTextRef.current, 'hide', prog, false)
-                if (fadeOverlayRef.current) {
-                  fadeOverlayRef.current.style.background = `linear-gradient(151deg, ${gradientColor2} 0%, ${gradientColor1} ${gt}%, var(--bg-primary) ${gb}%, var(--bg-primary) 100%)`
-                }
-                gsap.to([overlayImgRef.current, overlayTextRef.current], { opacity: 1 - prog })
-              }
-            },
-          },
-        })
-      })
-    },
-    { scope: heroRef },
+      )
+      
+
+    },{scope:heroRef}
   )
 
+    useEffect(()=>{
+      console.log("parsedLogo",parsedLogo.viewBox)
+    },[parsedLogo])
+
   return (
-    <section className="hero" ref={heroRef}>
+    <section className="hero relative z-[2] h-[600vh] overflow-hidden" ref={heroRef}>
       {/* Background + product image */}
-      <div className="hero-img-container">
-        <img className="hero-fondo" src={toUrl(backgroundImage)} alt="" fetchPriority="high" />
-        <div className="hero-img-logo">
-          <h3 className="frase-principal">{phrase}</h3>
+      <div className="hero-img-container fixed top-0 left-0 w-[100vw] h-auto z-[2]">
+        <img
+          className="hero-fondo fixed top-0 left-0 w-full h-full"
+          src={toUrl(backgroundImage)}
+          alt=""
+          fetchPriority="high" 
+        />
+        <div className="hero-img-logo z-[5] flex items-center w-screen h-screen justify-center absolute">
+          <h3 className="frase-principal fixed top-[15vh] text-[2.5rem] w-[27rem] font-medium leading-[0.9] [word-spacing:4px] font-garamond max-[700px]:text-[2rem] max-[700px]:w-[85vw]">
+            {phrase}
+          </h3>
         </div>
-        <img className="hero-principal-img" src={toUrl(chairImage)} alt="" />
-        <div className="hero-img-copy">
-          <p>{scrollLabel}</p>
+        <img
+          className="hero-principal-img fixed top-0 left-0 w-full h-full max-[700px]:z-[3] min-[4000px]:self-center min-[4000px]:!w-[60%] min-[4000px]:![left:50%] min-[4000px]:![transform:translate(-50%,0)]"
+          src={toUrl(chairImage)}
+          alt=""
+        />
+        <div className="hero-img-copy fixed bottom-[5%] left-1/2 -translate-x-1/2 [will-change:opacity] z-[5]">
+          <p className="text-[0.65rem]">{scrollLabel}</p>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 25 25"
             strokeWidth={1}
             stroke="currentColor"
-            className="arrow-down"
+            className="arrow-down animate-arrow-pulse"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
           </svg>
@@ -321,8 +264,8 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       </div>
 
       {/* Play button */}
-      <div className="video-icon-container">
-        <div className="video-play">
+      <div className="video-icon-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] z-[3] opacity-0 cursor-pointer max-[700px]:opacity-100">
+        <div className="video-play transition-transform duration-500 hover:scale-110">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
               fillRule="evenodd"
@@ -338,35 +281,64 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       </div>
 
       {/* Colour wash overlay */}
-      <div className="fade-overlay" ref={fadeOverlayRef} />
+      <div
+        className="fade-overlay fixed top-0 left-0 w-full h-full [will-change:opacity] z-[2] max-[700px]:opacity-0"
+        ref={fadeOverlayRef}
+      />
 
       {/* SVG logo reveal mask */}
-      <div className="overlay">
+      <div className="overlay fixed top-0 left-0 w-full h-full z-[2] max-[700px]:opacity-0">
         <svg width="100%" height="100%">
           <defs>
             <mask id="logoRevealMask">
               <rect width="100%" height="100%" fill="white" id="rectInicio" />
-              <path id="logoMask" d={logoData} ref={logoMaskRef} width="400px" height="400px" />
+              <svg
+                id="logoMask"
+                ref={logoMaskRef}
+                viewBox={parsedLogo.viewBox}
+                fill="black"
+                dangerouslySetInnerHTML={{ __html: parsedLogo.content }}
+                style={{ transformOrigin: 'center 70%' }}
+              />
             </mask>
           </defs>
-          <rect width="100%" height="100%" fill="#111117" mask="url(#logoRevealMask)" />
+          <rect width="100%" height="100%" fill="#050505" mask="url(#logoRevealMask)" />
         </svg>
       </div>
 
       {/* Invisible reference box used to compute logo position */}
-      <div className="logo-container" ref={logoContainerRef}>
-        <div className="referencia" ref={referenciaRef} />
+      <div
+        className="logo-container flex fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[250px] z-[2] justify-center items-center min-[2400px]:top-[18%] min-[2400px]:w-[350px] min-[2400px]:h-[350px] min-[3000px]:w-[600px] min-[3000px]:h-[600px]"
+        ref={logoContainerRef}
+      >
+        <div className="referencia opacity-0 w-[342.7px] h-[163.4px]" ref={referenciaRef} />
       </div>
 
       {/* Reveal headline */}
-      <div className="overlay-copy">
-        <h1 ref={overlayTitleRef}>
+      <div className="overlay-copy fixed bottom-[18%] left-1/2 -translate-x-1/2 font-garamond font-medium z-[2] max-[700px]:w-full max-[700px]:top-[5%] max-[700px]:flex max-[700px]:flex-col max-[700px]:h-full max-[700px]:justify-center max-[700px]:items-center min-[2400px]:bottom-[20%] min-[3000px]:bottom-[25%] min-[4000px]:bottom-[15%]">
+        <h1
+          className="text-[7rem] leading-[0.9] font-medium tracking-[1px] text-transparent origin-[center_0%] max-[700px]:mt-[20vh] max-[700px]:text-[45px] min-[3000px]:text-[13rem] min-[4000px]:text-[9rem]"
+          ref={overlayTitleRef}
+          style={{backgroundClip:"text !important"}}
+        >
           {preorderLine1}
           <br />
           {preorderLine2}
         </h1>
-        <img ref={overlayImgRef} src={toUrl(separatorImage)} alt="" />
-        <p ref={overlayTextRef}>{limitedEditionLabel}</p>
+        <img
+          className="w-[65%] py-4 opacity-0 max-[700px]:w-[80vw] max-[700px]:h-auto"
+          ref={overlayImgRef}
+          src={toUrl(separatorImage)}
+          alt=""
+        />
+        <p
+          className="text-[54px] tracking-[2px] bg-clip-text text-transparent origin-[center_0%] max-[700px]:text-base min-[3000px]:text-[5rem] min-[4000px]:text-[4rem]"
+          ref={overlayTextRef} 
+          style={{backgroundClip:"text !important"}}
+
+        >
+          {limitedEditionLabel}
+        </p>
       </div>
     </section>
   )
@@ -446,7 +418,7 @@ export const schema = createSchema({
         {
           type: 'textarea',
           name: 'logoData',
-          label: 'SVG path data (d attribute)',
+          label: 'SVG completo o atributo d del path',
           defaultValue: '',
         },
       ],

@@ -49,6 +49,7 @@ html{
 @theme {
   --font-cabin: Cabin Variable, ui-sans-serif, system-ui, sans-serif;
   --font-serif: Arial, IBMPlexSerif, Palatino, ui-serif;
+  --font-garamond: "EB Garamond", serif;
 
   --breakpoint-sm: 32em;
   --breakpoint-md: 48em;
@@ -107,6 +108,7 @@ html{
   --text-9xl--line-height: 1;
 
   --animate-spin: spin 0.5s linear infinite;
+  --animate-arrow-pulse: arrow-pulse 800ms ease-out alternate infinite;
   --animate-marquee: marquee 10s linear infinite;
   --animate-underline-toggle: underline-toggle 400ms linear;
   --animate-fade-in: fade-in 100ms ease-in forwards;
@@ -125,6 +127,10 @@ html{
   --animate-exit-to-right: exit-to-right 300ms ease forwards;
   --animate-exit-to-top: exit-to-top 200ms ease forwards;
 
+  @keyframes arrow-pulse {
+    from { transform: scale(0.7); }
+    to   { transform: scale(0.8); }
+  }
   @keyframes fade-in {
     0% {
       opacity: 0;
