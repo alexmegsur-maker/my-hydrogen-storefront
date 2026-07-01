@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useIsMobile } from '~/hooks/use-is-mobile'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -8,64 +9,71 @@ import {
   type WeaverseImage,
 } from '@weaverse/hydrogen'
 
-// ─── Animation constants ───────────────────────────────────────────────────
-const ANIM = {
-  desktop: {
-    fadeEnd: 0.15,
-    revealStart: 0.25,
-    mid: 0.5,
-    heroFadeOut: 0.9,
-    initOverlayScale: 1050,
-    chairStartScale: 1.1,
-    chairScaleRate: 0.5,
-    copyStartScale: 1.25,
-    copyScaleRate: 0.25,
-  },
-  mobile: {
-    iconFadeEnd: 0.3,
-    halfPoint: 0.5,
-    revealStart: 0.3,
-    revealEnd: 0.7,
-  },
-  gradient: {
-    spread: 100,
-    base: 240,
-    range: 280,
-  },
-} as const
-
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 interface PrincipalBannerProps extends HydrogenComponentProps {
+  // Content
   backgroundImage: WeaverseImage
   chairImage: WeaverseImage
   separatorImage: WeaverseImage
-  phrase: string
-  preorderLine1: string
-  preorderLine2: string
-  limitedEditionLabel: string
-  scrollLabel: string
   gradientColor1: string
   gradientColor2: string
   logoData: string
-  lh: number
-  lv: number
-  lv23: number
-  lh23: number
-  lhs23: number
-  lv30: number
-  lv40: number
-  extraH: number
-  pinMultiplier: number
+  // Hero phrase
+  phrase: string
+  phraseSize: number
+  phraseSizeMobile: number
+  phraseFamily: string
+  phraseWeight: string
+  phraseSpacing: number
+  phraseAlign: 'left' | 'center' | 'right'
+  // Headline
+  preorderLine1: string
+  preorderLine2: string
+  titleSize: number
+  titleSizeMobile: number
+  titleFamily: string
+  titleWeight: string
+  titleSpacing: number
+  titleAlign: 'left' | 'center' | 'right'
+  // Edition label
+  limitedEditionLabel: string
+  labelSize: number
+  labelSizeMobile: number
+  labelFamily: string
+  labelWeight: string
+  labelSpacing: number
+  labelAlign: 'left' | 'center' | 'right'
+  // Scroll hint
+  scrollLabel: string
+  scrollSize: number
+  scrollSizeMobile: number
+  scrollWeight: string
+  scrollSpacing: number
+  // Container layout
+  copyBottom: number
+  // Product image
+  chairWidth: number
+  chairPositionX: 'left' | 'center' | 'right'
+  chairObjectFit: 'cover' | 'contain' | 'fill'
+  separatorWidth: number
+  separatorAlign: 'left' | 'center' | 'right'
+  // Animation
+  logoScaleStart: number
+  logoScaleEnd: number
+  logoYEnd: number
+  // Video
+  showPlayButton: boolean
+  videoUrl: string
 }
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
 
 function toUrl(img: WeaverseImage | undefined): string {
   if (!img) return ''
   return typeof img === 'string' ? img : img.url
 }
 
-// Parsea un SVG completo extrayendo viewBox e inner content.
-// También soporta el formato legado (solo el atributo d del path).
 function parseSvg(input: string): { viewBox: string; content: string } {
   if (!input) return { viewBox: '0 0 100 100', content: '' }
   if (input.trim().startsWith('<')) {
@@ -73,8 +81,25 @@ function parseSvg(input: string): { viewBox: string; content: string } {
     const content = (input.match(/<svg[^>]*>([\s\S]*?)<\/svg>/i) ?? [])[1]?.trim() ?? ''
     return { viewBox, content }
   }
-  // Legado: solo el valor del atributo d
   return { viewBox: '0 0 342.7 163.4', content: `<path d="${input}" />` }
+}
+
+function getVideoEmbed(url: string): { iframe: boolean; src: string } {
+  if (!url) return { iframe: false, src: '' }
+  if (url.includes('youtube.com') || url.includes('youtu.be')) {
+    let id = ''
+    if (url.includes('youtu.be/')) {
+      id = url.split('youtu.be/')[1]?.split('?')[0] ?? ''
+    } else {
+      try { id = new URL(url).searchParams.get('v') ?? '' } catch (_e) {}
+    }
+    return { iframe: true, src: `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1` }
+  }
+  if (url.includes('vimeo.com')) {
+    const id = url.split('vimeo.com/').pop()?.split('?')[0] ?? ''
+    return { iframe: true, src: `https://player.vimeo.com/video/${id}?autoplay=1` }
+  }
+  return { iframe: false, src: url }
 }
 
 // ─── Section ────────────────────────────────────────────────────────────────
@@ -84,26 +109,61 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     backgroundImage,
     chairImage,
     separatorImage,
-    phrase,
-    preorderLine1,
-    preorderLine2,
-    limitedEditionLabel,
-    scrollLabel,
     gradientColor1,
     gradientColor2,
     logoData,
-    lh,
-    lv,
-    lv23,
-    lh23,
-    lhs23,
-    lv30,
-    lv40,
-    extraH,
-    pinMultiplier,
+    // Phrase
+    phrase,
+    phraseSize = 40,
+    phraseSizeMobile = 32,
+    phraseFamily = "'EB Garamond', serif",
+    phraseWeight = '500',
+    phraseSpacing = 0,
+    phraseAlign = 'left',
+    // Headline
+    preorderLine1,
+    preorderLine2,
+    titleSize = 112,
+    titleSizeMobile = 45,
+    titleFamily = "'EB Garamond', serif",
+    titleWeight = '500',
+    titleSpacing = 1,
+    titleAlign = 'left',
+    // Label
+    limitedEditionLabel,
+    labelSize = 54,
+    labelSizeMobile = 16,
+    labelFamily = "'EB Garamond', serif",
+    labelWeight = '500',
+    labelSpacing = 2,
+    labelAlign = 'left',
+    // Scroll
+    scrollLabel,
+    scrollSize = 10,
+    scrollSizeMobile = 10,
+    scrollWeight = '400',
+    scrollSpacing = 0,
+    // Layout
+    copyBottom = 18,
+    // Product image
+    chairWidth = 100,
+    chairPositionX = 'center',
+    chairObjectFit = 'cover',
+    separatorWidth = 65,
+    separatorAlign = 'left',
+    // Animation
+    logoScaleStart = 270,
+    logoScaleEnd = 0.3,
+    logoYEnd = -70,
+    // Video
+    showPlayButton = true,
+    videoUrl = '',
   } = props
 
   const parsedLogo = parseSvg(logoData)
+  const [isVideoOpen, setIsVideoOpen] = useState(false)
+  const embed = getVideoEmbed(videoUrl)
+  const isMobile = useIsMobile(700)
 
   const heroRef = useRef<HTMLElement>(null)
   const logoMaskRef = useRef<SVGSVGElement>(null)
@@ -111,145 +171,211 @@ function PrincipalBanner(props: PrincipalBannerProps) {
   const referenciaRef = useRef<HTMLDivElement>(null)
   const fadeOverlayRef = useRef<HTMLDivElement>(null)
   const overlayTitleRef = useRef<HTMLHeadingElement>(null)
-  const overlayImgRef = useRef<HTMLImageElement>(null)
+  const overlayImgRef = useRef<HTMLDivElement>(null)
+  const overlayImgBgRef = useRef<HTMLDivElement>(null)
   const overlayTextRef = useRef<HTMLParagraphElement>(null)
 
   useGSAP(
-    ()=>{
+    () => {
       gsap.registerPlugin(ScrollTrigger)
-      const container = heroRef.current!;
+      const container = heroRef.current!
 
       const tlIntro = gsap.timeline({
-        scrollTrigger:{
-          trigger:container,
-          start:"top top",
-          end:"top+=20% top",
-          scrub:true,
+        scrollTrigger: {
+          trigger: container,
+          start: 'top top',
+          end: 'top+=20% top',
+          scrub: true,
         },
       })
-      tlIntro.fromTo(".video-icon-container",
-        {
-          display:"block",
-          opacity:1
-        },
-        {
-          display:"none",
-          opacity:0
-        },
-        
+      tlIntro.fromTo(
+        '.video-icon-container',
+        { display: 'block', opacity: 1 },
+        { display: 'none', opacity: 0 },
       )
-      tlIntro.fromTo([".hero-img-logo",".hero-img-copy"] ,
-        {opacity:1},
-        {opacity:0},
-        "<"
+      tlIntro.fromTo(
+        ['.hero-img-logo', '.hero-img-copy'],
+        { opacity: 1 },
+        { opacity: 0 },
+        '<',
       )
 
       const tlSecond = gsap.timeline({
-        scrollTrigger:{ 
-          trigger:container,
-          start:"top+=40% top",
-          end:"top+=50% top",
-          scrub:true   
-        }
+        scrollTrigger: {
+          trigger: container,
+          start: 'top+=40% top',
+          end: 'top+=50% top',
+          scrub: true,
+        },
       })
-      
-      tlSecond.fromTo(".hero-principal-img",
-        {scale:'1'},{scale:'0.7'}
-      )
-      
-      
-      
-      tlSecond.fromTo(overlayTitleRef.current,
-        {backgroundImage:`linear-gradient(151deg,transparent 0%, ${gradientColor1} 99%, ${gradientColor2} 100%)`},
-        {backgroundImage:`linear-gradient(151deg,transparent 0%, ${gradientColor1} 2%, ${gradientColor2} 100%)`},"<"
-      )
 
-      tlSecond.fromTo(overlayTextRef.current,
-        {backgroundImage:`linear-gradient(151deg,transparent 0%, #fff 99%, #fff 100%)`},
-        {backgroundImage:`linear-gradient(151deg,transparent 0%,  #fff 2%, #fff 100%)`},"<"
-      )
-      
-      
-      tlSecond.fromTo([overlayTitleRef.current,overlayTextRef.current,overlayImgRef.current],
+      tlSecond.fromTo('.hero-principal-img', { scale: '1' }, { scale: '0.7' })
+
+      tlSecond.fromTo(
+        overlayTitleRef.current,
         {
-          scale:1.25,
-          opacity:0
+          backgroundImage: `linear-gradient(151deg,transparent 0%, ${gradientColor1} 99%, ${gradientColor2} 100%)`,
+          backgroundClip: 'text',
         },
         {
-          scale:1,
-          opacity:1
-        },"<"
+          backgroundImage: `linear-gradient(151deg,transparent 0%, ${gradientColor1} 2%, ${gradientColor2} 100%)`,
+        },
+        '<',
       )
-      
+
+      tlSecond.fromTo(
+        overlayTextRef.current,
+        { backgroundImage: `linear-gradient(151deg,transparent 0%, #fff 99%, #fff 100%)` },
+        { backgroundImage: `linear-gradient(151deg,transparent 0%, #fff 2%, #fff 100%)` },
+        '<',
+      )
+
+      tlSecond.fromTo(
+        overlayImgBgRef.current,
+        { backgroundImage: `linear-gradient(151deg,#050505 0%, transparent 99%, transparent 100%)` },
+        { backgroundImage: `linear-gradient(151deg,#050505 0%, transparent 2%, transparent 100%)` },
+        '<',
+      )
+
+      tlSecond.fromTo(
+        [overlayTitleRef.current, overlayTextRef.current, overlayImgRef.current],
+        { scale: 1.25, opacity: 0 },
+        { scale: 1, opacity: 1 },
+        '<',
+      )
+
       const tlSvg = gsap.timeline({
-        scrollTrigger:{
-          trigger:container,
-          start:"top+=10% top",
-          end:"top+=50% top",
-          scrub:true   
-        }
-      })
-      
-      tlSvg.fromTo(logoMaskRef.current,{scale:"270"},{scale:"0.3",y:"-70%" })
-      tlSvg.fromTo(fadeOverlayRef.current,
-        {opacity:0 ,background:"transparent"},
-        {opacity:1,background:`linear-gradient(151deg,${gradientColor1} 0%, ${gradientColor2} 100%)`,ease:"none"}
-        ,'<'
-      )
-
-      const tlRevert= gsap.timeline({
-        scrollTrigger:{
-          trigger:container,
-          start:"top+=50% top",
-          end:"top+=70% top",
-          scrub:true   
-        }
-
+        scrollTrigger: {
+          trigger: container,
+          start: 'top+=10% top',
+          end: 'top+=50% top',
+          scrub: true,
+        },
       })
 
-      tlRevert.to(fadeOverlayRef.current,
-        {background:`linear-gradient(151deg,${gradientColor2} 0%,#050505 4%, #050505 100%)`}
-
+      tlSvg.fromTo(
+        logoMaskRef.current,
+        { scale: logoScaleStart },
+        { scale: logoScaleEnd, y: `${logoYEnd}%` },
       )
-      tlRevert.to(overlayTitleRef.current,
-        {backgroundImage:`linear-gradient(151deg,${gradientColor2} 0%, #050505 98%, #050505 100%)`},"<"
+      tlSvg.fromTo(
+        fadeOverlayRef.current,
+        { opacity: 0, background: 'transparent' },
+        {
+          opacity: 1,
+          background: `linear-gradient(151deg,${gradientColor1} 0%, ${gradientColor2} 100%)`,
+          ease: 'none',
+        },
+        '<',
       )
 
-      tlRevert.to(overlayTextRef.current,
-        {backgroundImage:`linear-gradient(151deg, #fff 0%, #050505 98%, #050505 100%)`},"<"
+      const tlRevert = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: 'top+=70% top',
+          end: 'top+=80% top',
+          scrub: true,
+        },
+      })
 
+      tlRevert.fromTo(
+        fadeOverlayRef.current,
+        { background: `linear-gradient(151deg,${gradientColor1} 0%, ${gradientColor1} 99%, ${gradientColor1} 100%)` },
+        { background: `linear-gradient(151deg,${gradientColor1} 0%, #050505 2%, #050505 100%)` },
+        '<',
       )
-      
-
-    },{scope:heroRef}
+      tlRevert.fromTo(
+        overlayTitleRef.current,
+        { backgroundImage: `linear-gradient(151deg,${gradientColor1} 0%, ${gradientColor1} 99%, ${gradientColor1} 100%)` },
+        { backgroundImage: `linear-gradient(151deg,${gradientColor1} 0%, #05050500 2%, #05050500 100%)` },
+        '<',
+      )
+      tlRevert.fromTo(
+        overlayTextRef.current,
+        { backgroundImage: `linear-gradient(151deg,#fff 0%, #fff 99%, #fff 100%)` },
+        { backgroundImage: `linear-gradient(151deg,#fff 0%, transparent 2%, transparent 100%)` },
+        '<',
+      )
+      tlRevert.fromTo(
+        overlayImgBgRef.current,
+        { background: `linear-gradient(151deg,transparent 0%, transparent 75%, #050505 99%, #050505 100%)` },
+        {
+          background: `linear-gradient(151deg,transparent 0%,transparent 1%, #050505 35%, #050505 100%)`,
+          onComplete: () => {
+            gsap.fromTo(
+              overlayImgBgRef.current,
+              { background: `linear-gradient(151deg,transparent 0%,transparent 1%, #050505 35%, #050505 100%)` },
+              { background: `linear-gradient(151deg,transparent 0%,transparent 1%, #050505 2%, #050505 100%)` },
+            )
+          },
+        },
+        '<',
+      )
+    },
+    {
+      scope: heroRef,
+      dependencies: [gradientColor1, gradientColor2, logoScaleStart, logoScaleEnd, logoYEnd],
+    },
   )
 
-    useEffect(()=>{
-      console.log("parsedLogo",parsedLogo.viewBox)
-    },[parsedLogo])
+  useEffect(() => {
+    console.log('parsedLogo', parsedLogo.viewBox)
+  }, [parsedLogo])
+
+  // ── Derived styles ──────────────────────────────────────────────────────
+
+  const chairStyle: React.CSSProperties = {
+    width: `${chairWidth}vw`,
+    height: '100vh',
+    objectFit: chairObjectFit,
+    ...(chairPositionX === 'right'
+      ? { left: 'auto', right: 0 }
+      : chairPositionX === 'center'
+      ? { left: '50%', transform: 'translateX(-50%)' }
+      : { left: 0 }),
+  }
 
   return (
     <section className="hero relative z-[2] h-[600vh] overflow-hidden" ref={heroRef}>
+
       {/* Background + product image */}
       <div className="hero-img-container fixed top-0 left-0 w-[100vw] h-auto z-[2]">
         <img
           className="hero-fondo fixed top-0 left-0 w-full h-full"
           src={toUrl(backgroundImage)}
           alt=""
-          fetchPriority="high" 
+          fetchPriority="high"
         />
         <div className="hero-img-logo z-[5] flex items-center w-screen h-screen justify-center absolute">
-          <h3 className="frase-principal fixed top-[15vh] text-[2.5rem] w-[27rem] font-medium leading-[0.9] [word-spacing:4px] font-garamond max-[700px]:text-[2rem] max-[700px]:w-[85vw]">
+          <h3
+            className="frase-principal fixed top-[15vh] w-[27rem] leading-[0.9] [word-spacing:4px] max-[700px]:w-[85vw]"
+            style={{
+              fontSize: `${isMobile ? phraseSizeMobile : phraseSize}px`,
+              fontFamily: phraseFamily,
+              fontWeight: phraseWeight,
+              letterSpacing: `${phraseSpacing}px`,
+              textAlign: phraseAlign,
+            }}
+          >
             {phrase}
           </h3>
         </div>
         <img
-          className="hero-principal-img fixed top-0 left-0 w-full h-full max-[700px]:z-[3] min-[4000px]:self-center min-[4000px]:!w-[60%] min-[4000px]:![left:50%] min-[4000px]:![transform:translate(-50%,0)]"
+          className="hero-principal-img fixed top-0 max-[700px]:z-[3]"
           src={toUrl(chairImage)}
           alt=""
+          style={chairStyle}
         />
         <div className="hero-img-copy fixed bottom-[5%] left-1/2 -translate-x-1/2 [will-change:opacity] z-[5]">
-          <p className="text-[0.65rem]">{scrollLabel}</p>
+          <p
+            style={{
+              fontSize: `${isMobile ? scrollSizeMobile : scrollSize}px`,
+              fontWeight: scrollWeight,
+              letterSpacing: `${scrollSpacing}px`,
+            }}
+          >
+            {scrollLabel}
+          </p>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -264,21 +390,26 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       </div>
 
       {/* Play button */}
-      <div className="video-icon-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] z-[3] opacity-0 cursor-pointer max-[700px]:opacity-100">
-        <div className="video-play transition-transform duration-500 hover:scale-110">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2
-                17.5228 6.47715 22 12 22ZM10.6935 15.8458L15.4137 13.059C16.1954 12.5974 16.1954 11.4026
-                15.4137 10.941L10.6935 8.15419C9.93371 7.70561 9 8.28947 9 9.21316V14.7868C9 15.7105
-                9.93371 16.2944 10.6935 15.8458Z"
-              fill="#ffffff"
-            />
-          </svg>
+      {showPlayButton && videoUrl && (
+        <div
+          className="video-icon-container fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90px] h-[90px] z-[3] opacity-0 cursor-pointer max-[700px]:opacity-100"
+          onClick={() => setIsVideoOpen(true)}
+        >
+          <div className="video-play transition-transform duration-500 hover:scale-110">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2
+                  17.5228 6.47715 22 12 22ZM10.6935 15.8458L15.4137 13.059C16.1954 12.5974 16.1954 11.4026
+                  15.4137 10.941L10.6935 8.15419C9.93371 7.70561 9 8.28947 9 9.21316V14.7868C9 15.7105
+                  9.93371 16.2944 10.6935 15.8458Z"
+                fill="#ffffff"
+              />
+            </svg>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Colour wash overlay */}
       <div
@@ -306,7 +437,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
         </svg>
       </div>
 
-      {/* Invisible reference box used to compute logo position */}
+      {/* Reference box for logo position */}
       <div
         className="logo-container flex fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[250px] z-[2] justify-center items-center min-[2400px]:top-[18%] min-[2400px]:w-[350px] min-[2400px]:h-[350px] min-[3000px]:w-[600px] min-[3000px]:h-[600px]"
         ref={logoContainerRef}
@@ -315,31 +446,99 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       </div>
 
       {/* Reveal headline */}
-      <div className="overlay-copy fixed bottom-[18%] left-1/2 -translate-x-1/2 font-garamond font-medium z-[2] max-[700px]:w-full max-[700px]:top-[5%] max-[700px]:flex max-[700px]:flex-col max-[700px]:h-full max-[700px]:justify-center max-[700px]:items-center min-[2400px]:bottom-[20%] min-[3000px]:bottom-[25%] min-[4000px]:bottom-[15%]">
+      <div
+        className="overlay-copy fixed left-1/2 -translate-x-1/2 z-[2] max-[700px]:w-full max-[700px]:top-[5%] max-[700px]:flex max-[700px]:flex-col max-[700px]:h-full max-[700px]:justify-center max-[700px]:items-center min-[2400px]:bottom-[20%] min-[3000px]:bottom-[25%]"
+        style={{ bottom: `${copyBottom}%` }}
+      > 
         <h1
-          className="text-[7rem] leading-[0.9] font-medium tracking-[1px] text-transparent origin-[center_0%] max-[700px]:mt-[20vh] max-[700px]:text-[45px] min-[3000px]:text-[13rem] min-[4000px]:text-[9rem]"
+          className="leading-[0.9] text-transparent origin-[center_0%] max-[700px]:mt-[20vh]"
           ref={overlayTitleRef}
-          style={{backgroundClip:"text !important"}}
+          style={{
+            backgroundClip: 'text',
+            fontSize: `${isMobile ? titleSizeMobile : titleSize}px`,
+            fontFamily: titleFamily,
+            fontWeight: titleWeight,
+            letterSpacing: `${titleSpacing}px`,
+            textAlign: titleAlign,
+          }}
         >
           {preorderLine1}
           <br />
           {preorderLine2}
         </h1>
-        <img
-          className="w-[65%] py-4 opacity-0 max-[700px]:w-[80vw] max-[700px]:h-auto"
+        <div
+          className="relative py-4 opacity-0 max-[700px]:h-auto"
           ref={overlayImgRef}
-          src={toUrl(separatorImage)}
-          alt=""
-        />
+          style={{
+            width: `${separatorWidth}%`,
+            marginLeft: separatorAlign === 'right' ? 'auto' : separatorAlign === 'center' ? 'auto' : 0,
+            marginRight: separatorAlign === 'left' ? 'auto' : separatorAlign === 'center' ? 'auto' : 0,
+          }}
+        >
+          <img
+            className="w-full h-auto"
+            src={toUrl(separatorImage)}
+            alt=""
+          />
+          <div ref={overlayImgBgRef} className="absolute w-full h-full top-0 left-0" />
+        </div>
         <p
-          className="text-[54px] tracking-[2px] bg-clip-text text-transparent origin-[center_0%] max-[700px]:text-base min-[3000px]:text-[5rem] min-[4000px]:text-[4rem]"
-          ref={overlayTextRef} 
-          style={{backgroundClip:"text !important"}}
-
+          className="bg-clip-text text-transparent origin-[center_0%]"
+          ref={overlayTextRef}
+          style={{
+            backgroundClip: 'text',
+            fontSize: `${isMobile ? labelSizeMobile : labelSize}px`,
+            fontFamily: labelFamily,
+            fontWeight: labelWeight,
+            letterSpacing: `${labelSpacing}px`,
+            textAlign: labelAlign,
+          }}
         >
           {limitedEditionLabel}
         </p>
       </div>
+
+      {/* Video modal */}
+      {isVideoOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setIsVideoOpen(false)}
+        >
+          <div
+            className="relative w-[90vw] max-w-4xl aspect-video"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="absolute -top-10 right-0 flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
+              onClick={() => setIsVideoOpen(false)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Cerrar
+            </button>
+            {embed.iframe ? (
+              <iframe
+                src={embed.src}
+                className="w-full h-full rounded-lg"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={embed.src}
+                className="w-full h-full rounded-lg"
+                controls
+                autoPlay
+                muted
+                playsInline
+              />
+            )}
+          </div>
+        </div>
+      )}
+
     </section>
   )
 }
@@ -348,42 +547,89 @@ export default PrincipalBanner
 
 // ─── Weaverse schema ────────────────────────────────────────────────────────
 
+const FONT_OPTIONS = [
+  { value: "'EB Garamond', serif", label: 'Garamond' },
+  { value: "'Montserrat', sans-serif", label: 'Montserrat' },
+  { value: "Georgia, serif", label: 'Georgia' },
+  { value: "'Arial', sans-serif", label: 'Arial' },
+  { value: "system-ui, sans-serif", label: 'System UI' },
+]
+
+const WEIGHT_OPTIONS = [
+  { value: '300', label: 'Light (300)' },
+  { value: '400', label: 'Regular (400)' },
+  { value: '500', label: 'Medium (500)' },
+  { value: '600', label: 'Semibold (600)' },
+  { value: '700', label: 'Bold (700)' },
+  { value: '800', label: 'Extrabold (800)' },
+]
+
+const ALIGN_OPTIONS = [
+  { value: 'left', label: 'Left' },
+  { value: 'center', label: 'Center' },
+  { value: 'right', label: 'Right' },
+]
+
 export const schema = createSchema({
   type: 'principal-banner',
   title: 'Principal Banner',
   settings: [
     {
-      group: 'Content',
+      group: 'Hero Phrase',
+      inputs: [
+        { type: 'text', name: 'phrase', label: 'Text', defaultValue: 'Diseñado para los que exigen más.' },
+        { type: 'range', name: 'phraseSize', label: 'Font size – desktop (px)', defaultValue: 40, configs: { min: 12, max: 120, step: 1, unit: 'px' } },
+        { type: 'range', name: 'phraseSizeMobile', label: 'Font size – mobile (px)', defaultValue: 32, configs: { min: 10, max: 80, step: 1, unit: 'px' } },
+        { type: 'select', name: 'phraseFamily', label: 'Font family', configs: { options: FONT_OPTIONS }, defaultValue: "'EB Garamond', serif" },
+        { type: 'select', name: 'phraseWeight', label: 'Font weight', configs: { options: WEIGHT_OPTIONS }, defaultValue: '500' },
+        { type: 'range', name: 'phraseSpacing', label: 'Letter spacing (px)', defaultValue: 0, configs: { min: -5, max: 20, step: 0.5, unit: 'px' } },
+        { type: 'select', name: 'phraseAlign', label: 'Alignment', configs: { options: ALIGN_OPTIONS }, defaultValue: 'left' },
+      ],
+    },
+    {
+      group: 'Headline',
+      inputs: [
+        { type: 'text', name: 'preorderLine1', label: 'Line 1', defaultValue: 'Pre-order' },
+        { type: 'text', name: 'preorderLine2', label: 'Line 2', defaultValue: 'now' },
+        { type: 'range', name: 'titleSize', label: 'Font size – desktop (px)', defaultValue: 112, configs: { min: 24, max: 300, step: 2, unit: 'px' } },
+        { type: 'range', name: 'titleSizeMobile', label: 'Font size – mobile (px)', defaultValue: 45, configs: { min: 18, max: 120, step: 1, unit: 'px' } },
+        { type: 'select', name: 'titleFamily', label: 'Font family', configs: { options: FONT_OPTIONS }, defaultValue: "'EB Garamond', serif" },
+        { type: 'select', name: 'titleWeight', label: 'Font weight', configs: { options: WEIGHT_OPTIONS }, defaultValue: '500' },
+        { type: 'range', name: 'titleSpacing', label: 'Letter spacing (px)', defaultValue: 1, configs: { min: -5, max: 20, step: 0.5, unit: 'px' } },
+        { type: 'select', name: 'titleAlign', label: 'Alignment', configs: { options: ALIGN_OPTIONS }, defaultValue: 'left' },
+      ],
+    },
+    {
+      group: 'Edition Label',
+      inputs: [
+        { type: 'text', name: 'limitedEditionLabel', label: 'Text', defaultValue: 'Limited edition' },
+        { type: 'range', name: 'labelSize', label: 'Font size – desktop (px)', defaultValue: 54, configs: { min: 12, max: 200, step: 2, unit: 'px' } },
+        { type: 'range', name: 'labelSizeMobile', label: 'Font size – mobile (px)', defaultValue: 16, configs: { min: 10, max: 80, step: 1, unit: 'px' } },
+        { type: 'select', name: 'labelFamily', label: 'Font family', configs: { options: FONT_OPTIONS }, defaultValue: "'EB Garamond', serif" },
+        { type: 'select', name: 'labelWeight', label: 'Font weight', configs: { options: WEIGHT_OPTIONS }, defaultValue: '500' },
+        { type: 'range', name: 'labelSpacing', label: 'Letter spacing (px)', defaultValue: 2, configs: { min: -5, max: 20, step: 0.5, unit: 'px' } },
+        { type: 'select', name: 'labelAlign', label: 'Alignment', configs: { options: ALIGN_OPTIONS }, defaultValue: 'left' },
+      ],
+    },
+    {
+      group: 'Scroll Hint',
+      inputs: [
+        { type: 'text', name: 'scrollLabel', label: 'Text', defaultValue: 'Scroll to reveal' },
+        { type: 'range', name: 'scrollSize', label: 'Font size – desktop (px)', defaultValue: 10, configs: { min: 8, max: 24, step: 1, unit: 'px' } },
+        { type: 'range', name: 'scrollSizeMobile', label: 'Font size – mobile (px)', defaultValue: 10, configs: { min: 8, max: 24, step: 1, unit: 'px' } },
+        { type: 'select', name: 'scrollWeight', label: 'Font weight', configs: { options: WEIGHT_OPTIONS }, defaultValue: '400' },
+        { type: 'range', name: 'scrollSpacing', label: 'Letter spacing (px)', defaultValue: 0, configs: { min: -5, max: 20, step: 0.5, unit: 'px' } },
+      ],
+    },
+    {
+      group: 'Layout',
       inputs: [
         {
-          type: 'text',
-          name: 'phrase',
-          label: 'Hero phrase',
-          defaultValue: 'Diseñado para los que exigen más.',
-        },
-        {
-          type: 'text',
-          name: 'preorderLine1',
-          label: 'Headline – line 1',
-          defaultValue: 'Pre-order',
-        },
-        {
-          type: 'text',
-          name: 'preorderLine2',
-          label: 'Headline – line 2',
-          defaultValue: 'now',
-        },
-        {
-          type: 'text',
-          name: 'limitedEditionLabel',
-          label: 'Limited edition label',
-          defaultValue: 'Limited edition',
-        },
-        {
-          type: 'text',
-          name: 'scrollLabel',
-          label: 'Scroll hint',
-          defaultValue: 'Scroll to reveal',
+          type: 'range',
+          name: 'copyBottom',
+          label: 'Headline – bottom position (%)',
+          defaultValue: 18,
+          configs: { min: 0, max: 80, step: 1, unit: '%' },
         },
       ],
     },
@@ -396,124 +642,101 @@ export const schema = createSchema({
       ],
     },
     {
+      group: 'Product Image',
+      inputs: [
+        { type: 'range', name: 'chairWidth', label: 'Width (vw)', defaultValue: 100, configs: { min: 20, max: 200, step: 5, unit: 'vw' } },
+        { type: 'select', name: 'chairPositionX', label: 'Horizontal position', configs: { options: ALIGN_OPTIONS }, defaultValue: 'center' },
+        {
+          type: 'select',
+          name: 'chairObjectFit',
+          label: 'Object fit',
+          configs: { options: [{ value: 'cover', label: 'Cover' }, { value: 'contain', label: 'Contain' }, { value: 'fill', label: 'Fill' }] },
+          defaultValue: 'cover',
+        },
+        { type: 'range', name: 'separatorWidth', label: 'Separator width (%)', defaultValue: 65, configs: { min: 10, max: 100, step: 5, unit: '%' } },
+        { type: 'select', name: 'separatorAlign', label: 'Separator alignment', configs: { options: ALIGN_OPTIONS }, defaultValue: 'left' },
+      ],
+    },
+    {
       group: 'Colors',
       inputs: [
-        {
-          type: 'color',
-          name: 'gradientColor1',
-          label: 'Gradient – start',
-          defaultValue: '#997124',
-        },
-        {
-          type: 'color',
-          name: 'gradientColor2',
-          label: 'Gradient – end',
-          defaultValue: '#f1e2b7',
-        },
+        { type: 'color', name: 'gradientColor1', label: 'Gradient – start', defaultValue: '#997124' },
+        { type: 'color', name: 'gradientColor2', label: 'Gradient – end', defaultValue: '#f1e2b7' },
       ],
     },
     {
       group: 'Logo Mask',
       inputs: [
-        {
-          type: 'textarea',
-          name: 'logoData',
-          label: 'SVG completo o atributo d del path',
-          defaultValue: '',
-        },
-      ],
-    },
-    {
-      group: 'Logo Position',
-      inputs: [
-        {
-          type: 'range',
-          name: 'lh',
-          label: 'Horizontal divisor (mobile)',
-          defaultValue: 2,
-          configs: { min: 0.5, max: 10, step: 0.1 },
-        },
-        {
-          type: 'range',
-          name: 'lv',
-          label: 'Vertical offset',
-          defaultValue: 0,
-          configs: { min: -500, max: 500, step: 1, unit: 'px' },
-        },
-        {
-          type: 'range',
-          name: 'lv23',
-          label: 'Vertical offset ≥ 2300 px',
-          defaultValue: 0,
-          configs: { min: -500, max: 500, step: 1, unit: 'px' },
-        },
-        {
-          type: 'range',
-          name: 'lh23',
-          label: 'Horizontal offset ≥ 2300 px (landscape)',
-          defaultValue: 0,
-          configs: { min: -500, max: 500, step: 1, unit: 'px' },
-        },
-        {
-          type: 'range',
-          name: 'lhs23',
-          label: 'Horizontal offset ≥ 2300 px (tall)',
-          defaultValue: 0,
-          configs: { min: -500, max: 500, step: 1, unit: 'px' },
-        },
-        {
-          type: 'range',
-          name: 'lv30',
-          label: 'Vertical offset ≥ 3000 px',
-          defaultValue: 0,
-          configs: { min: -500, max: 500, step: 1, unit: 'px' },
-        },
-        {
-          type: 'range',
-          name: 'lv40',
-          label: 'Vertical offset ≥ 4000 px',
-          defaultValue: 0,
-          configs: { min: -500, max: 500, step: 1, unit: 'px' },
-        },
-        {
-          type: 'range',
-          name: 'extraH',
-          label: 'Extra horizontal nudge',
-          defaultValue: 0,
-          configs: { min: -200, max: 200, step: 1, unit: 'px' },
-        },
+        { type: 'textarea', name: 'logoData', label: 'SVG completo o atributo d del path', defaultValue: '' },
       ],
     },
     {
       group: 'Animation',
       inputs: [
-        {
-          type: 'range',
-          name: 'pinMultiplier',
-          label: 'Scroll pin height (× viewport)',
-          defaultValue: 2,
-          configs: { min: 1, max: 5, step: 0.5 },
-        },
+        { type: 'range', name: 'logoScaleStart', label: 'Logo scale – initial', defaultValue: 270, configs: { min: 50, max: 600, step: 10 } },
+        { type: 'range', name: 'logoScaleEnd', label: 'Logo scale – final', defaultValue: 0.3, configs: { min: 0.1, max: 5, step: 0.1 } },
+        { type: 'range', name: 'logoYEnd', label: 'Logo Y offset – final (%)', defaultValue: -70, configs: { min: -200, max: 0, step: 5, unit: '%' } },
+      ],
+    },
+    {
+      group: 'Video',
+      inputs: [
+        { type: 'switch', name: 'showPlayButton', label: 'Show play button', defaultValue: true },
+        { type: 'text', name: 'videoUrl', label: 'Video URL (YouTube, Vimeo o .mp4)', defaultValue: '' },
       ],
     },
   ],
   presets: {
+    // Phrase
     phrase: 'Diseñado para los que exigen más.',
+    phraseSize: 40,
+    phraseSizeMobile: 32,
+    phraseFamily: "'EB Garamond', serif",
+    phraseWeight: '500',
+    phraseSpacing: 0,
+    phraseAlign: 'left',
+    // Headline
     preorderLine1: 'Pre-order',
     preorderLine2: 'now',
+    titleSize: 112,
+    titleSizeMobile: 45,
+    titleFamily: "'EB Garamond', serif",
+    titleWeight: '500',
+    titleSpacing: 1,
+    titleAlign: 'left',
+    // Label
     limitedEditionLabel: 'Limited edition',
+    labelSize: 54,
+    labelSizeMobile: 16,
+    labelFamily: "'EB Garamond', serif",
+    labelWeight: '500',
+    labelSpacing: 2,
+    labelAlign: 'left',
+    // Scroll
     scrollLabel: 'Scroll to reveal',
+    scrollSize: 10,
+    scrollSizeMobile: 10,
+    scrollWeight: '400',
+    scrollSpacing: 0,
+    // Layout
+    copyBottom: 18,
+    // Product image
+    chairWidth: 100,
+    chairPositionX: 'center',
+    chairObjectFit: 'cover',
+    separatorWidth: 65,
+    separatorAlign: 'left',
+    // Colors
     gradientColor1: '#997124',
     gradientColor2: '#f1e2b7',
+    // Logo
     logoData: '',
-    lh: 2,
-    lv: 0,
-    lv23: 0,
-    lh23: 0,
-    lhs23: 0,
-    lv30: 0,
-    lv40: 0,
-    extraH: 0,
-    pinMultiplier: 2,
+    // Animation
+    logoScaleStart: 270,
+    logoScaleEnd: 0.3,
+    logoYEnd: -70,
+    // Video
+    showPlayButton: true,
+    videoUrl: '',
   },
 })

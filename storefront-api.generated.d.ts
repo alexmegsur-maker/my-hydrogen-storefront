@@ -3785,6 +3785,42 @@ export type ChairMetaobjectQuery = {
   }>;
 };
 
+export type SoftwareProductsQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+  handle: StorefrontAPI.Scalars['String']['input'];
+  first: StorefrontAPI.Scalars['Int']['input'];
+}>;
+
+export type SoftwareProductsQuery = {
+  collection?: StorefrontAPI.Maybe<{
+    products: {
+      nodes: Array<
+        Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
+          featuredImage?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Image, 'url' | 'altText'>
+          >;
+          software?: StorefrontAPI.Maybe<{
+            references?: StorefrontAPI.Maybe<{
+              nodes: Array<
+                | Pick<
+                    StorefrontAPI.GenericFile,
+                    'id' | 'url' | 'alt' | 'mimeType'
+                  >
+                | (Pick<StorefrontAPI.MediaImage, 'id'> & {
+                    image?: StorefrontAPI.Maybe<
+                      Pick<StorefrontAPI.Image, 'url' | 'altText'>
+                    >;
+                  })
+              >;
+            }>;
+          }>;
+        }
+      >;
+    };
+  }>;
+};
+
 export type FeaturedProductsQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
@@ -4105,6 +4141,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query ChairMetaobject($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "scroll_chair" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url width height altText }\n          }\n        }\n        references(first: 50) {\n          nodes {\n            ... on MediaImage {\n              image { url width height altText }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: ChairMetaobjectQuery;
     variables: ChairMetaobjectQueryVariables;
+  };
+  '#graphql\n  query softwareProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $first: Int!\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      products(first: $first) {\n        nodes {\n          id\n          title\n          handle\n          featuredImage {\n            url\n            altText\n          }\n          software: metafield(namespace: "custom", key: "software") {\n            references(first: 10) {\n              nodes {\n                ... on GenericFile {\n                  id\n                  url\n                  alt\n                  mimeType\n                }\n                ... on MediaImage {\n                  id\n                  image {\n                    url\n                    altText\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: SoftwareProductsQuery;
+    variables: SoftwareProductsQueryVariables;
   };
   '#graphql\n  query featuredProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $pageBy: Int = 16\n    $query: String\n  ) @inContext(country: $country, language: $language) {\n    featuredProducts: products(first: $pageBy, sortKey: BEST_SELLING, query: $query) {\n      nodes {\n        ...ProductCard\n      }\n    }\n  }\n\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    publishedAt\n    handle\n    vendor\n    tags\n    images(first: 50) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    nombre:metafield(namespace:"custom",key:"name_style_secret"){\n      id  \n      value\n    }\n    principalImg:metafield(namespace:"custom",key:"img_principal") {\n      key\n      value\n      reference{\n        ... on Media{\n          previewImage{\n            altText  \n            url\n          }\n        }\n      }\n    }\n    secondImg:metafield(namespace:"custom",key:"img_second") {\n      key\n      value\n      reference{\n        ... on Media{\n          previewImage{\n            altText  \n            url\n          }\n        }\n      }\n    }\n    tooltip:metafield(namespace:"custom",key:"tooltip"){\n      id\n      value\n    }\n    options {\n      ...ProductOption\n    }\n    badges: metafields(identifiers: [\n      { namespace: "custom", key: "best_seller" }\n    ]) {\n      key\n      namespace\n      value\n    }\n    priceRange {\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    selectedOrFirstAvailableVariant(\n      selectedOptions: []\n      ignoreUnknownOptions: true\n      caseInsensitiveMatch: true\n    ) {\n      ...ProductVariant\n    }\n    # Check if the product is a bundle\n    isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {\n      ...on ProductVariant {\n        requiresComponents\n      }\n    }\n  }\n  #graphql\n  fragment ProductOption on ProductOption {\n    name\n    optionValues {\n      name\n      firstSelectableVariant {\n        ...ProductVariant\n      }\n      swatch {\n        color\n        image {\n          previewImage {\n            url\n            altText\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    quantityAvailable\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    requiresComponents\n    components(first: 10) {\n      nodes {\n        productVariant {\n          id\n          title\n          product {\n            handle\n          }\n        }\n        quantity\n      }\n    }\n    groupedBy(first: 10) {\n      nodes {\n        id\n        title\n        product {\n          handle\n        }\n      }\n    }\n  }\n\n\n\n': {
     return: FeaturedProductsQuery;

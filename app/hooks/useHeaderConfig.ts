@@ -7,5 +7,5 @@ export function useColorTheme(){
     const color1 = elm.data?.color1 ? elm.data.color1 : "#ffffff"
     return{identifier:elm.data?.identifier,colors:elm.data?.color2 ? [color1,elm.data?.color2]:[color1]}
   })
-  return colores
+  return colores ?? []
 }

@@ -162,6 +162,8 @@ import * as NewsletterPopup from "~/sections/newsletter-popup"
 import * as DesistimientoForm from "~/sections/desistimiento"
 import * as ReturnForm from "~/sections/form-return"
 import * as PrincipalBanner from "~/sections/principal-banner"
+import * as SubBanner from "~/sections/sub-banner"
+import * as SoftwareDownloads from "~/sections/software-downloads"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -332,4 +334,6 @@ export const components: HydrogenComponent[] = [
   DesistimientoForm,
   ReturnForm,
   PrincipalBanner,
+  SubBanner,
+  SoftwareDownloads,
 ];

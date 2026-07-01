@@ -30,7 +30,7 @@ export default function   AuroraBackground  (props: AuroraProps){
       className={cn(
         "absolute inset-0 overflow-hidden pointer-events-none z-0 transition-opacity duration-[2000ms]",
         enableAurora ? "opacity-100" : "opacity-0"
-      )}
+      )} 
       style={{
         "--aurora-color-1": auroraColor1,
         "--aurora-color-2": auroraColor2,

@@ -42,7 +42,7 @@ export function ProductCardOptionsSecret({
 }) {
   const { pcardShowOptionValues, pcardOptionToShow, pcardMaxOptionValues } =
     useThemeSettings();
-  const colorsTheme = useColorTheme() 
+  const colorsTheme = useColorTheme() ?? []
   const { handle, options } = product;
   const { optionValues } =
     options.find(({ name }) => name === pcardOptionToShow) || {};
@@ -68,14 +68,16 @@ export function ProductCardOptionsSecret({
         ...selectorPaddingMargin("padding",variantStyles.vPaddingSelect,variantStyles.vPaddingText),
         ...selectorPaddingMargin("margin",variantStyles.vMarginSelect,variantStyles.vMarginText)
       }}
-      >
+      > 
       {optionValues
         ?.slice(0, pcardMaxOptionValues)
         .map(({ name, swatch, firstSelectableVariant }) => {
           if (asSwatch) {
-            const colorCheck = colorsTheme.find((e)=>e.identifier === name.toLowerCase())
-            const color = colorCheck.colors.length>1 ? `linear-gradient(125deg, ${colorCheck.colors[0]} 50%, ${colorCheck.colors[1]} 50%)`:colorCheck.colors[0]
-            const swatchColor = color ? color : "#fff";
+            const colorCheck = colorsTheme.find((e) => e.identifier === name.toLowerCase())
+            const customColor = colorCheck?.colors && colorCheck.colors.length > 1
+              ? `linear-gradient(125deg, ${colorCheck.colors[0]} 50%, ${colorCheck.colors[1]} 50%)`
+              : colorCheck?.colors?.[0]
+            const swatchColor = customColor ?? swatch?.color ?? '#fff';
             
             return (
               <Tooltip key={name}>
