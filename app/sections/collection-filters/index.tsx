@@ -12,6 +12,8 @@ import { ToolsBar } from "./tools-bar";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { Description } from "@radix-ui/react-dialog";
+import { translations } from "~/utils/translations";
+import { useLanguage } from "~/hooks/useLanguage";
 
 export interface CollectionFiltersData {
   showBreadcrumb: boolean;
@@ -32,6 +34,18 @@ export interface CollectionFiltersData {
   productsPerRowMobile: number;
   loadPrevText: string;
   loadMoreText: string;
+  pgnBg: string;
+  pgnColor: string;
+  pgnHoverBg: string;
+  pgnHoverColor: string;
+  pgnBorderColor: string;
+  pgnHoverBorderColor: string;
+  pgnBorderWidth: string;
+  pgnRadius: string;
+  pgnFontSize: string;
+  pgnFontFamily: string;
+  pgnFontWeight: string;
+  pgnPadding: string;
 }
 
 interface CollectionFiltersProps extends SectionProps, CollectionFiltersData {
@@ -146,6 +160,18 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     productsPerRowMobile,
     loadPrevText,
     loadMoreText,
+    pgnBg,
+    pgnColor,
+    pgnHoverBg,
+    pgnHoverColor,
+    pgnBorderColor,
+    pgnHoverBorderColor,
+    pgnBorderWidth,
+    pgnRadius,
+    pgnFontSize,
+    pgnFontFamily,
+    pgnFontWeight,
+    pgnPadding,
 
     bannerDesk,
     bannerMobile,
@@ -289,6 +315,10 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     toolMarginText,
     toolWeight,
   };
+
+  const lang= useLanguage()
+  const t= translations[lang] ?? translations["ES"]
+
   const isMobile = useIsMobile(600);
 
   const { collection, collections } = useLoaderData<
@@ -416,7 +446,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
                     }}
                     className=" underline-offset-2 opacity-70 hover:opacity-100 transition-opacity w-full"
                   >
-                    {descExpanded ? "Ver menos ↑" : "Ver más ↓"}
+                    {descExpanded ? t.loadPrev : t.loadMore}
                   </button>
                 )}
               </div>
@@ -460,6 +490,18 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
             gridSizeMobile={gridSizeMobile}
             loadPrevText={loadPrevText}
             loadMoreText={loadMoreText}
+            pgnBg={pgnBg}
+            pgnColor={pgnColor}
+            pgnHoverBg={pgnHoverBg}
+            pgnHoverColor={pgnHoverColor}
+            pgnBorderColor={pgnBorderColor}
+            pgnHoverBorderColor={pgnHoverBorderColor}
+            pgnBorderWidth={pgnBorderWidth}
+            pgnRadius={pgnRadius}
+            pgnFontSize={pgnFontSize}
+            pgnFontFamily={pgnFontFamily}
+            pgnFontWeight={pgnFontWeight}
+            pgnPadding={pgnPadding}
           />
         </div>
       </Section>
@@ -1039,6 +1081,97 @@ export const schema = createSchema({
           label: "Load more text",
           defaultValue: "Load more ↓",
           placeholder: "Load more ↓",
+        },
+        {
+          type: "heading",
+          label: "Estilos de botones",
+        },
+        {
+          type: "color",
+          name: "pgnBg",
+          label: "Fondo",
+          defaultValue: "transparent",
+        },
+        {
+          type: "color",
+          name: "pgnHoverBg",
+          label: "Fondo – hover",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          name: "pgnColor",
+          label: "Color de texto",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          name: "pgnHoverColor",
+          label: "Color de texto – hover",
+          defaultValue: "#ffffff",
+        },
+        {
+          type: "color",
+          name: "pgnBorderColor",
+          label: "Color de borde",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          name: "pgnHoverBorderColor",
+          label: "Color de borde – hover",
+          defaultValue: "#000000",
+        },
+        {
+          type: "text",
+          name: "pgnBorderWidth",
+          label: "Tamaño de borde",
+          defaultValue: "1px",
+          placeholder: "1px",
+        },
+        {
+          type: "text",
+          name: "pgnRadius",
+          label: "Border radius",
+          defaultValue: "0px",
+          placeholder: "0px",
+        },
+        {
+          type: "text",
+          name: "pgnFontSize",
+          label: "Tamaño de letra",
+          defaultValue: "0.875rem",
+          placeholder: "0.875rem",
+        },
+        {
+          type: "text",
+          name: "pgnFontFamily",
+          label: "Fuente",
+          defaultValue: "",
+          placeholder: "inherit",
+        },
+        {
+          type: "select",
+          name: "pgnFontWeight",
+          label: "Weight",
+          defaultValue: "400",
+          configs: {
+            options: [
+              { value: "300", label: "300 – Light" },
+              { value: "400", label: "400 – Regular" },
+              { value: "500", label: "500 – Medium" },
+              { value: "600", label: "600 – SemiBold" },
+              { value: "700", label: "700 – Bold" },
+              { value: "800", label: "800 – ExtraBold" },
+            ],
+          },
+        },
+        {
+          type: "text",
+          name: "pgnPadding",
+          label: "Padding",
+          defaultValue: "0.75rem 1.5rem",
+          placeholder: "0.75rem 1.5rem",
         },
       ],
     },

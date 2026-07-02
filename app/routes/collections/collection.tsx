@@ -82,7 +82,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     context.weaverse.loadPage({
       type: "COLLECTION",
       handle: collectionHandle,
-    }),
+    }).catch(() => null),
   ]);
 
   if (!collection) {
@@ -90,11 +90,12 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
       ("startCursor" in pagingVariables && pagingVariables.startCursor) ||
       ("endCursor" in pagingVariables && pagingVariables.endCursor)
     ) {
-      // remove the cursor from the url
+      // remove the cursor from the url — use return instead of throw
+      // so React Router can properly encode it as turbo-stream during client navigation
       const url = new URL(request.url);
       url.searchParams.delete("cursor");
       url.searchParams.delete("direction");
-      throw redirect(url.toString());
+      return redirect(url.toString());
     }
     throw new Response("collection", { status: 404 });
   }

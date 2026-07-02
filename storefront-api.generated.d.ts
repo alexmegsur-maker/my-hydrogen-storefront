@@ -3732,6 +3732,29 @@ export type ProductsByIdsQuery = {
   >;
 };
 
+export type ProductSoftwareQueryVariables = StorefrontAPI.Exact<{
+  handle: StorefrontAPI.Scalars['String']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type ProductSoftwareQuery = {
+  product?: StorefrontAPI.Maybe<{
+    software?: StorefrontAPI.Maybe<{
+      references?: StorefrontAPI.Maybe<{
+        nodes: Array<
+          | Pick<StorefrontAPI.GenericFile, 'id' | 'url' | 'alt' | 'mimeType'>
+          | (Pick<StorefrontAPI.MediaImage, 'id'> & {
+              image?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Image, 'url' | 'altText'>
+              >;
+            })
+        >;
+      }>;
+    }>;
+  }>;
+};
+
 export type OurTeamQueryVariables = StorefrontAPI.Exact<{
   type: StorefrontAPI.Scalars['String']['input'];
   first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
@@ -4133,6 +4156,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query productsByIds($country: CountryCode, $language: LanguageCode, $ids: [ID!]!)\n  @inContext(country: $country, language: $language) {\n    nodes(ids: $ids) {\n      ... on Product {\n        ...ProductCard\n      }\n    }\n  }\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    publishedAt\n    handle\n    vendor\n    tags\n    images(first: 50) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    nombre:metafield(namespace:"custom",key:"name_style_secret"){\n      id  \n      value\n    }\n    principalImg:metafield(namespace:"custom",key:"img_principal") {\n      key\n      value\n      reference{\n        ... on Media{\n          previewImage{\n            altText  \n            url\n          }\n        }\n      }\n    }\n    secondImg:metafield(namespace:"custom",key:"img_second") {\n      key\n      value\n      reference{\n        ... on Media{\n          previewImage{\n            altText  \n            url\n          }\n        }\n      }\n    }\n    tooltip:metafield(namespace:"custom",key:"tooltip"){\n      id\n      value\n    }\n    options {\n      ...ProductOption\n    }\n    badges: metafields(identifiers: [\n      { namespace: "custom", key: "best_seller" }\n    ]) {\n      key\n      namespace\n      value\n    }\n    priceRange {\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    selectedOrFirstAvailableVariant(\n      selectedOptions: []\n      ignoreUnknownOptions: true\n      caseInsensitiveMatch: true\n    ) {\n      ...ProductVariant\n    }\n    # Check if the product is a bundle\n    isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {\n      ...on ProductVariant {\n        requiresComponents\n      }\n    }\n  }\n  #graphql\n  fragment ProductOption on ProductOption {\n    name\n    optionValues {\n      name\n      firstSelectableVariant {\n        ...ProductVariant\n      }\n      swatch {\n        color\n        image {\n          previewImage {\n            url\n            altText\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    quantityAvailable\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    requiresComponents\n    components(first: 10) {\n      nodes {\n        productVariant {\n          id\n          title\n          product {\n            handle\n          }\n        }\n        quantity\n      }\n    }\n    groupedBy(first: 10) {\n      nodes {\n        id\n        title\n        product {\n          handle\n        }\n      }\n    }\n  }\n\n\n\n': {
     return: ProductsByIdsQuery;
     variables: ProductsByIdsQueryVariables;
+  };
+  '#graphql\n  query ProductSoftware(\n    $handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      software: metafield(namespace: "custom", key: "software") {\n        references(first: 20) {\n          nodes {\n            ... on GenericFile {\n              id\n              url\n              alt\n              mimeType\n            }\n            ... on MediaImage {\n              id\n              image {\n                url\n                altText\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: ProductSoftwareQuery;
+    variables: ProductSoftwareQueryVariables;
   };
   '#graphql\n  query OurTeam ($type: String!, $first: Int) {\n    metaobjects(type: $type, first: $first) {\n      nodes {\n        fields {\n          key\n          type\n          value\n          reference {\n            ... on MediaImage {\n              alt\n              image {\n                altText\n                url\n                width\n                height\n              }\n            }\n          }\n        }\n        handle\n        id\n        type\n      }\n    }\n  }\n': {
     return: OurTeamQuery;

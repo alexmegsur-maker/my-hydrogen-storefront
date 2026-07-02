@@ -198,13 +198,13 @@ function SubBanner(props: SubBannerProps) {
       <div style={containerStyle} >
 
         {/* Headline */}
-        <h3
+        <h3 
           ref={titleRef}
           style={{
             color: 'transparent',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
-            transformOrigin: 'center 0%',
+            transformOrigin: 'center 0%', 
             lineHeight: 1.1,
             fontSize: `${isMobile ? titleSizeMobile : titleSize}px`,
             fontFamily: titleFamily,

@@ -106,6 +106,7 @@ import * as FilterStep from "~/sections/main-product-j/filter-step"
 import * as FilterOption from "~/sections/main-product-j/filter-option"
 import * as CrossellProductJ from "~/sections/main-product-j/crossell"
 import * as BuyButtonsProductJ from "~/sections/main-product-j/buy-buttons"
+import * as ProductSoftwareDownload from "~/sections/main-product-j/software-download"
 import * as CardSelector from "~/sections/card-selector"
 import * as CardSimple from "~/components/card-simple"
 import * as SimpleProductGrid from "~/sections/simple-product-grid"
@@ -164,6 +165,8 @@ import * as ReturnForm from "~/sections/form-return"
 import * as PrincipalBanner from "~/sections/principal-banner"
 import * as SubBanner from "~/sections/sub-banner"
 import * as SoftwareDownloads from "~/sections/software-downloads"
+import * as SliderPlacas from "~/sections/slider-placas"
+import * as PlacaCard from "~/sections/slider-placas/placa-card"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -278,6 +281,7 @@ export const components: HydrogenComponent[] = [
   FilterOption,
   CrossellProductJ,
   BuyButtonsProductJ,
+  ProductSoftwareDownload,
   GroupButtons,
   CardSelector,
   CardSimple,
@@ -336,4 +340,6 @@ export const components: HydrogenComponent[] = [
   PrincipalBanner,
   SubBanner,
   SoftwareDownloads,
+  SliderPlacas,
+  PlacaCard,
 ];

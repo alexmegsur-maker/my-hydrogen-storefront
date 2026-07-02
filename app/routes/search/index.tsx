@@ -20,6 +20,8 @@ import { cn } from "~/utils/cn";
 import { getFeaturedProducts } from "~/utils/featured-products";
 import { NoResults } from "./no-results";
 import { PopularKeywords } from "./popular-searches";
+import { translations } from "~/utils/translations";
+import { useLanguage } from "~/hooks/useLanguage";
 
 export async function loader({
   request,
@@ -27,6 +29,10 @@ export async function loader({
 }: LoaderFunctionArgs) {
   const { searchParams } = new URL(request.url);
   const searchTerm = searchParams.get("q");
+
+  const lang= useLanguage()
+  const t= translations[lang] ?? translations["ES"]
+
   let products: SearchQuery["products"] = {
     nodes: [],
     pageInfo: null,
@@ -85,6 +91,8 @@ export default function Search() {
     useLoaderData<typeof loader>();
   const [searchKey, setSearchKey] = useState(searchTerm);
   const hasResults = products?.nodes?.length > 0;
+  const lang= useLanguage()
+  const t= translations[lang] ?? translations["ES"]
 
   useEffect(() => {
     setSearchKey(searchTerm);
@@ -132,7 +140,7 @@ export default function Search() {
                   <PreviousLink
                     className={cn("mx-auto", variants({ variant: "outline" }))}
                   >
-                    {isLoading ? "Loading..." : "↑ Load previous"}
+                    {isLoading ? t.loadingText : t.loadPrev}
                   </PreviousLink>
                 )}
                 <div
@@ -149,7 +157,7 @@ export default function Search() {
                   <NextLink
                     className={cn("mx-auto", variants({ variant: "outline" }))}
                   >
-                    {isLoading ? "Loading..." : "↓ Load more"}
+                    {isLoading ? t.loadingText : t.loadMore}
                   </NextLink>
                 )}
               </div>

@@ -137,8 +137,8 @@ export const schema = createSchema({
     "buy-buttons-productJ",
     "variant-secret",
     "selector-variant-secret",
-    "variant-by-product"
-    
+    "variant-by-product",
+    "product-software-download"
   ],
   limit:1,
   settings:[

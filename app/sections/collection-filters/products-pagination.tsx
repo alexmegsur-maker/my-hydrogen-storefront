@@ -1,7 +1,7 @@
 import { FunnelXIcon, XIcon } from "@phosphor-icons/react";
 import { Pagination } from "@shopify/hydrogen";
 import clsx from "clsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import {
   useLoaderData,
@@ -13,10 +13,10 @@ import type {
   CollectionQuery,
   ProductCardFragment,
 } from "storefront-api.generated";
-import Link, { variants } from "~/components/link";
+import Link from "~/components/link";
 import { ProductCard } from "~/components/product/product-card";
 import type { AppliedFilter } from "~/types/others";
-import { cn } from "~/utils/cn";
+import { translations } from "~/utils/translations";
 import {
   COMBINED_LISTINGS_CONFIGS,
   isCombinedListing,
@@ -83,14 +83,38 @@ export function ProductsPagination({
   loadPrevText,
   loadMoreText,
   cardStyles = null,
-  gap
+  gap,
+  pgnBg = "transparent",
+  pgnColor = "#000000",
+  pgnHoverBg = "#000000",
+  pgnHoverColor = "#ffffff",
+  pgnBorderColor = "#000000",
+  pgnHoverBorderColor = "#000000",
+  pgnBorderWidth = "1px",
+  pgnRadius = "0px",
+  pgnFontSize = "0.875rem",
+  pgnFontFamily = "",
+  pgnFontWeight = "400",
+  pgnPadding = "0.75rem 1.5rem",
 }: {
   gridSizeDesktop: number;
   gridSizeMobile: number;
   loadPrevText: string;
   loadMoreText: string;
-  cardStyles?:cardStylesProps 
-  gap?:number 
+  cardStyles?: cardStylesProps;
+  gap?: number;
+  pgnBg?: string;
+  pgnColor?: string;
+  pgnHoverBg?: string;
+  pgnHoverColor?: string;
+  pgnBorderColor?: string;
+  pgnHoverBorderColor?: string;
+  pgnBorderWidth?: string;
+  pgnRadius?: string;
+  pgnFontSize?: string;
+  pgnFontFamily?: string;
+  pgnFontWeight?: string;
+  pgnPadding?: string;
 }) {
   const { collection, appliedFilters } = useLoaderData<
     CollectionQuery & {
@@ -103,6 +127,29 @@ export function ProductsPagination({
   const { pathname } = location;
   const { ref, inView } = useInView();
 
+  const langPrefix = pathname.split('/')[1]
+  const langKey = ['en', 'de', 'fr', 'it'].includes(langPrefix) ? langPrefix.toUpperCase() : 'ES'
+  const t = translations[langKey] ?? translations['ES']
+  const prevLabel = loadPrevText || t.loadPrev
+  const moreLabel = loadMoreText || t.loadMore
+
+  const [hoverPrev, setHoverPrev] = useState(false)
+  const [hoverNext, setHoverNext] = useState(false)
+
+  const btnBase: React.CSSProperties = {
+    borderWidth: pgnBorderWidth,
+    borderStyle: 'solid',
+    borderRadius: pgnRadius,
+    padding: pgnPadding,
+    fontSize: pgnFontSize,
+    fontFamily: pgnFontFamily || undefined,
+    fontWeight: pgnFontWeight,
+    transition: 'background-color 0.2s, color 0.2s, border-color 0.2s',
+    display: 'inline-flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    textDecoration: 'none',
+  }
 
   return (
     <div className="grow space-y-6">
@@ -160,9 +207,17 @@ export function ProductsPagination({
             >
               {hasPreviousPage && (
                 <PreviousLink
-                  className={cn("mx-auto", variants({ variant: "outline" }))}
+                  className="mx-auto"
+                  style={{
+                    ...btnBase,
+                    backgroundColor: hoverPrev ? pgnHoverBg : pgnBg,
+                    color: hoverPrev ? pgnHoverColor : pgnColor,
+                    borderColor: hoverPrev ? pgnHoverBorderColor : pgnBorderColor,
+                  }}
+                  onMouseEnter={() => setHoverPrev(true)}
+                  onMouseLeave={() => setHoverPrev(false)}
                 >
-                  {isLoading ? "Loading..." : loadPrevText}
+                  {isLoading ? t.loadingText : prevLabel}
                 </PreviousLink>
               )}
               <ProductsLoadedOnScroll
@@ -176,9 +231,17 @@ export function ProductsPagination({
               />
               {hasNextPage && (
                 <NextLink
-                  className={cn("mx-auto", variants({ variant: "outline" }))}
+                  className="mx-auto"
+                  style={{
+                    ...btnBase,
+                    backgroundColor: hoverNext ? pgnHoverBg : pgnBg,
+                    color: hoverNext ? pgnHoverColor : pgnColor,
+                    borderColor: hoverNext ? pgnHoverBorderColor : pgnBorderColor,
+                  }}
+                  onMouseEnter={() => setHoverNext(true)}
+                  onMouseLeave={() => setHoverNext(false)}
                 >
-                  {isLoading ? "Loading..." : loadMoreText}
+                  {isLoading ? t.loadingText : moreLabel}
                 </NextLink>
               )}
             </div>

@@ -311,6 +311,18 @@ function PrincipalBanner(props: PrincipalBannerProps) {
         },
         '<',
       )
+      const tlEnd = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: 'top+=80% top',
+          end: 'top+=100% top',
+          scrub: true,
+        },
+      })
+
+      tlEnd.to( container,
+        {opacity:0,zIndex:-1}
+      )
     },
     {
       scope: heroRef,

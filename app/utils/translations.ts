@@ -4,6 +4,9 @@ export function interpolate(str: string, vars: Record<string, string | number>):
 
 export const translations: Record<string, Record<string, string>> = {
   ES: {
+    loadPrev: "↑ Cargar anteriores",
+    loadMore: "Cargar más ↓",
+    loadingText: "Cargando...",
     home: "Inicio",
     from: "Desde",
     addToSetup: "Comprar",
@@ -94,6 +97,9 @@ export const translations: Record<string, Record<string, string>> = {
   },
 
   EN: {
+    loadPrev: "↑ Load previous",
+    loadMore: "Load more ↓",
+    loadingText: "Loading...",
     home: "Home",
     from: "From",
     addToSetup: "Buy",
@@ -183,6 +189,9 @@ export const translations: Record<string, Record<string, string>> = {
     rma_detailDisclaimer: "*According to our withdrawal policy and applicable discounts, taxes and shipping costs.",
   },
   DE: {
+    loadPrev: "↑ Vorherige laden",
+    loadMore: "Mehr laden ↓",
+    loadingText: "Laden...",
     home: "Startseite",
     from: "Ab",
     addToSetup: "Kaufen",
@@ -273,6 +282,9 @@ export const translations: Record<string, Record<string, string>> = {
   },
 
   FR: {
+    loadPrev: "↑ Charger précédents",
+    loadMore: "Charger plus ↓",
+    loadingText: "Chargement...",
     home: "Accueil",
     from: "À partir de",
     addToSetup: "Acheter",
@@ -363,6 +375,9 @@ export const translations: Record<string, Record<string, string>> = {
   },
 
   IT: {
+    loadPrev: "↑ Carica precedenti",
+    loadMore: "Carica altro ↓",
+    loadingText: "Caricamento...",
     home: "Home",
     from: "Da",
     addToSetup: "Acquistare",
