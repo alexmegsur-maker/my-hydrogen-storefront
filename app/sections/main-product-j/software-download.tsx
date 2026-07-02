@@ -1,5 +1,6 @@
-import { createSchema, type ComponentLoaderArgs, type HydrogenComponentProps } from "@weaverse/hydrogen"
-import { useState } from "react"
+import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen"
+import { useEffect, useState } from "react"
+import { useFetcher, useLocation } from "react-router"
 import { Section } from "~/components/section"
 import { selectorPaddingMargin } from "~/utils/general"
 
@@ -11,8 +12,6 @@ interface SoftwareFile {
   name: string
   mimeType?: string | null
 }
-
-type LoaderData = { files: SoftwareFile[] }
 
 interface ProductSoftwareDownloadProps extends HydrogenComponentProps {
   title: string
@@ -67,48 +66,7 @@ interface ProductSoftwareDownloadProps extends HydrogenComponentProps {
   dbMarginText: string
 }
 
-// ─── GraphQL ───────────────────────────────────────────────────────────────
-
-const SOFTWARE_METAFIELD_QUERY = `#graphql
-  query ProductSoftware(
-    $handle: String!
-    $country: CountryCode
-    $language: LanguageCode
-  ) @inContext(country: $country, language: $language) {
-    product(handle: $handle) {
-      software: metafield(namespace: "custom", key: "software") {
-        references(first: 20) {
-          nodes {
-            ... on GenericFile {
-              id
-              url
-              alt
-              mimeType
-            }
-            ... on MediaImage {
-              id
-              image {
-                url
-                altText
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`
-
 // ─── Helpers ───────────────────────────────────────────────────────────────
-
-function getFileName(url: string): string {
-  try {
-    const segments = new URL(url).pathname.split("/")
-    return decodeURIComponent(segments[segments.length - 1] ?? "archivo")
-  } catch {
-    return url.split("/").pop() ?? "archivo"
-  }
-}
 
 function getMimeLabel(mimeType?: string | null): string {
   if (!mimeType) return "FILE"
@@ -118,44 +76,6 @@ function getMimeLabel(mimeType?: string | null): string {
   if (mimeType.includes("image")) return "IMG"
   if (mimeType.includes("video")) return "VID"
   return "FILE"
-}
-
-function parseNodes(nodes: any[]): SoftwareFile[] {
-  return nodes
-    .map((node: any): SoftwareFile | null => {
-      if (node?.url) {
-        return { id: node.id, url: node.url, name: node.alt || getFileName(node.url), mimeType: node.mimeType ?? null }
-      }
-      if (node?.image?.url) {
-        return { id: node.id, url: node.image.url, name: node.image.altText || getFileName(node.image.url), mimeType: "image/*" }
-      }
-      return null
-    })
-    .filter((f): f is SoftwareFile => f !== null)
-}
-
-// ─── Loader ────────────────────────────────────────────────────────────────
-
-export const loader = async ({ weaverse }: ComponentLoaderArgs<ProductSoftwareDownloadProps>): Promise<LoaderData> => {
-  const { country, language } = weaverse.storefront.i18n
-
-  // Extract product handle from the page URL  (/products/:handle or /en/products/:handle)
-  const url = new URL(weaverse.request.url)
-  const segments = url.pathname.split("/").filter(Boolean)
-  const prodIndex = segments.indexOf("products")
-  const handle = prodIndex !== -1 ? segments[prodIndex + 1] : null
-
-  if (!handle) return { files: [] }
-
-  try {
-    const result = await weaverse.storefront.query(SOFTWARE_METAFIELD_QUERY, {
-      variables: { handle, country, language },
-    })
-    const nodes: any[] = result?.product?.software?.references?.nodes ?? []
-    return { files: parseNodes(nodes) }
-  } catch {
-    return { files: [] }
-  }
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────
@@ -173,13 +93,25 @@ export default function ProductSoftwareDownload(props: ProductSoftwareDownloadPr
     dbColor, dbHoverColor, dbBgColor, dbHoverBgColor, dbBorderColor,
     dbSize, dbRadius, dbLetter, dbUpper, dbFamily, dbWeight,
     dbPaddingSelect, dbPaddingText, dbMarginSelect, dbMarginText,
-    loaderData,
     ...rest
   } = props
 
-  const files: SoftwareFile[] = (loaderData as LoaderData)?.files ?? []
+  const { pathname } = useLocation()
+  const fetcher = useFetcher<{ files: SoftwareFile[] }>()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
+  useEffect(() => {
+    const segments = pathname.split("/").filter(Boolean)
+    const prodIndex = segments.indexOf("products")
+    const handle = prodIndex !== -1 ? segments[prodIndex + 1] : null
+    if (handle) {
+      fetcher.load(`/api/product-software?handle=${handle}`)
+    }
+  }, [pathname])
+
+  const files: SoftwareFile[] = fetcher.data?.files ?? []
+
+  if (fetcher.state === "loading" || (!fetcher.data && fetcher.state === "idle")) return null
   if (!files.length) return null
 
   return (

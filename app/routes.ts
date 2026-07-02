@@ -40,6 +40,7 @@ export default hydrogenRoutes([
       route("extension-garantia", "routes/api/extension-garantia.ts"),
       route("products", "routes/api/products.ts"),
       route("product-secret", "routes/api/product-secret.ts"),
+      route("product-software", "routes/api/product-software.ts"),
       route(":version/graphql.json", "routes/api/graphql.json.ts"),
       route("product/:productHandle/reviews?", "routes/api/product.ts"),
       route("reviews", "routes/api/reviews.ts"),
