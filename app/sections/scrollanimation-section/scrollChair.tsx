@@ -13,6 +13,7 @@ import {
   useItemInstance,
 } from "@weaverse/hydrogen";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -254,6 +255,8 @@ export default function ChairSection(props: ChairSectionProps) {
   const imagenes     = loaderData?.imagenes     ?? [];
   const imagenes_360 = loaderData?.imagenes_360 ?? [];
 
+  const isMobile=useIsMobile(700)
+
   const numImg = imagenes_360.length;
 
   const imgsPreloadRef = useRef<HTMLImageElement[]>([]);
@@ -334,8 +337,6 @@ export default function ChairSection(props: ChairSectionProps) {
     () => {
       gsap.registerPlugin(ScrollTrigger)
       if (!chairContainer.current) return;
-
-      const isMobile = window.innerWidth < 700;
 
       // SUPERPOSICIÓN — el "start" se adelanta según el índice de la sección.
       //
@@ -520,10 +521,11 @@ export default function ChairSection(props: ChairSectionProps) {
           left: 0,
           width: "100%",
           transform: last ? "unset":`translate(0, 120vh)`, 
-          display: "grid",
+          display: isMobile?"flex":"grid",
+          flexDirection:isMobile?"column":"unset",
           gridTemplateColumns: "repeat(12,1fr)",
-          gap: "25px",
-          paddingInline: "13vw",
+          gap: isMobile?"0px":"25px",
+          paddingInline: isMobile ? "5%":"13vw",
           paddingTop:last ? "100vh":"unset",
           direction:changePosition?"rtl":"ltr"
         }}
@@ -534,7 +536,8 @@ export default function ChairSection(props: ChairSectionProps) {
           style={{
             gridColumn: "span 6",
             gap: "25px",
-            display: "grid",
+            display: isMobile?"flex":"grid",
+            flexDirection:isMobile?"column":"unset",
             gridTemplateColumns: "repeat(6,1fr)",
           }}
         >

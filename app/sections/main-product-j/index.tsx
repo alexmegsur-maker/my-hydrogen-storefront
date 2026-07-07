@@ -91,6 +91,7 @@ if(productStore){
           mediaVideos={currentProduct?.listVideos || []}
         />
         <div 
+          data-lenis-prevent
           className="container-info relative w-full overflow-y-auto"
           style={{
             background:color
@@ -107,7 +108,7 @@ if(productStore){
           >
             <Link to={"/"} onClick={ restoreHeaderFooter}>← {t.home}</Link>
           </div>
-          <div
+          <div data-lenis-prevent
             style={{ 
               padding:!isMobile ? "3rem 4rem 0 4rem":"1.5rem 1.5rem 0 1.5rem"
             }}>

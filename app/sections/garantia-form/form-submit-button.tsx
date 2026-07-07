@@ -65,6 +65,7 @@ function FormSubmitButton(props: FormSubmitButtonProps) {
 
   return (
     <>
+      <span className="text-[10px] text-stone-500">* Al enviar el formulario se suscribira a la newsletter para poder recibir actualizaciones sobre su solicitud de extensión de garantia</span>
       <button
         {...rest}
         type="submit"

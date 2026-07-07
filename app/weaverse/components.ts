@@ -167,6 +167,7 @@ import * as SubBanner from "~/sections/sub-banner"
 import * as SoftwareDownloads from "~/sections/software-downloads"
 import * as SliderPlacas from "~/sections/slider-placas"
 import * as PlacaCard from "~/sections/slider-placas/placa-card"
+import * as Anillo360 from "~/sections/anillo-360"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -342,4 +343,5 @@ export const components: HydrogenComponent[] = [
   SoftwareDownloads,
   SliderPlacas,
   PlacaCard,
+  Anillo360,
 ];

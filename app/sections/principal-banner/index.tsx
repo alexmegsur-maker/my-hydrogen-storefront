@@ -340,15 +340,13 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     width: `${chairWidth}vw`,
     height: '100vh',
     objectFit: chairObjectFit,
-    ...(chairPositionX === 'right'
-      ? { left: 'auto', right: 0 }
-      : chairPositionX === 'center'
-      ? { left: '50%', transform: 'translateX(-50%)' }
-      : { left: 0 }),
+    left:isMobile?0:"50%",
+    transform:isMobile?"unset":"translateX(-50%)",
+    
   }
 
   return (
-    <section className="hero relative z-[2] h-[600vh] overflow-hidden" ref={heroRef}>
+    <section className="hero relative z-[2] h-[400vh] overflow-hidden" ref={heroRef}>
 
       {/* Background + product image */}
       <div className="hero-img-container fixed top-0 left-0 w-[100vw] h-auto z-[2]">
@@ -366,7 +364,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
               fontFamily: phraseFamily,
               fontWeight: phraseWeight,
               letterSpacing: `${phraseSpacing}px`,
-              textAlign: phraseAlign,
+              textAlign: isMobile?"center": phraseAlign,
             }}
           >
             {phrase}
@@ -461,7 +459,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       <div
         className="overlay-copy fixed left-1/2 -translate-x-1/2 z-[2] max-[700px]:w-full max-[700px]:top-[5%] max-[700px]:flex max-[700px]:flex-col max-[700px]:h-full max-[700px]:justify-center max-[700px]:items-center min-[2400px]:bottom-[20%] min-[3000px]:bottom-[25%]"
         style={{ bottom: `${copyBottom}%` }}
-      > 
+      >
         <h1
           className="leading-[0.9] text-transparent origin-[center_0%] max-[700px]:mt-[20vh]"
           ref={overlayTitleRef}
