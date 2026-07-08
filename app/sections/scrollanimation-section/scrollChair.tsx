@@ -475,8 +475,7 @@ export default function ChairSection(props: ChairSectionProps) {
           position: "sticky",
           top: 0,
           inset: 0,
-          width: "100vw",
-          // FIX: 100vh (no 200vh)
+          width: "100%",
           height: "100vh",
         }}
       >
@@ -500,7 +499,7 @@ export default function ChairSection(props: ChairSectionProps) {
           ref={overlayCanvas}
           style={{
             position: "absolute",
-            width: "100vw",
+            width: "100%",
             height: "100vh",
             top: 0,
             left: 0,
@@ -559,7 +558,7 @@ export default function ChairSection(props: ChairSectionProps) {
             }}
           >
             {titleImgUrl ? (
-              <img src={titleImgUrl} alt={titulo || "titulo"} />
+              <img src={titleImgUrl} alt={titulo || "titulo"} style={{ maxWidth: '100%', height: 'auto' }} />
             ) : (
               <h2>{titulo}</h2>
             )}
@@ -642,7 +641,7 @@ export default function ChairSection(props: ChairSectionProps) {
                 img={img2}
                 estilo={{
                   aspectRatio: "1/1",
-                  width: "calc(100% + 13vw)",
+                  width: isMobile ? "100%" : "calc(100% + 13vw)",
                   position: "relative",
                   border: "0 solid transparent",
                   transition:

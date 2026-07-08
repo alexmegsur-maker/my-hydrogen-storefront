@@ -285,7 +285,7 @@ function Anillo360(props: Anillo360Props) {
       className="relative w-full overflow-hidden"
     >
       {/* Canvas container */}
-      <div className="relative w-full h-screen">
+      <div className="relative w-full h-screen overflow-hidden">
         <canvas
           ref={canvasRef}
           className="absolute top-0 left-0 opacity-0"

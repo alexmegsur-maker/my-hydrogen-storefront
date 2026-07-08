@@ -159,6 +159,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     ]).then(([gsap, ScrollTrigger]) => {
       gsap.registerPlugin(ScrollTrigger);
     });
+
+    const ts = document.createElement('script');
+    ts.src = 'https://widgets.trustedshops.com/js/X40A412C106D4EA9064551BEBCBFAD59D.js';
+    ts.async = true;
+    document.body.appendChild(ts);
+    return () => { document.body.removeChild(ts); };
   }, []);
 
   if (
@@ -215,7 +221,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
           } as CSSProperties
         }
-        className="bg-background text-body antialiased"
+        className="bg-background text-body antialiased overflow-x-hidden"
       >
 
         <noscript>

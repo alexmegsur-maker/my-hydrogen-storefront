@@ -180,7 +180,7 @@ function SubBanner(props: SubBannerProps) {
   // ── Derived styles ──────────────────────────────────────────────────────
 
   const containerStyle: React.CSSProperties = isMobile
-    ? { position: 'absolute', top: '50%', left: 0, width: '100vw', transform: 'translateY(-50%)', zIndex: 2 }
+    ? { position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', zIndex: 2 }
     : { position: 'absolute', top: `${contentTop}%`, left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2 }
 
   const separatorMargin: React.CSSProperties = {
@@ -211,7 +211,7 @@ function SubBanner(props: SubBannerProps) {
             fontWeight: titleWeight,
             letterSpacing: `${titleSpacing}px`,
             textAlign: titleAlign,
-            width: isMobile ? '90vw' : 'max-content',
+            width: isMobile ? '90vw' : 'min(max-content, 90vw)',
             paddingInline: isMobile ? 0 : '5rem',
           }}
         >

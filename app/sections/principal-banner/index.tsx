@@ -340,8 +340,8 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     width: `${chairWidth}vw`,
     height: '100vh',
     objectFit: chairObjectFit,
-    left:isMobile?0:"50%",
-    transform:isMobile?"unset":"translateX(-50%)",
+    left:"50%",
+    transform:"translateX(-50%)",
     
   }
 

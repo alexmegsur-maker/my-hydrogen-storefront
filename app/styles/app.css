@@ -296,6 +296,11 @@ html{
     scrollbar-gutter: stable;
   }
 
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
   button,
   a {
     @apply cursor-pointer;
