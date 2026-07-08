@@ -47,6 +47,8 @@ export function getWeaverseCsp(
       "'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='",
       "https://connect.facebook.net",
       "https://www.facebook.com",
+      "*.trustedshops.com",
+      "*.etrusted.com",
     ],
     styleSrc: [
       ...weaverseHosts,
@@ -86,6 +88,8 @@ export function getWeaverseCsp(
       "https://*.google.com",
       "https://www.facebook.com",
       "https://*.facebook.net",
+      "*.trustedshops.com",
+      "*.etrusted.com",
       ...weaverseHosts,
     ],
     frameSrc: [
@@ -113,6 +117,8 @@ export function getWeaverseCsp(
       "*.myshopify.com",
       "https://images.secretlab.co",
       "https://cdn.jsdelivr.net",
+      "*.trustedshops.com",
+      "*.etrusted.com",
     ]
   };
 
