@@ -4,7 +4,7 @@ declare global {
   }
 }
 
-function cleanItemId(id: string): string {
+export function cleanItemId(id: string): string {
   return id.split("/").pop() ?? id;
 }
 

@@ -137,6 +137,7 @@ export const PRODUCT_QUERY = `#graphql
       variants(first:10){
         nodes{
           id
+          sku
           quantityAvailable
           availableForSale
           currentlyNotInStock

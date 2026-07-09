@@ -1,11 +1,6 @@
 import { useEffect, useRef } from "react";
+import { cleanItemId } from "~/utils/dataLayer";
 import { useCurrentProduct } from "~/stores/currentProduct";
-
-declare global {
-  interface Window {
-    dataLayer: Record<string, unknown>[];
-  }
-}
 
 export function useGA4ProductView() {
   const currentProduct = useCurrentProduct((s) => s.currentProduct);
@@ -25,10 +20,10 @@ export function useGA4ProductView() {
         value: Number(currentProduct.selectedVariant?.price?.amount ?? 0),
         items: [
           {
-            item_id: currentProduct.id,
+            item_id: cleanItemId(currentProduct.id),
             item_name: currentProduct.title,
             item_brand: currentProduct.vendor,
-            item_variant: currentProduct.selectedVariant?.id ?? "",
+            item_variant: cleanItemId(currentProduct.selectedVariant?.id ?? ""),
             item_variant_sku: currentProduct.selectedVariant?.sku ?? "",
             price: Number(currentProduct.selectedVariant?.price?.amount ?? 0),
             quantity: 1,
