@@ -114,6 +114,7 @@ export default function Product() {
           item_id: selectedVariant.sku || selectedVariant.id,
           item_name: product.title,
           item_variant: selectedVariant.title,
+          item_sku: product.sku,
           item_brand: "Phoenix Chairs",
           price: parseFloat(selectedVariant.price?.amount || '0'),
           quantity: 1,

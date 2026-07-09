@@ -37,6 +37,10 @@ export default defineConfig({
       ],
     },
     allowedHosts: true,
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
   },
   ssr: {
     optimizeDeps: {

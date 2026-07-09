@@ -58,20 +58,20 @@ interface PrincipalBannerProps extends HydrogenComponentProps {
   chairObjectFit: 'cover' | 'contain' | 'fill'
   separatorWidth: number
   separatorAlign: 'left' | 'center' | 'right'
-  // Animation
+  // Animation — desktop
   logoScaleStart: number
   logoScaleEnd: number
+  logoXStart: number
+  logoXEnd: number
   logoYStart: number
   logoYEnd: number
-  // Animation logo
+  // Animation — mobile
   mbLogoScaleStart: number
   mbLogoScaleEnd: number
-  mbLogoYStart: number
-  mbLogoYEnd: number
-  logoXStart: number   // % horizontal del punto focal inicial (50 = centro)
-  logoXEnd: number     // desplazamiento X final en %
   mbLogoXStart: number
   mbLogoXEnd: number
+  mbLogoYStart: number
+  mbLogoYEnd: number
   // Video
   showPlayButton: boolean
   videoUrl: string
@@ -110,6 +110,19 @@ function getVideoEmbed(url: string): { iframe: boolean; src: string } {
     return { iframe: true, src: `https://player.vimeo.com/video/${id}?autoplay=1` }
   }
   return { iframe: false, src: url }
+}
+
+/**
+ * Parses a viewBox string ("minX minY width height") into numbers.
+ * Falls back to a sane default box if parsing fails.
+ */
+function parseViewBox(viewBox: string): { minX: number; minY: number; width: number; height: number } {
+  const parts = viewBox.split(/\s+/).map(Number)
+  if (parts.length === 4 && parts.every((n) => !Number.isNaN(n))) {
+    const [minX, minY, width, height] = parts
+    return { minX, minY, width, height }
+  }
+  return { minX: 0, minY: 0, width: 100, height: 100 }
 }
 
 // ─── Section ────────────────────────────────────────────────────────────────
@@ -161,20 +174,20 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     chairObjectFit = 'cover',
     separatorWidth = 65,
     separatorAlign = 'left',
-    // Animation
+    // Animation — desktop
     logoScaleStart = 270,
     logoScaleEnd = 0.3,
-    logoYStart = 70,
-    logoYEnd = -70,
     logoXStart = 50,
     logoXEnd = 0,
-    //Animation mb
+    logoYStart = 70,
+    logoYEnd = -70,
+    // Animation — mobile
     mbLogoScaleStart = 270,
     mbLogoScaleEnd = 0.3,
-    mbLogoYStart = 60,
-    mbLogoYEnd = -70,
     mbLogoXStart = 50,
     mbLogoXEnd = 0,
+    mbLogoYStart = 60,
+    mbLogoYEnd = -70,
     // Video
     showPlayButton = true,
     videoUrl = '',
@@ -194,6 +207,16 @@ function PrincipalBanner(props: PrincipalBannerProps) {
   const overlayImgRef = useRef<HTMLDivElement>(null)
   const overlayImgBgRef = useRef<HTMLDivElement>(null)
   const overlayTextRef = useRef<HTMLParagraphElement>(null)
+
+  // Resolve desktop/mobile animation values once per render
+  const sStart = isMobile ? mbLogoScaleStart : logoScaleStart
+  const sEnd = isMobile ? mbLogoScaleEnd : logoScaleEnd
+  const xStart = isMobile ? mbLogoXStart : logoXStart
+  const xEnd = isMobile ? mbLogoXEnd : logoXEnd
+  const yStart = isMobile ? mbLogoYStart : logoYStart
+  const yEnd = isMobile ? mbLogoYEnd : logoYEnd
+
+
 
   useGSAP(
     () => {
@@ -264,6 +287,9 @@ function PrincipalBanner(props: PrincipalBannerProps) {
         '<',
       )
 
+
+      const logoAnim = { p: 0 }
+
       const tlSvg = gsap.timeline({
         scrollTrigger: {
           trigger: container,
@@ -272,30 +298,33 @@ function PrincipalBanner(props: PrincipalBannerProps) {
           scrub: true,
         },
       })
-      const sStart = isMobile ? mbLogoScaleStart : logoScaleStart
-      const sEnd   = isMobile ? mbLogoScaleEnd   : logoScaleEnd
-      const xStart = isMobile ? mbLogoXStart     : logoXStart
-      const yStart = isMobile ? mbLogoYStart     : logoYStart
-      const xEnd   = isMobile ? mbLogoXEnd       : logoXEnd
-      const yEnd   = isMobile ? mbLogoYEnd       : logoYEnd
 
       tlSvg.fromTo(
-        logoMaskRef.current,
+        logoAnim,
+        { p: 0 },
         {
-          scale: sStart,
-          xPercent: 0,
-          yPercent: 0,
-          // Posición INICIAL: punto focal del zoom (en % del viewport)
-          transformOrigin: `${xStart}% ${yStart}%`,
-        },
-        {
-          scale: sEnd,
-          // Posición FINAL: desplazamiento en % 
-          xPercent: xEnd,
-          yPercent: yEnd,
+          p: 1,
           ease: 'none',
+          onUpdate: () => {
+            const el = logoMaskRef.current
+            if (!el) return
+            const t = logoAnim.p
+            const s = sStart + (sEnd - sStart) * t
+            const y = yStart + (yEnd-yStart)*t
+            el.setAttribute('transform', `translate(0,${y}%) scale(${s})`)
+            el.setAttribute('transform-origin', `center center`)
+          },
         },
       )
+      // tlSvg.fromTo(
+      //   logoMaskRef.current,
+      //   { y: `${yStart}%` },
+      //   {
+      //     y: `${yEnd}%`,
+      //     ease: 'none',
+       
+      //   },'<'
+      // )
       tlSvg.fromTo(
         fadeOverlayRef.current,
         { opacity: 0, background: 'transparent' },
@@ -358,13 +387,23 @@ function PrincipalBanner(props: PrincipalBannerProps) {
         },
       })
 
-      tlEnd.to( container,
-        {opacity:0,zIndex:-1}
-      )
+      tlEnd.to(container, {
+        opacity: 0,
+        zIndex: -1,
+      })
     },
     {
       scope: heroRef,
-      dependencies: [gradientColor1, gradientColor2, logoScaleStart, logoScaleEnd, logoYEnd,mbLogoScaleStart,isMobile,mbLogoScaleEnd,mbLogoYStart,mbLogoYEnd],
+      dependencies: [
+        gradientColor1,
+        gradientColor2,
+        isMobile,
+        sStart,
+        yStart,
+        sEnd,
+        xEnd,
+        yEnd,
+      ],
     },
   )
 
@@ -378,9 +417,8 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     width: `${chairWidth}vw`,
     height: '100vh',
     objectFit: chairObjectFit,
-    left:"50%",
-    transform:"translateX(-50%)",
-    
+    left: '50%',
+    transform: 'translateX(-50%)',
   }
 
   return (
@@ -402,7 +440,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
               fontFamily: phraseFamily,
               fontWeight: phraseWeight,
               letterSpacing: `${phraseSpacing}px`,
-              textAlign: isMobile?"center": phraseAlign,
+              textAlign: isMobile ? 'center' : phraseAlign,
             }}
           >
             {phrase}
@@ -466,7 +504,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       />
 
       {/* SVG logo reveal mask */}
-      <div className="overlay fixed top-0 left-0 w-full h-full z-[2] "> {/* max-[700px]:opacity-0 */}
+      <div className="overlay fixed top-0 left-0 w-full h-full z-[2]">
         <svg width="100%" height="100%">
           <defs>
             <mask id="logoRevealMask">
@@ -475,12 +513,14 @@ function PrincipalBanner(props: PrincipalBannerProps) {
                 id="logoMask"
                 ref={logoMaskRef}
                 viewBox={parsedLogo.viewBox}
+                width="100%"
+                height="100%"
                 fill="black"
                 dangerouslySetInnerHTML={{ __html: parsedLogo.content }}
               />
             </mask>
           </defs>
-          <rect width="100%" height="100%" fill="#050505" mask="url(#logoRevealMask)" />
+          <rect width="100%" height="100%" fill="#573535" mask="url(#logoRevealMask)" />
         </svg>
       </div>
 
@@ -722,10 +762,10 @@ export const schema = createSchema({
       inputs: [
         { type: 'range', name: 'logoScaleStart', label: 'Logo scale – initial', defaultValue: 270, configs: { min: 50, max: 600, step: 10 } },
         { type: 'range', name: 'logoScaleEnd', label: 'Logo scale – final', defaultValue: 0.3, configs: { min: 0.1, max: 5, step: 0.1 } },
-        { type: 'range', name: 'logoYStart', label: 'Logo Y offset – initial (%)', defaultValue: 70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'logoYEnd', label: 'Logo Y offset – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'logoXStart', label: 'Logo X posición – inicial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'logoXEnd', label: 'Logo X posición – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoXStart', label: 'Logo X position – initial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoXEnd', label: 'Logo X position – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoYStart', label: 'Logo Y position – initial (%)', defaultValue: 70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoYEnd', label: 'Logo Y position – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
       ],
     },
     {
@@ -733,10 +773,10 @@ export const schema = createSchema({
       inputs: [
         { type: 'range', name: 'mbLogoScaleStart', label: 'Logo scale – initial', defaultValue: 270, configs: { min: 50, max: 600, step: 10 } },
         { type: 'range', name: 'mbLogoScaleEnd', label: 'Logo scale – final', defaultValue: 0.3, configs: { min: 0.1, max: 5, step: 0.1 } },
-        { type: 'range', name: 'mbLogoYStart', label: 'Logo Y offset – initial (%)', defaultValue: 60, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'mbLogoYEnd', label: 'Logo Y offset – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'mbLogoXStart', label: 'Logo X posición – inicial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'mbLogoXEnd', label: 'Logo X posición – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoXStart', label: 'Logo X position – initial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoXEnd', label: 'Logo X position – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoYStart', label: 'Logo Y position – initial (%)', defaultValue: 60, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoYEnd', label: 'Logo Y position – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
       ],
     },
     {
@@ -792,14 +832,18 @@ export const schema = createSchema({
     gradientColor2: '#f1e2b7',
     // Logo
     logoData: '',
-    // Animation
+    // Animation — desktop
     logoScaleStart: 270,
     logoScaleEnd: 0.3,
+    logoXStart: 50,
+    logoXEnd: 0,
     logoYStart: 70,
     logoYEnd: -70,
-    // Animation mobile
+    // Animation — mobile
     mbLogoScaleStart: 270,
     mbLogoScaleEnd: 0.3,
+    mbLogoXStart: 50,
+    mbLogoXEnd: 0,
     mbLogoYStart: 60,
     mbLogoYEnd: -70,
     // Video
