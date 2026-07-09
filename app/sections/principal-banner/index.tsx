@@ -61,7 +61,17 @@ interface PrincipalBannerProps extends HydrogenComponentProps {
   // Animation
   logoScaleStart: number
   logoScaleEnd: number
+  logoYStart: number
   logoYEnd: number
+  // Animation logo
+  mbLogoScaleStart: number
+  mbLogoScaleEnd: number
+  mbLogoYStart: number
+  mbLogoYEnd: number
+  logoXStart: number   // % horizontal del punto focal inicial (50 = centro)
+  logoXEnd: number     // desplazamiento X final en %
+  mbLogoXStart: number
+  mbLogoXEnd: number
   // Video
   showPlayButton: boolean
   videoUrl: string
@@ -154,7 +164,17 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     // Animation
     logoScaleStart = 270,
     logoScaleEnd = 0.3,
+    logoYStart = 70,
     logoYEnd = -70,
+    logoXStart = 50,
+    logoXEnd = 0,
+    //Animation mb
+    mbLogoScaleStart = 270,
+    mbLogoScaleEnd = 0.3,
+    mbLogoYStart = 60,
+    mbLogoYEnd = -70,
+    mbLogoXStart = 50,
+    mbLogoXEnd = 0,
     // Video
     showPlayButton = true,
     videoUrl = '',
@@ -252,11 +272,29 @@ function PrincipalBanner(props: PrincipalBannerProps) {
           scrub: true,
         },
       })
+      const sStart = isMobile ? mbLogoScaleStart : logoScaleStart
+      const sEnd   = isMobile ? mbLogoScaleEnd   : logoScaleEnd
+      const xStart = isMobile ? mbLogoXStart     : logoXStart
+      const yStart = isMobile ? mbLogoYStart     : logoYStart
+      const xEnd   = isMobile ? mbLogoXEnd       : logoXEnd
+      const yEnd   = isMobile ? mbLogoYEnd       : logoYEnd
 
       tlSvg.fromTo(
         logoMaskRef.current,
-        { scale: logoScaleStart },
-        { scale: logoScaleEnd, y: `${logoYEnd}%` },
+        {
+          scale: sStart,
+          xPercent: 0,
+          yPercent: 0,
+          // Posición INICIAL: punto focal del zoom (en % del viewport)
+          transformOrigin: `${xStart}% ${yStart}%`,
+        },
+        {
+          scale: sEnd,
+          // Posición FINAL: desplazamiento en % 
+          xPercent: xEnd,
+          yPercent: yEnd,
+          ease: 'none',
+        },
       )
       tlSvg.fromTo(
         fadeOverlayRef.current,
@@ -326,7 +364,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     },
     {
       scope: heroRef,
-      dependencies: [gradientColor1, gradientColor2, logoScaleStart, logoScaleEnd, logoYEnd],
+      dependencies: [gradientColor1, gradientColor2, logoScaleStart, logoScaleEnd, logoYEnd,mbLogoScaleStart,isMobile,mbLogoScaleEnd,mbLogoYStart,mbLogoYEnd],
     },
   )
 
@@ -428,7 +466,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       />
 
       {/* SVG logo reveal mask */}
-      <div className="overlay fixed top-0 left-0 w-full h-full z-[2] max-[700px]:opacity-0">
+      <div className="overlay fixed top-0 left-0 w-full h-full z-[2] "> {/* max-[700px]:opacity-0 */}
         <svg width="100%" height="100%">
           <defs>
             <mask id="logoRevealMask">
@@ -439,7 +477,6 @@ function PrincipalBanner(props: PrincipalBannerProps) {
                 viewBox={parsedLogo.viewBox}
                 fill="black"
                 dangerouslySetInnerHTML={{ __html: parsedLogo.content }}
-                style={{ transformOrigin: 'center 70%' }}
               />
             </mask>
           </defs>
@@ -685,7 +722,21 @@ export const schema = createSchema({
       inputs: [
         { type: 'range', name: 'logoScaleStart', label: 'Logo scale – initial', defaultValue: 270, configs: { min: 50, max: 600, step: 10 } },
         { type: 'range', name: 'logoScaleEnd', label: 'Logo scale – final', defaultValue: 0.3, configs: { min: 0.1, max: 5, step: 0.1 } },
-        { type: 'range', name: 'logoYEnd', label: 'Logo Y offset – final (%)', defaultValue: -70, configs: { min: -200, max: 0, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoYStart', label: 'Logo Y offset – initial (%)', defaultValue: 70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoYEnd', label: 'Logo Y offset – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoXStart', label: 'Logo X posición – inicial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoXEnd', label: 'Logo X posición – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+      ],
+    },
+    {
+      group: 'Animation mobile',
+      inputs: [
+        { type: 'range', name: 'mbLogoScaleStart', label: 'Logo scale – initial', defaultValue: 270, configs: { min: 50, max: 600, step: 10 } },
+        { type: 'range', name: 'mbLogoScaleEnd', label: 'Logo scale – final', defaultValue: 0.3, configs: { min: 0.1, max: 5, step: 0.1 } },
+        { type: 'range', name: 'mbLogoYStart', label: 'Logo Y offset – initial (%)', defaultValue: 60, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoYEnd', label: 'Logo Y offset – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoXStart', label: 'Logo X posición – inicial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoXEnd', label: 'Logo X posición – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
       ],
     },
     {
@@ -744,7 +795,13 @@ export const schema = createSchema({
     // Animation
     logoScaleStart: 270,
     logoScaleEnd: 0.3,
+    logoYStart: 70,
     logoYEnd: -70,
+    // Animation mobile
+    mbLogoScaleStart: 270,
+    mbLogoScaleEnd: 0.3,
+    mbLogoYStart: 60,
+    mbLogoYEnd: -70,
     // Video
     showPlayButton: true,
     videoUrl: '',

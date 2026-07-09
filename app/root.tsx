@@ -160,8 +160,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
       gsap.registerPlugin(ScrollTrigger);
     });
 
+    const TRUSTED_SHOPS_IDS: Record<string, string> = {
+      de: 'X40A412C106D4EA9064551BEBCBFAD59D',
+      // es: 'TSID_ESPAÑOL_AQUI',
+      // en: 'TSID_INGLES_AQUI',
+    };
+    const lang = document.documentElement.lang?.split('-')[0]?.toLowerCase() || 'de';
+    const tsId = TRUSTED_SHOPS_IDS[lang] ?? TRUSTED_SHOPS_IDS['de'];
     const ts = document.createElement('script');
-    ts.src = 'https://widgets.trustedshops.com/js/X40A412C106D4EA9064551BEBCBFAD59D.js';
+    ts.src = `https://widgets.trustedshops.com/js/${tsId}.js`;
     ts.async = true;
     document.body.appendChild(ts);
     return () => { document.body.removeChild(ts); };

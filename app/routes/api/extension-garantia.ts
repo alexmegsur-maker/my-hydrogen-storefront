@@ -53,9 +53,9 @@ const FIND_CUSTOMER_BY_EMAIL = `
   }
 `;
 
-const UPDATE_CUSTOMER_MARKETING = `
-  mutation UpdateCustomerMarketing($input: CustomerInput!) {
-    customerUpdate(input: $input) {
+const UPDATE_CUSTOMER_MARKETING_CONSENT = `
+  mutation CustomerEmailMarketingConsentUpdate($input: CustomerEmailMarketingConsentUpdateInput!) {
+    customerEmailMarketingConsentUpdate(input: $input) {
       customer {
         id
         emailMarketingConsent {
@@ -65,6 +65,7 @@ const UPDATE_CUSTOMER_MARKETING = `
       userErrors {
         field
         message
+        code
       }
     }
   }
@@ -164,40 +165,46 @@ async function subscribeToNewsletter(
 
   const existingCustomer = findResult.data?.customers?.edges?.[0]?.node;
 
-  const marketingConsent = {
-    marketingState: "SUBSCRIBED",
-    marketingOptInLevel: "SINGLE_OPT_IN",
-  };
-
   if (existingCustomer) {
-    // 2a. Ya existe → actualizamos solo el consentimiento
-    const alreadySubscribed =
-      existingCustomer.emailMarketingConsent?.marketingState === "SUBSCRIBED";
+    // 2a. Ya existe → comprobamos su estado de marketing
+    const marketingState = existingCustomer.emailMarketingConsent?.marketingState;
 
-    if (alreadySubscribed) {
+    if (marketingState === "SUBSCRIBED") {
       console.log(`[Newsletter] ${email} ya estaba suscrito.`);
       return;
     }
 
-    const updateResult = await shopifyAdmin(adminUrl, adminToken, UPDATE_CUSTOMER_MARKETING, {
+    if (marketingState === "UNSUBSCRIBED") {
+      console.log(`[Newsletter] ${email} estaba dado de baja. Re-suscribiendo...`);
+    }
+
+    // Usamos la mutación dedicada de consentimiento: funciona tanto para
+    // NOT_SUBSCRIBED como para UNSUBSCRIBED (re-suscripción).
+    const consentResult = await shopifyAdmin(adminUrl, adminToken, UPDATE_CUSTOMER_MARKETING_CONSENT, {
       input: {
-        id: existingCustomer.id,
-        emailMarketingConsent: marketingConsent,
+        customerId: existingCustomer.id,
+        emailMarketingConsent: {
+          marketingState: "SUBSCRIBED",
+          marketingOptInLevel: "SINGLE_OPT_IN",
+          consentUpdatedAt: new Date().toISOString(),
+        },
       },
     });
 
-    if (updateResult.errors?.length) {
-      console.error("[Newsletter] Error de API al actualizar:", updateResult.errors);
+    if (consentResult.errors?.length) {
+      console.error("[Newsletter] Error de API al actualizar consentimiento:", consentResult.errors);
       return;
     }
 
-    const updateErrors = updateResult.data?.customerUpdate?.userErrors;
-    if (updateErrors?.length) {
-      console.error("[Newsletter] Error al actualizar consentimiento:", updateErrors);
-    } else if (!updateResult.data?.customerUpdate?.customer) {
-      console.error("[Newsletter] customerUpdate no retornó customer. Posiblemente estado protegido (Dado de baja).");
+    const consentErrors = consentResult.data?.customerEmailMarketingConsentUpdate?.userErrors;
+    const updatedCustomer = consentResult.data?.customerEmailMarketingConsentUpdate?.customer;
+
+    if (consentErrors?.length) {
+      console.error("[Newsletter] Error al actualizar consentimiento:", consentErrors);
+    } else if (!updatedCustomer) {
+      console.error("[Newsletter] customerEmailMarketingConsentUpdate no retornó customer. Verificar scopes (write_customers).");
     } else {
-      console.log(`[Newsletter] ${email} suscrito (actualización).`);
+      console.log(`[Newsletter] ${email} suscrito correctamente (estado anterior: ${marketingState ?? "desconocido"}).`);
       await createLiveSystemMetaobject(existingCustomer.id, email, adminUrl, adminToken);
     }
   } else {
