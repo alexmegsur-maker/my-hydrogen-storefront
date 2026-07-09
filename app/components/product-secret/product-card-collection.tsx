@@ -1,6 +1,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react"
+import { pushViewItem } from "~/utils/dataLayer"
 import type { ProductQuery } from "storefront-api.generated";
 import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { createCurProVar } from "~/routes/collections/utils";
@@ -82,6 +83,15 @@ function ProductCardCollection(props:ProductCardProps){
     const nextState = {additionalInformation:'Updated the URL with JS'}
     window.history.pushState(nextState,'',newUrl)
     window.history.replaceState(nextState,'',newUrl)
+
+    pushViewItem({
+      id: product.id,
+      name: product.nombre?.value ?? product.title,
+      price: variante.price.amount,
+      currency: variante.price.currencyCode,
+      sku: variante.sku,
+      variant: variante.title,
+    })
 
     try{
       const res = await fetch(getApiUrl,{

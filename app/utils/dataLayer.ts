@@ -33,3 +33,31 @@ export function pushBeginCheckout(items: any[], value: number, currency = "EUR")
     },
   });
 }
+
+export function pushViewItem(item: {
+  id: string;
+  name: string;
+  price: string;
+  currency: string;
+  sku?: string;
+  variant?: string;
+}) {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer ?? [];
+  window.dataLayer.push({ ecommerce: null });
+  window.dataLayer.push({
+    event: "view_item",
+    ecommerce: {
+      currency: item.currency,
+      value: parseFloat(item.price),
+      items: [{
+        item_id: cleanItemId(item.id),
+        item_name: item.name,
+        item_variant: item.variant ?? "",
+        item_variant_sku: item.sku ?? "",
+        price: parseFloat(item.price),
+        quantity: 1,
+      }],
+    },
+  });
+}
