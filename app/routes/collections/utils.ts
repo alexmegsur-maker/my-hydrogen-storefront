@@ -116,6 +116,8 @@ export function createCurProVar(prod){
     tags:prod.tags? prod.tags : [],
     nombre:prod.nombre?.value||null,
     tooltip:prod.tooltip?.value||null,
+    modelo:prod.modelo?.value||null,
+    miniDescription:prod.miniDescription?.value||null,
     imagenes360:img360?.references?.nodes || [],
     logo:logo?.reference || null,
     principalImg:principalImg?.reference || null,

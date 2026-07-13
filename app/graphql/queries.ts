@@ -134,6 +134,14 @@ export const PRODUCT_QUERY = `#graphql
         id
         value
       }
+      modelo:metafield(namespace:"custom",key:"modelo"){
+        id
+        value
+      }
+      miniDescription:metafield(namespace:"custom",key:"mini_description"){
+        id
+        value
+      }
       variants(first:10){
         nodes{
           id

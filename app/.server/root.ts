@@ -29,7 +29,7 @@ export async function loadCriticalData({
   const [layout, swatchesConfigs, globalStats] = await Promise.all([
     getLayoutData({...context,headerMenuHandle,footerMenuHandle} as LayoutDataArgs),
     getSwatchesConfigs(context),
-    getGlobalStats(context),
+    getGlobalStats(context, request.signal),
   ]);
 
   const seo = seoPayload.root({ shop: layout.shop, url: request.url });
@@ -298,7 +298,7 @@ function resolveToFromType(
   }
 }
 
-async function fetchAdminAPI(env: Env, query: string, variables: Record<string, any> = {}) {
+async function fetchAdminAPI(env: Env, query: string, variables: Record<string, any> = {}, signal?: AbortSignal) {
   const version = env.SHOPIFY_API_VERSION || '2024-10';
   const res = await fetch(
     `https://${env.PUBLIC_STORE_DOMAIN}/admin/api/${version}/graphql.json`,
@@ -309,6 +309,7 @@ async function fetchAdminAPI(env: Env, query: string, variables: Record<string, 
         'X-Shopify-Access-Token': env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
       },
       body: JSON.stringify({ query, variables }),
+      signal,
     },
   );
   const json = await res.json() as any;
@@ -325,7 +326,7 @@ function getMondayISO(weekOffset = 0): string {
   return monday.toISOString().split('T')[0];
 }
 
-async function getUnitsSold(env: Env, from: string, to: string): Promise<number> {
+async function getUnitsSold(env: Env, from: string, to: string, signal?: AbortSignal): Promise<number> {
   const data = await fetchAdminAPI(env, `
     query UnitsSold($q: String!) {
       orders(first: 250, query: $q) {
@@ -336,14 +337,14 @@ async function getUnitsSold(env: Env, from: string, to: string): Promise<number>
         }
       }
     }
-  `, { q: `created_at:>='${from}' created_at:<='${to}' financial_status:paid` });
+  `, { q: `created_at:>='${from}' created_at:<='${to}' financial_status:paid` }, signal);
 
   return (data?.orders?.nodes ?? []).reduce((total: number, order: any) =>
     total + (order.lineItems?.nodes ?? []).reduce((sum: number, item: any) =>
       sum + (item.quantity ?? 0), 0), 0);
 }
 
-async function getGlobalStats(context: AppLoadContext) {
+async function getGlobalStats(context: AppLoadContext, signal?: AbortSignal) {
   const { env } = context;
   const thisMonday = getMondayISO(0);
   const lastMonday = getMondayISO(-1);
@@ -355,9 +356,9 @@ async function getGlobalStats(context: AppLoadContext) {
 
   try {
     const [thisWeekUnits, lastWeekUnits, subscribersData] = await Promise.all([
-      getUnitsSold(env, thisMonday, today),
-      getUnitsSold(env, lastMonday, lastSunday),
-      fetchAdminAPI(env, `{ customersCount(query: "email_marketing_consent_state:SUBSCRIBED") { count } }`),
+      getUnitsSold(env, thisMonday, today, signal),
+      getUnitsSold(env, lastMonday, lastSunday, signal),
+      fetchAdminAPI(env, `{ customersCount(query: "email_marketing_consent_state:SUBSCRIBED") { count } }`, {}, signal),
     ]);
 
     return {

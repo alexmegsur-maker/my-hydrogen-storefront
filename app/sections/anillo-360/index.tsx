@@ -8,7 +8,7 @@ import {
   type HydrogenComponentProps,
   type WeaverseImage,
 } from '@weaverse/hydrogen'
-import { updateImageCanva, calcularAnchoEscalado } from '~/utils/general'
+import { updateImageCanva } from '~/utils/general'
 import { useIsMobile } from '~/hooks/use-is-mobile'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -54,8 +54,9 @@ interface Anillo360Props extends HydrogenComponentProps {
   // Animation
   scrollPhase1End: number
   scrollPhase2End: number
-  // Mobile canvas X offset (%)
-  mobileCanvasOffsetX: number
+  // Mobile
+  mobileStaticBg?: WeaverseImage
+  mobileCanvasPositionX: number
 }
 
 // ─── GraphQL query (same as scrollChair) ──────────────────────────────────
@@ -150,7 +151,8 @@ function Anillo360(props: Anillo360Props) {
     paraWidth = 70,        paraWidthMobile = 95,
     scrollPhase1End = 0.3,
     scrollPhase2End = 0.6,
-    mobileCanvasOffsetX = -40,
+    mobileStaticBg,
+    mobileCanvasPositionX = 50,
   } = props
 
   const imagenes_360 = loaderData?.imagenes_360 ?? []
@@ -158,6 +160,11 @@ function Anillo360(props: Anillo360Props) {
 
   const isMobile = useIsMobile(800)
   const [actualFrame, setActualFrame] = useState(0)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    if (isMobile) requestAnimationFrame(() => setVisible(true))
+  }, [isMobile])
 
   const imgsRef    = useRef<HTMLImageElement[]>([])
   const ctxRef     = useRef<CanvasRenderingContext2D | null>(null)
@@ -183,23 +190,12 @@ function Anillo360(props: Anillo360Props) {
     if (!ctx) return
     ctxRef.current = ctx
 
+    if (window.innerWidth < 800) return
+
+    // ── DESKTOP ──────────────────────────────────────────────────────────────
     let width  = window.innerWidth
     let height = window.innerHeight
     if (height > 910 && height < 2000) height += height / 9
-
-    if (isMobile) {
-      const bg = document.querySelector<HTMLImageElement>('.anillo360-bg')
-      if (bg) {
-        calcularAnchoEscalado(bg).then((scaledW: number) => {
-          if (!canvasRef.current) return
-          canvasRef.current.width  = scaledW
-          canvasRef.current.height = height
-          imgs[0].onload = () =>
-            updateImageCanva(ctx, scaledW, height, imgsRef.current)
-        })
-        return
-      }
-    }
 
     canvas.width  = width
     canvas.height = height
@@ -210,6 +206,7 @@ function Anillo360(props: Anillo360Props) {
   // ── GSAP scroll animation ───────────────────────────────────────────────
   useGSAP(
     () => {
+      if (isMobile) return
       gsap.registerPlugin(ScrollTrigger)
       const section = sectionRef.current
       if (!section) return
@@ -249,16 +246,7 @@ function Anillo360(props: Anillo360Props) {
               if (frame !== actualFrame) {
                 const imgs = imgsRef.current
                 if (imgs[frame]?.complete) {
-                  if (isMobile) {
-                    const bg = document.querySelector<HTMLImageElement>('.anillo360-bg')
-                    if (bg) {
-                      const pct  = (100 * window.innerHeight) / bg.naturalHeight
-                      const newW = Math.round((bg.naturalWidth * pct) / 100)
-                      canvas.width  = newW
-                      canvas.height = window.innerHeight
-                    }
-                  }
-                  updateImageCanva(ctx, canvas.width, canvas.height, imgs, frame)
+                  updateImageCanva(ctx, canvas.width, canvas.height, imgs, frame, isMobile ? 'height' : 'cover')
                   setActualFrame(frame)
                 }
               }
@@ -279,6 +267,99 @@ function Anillo360(props: Anillo360Props) {
 
   const lines = [line1, line2, line3, line4].filter(Boolean)
 
+  if (isMobile) {
+    const bgUrl = toUrl(mobileStaticBg) || toUrl(imagenes_360[0] as WeaverseImage)
+    return (
+      <section className="relative w-full overflow-hidden">
+        <div
+          className="relative w-full h-screen overflow-hidden"
+          style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.8s ease' }}
+        >
+          <img
+            src={bgUrl}
+            alt=""
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: `${mobileCanvasPositionX}% center`,
+            }}
+          />
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 pointer-events-none"
+            style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.7)', paddingInline: '1rem' }}
+          >
+            {(subtitle || loaderData?.subtitle) && (
+              <h4
+                style={{
+                  fontFamily: subtitleFamily,
+                  fontWeight: subtitleWeight,
+                  color: subtitleColor,
+                  fontSize: `${subtitleSizeMobile}px`,
+                  lineHeight: 1,
+                }}
+              >
+                {subtitle || loaderData?.subtitle}
+              </h4>
+            )}
+            {(title || loaderData?.titulo) && (
+              <h3
+                style={{
+                  fontFamily: titleFamily,
+                  fontWeight: titleWeight,
+                  color: titleColor,
+                  fontSize: `${titleSizeMobile}`,
+                  margin: 0,
+                }}
+              >
+                {title || loaderData?.titulo}
+              </h3>
+            )}
+            {loaderData?.description
+              ? loaderData.description.split('\n').map((line, i) =>
+                  line ? (
+                    <p
+                      key={i}
+                      style={{
+                        fontFamily: paraFamily,
+                        fontWeight: paraWeight,
+                        color: paraColor,
+                        fontSize: `${paraSizeMobile}`,
+                        paddingTop: '2.5rem',
+                        lineHeight: 1.1,
+                        width: `${paraWidthMobile}%`,
+                        margin: 0,
+                      }}
+                    >
+                      {line}
+                    </p>
+                  ) : null,
+                )
+              : lines.map((line, i) => (
+                  <p
+                    key={i}
+                    style={{
+                      fontFamily: paraFamily,
+                      fontWeight: paraWeight,
+                      color: paraColor,
+                      fontSize: `${paraSizeMobile}`,
+                      paddingTop: '2.5rem',
+                      lineHeight: 1.1,
+                      width: `${paraWidthMobile}%`,
+                      margin: 0,
+                    }}
+                  >
+                    {line}
+                  </p>
+                ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section
       ref={sectionRef}
@@ -289,7 +370,12 @@ function Anillo360(props: Anillo360Props) {
         <canvas
           ref={canvasRef}
           className="absolute top-0 left-0 opacity-0"
-          style={isMobile ? { transform: `translate(${mobileCanvasOffsetX}%, 0)` } : undefined}
+          style={isMobile ? {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: `${mobileCanvasPositionX}% center`,
+          } : undefined}
         />
         {/* Dark fade overlay (starts visible, disappears in phase 1) */}
         <div
@@ -468,11 +554,16 @@ export const schema = createSchema({
           configs: { min: 0.2, max: 0.9, step: 0.05 },
         },
         {
+          type: 'image',
+          name: 'mobileStaticBg',
+          label: 'Imagen de fondo mobile (opcional)',
+        },
+        {
           type: 'range',
-          name: 'mobileCanvasOffsetX',
-          label: 'Canvas mobile – offset X (%)',
-          defaultValue: -40,
-          configs: { min: -80, max: 0, step: 5, unit: '%' },
+          name: 'mobileCanvasPositionX',
+          label: 'Posición horizontal imagen mobile (%)',
+          defaultValue: 50,
+          configs: { min: 0, max: 100, step: 5, unit: '%' },
         },
       ],
     },
@@ -495,6 +586,7 @@ export const schema = createSchema({
     paraWidth:           70,  paraWidthMobile:     95,
     scrollPhase1End:     0.3,
     scrollPhase2End:     0.6,
-    mobileCanvasOffsetX: -40,
+    mobileCanvasPositionX: 50,
+    mobileStaticBg: undefined,
   },
 })

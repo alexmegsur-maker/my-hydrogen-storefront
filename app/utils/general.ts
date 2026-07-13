@@ -124,11 +124,48 @@ export function renderRichText(jsonString: string | undefined): string {
   }
 }
 
-export function updateImageCanva(ctx,canvasWidth,canvasHeight,list,frame = 0) {
- if(list.length!=frame){
-   ctx.drawImage(list[frame],0,0,canvasWidth,canvasHeight)
- }
-} 
+/**
+ * Dibuja una imagen (o frame de la secuencia 360) en el canvas.
+ *
+ * mode = 'cover'  → escala la imagen para cubrir AMBOS ejes del canvas sin
+ *                    deformarla (usa el mayor de los dos ratios). Puede
+ *                    recortar tanto en X como en Y. Ideal para desktop.
+ *
+ * mode = 'height' → escala la imagen SOLO en base a la altura del canvas,
+ *                    sin importar cuánto se desborde en ancho. Nunca recorta
+ *                    verticalmente. Ideal para mobile, donde priorizás que
+ *                    la imagen llene el alto completo de la pantalla.
+ *
+ * En ambos casos la imagen se centra horizontalmente (dx) y verticalmente
+ * (dy). El sobrante que cae fuera del canvas se recorta automáticamente,
+ * ya que drawImage nunca pinta fuera del área del canvas.
+ */
+export function updateImageCanva(ctx, canvasWidth, canvasHeight, list, frame = 0, mode: 'cover' | 'height' = 'cover') {
+  if (list.length === frame) return
+
+  const img = list[frame]
+  if (!img || !img.complete || !img.naturalWidth) return
+
+  const imgW = img.naturalWidth
+  const imgH = img.naturalHeight
+
+  const scale =
+    mode === 'height'
+      ? canvasHeight / imgH
+      : Math.max(canvasWidth / imgW, canvasHeight / imgH)
+
+  const drawWidth  = imgW * scale
+  const drawHeight = imgH * scale
+
+  // Centrado: el sobrante (puede ser negativo, eso está bien) se reparte
+  // mitad a cada lado en X, y mitad arriba/abajo en Y.
+  const dx = (canvasWidth  - drawWidth)  / 2
+  const dy = (canvasHeight - drawHeight) / 2
+
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight)
+  ctx.drawImage(img, dx, dy, drawWidth, drawHeight)
+}
+
 export function  preloadImgs(route,name,size,extension="jpg"){
   let list=[]
 

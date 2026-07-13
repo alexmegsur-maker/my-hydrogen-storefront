@@ -92,10 +92,14 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
               }
               
               nombre:metafield(namespace:"custom",key:"name_style_secret"){
-                id  
+                id
                 value
               }
               tooltip:metafield(namespace:"custom",key:"tooltip"){
+                id
+                value
+              }
+              modelo:metafield(namespace:"custom",key:"modelo"){
                 id
                 value
               }

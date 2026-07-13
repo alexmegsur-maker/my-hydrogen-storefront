@@ -1,10 +1,7 @@
-import { useRef, useLayoutEffect, useState, type CSSProperties, useEffect } from "react";
+import { useRef, useLayoutEffect, useState, useEffect, type CSSProperties } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import {
-  updateImageCanva,
-  calcularAnchoEscalado,
-} from "~/utils/general";
+import { updateImageCanva } from "~/utils/general";
 import {
   createSchema,
   type WeaverseImage,
@@ -14,6 +11,7 @@ import {
 } from "@weaverse/hydrogen";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useLenis } from "lenis/react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -56,6 +54,8 @@ interface ChairSectionProps extends ChairSectionLoaderData {
   btnBorderColor?: string;
   btnFontSize?: string;
   btnFontFamily?: string;
+  // Imagen mobile
+  mobileImagePosition?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -149,14 +149,30 @@ function Imagen({
   img,
   estilo = null,
   estiloImg = null,
+  onZoom,
 }: {
   clase: string;
   img: string;
   estilo: CSSProperties;
   estiloImg: CSSProperties;
+  onZoom?: (rect: DOMRect, objectPosition: string, naturalRatio: number) => void;
 }) {
   return (
-    <div className={clase} style={estilo}>
+    <div
+      className={clase}
+      style={{ ...estilo, cursor: onZoom ? "zoom-in" : undefined }}
+      onClick={(e) => {
+        const div    = e.currentTarget as HTMLDivElement;
+        const rect   = div.getBoundingClientRect();
+        const imgEl  = div.querySelector("img") as HTMLImageElement | null;
+        const objPos = imgEl ? window.getComputedStyle(imgEl).objectPosition : "center center";
+        const naturalRatio =
+          imgEl && imgEl.naturalWidth && imgEl.naturalHeight
+            ? imgEl.naturalWidth / imgEl.naturalHeight
+            : rect.width / rect.height;
+        onZoom?.(rect, objPos, naturalRatio);
+      }}
+    >
       <img
         src={img}
         alt=""
@@ -216,6 +232,160 @@ function Expandicon({ clase }: { clase: string }) {
   );
 }
 
+function ZoomModal({
+  src,
+  rect,
+  objectPosition,
+  naturalRatio,
+  onClose,
+}: {
+  src: string;
+  rect: DOMRect;
+  objectPosition: string;
+  naturalRatio: number;
+  onClose: () => void;
+}) {
+  const lenis       = useLenis();
+  const overlayRef  = useRef<HTMLDivElement>(null);
+  const wrapperRef  = useRef<HTMLDivElement>(null);
+  const imgRef      = useRef<HTMLImageElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const tlRef       = useRef<gsap.core.Timeline | null>(null);
+
+  const vw = typeof window !== "undefined" ? window.innerWidth : 800;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 600;
+  const isMobileView = vw < 700;
+
+  // Desktop: 90vw wide, height follows the NATURAL image ratio (not the source container)
+  // so the animation morphs shape — not just a simple zoom
+  // Mobile: full viewport width
+  const finalW = isMobileView ? vw : Math.round(vw * 0.9);
+  const finalH = Math.round(finalW / naturalRatio);
+  const finalLeft = Math.round((vw - finalW) / 2);
+  const finalTop  = Math.round((vh - finalH) / 2);
+
+  function handleClose() {
+    const tl  = tlRef.current;
+    const img = imgRef.current;
+    if (!tl) { onClose(); return; }
+    // Revert to cover + original position before reversing so it matches the source
+    if (img) {
+      img.style.objectFit      = "cover";
+      img.style.objectPosition = objectPosition;
+    }
+    tl.eventCallback("onReverseComplete", onClose);
+    tl.reverse();
+  }
+
+  useEffect(() => {
+    const overlay  = overlayRef.current;
+    const wrapper  = wrapperRef.current;
+    const img      = imgRef.current;
+    const closeBtn = closeBtnRef.current;
+    if (!overlay || !wrapper) return;
+
+    lenis?.stop();
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        // Once fully expanded, show the complete image
+        if (img) {
+          img.style.objectFit      = "contain";
+          img.style.objectPosition = "center center";
+        }
+      },
+    });
+    tlRef.current = tl;
+
+    tl.to(overlay,  { opacity: 1,                                                                   duration: 0.3,  ease: "power2.out"    }, 0)
+      .to(wrapper,  { top: finalTop, left: finalLeft, width: finalW, height: finalH, duration: 0.45, ease: "power3.inOut" }, 0)
+      .to(closeBtn, { opacity: 1,                                                                   duration: 0.2,  ease: "power1.out"    }, 0.3);
+
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      lenis?.start();
+      tl.kill();
+    };
+  }, []);
+
+  return (
+    <>
+      {/* Dark backdrop */}
+      <div
+        ref={overlayRef}
+        onClick={handleClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 99999,
+          backgroundColor: "rgba(0,0,0,0.88)",
+          opacity: 0,
+          cursor: "zoom-out",
+        }}
+      />
+
+      {/* Image wrapper — GSAP animates top/left/width/height from rect to final */}
+      <div
+        ref={wrapperRef}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "fixed",
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+          zIndex: 100000,
+          overflow: "hidden",
+        }}
+      >
+        <img
+          ref={imgRef}
+          src={src}
+          alt=""
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition,
+            display: "block",
+          }}
+        />
+      </div>
+
+      {/* Close button */}
+      <button
+        ref={closeBtnRef}
+        onClick={(e) => { e.stopPropagation(); handleClose(); }}
+        aria-label="Cerrar"
+        style={{
+          position: "fixed",
+          top: "1.5rem",
+          right: "1.5rem",
+          background: "rgba(0,0,0,0.55)",
+          border: "none",
+          color: "#fff",
+          fontSize: "1.25rem",
+          lineHeight: 1,
+          width: "2.5rem",
+          height: "2.5rem",
+          borderRadius: "50%",
+          cursor: "pointer",
+          opacity: 0,
+          zIndex: 100001,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        ✕
+      </button>
+    </>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // ChairSection
 // ---------------------------------------------------------------------------
@@ -244,6 +414,7 @@ export default function ChairSection(props: ChairSectionProps) {
     btnBorderColor = "#fef289",
     btnFontSize = "18px",
     btnFontFamily = "'EB Garamond', serif",
+    mobileImagePosition = 50
   } = props;
 
   const titulo       = loaderData?.titulo       ?? "";
@@ -269,6 +440,7 @@ export default function ChairSection(props: ChairSectionProps) {
   const overlayCanvas   = useRef<HTMLDivElement>(null);
   const [zIndex,setZindex]=useState(10)
   const [last,setLast]=useState(false)
+  const [zoomTarget, setZoomTarget] = useState<{ src: string; rect: DOMRect; objectPosition: string; naturalRatio: number } | null>(null)
 
   const parentInstance  = useParentInstance()
   const selfInstance = useItemInstance()
@@ -295,7 +467,7 @@ export default function ChairSection(props: ChairSectionProps) {
 
   useLayoutEffect(() => {
     if (!canvas.current || imagenes_360.length === 0) return;
-
+    console.log("imagenes_360",imagenes_360)
     const imgs: HTMLImageElement[] = imagenes_360.map((wi) => {
       const el = new Image();
       el.src = toUrl(wi);
@@ -304,31 +476,54 @@ export default function ChairSection(props: ChairSectionProps) {
     imgsPreloadRef.current = imgs;
     ctxCanvasRef.current = canvas.current.getContext("2d");
     const ctx = ctxCanvasRef.current;
+    const firstImg = imgs[0];
 
+    // ── MOBILE ────────────────────────────────────────────────────────────
+    // El canvas se dimensiona con la RESOLUCIÓN REAL de la imagen ya
+    // escalada para llenar el alto del teléfono (no el tamaño del viewport).
+    // El ancho resultante suele ser mayor al ancho de pantalla — eso es
+    // intencional, no se recorta en JS. El recorte/posición final lo
+    // resuelve el CSS del <canvas> con object-fit:cover + object-position,
+    // igual que haría un <img>.
+    if (window.innerWidth < 700) {
+      const setupMobileCanvas = () => {
+        if (!canvas.current || !firstImg.naturalWidth || !firstImg.naturalHeight) return;
+
+        const targetHeight = window.innerHeight;
+        const scale         = targetHeight / firstImg.naturalHeight;
+        const scaledWidth   = Math.round(firstImg.naturalWidth * scale);
+
+        canvas.current.width  = scaledWidth;
+        canvas.current.height = Math.round(targetHeight);
+
+        updateImageCanva(
+          ctx,
+          canvas.current.width,
+          canvas.current.height,
+          imgsPreloadRef.current,
+          0,
+          "height"
+        );
+      };
+
+      if (firstImg.complete && firstImg.naturalWidth) {
+        setupMobileCanvas();
+      } else {
+        firstImg.onload = setupMobileCanvas;
+      }
+      return;
+    }
+
+    // ── DESKTOP ───────────────────────────────────────────────────────────
+    // El canvas mide exactamente el viewport; cover centra sin deformar.
     let width  = window.innerWidth;
     let height = window.innerHeight;
-
     if (height > 910 && height < 2000) height = height + height / 9;
-
-    if (width < 700) {
-      const heroImg = document.querySelector<HTMLImageElement>(".hero-fondo");
-      if (heroImg) {
-        calcularAnchoEscalado(heroImg).then((scaleWidth: number) => {
-          width = scaleWidth;
-          if (!canvas.current) return;
-          canvas.current.width  = width;
-          canvas.current.height = height + height * 0.1;
-          imgs[0].onload = () =>
-            updateImageCanva(ctx, width, height, imgsPreloadRef.current);
-        });
-        return;
-      }
-    }
 
     canvas.current.width  = width;
     canvas.current.height = height;
-    imgs[0].onload = () =>
-      updateImageCanva(ctx, width, height, imgsPreloadRef.current);
+    firstImg.onload = () =>
+      updateImageCanva(ctx, width, height, imgsPreloadRef.current, 0, "cover");
   }, [imagenes_360, index]);
 
   // ── GSAP scroll animation ─────────────────────────────────────────────────
@@ -387,6 +582,9 @@ export default function ChairSection(props: ChairSectionProps) {
           }
 
           // ── FASE 2 (0.3 → 0.6): rotación 360 en canvas ──────────────────
+          // El canvas ya quedó dimensionado correctamente (mobile o desktop)
+          // en el useLayoutEffect inicial, así que acá solo dibujamos el
+          // frame correspondiente — no se recalcula tamaño en cada frame.
           if (p > 0.3 && p <= 0.6) {
             const t          = (p - 0.3) / 0.3; // 0 → 1
             const frameIndex = Math.min(
@@ -398,22 +596,13 @@ export default function ChairSection(props: ChairSectionProps) {
               actualFrameRef.current = frameIndex;
 
               if (imgsPreloadRef.current[frameIndex]?.complete && cvs && ctx) {
-                if (isMobile) {
-                  const heroImg =
-                    document.querySelector<HTMLImageElement>(".hero-fondo");
-                  if (heroImg) {
-                    const pct      = (100 * window.innerHeight) / heroImg.naturalHeight;
-                    const newWidth = (heroImg.naturalWidth * pct) / 100;
-                    cvs.width  = Math.round(newWidth);
-                    cvs.height = window.innerHeight;
-                  }
-                }
                 updateImageCanva(
                   ctx,
                   cvs.width,
                   cvs.height,
                   imgsPreloadRef.current,
-                  frameIndex
+                  frameIndex,
+                  isMobile ? "height" : "cover"
                 );
               }
             }
@@ -492,6 +681,11 @@ export default function ChairSection(props: ChairSectionProps) {
             // index=0: empieza visible pero desenfocado
             // index>0: empieza invisible para el fundido de superposición
             opacity: index === 0 ? 1 : 0,
+            // En mobile el bitmap del canvas es más ancho que la pantalla
+            // (ver useLayoutEffect); object-fit + object-position deciden
+            // qué sección horizontal se muestra, igual que en un <img>.
+            objectFit: isMobile ? "cover" : undefined,
+            objectPosition: isMobile ? `${mobileImagePosition}% center` : undefined,
           }}
         />
         <div
@@ -615,6 +809,7 @@ export default function ChairSection(props: ChairSectionProps) {
               estiloImg={{
                 objectPosition: "center",
               }}
+              onZoom={(rect, objectPosition, naturalRatio) => setZoomTarget({ src: img1, rect, objectPosition, naturalRatio })}
             />
           )}
         </div>
@@ -650,6 +845,7 @@ export default function ChairSection(props: ChairSectionProps) {
                 estiloImg={{
                   objectPosition: "50% center",
                 }}
+                onZoom={(rect, objectPosition, naturalRatio) => setZoomTarget({ src: img2, rect, objectPosition, naturalRatio })}
               />
             )}
             {img3 && (
@@ -667,6 +863,7 @@ export default function ChairSection(props: ChairSectionProps) {
                 estiloImg={{
                   objectPosition: "53% center",
                 }}
+                onZoom={(rect, objectPosition, naturalRatio) => setZoomTarget({ src: img3, rect, objectPosition, naturalRatio })}
               />
             )}
             <div
@@ -703,6 +900,15 @@ export default function ChairSection(props: ChairSectionProps) {
           </div>
         </div>
       </div>
+      {zoomTarget && (
+        <ZoomModal
+          src={zoomTarget.src}
+          rect={zoomTarget.rect}
+          objectPosition={zoomTarget.objectPosition}
+          naturalRatio={zoomTarget.naturalRatio}
+          onClose={() => setZoomTarget(null)}
+        />
+      )}
     </div>
   );
 }
@@ -733,6 +939,18 @@ export const schema = createSchema({
         },
       ],
     },
+    {
+  group: "Imagen — Mobile",
+  inputs: [
+    {
+      type: "range",
+      label: "Posición horizontal",
+      name: "mobileImagePosition",
+      defaultValue: 50,
+      configs: { min: 0, max: 100, step: 1, unit: "%" },
+    },
+  ],
+},
     {
       group: "Estilos — Título",
       inputs: [

@@ -61,15 +61,11 @@ interface PrincipalBannerProps extends HydrogenComponentProps {
   // Animation — desktop
   logoScaleStart: number
   logoScaleEnd: number
-  logoXStart: number
-  logoXEnd: number
   logoYStart: number
   logoYEnd: number
   // Animation — mobile
   mbLogoScaleStart: number
   mbLogoScaleEnd: number
-  mbLogoXStart: number
-  mbLogoXEnd: number
   mbLogoYStart: number
   mbLogoYEnd: number
   // Video
@@ -177,17 +173,13 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     // Animation — desktop
     logoScaleStart = 270,
     logoScaleEnd = 0.3,
-    logoXStart = 50,
-    logoXEnd = 0,
-    logoYStart = 70,
-    logoYEnd = -70,
+    logoYStart = 20,
+    logoYEnd = 0,
     // Animation — mobile
     mbLogoScaleStart = 270,
     mbLogoScaleEnd = 0.3,
-    mbLogoXStart = 50,
-    mbLogoXEnd = 0,
-    mbLogoYStart = 60,
-    mbLogoYEnd = -70,
+    mbLogoYStart = 20,
+    mbLogoYEnd = 0,
     // Video
     showPlayButton = true,
     videoUrl = '',
@@ -207,16 +199,30 @@ function PrincipalBanner(props: PrincipalBannerProps) {
   const overlayImgRef = useRef<HTMLDivElement>(null)
   const overlayImgBgRef = useRef<HTMLDivElement>(null)
   const overlayTextRef = useRef<HTMLParagraphElement>(null)
+  const alturaRef = useRef(0)
+  const sStartRef = useRef(0)
+  const sEndRef   = useRef(0)
+  const yStartRef = useRef(0)
+  const yEndRef   = useRef(0)
 
   // Resolve desktop/mobile animation values once per render
   const sStart = isMobile ? mbLogoScaleStart : logoScaleStart
-  const sEnd = isMobile ? mbLogoScaleEnd : logoScaleEnd
-  const xStart = isMobile ? mbLogoXStart : logoXStart
-  const xEnd = isMobile ? mbLogoXEnd : logoXEnd
-  const yStart = isMobile ? mbLogoYStart : logoYStart
-  const yEnd = isMobile ? mbLogoYEnd : logoYEnd
+  const sEnd   = isMobile ? mbLogoScaleEnd   : logoScaleEnd
+  const yStart = isMobile ? mbLogoYStart     : logoYStart
+  const yEnd   = isMobile ? mbLogoYEnd       : logoYEnd
 
-
+  useEffect(() => {
+    alturaRef.current = window.innerHeight
+    sStartRef.current = sStart
+    sEndRef.current   = sEnd
+    yStartRef.current = yStart
+    yEndRef.current   = yEnd
+    if (logoMaskRef.current) {
+      const a = alturaRef.current
+      const ySA = a !== 0 ? (sStart * a) * (yStart / 100) : (yStart - 50)
+      logoMaskRef.current.setAttribute('transform', `translate(0 ${ySA}) scale(${sStart})`)
+    }
+  }, [sStart, sEnd, yStart, yEnd])
 
   useGSAP(
     () => {
@@ -293,7 +299,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       const tlSvg = gsap.timeline({
         scrollTrigger: {
           trigger: container,
-          start: 'top+=10% top',
+          start: 'top top',
           end: 'top+=50% top',
           scrub: true,
         },
@@ -308,23 +314,22 @@ function PrincipalBanner(props: PrincipalBannerProps) {
           onUpdate: () => {
             const el = logoMaskRef.current
             if (!el) return
-            const t = logoAnim.p
-            const s = sStart + (sEnd - sStart) * t
-            const y = yStart + (yEnd-yStart)*t
-            el.setAttribute('transform', `translate(0,${y}%) scale(${s})`)
+            const t  = logoAnim.p
+            const ss = sStartRef.current
+            const se = sEndRef.current
+            const ys = yStartRef.current
+            const ye = yEndRef.current
+            const a  = alturaRef.current
+            const s  = ss + (se - ss) * t
+            const ySA = a !== 0 ? (ss * a) * (ys / 100) : (ys - 50)
+            const yEA = a !== 0 ? a * ((ye - 50) / 100)  : (ye - 50)
+            const y   = ySA + (yEA - ySA) * t
+            el.setAttribute('transform', `translate(0 ${y}) scale(${s})`)
             el.setAttribute('transform-origin', `center center`)
           },
         },
       )
-      // tlSvg.fromTo(
-      //   logoMaskRef.current,
-      //   { y: `${yStart}%` },
-      //   {
-      //     y: `${yEnd}%`,
-      //     ease: 'none',
-       
-      //   },'<'
-      // )
+    
       tlSvg.fromTo(
         fadeOverlayRef.current,
         { opacity: 0, background: 'transparent' },
@@ -394,16 +399,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     },
     {
       scope: heroRef,
-      dependencies: [
-        gradientColor1,
-        gradientColor2,
-        isMobile,
-        sStart,
-        yStart,
-        sEnd,
-        xEnd,
-        yEnd,
-      ],
+      dependencies: [gradientColor1, gradientColor2],
     },
   )
 
@@ -520,7 +516,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
               />
             </mask>
           </defs>
-          <rect width="100%" height="100%" fill="#573535" mask="url(#logoRevealMask)" />
+          <rect width="100%" height="100%" fill="#050505" mask="url(#logoRevealMask)" />
         </svg>
       </div>
 
@@ -762,10 +758,8 @@ export const schema = createSchema({
       inputs: [
         { type: 'range', name: 'logoScaleStart', label: 'Logo scale – initial', defaultValue: 270, configs: { min: 50, max: 600, step: 10 } },
         { type: 'range', name: 'logoScaleEnd', label: 'Logo scale – final', defaultValue: 0.3, configs: { min: 0.1, max: 5, step: 0.1 } },
-        { type: 'range', name: 'logoXStart', label: 'Logo X position – initial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'logoXEnd', label: 'Logo X position – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'logoYStart', label: 'Logo Y position – initial (%)', defaultValue: 70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'logoYEnd', label: 'Logo Y position – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'logoYStart', label: 'Logo Y position – initial (%)', defaultValue: 50, configs: { min: -100, max: 100, step: .1, unit: '%' } },
+        { type: 'range', name: 'logoYEnd', label: 'Logo Y position – final (%)', defaultValue: 50, configs: { min: 0, max: 100, step: 1, unit: '%' } },
       ],
     },
     {
@@ -773,10 +767,8 @@ export const schema = createSchema({
       inputs: [
         { type: 'range', name: 'mbLogoScaleStart', label: 'Logo scale – initial', defaultValue: 270, configs: { min: 50, max: 600, step: 10 } },
         { type: 'range', name: 'mbLogoScaleEnd', label: 'Logo scale – final', defaultValue: 0.3, configs: { min: 0.1, max: 5, step: 0.1 } },
-        { type: 'range', name: 'mbLogoXStart', label: 'Logo X position – initial (%)', defaultValue: 50, configs: { min: -100, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'mbLogoXEnd', label: 'Logo X position – final (%)', defaultValue: 0, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'mbLogoYStart', label: 'Logo Y position – initial (%)', defaultValue: 60, configs: { min: -200, max: 200, step: 5, unit: '%' } },
-        { type: 'range', name: 'mbLogoYEnd', label: 'Logo Y position – final (%)', defaultValue: -70, configs: { min: -200, max: 200, step: 5, unit: '%' } },
+        { type: 'range', name: 'mbLogoYStart', label: 'Logo Y position – initial (%)', defaultValue: 50, configs: { min: -100, max: 100, step: .1, unit: '%' } },
+        { type: 'range', name: 'mbLogoYEnd', label: 'Logo Y position – final (%)', defaultValue: 50, configs: { min: 0, max: 100, step: 1, unit: '%' } },
       ],
     },
     {
@@ -844,8 +836,8 @@ export const schema = createSchema({
     mbLogoScaleEnd: 0.3,
     mbLogoXStart: 50,
     mbLogoXEnd: 0,
-    mbLogoYStart: 60,
-    mbLogoYEnd: -70,
+    mbLogoYStart: 0,
+    mbLogoYEnd: 0,
     // Video
     showPlayButton: true,
     videoUrl: '',

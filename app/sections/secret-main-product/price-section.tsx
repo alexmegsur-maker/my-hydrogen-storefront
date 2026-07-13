@@ -190,6 +190,21 @@ function PriceSection(props:PriceSectionProps){
                 >
                 { product.nombre? product.nombre : product.title}
               </div>
+              {product.miniDescription && (
+                <div
+                  style={{
+                    color: tColor,
+                    fontSize: `calc(${tSize} * 0.65)`,
+                    fontFamily: tFamily,
+                    fontWeight: '400',
+                    opacity: 0.75,
+                    marginTop: '0.25rem',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {product.miniDescription}
+                </div>
+              )}
               { product.variants.nodes.length > 1 &&
                 <div 
                   style={{

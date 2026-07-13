@@ -35,8 +35,13 @@ interface SubBannerProps extends HydrogenComponentProps {
   // Separator
   separatorWidth: number
   separatorAlign: 'left' | 'center' | 'right'
+  separatorWidthMobile: number
   // Layout
   contentTop: number
+  contentTopMobile: number
+  // Mobile overrides
+  titleAlignMobile: 'left' | 'center' | 'right'
+  descAlignMobile: 'left' | 'center' | 'right' | 'justify'
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -96,8 +101,13 @@ function SubBanner(props: SubBannerProps) {
     // Separator
     separatorWidth = 65,
     separatorAlign = 'center',
+    separatorWidthMobile = 90,
     // Layout
     contentTop = 55,
+    contentTopMobile = 50,
+    // Mobile overrides
+    titleAlignMobile = 'center',
+    descAlignMobile = 'center',
   } = props
 
   const isMobile = useIsMobile(700)
@@ -180,14 +190,16 @@ function SubBanner(props: SubBannerProps) {
   // ── Derived styles ──────────────────────────────────────────────────────
 
   const containerStyle: React.CSSProperties = isMobile
-    ? { position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', zIndex: 2 }
+    ? { position: 'absolute', top: `${contentTopMobile}%`, left: 0, width: '100%', transform: 'translateY(-50%)', zIndex: 2 }
     : { position: 'absolute', top: `${contentTop}%`, left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2 }
 
+  const activeSeparatorWidth = isMobile ? separatorWidthMobile : separatorWidth
+  const activeSeparatorAlign = isMobile ? 'center' : separatorAlign
   const separatorMargin: React.CSSProperties = {
-    width: `${separatorWidth}%`,
+    width: `${activeSeparatorWidth}%`,
     paddingBlock: '0.5rem',
-    marginLeft: separatorAlign === 'right' ? 'auto' : separatorAlign === 'center' ? 'auto' : 0,
-    marginRight: separatorAlign === 'left' ? 'auto' : separatorAlign === 'center' ? 'auto' : 0,
+    marginLeft: activeSeparatorAlign === 'right' ? 'auto' : activeSeparatorAlign === 'center' ? 'auto' : 0,
+    marginRight: activeSeparatorAlign === 'left' ? 'auto' : activeSeparatorAlign === 'center' ? 'auto' : 0,
   }
 
   return (
@@ -210,7 +222,7 @@ function SubBanner(props: SubBannerProps) {
             fontFamily: titleFamily,
             fontWeight: titleWeight,
             letterSpacing: `${titleSpacing}px`,
-            textAlign: titleAlign,
+            textAlign: isMobile ? titleAlignMobile : titleAlign,
             width: isMobile ? '90vw' : 'min(max-content, 90vw)',
             paddingInline: isMobile ? 0 : '5rem',
           }}
@@ -247,7 +259,7 @@ function SubBanner(props: SubBannerProps) {
             fontFamily: descFamily,
             fontWeight: descWeight,
             letterSpacing: `${descSpacing}px`,
-            textAlign: isMobile ? 'center' : descAlign,
+            textAlign: isMobile ? descAlignMobile : descAlign,
           }}
         >
           {description}
@@ -276,7 +288,8 @@ export const schema = createSchema({
         { type: 'select', name: 'titleFamily', label: 'Font family', configs: { options: FONT_OPTIONS }, defaultValue: "'EB Garamond', serif" },
         { type: 'select', name: 'titleWeight', label: 'Font weight', configs: { options: WEIGHT_OPTIONS }, defaultValue: '500' },
         { type: 'range', name: 'titleSpacing', label: 'Letter spacing (px)', defaultValue: 0, configs: { min: -5, max: 20, step: 0.5, unit: 'px' } },
-        { type: 'select', name: 'titleAlign', label: 'Alignment', configs: { options: ALIGN_OPTIONS }, defaultValue: 'center' },
+        { type: 'select', name: 'titleAlign', label: 'Alignment – desktop', configs: { options: ALIGN_OPTIONS }, defaultValue: 'center' },
+        { type: 'select', name: 'titleAlignMobile', label: 'Alignment – mobile', configs: { options: ALIGN_OPTIONS }, defaultValue: 'center' },
       ],
     },
     {
@@ -291,9 +304,16 @@ export const schema = createSchema({
         {
           type: 'select',
           name: 'descAlign',
-          label: 'Alignment (desktop)',
+          label: 'Alignment – desktop',
           configs: { options: [...ALIGN_OPTIONS, { value: 'justify', label: 'Justify' }] },
           defaultValue: 'justify',
+        },
+        {
+          type: 'select',
+          name: 'descAlignMobile',
+          label: 'Alignment – mobile',
+          configs: { options: [...ALIGN_OPTIONS, { value: 'justify', label: 'Justify' }] },
+          defaultValue: 'center',
         },
       ],
     },
@@ -301,8 +321,9 @@ export const schema = createSchema({
       group: 'Separator',
       inputs: [
         { type: 'image', name: 'separatorImage', label: 'Separator image' },
-        { type: 'range', name: 'separatorWidth', label: 'Width (%)', defaultValue: 65, configs: { min: 10, max: 100, step: 5, unit: '%' } },
-        { type: 'select', name: 'separatorAlign', label: 'Alignment', configs: { options: ALIGN_OPTIONS }, defaultValue: 'center' },
+        { type: 'range', name: 'separatorWidth', label: 'Width – desktop (%)', defaultValue: 65, configs: { min: 10, max: 100, step: 5, unit: '%' } },
+        { type: 'select', name: 'separatorAlign', label: 'Alignment – desktop', configs: { options: ALIGN_OPTIONS }, defaultValue: 'center' },
+        { type: 'range', name: 'separatorWidthMobile', label: 'Width – mobile (%)', defaultValue: 90, configs: { min: 10, max: 100, step: 5, unit: '%' } },
       ],
     },
     {
@@ -318,8 +339,15 @@ export const schema = createSchema({
         {
           type: 'range',
           name: 'contentTop',
-          label: 'Content – vertical position (%)',
+          label: 'Content – vertical position desktop (%)',
           defaultValue: 55,
+          configs: { min: 10, max: 90, step: 1, unit: '%' },
+        },
+        {
+          type: 'range',
+          name: 'contentTopMobile',
+          label: 'Content – vertical position mobile (%)',
+          defaultValue: 50,
           configs: { min: 10, max: 90, step: 1, unit: '%' },
         },
       ],
@@ -343,8 +371,12 @@ export const schema = createSchema({
     descAlign: 'justify',
     separatorWidth: 65,
     separatorAlign: 'center',
+    separatorWidthMobile: 90,
     gradientColor1: '#997124',
     gradientColor2: '#f1e2b7',
     contentTop: 55,
+    contentTopMobile: 50,
+    titleAlignMobile: 'center',
+    descAlignMobile: 'center',
   },
 })

@@ -1,10 +1,8 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useNavigate } from "react-router";
 import { pushViewItem } from "~/utils/dataLayer"
-import type { ProductQuery } from "storefront-api.generated";
-import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
-import { createCurProVar } from "~/routes/collections/utils";
 import type { ProductNode, RequestVariant } from "~/sections/secret-main-product/variants-secret";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { cn } from "~/utils/cn";
@@ -28,12 +26,6 @@ interface ProductCardProps{
   tooltipProps:tooltipProps;
 }
 
-interface ApiResponseProduct{
-  result:ProductQuery
-  ok:boolean;
-  errorMessage?:string;
-}
-
 function ProductCardCollection(props:ProductCardProps){
   const { product,variante ,tooltipProps,selectColor,rounded} = props;
   const[showToolTip,setShowToolTip] = useState(false);
@@ -42,8 +34,7 @@ function ProductCardCollection(props:ProductCardProps){
   const show = useRef(null);
   const [pos,setPos] = useState(false);
   const isSelected = useCurrentProduct(state=>state.currentProduct?.id===product.id);
-  const setCurrent = useCurrentProduct(state=>state.setProduct);
-  const getApiUrl = usePrefixPathWithLocale(`api/product-secret`);
+  const navigate = useNavigate();
   const [imgProduct,setImgProduct]=useState("")
 
   useGSAP(()=>{
@@ -76,14 +67,8 @@ function ProductCardCollection(props:ProductCardProps){
 
   },[product])
   
-  const setProduct = useCallback(async()=>{
+  const setProduct = useCallback(()=>{
     if (isSelected) return
-    const startsUrl = window.location.href.split("products")[0] + "products/"
-    const newUrl = startsUrl+product.handle
-    const nextState = {additionalInformation:'Updated the URL with JS'}
-    window.history.pushState(nextState,'',newUrl)
-    window.history.replaceState(nextState,'',newUrl)
-
     pushViewItem({
       id: product.id,
       name: product.nombre?.value ?? product.title,
@@ -92,22 +77,9 @@ function ProductCardCollection(props:ProductCardProps){
       sku: variante.sku,
       variant: variante.title,
     })
-
-    try{
-      const res = await fetch(getApiUrl,{
-        method:"POST",
-        body:JSON.stringify({handle:product.handle})
-      })
-      const data = await res.json() as ApiResponseProduct
-      if(data.ok){
-        const prod = createCurProVar(data.result)
-        setCurrent(prod)
-      }
-    }catch(err){
-      console.log("Error loading product:",err)
-    }
-    
-  },[product.handle,isSelected,setCurrent,getApiUrl])
+    const basePath = window.location.pathname.split("products")[0] + "products/"
+    navigate(basePath + product.handle)
+  },[product, variante, isSelected, navigate])
 
   return (
     <div ref={container} 

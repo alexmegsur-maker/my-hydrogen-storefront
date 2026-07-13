@@ -77,7 +77,8 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     reviews: {
       rating: parseFloat(reviewsRating),
       count: parseInt(reviewsCount, 10),
-    }
+    },
+    modelo: product.modelo?.value ?? null,
   };
 }
 
