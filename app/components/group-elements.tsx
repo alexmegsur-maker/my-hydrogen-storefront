@@ -54,7 +54,8 @@ export const schema =createSchema({
     "button",
     "image-with-text--content",
     "copybutton",
-    "discountCountBar"
+    "discountCountBar",
+    "principal-card"
   ],
   settings:[
     ...sectionSettings,
