@@ -107,6 +107,7 @@ interface FilterOptionSizeProps extends HydrogenComponentProps {
   tllNSize: string;
   tllNFamily: string;
   tllNWeight: string;
+  vdDColor:string;
 }
 
 export default function FilterOptionSize(props: FilterOptionSizeProps) {
@@ -208,6 +209,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
     tllNSize,
     tllNFamily,
     tllNWeight,
+    vdDColor,
     ...rest
   } = props;
 
@@ -379,7 +381,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                     style={{
                       fontFamily: vtFamily,
                       fontSize: vtSize,
-                      color: vtColor,
+                      color: vtColor ,
                       textTransform: vtUpper ? "uppercase" : "unset",
                       letterSpacing: vtLetter > 0 ? `${vtLetter}px` : "normal",
                       fontWeight: active || isHovered ? vtWeight : "400",
@@ -395,7 +397,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                     style={{
                       fontFamily: vdFamily,
                       fontSize: vdSize,
-                      color: vdColor,
+                      color: active ? vdColor : vdDColor,
                       textTransform: vdUpper ? "uppercase" : "unset",
                       letterSpacing: vdLetter > 0 ? `${vdLetter}px` : "normal",
                       fontWeight: vdWeight,
@@ -1038,6 +1040,12 @@ export const schema = createSchema({
         {
           type:'heading',
           label:'description'
+        },
+        {
+          type:'color',
+          label:'disabled color',
+          name:'vdDColor',
+          defaultValue:'#71717A',
         },
         {
           type:'color',
