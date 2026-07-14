@@ -3,36 +3,30 @@ import {
   createSchema,
   type ComponentLoaderArgs,
   type HydrogenComponentProps,
-  type WeaverseImage,
 } from '@weaverse/hydrogen'
 import { useIsMobile } from '~/hooks/use-is-mobile'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
+interface CardImage {
+  url: string
+  altText?: string | null
+}
+
 interface PrincipalCardLoaderData {
-  background?: { url: string }
-  logo?: { url: string }
-  copyright?: { url: string }
-  subtitle?: string
-  sinopsis_sub?: string
-  sinopsis?: string
-  link?: string
-  button_label?: string
+  logo?: CardImage
+  fondo?: CardImage
+  subLogo?: CardImage
+  frase_principal?: string
+  descripcion?: string
+  descripcion2?: string
+  boton_text?: string
+  url?: string
 }
 
 interface PrincipalCardProps extends HydrogenComponentProps {
   loaderData: PrincipalCardLoaderData | null
   metaobject: string
-  // Image overrides
-  background?: WeaverseImage
-  logo?: WeaverseImage
-  copyright?: WeaverseImage
-  // Text overrides
-  subtitle?: string
-  sinopsisSubtitle?: string
-  sinopsis?: string
-  link?: string
-  buttonLabel?: string
   // Card dimensions
   cardWidth: string
   cardHeight: string
@@ -78,7 +72,7 @@ const PRINCIPAL_CARD_QUERY = `#graphql
         value
         reference {
           ... on MediaImage {
-            image { url width height altText }
+            image { url altText }
           }
         }
       }
@@ -112,20 +106,11 @@ export const loader = async ({
   }
 }
 
-// ─── Helper ────────────────────────────────────────────────────────────────
-
-function toUrl(img: WeaverseImage | { url: string } | undefined): string {
-  if (!img) return ''
-  return typeof img === 'string' ? img : img.url
-}
-
 // ─── Section ───────────────────────────────────────────────────────────────
 
 function PrincipalCard(props: PrincipalCardProps) {
   const {
     loaderData,
-    background, logo, copyright,
-    subtitle, sinopsisSubtitle, sinopsis, link, buttonLabel,
     cardWidth = '26vw', cardHeight = '75vh',
     cardWidthMobile = '90vw', cardHeightMobile = '70vh',
     subtitleColor = '#E3CE79',
@@ -146,18 +131,17 @@ function PrincipalCard(props: PrincipalCardProps) {
   const isMobile = useIsMobile(700)
   const [hovered, setHovered] = useState(false)
 
-  const bgUrl      = toUrl(background)  || toUrl(loaderData?.background)
-  const logoUrl    = toUrl(logo)        || toUrl(loaderData?.logo)
-  const cpUrl      = toUrl(copyright)   || toUrl(loaderData?.copyright)
-  const sub        = subtitle           || loaderData?.subtitle        || ''
-  const sinopsisSub = sinopsisSubtitle  || loaderData?.sinopsis_sub    || ''
-  const sinopsisText = sinopsis         || loaderData?.sinopsis         || ''
-  const linkUrl    = link               || loaderData?.link             || '#'
-  const btnText    = buttonLabel        || loaderData?.button_label     || 'Ver más'
+  const bgUrl        = loaderData?.fondo?.url         ?? ''
+  const logoUrl      = loaderData?.logo?.url          ?? ''
+  const cpUrl        = loaderData?.subLogo?.url       ?? ''
+  const sub          = loaderData?.frase_principal    ?? ''
+  const sinopsisSub  = loaderData?.descripcion        ?? ''
+  const sinopsisText = loaderData?.descripcion2       ?? ''
+  const linkUrl      = loaderData?.url                ?? '#'
+  const btnText      = loaderData?.boton_text         ?? 'Ver más'
 
   const w = isMobile ? cardWidthMobile : cardWidth
   const h = isMobile ? cardHeightMobile : cardHeight
-
   const tr = (ms: number) => `${ms}ms linear`
 
   return (
@@ -167,7 +151,6 @@ function PrincipalCard(props: PrincipalCardProps) {
       onMouseLeave={() => !isMobile && setHovered(false)}
       onClick={() => isMobile && setHovered(v => !v)}
     >
-      {/* Wrapper – lifts on hover */}
       <div
         style={{
           width: '100%', height: '100%',
@@ -187,8 +170,6 @@ function PrincipalCard(props: PrincipalCardProps) {
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
           )}
-
-          {/* Logo / subtitle / copyright overlay */}
           <div
             style={{
               position: 'absolute', inset: 0,
@@ -254,7 +235,6 @@ function PrincipalCard(props: PrincipalCardProps) {
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
             textAlign: 'center',
-            color: '#fff',
             opacity: hovered ? 1 : 0,
             transform: hovered ? 'translateY(0)' : 'translateY(10%)',
             transition: tr(500),
@@ -346,86 +326,68 @@ export const schema = createSchema({
   title: 'Principal Card',
   settings: [
     {
-      group: 'Datos (metaobject)',
+      group: 'Datos',
       inputs: [
         {
           type: 'text',
           name: 'metaobject',
-          label: 'Handle del metaobject (principal_card)',
+          label: 'Handle del metaobject (tipo: principal_card)',
           placeholder: 'ej: mi-coleccion',
           defaultValue: '',
         },
       ],
     },
     {
-      group: 'Imágenes (override)',
+      group: 'Dimensiones',
       inputs: [
-        { type: 'image', name: 'background',  label: 'Imagen de fondo' },
-        { type: 'image', name: 'logo',        label: 'Logo' },
-        { type: 'image', name: 'copyright',   label: 'Logo copyright (esquina)' },
+        { type: 'text', name: 'cardWidth',        label: 'Ancho – desktop',    defaultValue: '26vw' },
+        { type: 'text', name: 'cardHeight',       label: 'Alto – desktop',     defaultValue: '75vh' },
+        { type: 'text', name: 'cardWidthMobile',  label: 'Ancho – mobile',     defaultValue: '90vw' },
+        { type: 'text', name: 'cardHeightMobile', label: 'Alto – mobile',      defaultValue: '70vh' },
       ],
     },
     {
-      group: 'Textos (override)',
+      group: 'Subtítulo frente',
       inputs: [
-        { type: 'text',     name: 'subtitle',          label: 'Subtítulo frente (usa \\n para salto de línea)' },
-        { type: 'text',     name: 'sinopsisSubtitle',  label: 'Subtítulo reverso (sinopsis sub)' },
-        { type: 'textarea', name: 'sinopsis',           label: 'Descripción reverso (sinopsis)' },
-        { type: 'text',     name: 'link',               label: 'URL del botón' },
-        { type: 'text',     name: 'buttonLabel',        label: 'Texto del botón', defaultValue: 'Ver más' },
+        { type: 'color',  name: 'subtitleColor',       label: 'Color',            defaultValue: '#E3CE79' },
+        { type: 'range',  name: 'subtitleSize',        label: 'Tamaño – desktop', defaultValue: 14, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
+        { type: 'range',  name: 'subtitleSizeMobile',  label: 'Tamaño – mobile',  defaultValue: 14, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
+        { type: 'text',   name: 'subtitleFamily',      label: 'Fuente',           defaultValue: 'Arial, sans-serif' },
+        { type: 'select', name: 'subtitleWeight',      label: 'Weight',           configs: { options: WEIGHT_OPTIONS }, defaultValue: '600' },
       ],
     },
     {
-      group: 'Dimensiones de la tarjeta',
+      group: 'Subtítulo reverso',
       inputs: [
-        { type: 'text', name: 'cardWidth',        label: 'Ancho – desktop',  defaultValue: '26vw' },
-        { type: 'text', name: 'cardHeight',       label: 'Alto – desktop',   defaultValue: '75vh' },
-        { type: 'text', name: 'cardWidthMobile',  label: 'Ancho – mobile',   defaultValue: '90vw' },
-        { type: 'text', name: 'cardHeightMobile', label: 'Alto – mobile',    defaultValue: '70vh' },
+        { type: 'color',  name: 'backSubtitleColor',       label: 'Color',            defaultValue: '#ffffff' },
+        { type: 'range',  name: 'backSubtitleSize',        label: 'Tamaño – desktop', defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
+        { type: 'range',  name: 'backSubtitleSizeMobile',  label: 'Tamaño – mobile',  defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
+        { type: 'text',   name: 'backSubtitleFamily',      label: 'Fuente',           defaultValue: 'Arial, sans-serif' },
+        { type: 'select', name: 'backSubtitleWeight',      label: 'Weight',           configs: { options: WEIGHT_OPTIONS }, defaultValue: '700' },
       ],
     },
     {
-      group: 'Subtítulo (frente)',
+      group: 'Descripción reverso',
       inputs: [
-        { type: 'color',  name: 'subtitleColor',        label: 'Color',            defaultValue: '#E3CE79' },
-        { type: 'range',  name: 'subtitleSize',         label: 'Tamaño – desktop', defaultValue: 14, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
-        { type: 'range',  name: 'subtitleSizeMobile',   label: 'Tamaño – mobile',  defaultValue: 14, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
-        { type: 'text',   name: 'subtitleFamily',       label: 'Fuente',           defaultValue: 'Arial, sans-serif' },
-        { type: 'select', name: 'subtitleWeight',       label: 'Weight',           configs: { options: WEIGHT_OPTIONS }, defaultValue: '600' },
-      ],
-    },
-    {
-      group: 'Subtítulo reverso (sinopsis sub)',
-      inputs: [
-        { type: 'color',  name: 'backSubtitleColor',        label: 'Color',            defaultValue: '#ffffff' },
-        { type: 'range',  name: 'backSubtitleSize',         label: 'Tamaño – desktop', defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
-        { type: 'range',  name: 'backSubtitleSizeMobile',   label: 'Tamaño – mobile',  defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
-        { type: 'text',   name: 'backSubtitleFamily',       label: 'Fuente',           defaultValue: 'Arial, sans-serif' },
-        { type: 'select', name: 'backSubtitleWeight',       label: 'Weight',           configs: { options: WEIGHT_OPTIONS }, defaultValue: '700' },
-      ],
-    },
-    {
-      group: 'Descripción reverso (sinopsis)',
-      inputs: [
-        { type: 'color',  name: 'backTextColor',        label: 'Color',            defaultValue: '#ffffff' },
-        { type: 'range',  name: 'backTextSize',         label: 'Tamaño – desktop', defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
-        { type: 'range',  name: 'backTextSizeMobile',   label: 'Tamaño – mobile',  defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
-        { type: 'text',   name: 'backTextFamily',       label: 'Fuente',           defaultValue: 'Arial, sans-serif' },
-        { type: 'select', name: 'backTextWeight',       label: 'Weight',           configs: { options: WEIGHT_OPTIONS }, defaultValue: '400' },
+        { type: 'color',  name: 'backTextColor',       label: 'Color',            defaultValue: '#ffffff' },
+        { type: 'range',  name: 'backTextSize',        label: 'Tamaño – desktop', defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
+        { type: 'range',  name: 'backTextSizeMobile',  label: 'Tamaño – mobile',  defaultValue: 16, configs: { min: 10, max: 48, step: 1, unit: 'px' } },
+        { type: 'text',   name: 'backTextFamily',      label: 'Fuente',           defaultValue: 'Arial, sans-serif' },
+        { type: 'select', name: 'backTextWeight',      label: 'Weight',           configs: { options: WEIGHT_OPTIONS }, defaultValue: '400' },
       ],
     },
     {
       group: 'Botón',
       inputs: [
-        { type: 'color', name: 'buttonColor',         label: 'Color texto',      defaultValue: '#141414' },
-        { type: 'color', name: 'buttonBg',            label: 'Color fondo',      defaultValue: '#E3CE79' },
-        { type: 'range', name: 'buttonRadius',        label: 'Radio borde',      defaultValue: 0,  configs: { min: 0, max: 50, step: 1, unit: 'px' } },
-        { type: 'range', name: 'buttonFontSize',      label: 'Tamaño – desktop', defaultValue: 16, configs: { min: 10, max: 36, step: 1, unit: 'px' } },
-        { type: 'range', name: 'buttonFontSizeMobile',label: 'Tamaño – mobile',  defaultValue: 14, configs: { min: 10, max: 36, step: 1, unit: 'px' } },
-        { type: 'text',  name: 'buttonFamily',        label: 'Fuente',           defaultValue: 'Quicksand, sans-serif' },
-        { type: 'range', name: 'buttonLetterSpacing', label: 'Letter spacing',   defaultValue: 2,  configs: { min: 0, max: 20, step: 1, unit: 'px' } },
-        { type: 'range', name: 'buttonPaddingV',      label: 'Padding vertical', defaultValue: 12, configs: { min: 4, max: 40, step: 1, unit: 'px' } },
-        { type: 'range', name: 'buttonPaddingH',      label: 'Padding horizontal', defaultValue: 17, configs: { min: 4, max: 80, step: 1, unit: 'px' } },
+        { type: 'color', name: 'buttonColor',          label: 'Color texto',        defaultValue: '#141414' },
+        { type: 'color', name: 'buttonBg',             label: 'Color fondo',        defaultValue: '#E3CE79' },
+        { type: 'range', name: 'buttonRadius',         label: 'Radio borde',        defaultValue: 0,  configs: { min: 0, max: 50, step: 1, unit: 'px' } },
+        { type: 'range', name: 'buttonFontSize',       label: 'Tamaño – desktop',   defaultValue: 16, configs: { min: 10, max: 36, step: 1, unit: 'px' } },
+        { type: 'range', name: 'buttonFontSizeMobile', label: 'Tamaño – mobile',    defaultValue: 14, configs: { min: 10, max: 36, step: 1, unit: 'px' } },
+        { type: 'text',  name: 'buttonFamily',         label: 'Fuente',             defaultValue: 'Quicksand, sans-serif' },
+        { type: 'range', name: 'buttonLetterSpacing',  label: 'Letter spacing',     defaultValue: 2,  configs: { min: 0, max: 20, step: 1, unit: 'px' } },
+        { type: 'range', name: 'buttonPaddingV',       label: 'Padding vertical',   defaultValue: 12, configs: { min: 4, max: 40, step: 1, unit: 'px' } },
+        { type: 'range', name: 'buttonPaddingH',       label: 'Padding horizontal', defaultValue: 17, configs: { min: 4, max: 80, step: 1, unit: 'px' } },
       ],
     },
   ],
