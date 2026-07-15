@@ -760,12 +760,12 @@ export default function ChairSection(props: ChairSectionProps) {
                   color: tituloColor,
                   fontWeight: tituloWeight,
                   fontFamily: tituloFamily,
-
+                  display:"flex"
                 }}
               >
                 {titulo}
                 {decoration &&
-                  <span className="text-sm">
+                  <span className="text-sm" style={{transform:"translateY(50%)"}}>
                     {decoration}
                   </span>
                 }

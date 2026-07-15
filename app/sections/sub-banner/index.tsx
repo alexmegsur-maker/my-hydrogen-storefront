@@ -8,6 +8,7 @@ import {
   type WeaverseImage,
 } from '@weaverse/hydrogen'
 import { useIsMobile } from '~/hooks/use-is-mobile'
+import { selectorPaddingMargin } from '~/utils/general'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,33 @@ interface SubBannerProps extends HydrogenComponentProps {
   // Mobile overrides
   titleAlignMobile: 'left' | 'center' | 'right'
   descAlignMobile: 'left' | 'center' | 'right' | 'justify'
+  // cont-text padding/margin
+  contPaddingSelect: string
+  contPaddingText: string
+  contPaddingSelectMobile: string
+  contPaddingTextMobile: string
+  contMarginSelect: string
+  contMarginText: string
+  contMarginSelectMobile: string
+  contMarginTextMobile: string
+  // h3 padding/margin
+  titlePaddingSelect: string
+  titlePaddingText: string
+  titlePaddingSelectMobile: string
+  titlePaddingTextMobile: string
+  titleMarginSelect: string
+  titleMarginText: string
+  titleMarginSelectMobile: string
+  titleMarginTextMobile: string
+  // p padding/margin
+  descPaddingSelect: string
+  descPaddingText: string
+  descPaddingSelectMobile: string
+  descPaddingTextMobile: string
+  descMarginSelect: string
+  descMarginText: string
+  descMarginSelectMobile: string
+  descMarginTextMobile: string
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -66,6 +94,16 @@ const WEIGHT_OPTIONS = [
   { value: '600', label: 'Semibold (600)' },
   { value: '700', label: 'Bold (700)' },
   { value: '800', label: 'Extrabold (800)' },
+]
+
+const SELECTOR_OPTIONS = [
+  { value: 't', label: 'Top' },
+  { value: 'b', label: 'Bottom' },
+  { value: 'l', label: 'Left' },
+  { value: 'r', label: 'Right' },
+  { value: 'x', label: 'Inline' },
+  { value: 'y', label: 'Block' },
+  { value: 'a', label: 'Custom' },
 ]
 
 const ALIGN_OPTIONS = [
@@ -108,6 +146,21 @@ function SubBanner(props: SubBannerProps) {
     // Mobile overrides
     titleAlignMobile = 'center',
     descAlignMobile = 'center',
+    // cont-text padding/margin
+    contPaddingSelect = 'a', contPaddingText = '0px',
+    contPaddingSelectMobile = 'a', contPaddingTextMobile = '0px',
+    contMarginSelect = 'a', contMarginText = '0px',
+    contMarginSelectMobile = 'a', contMarginTextMobile = '0px',
+    // h3 padding/margin
+    titlePaddingSelect = 'x', titlePaddingText = '5rem',
+    titlePaddingSelectMobile = 'a', titlePaddingTextMobile = '0px',
+    titleMarginSelect = 'a', titleMarginText = '0px',
+    titleMarginSelectMobile = 'a', titleMarginTextMobile = '0px',
+    // p padding/margin
+    descPaddingSelect = 'a', descPaddingText = '0px',
+    descPaddingSelectMobile = 'x', descPaddingTextMobile = '5vw',
+    descMarginSelect = 'a', descMarginText = '0px',
+    descMarginSelectMobile = 'a', descMarginTextMobile = '0px',
   } = props
 
   const isMobile = useIsMobile(700)
@@ -207,7 +260,14 @@ function SubBanner(props: SubBannerProps) {
       className="sub-banner relative z-[11] h-[300vh] overflow-visible" 
       ref={sectionRef} 
     >
-      <div style={containerStyle} >
+      <div
+        className='cont-text'
+        style={{
+          ...containerStyle,
+          ...selectorPaddingMargin('padding', isMobile ? contPaddingSelectMobile : contPaddingSelect, isMobile ? contPaddingTextMobile : contPaddingText),
+          ...selectorPaddingMargin('margin',  isMobile ? contMarginSelectMobile  : contMarginSelect,  isMobile ? contMarginTextMobile  : contMarginText),
+        }}
+      >
 
         {/* Headline */}
         <h3 
@@ -224,7 +284,8 @@ function SubBanner(props: SubBannerProps) {
             letterSpacing: `${titleSpacing}px`,
             textAlign: isMobile ? titleAlignMobile : titleAlign,
             width: isMobile ? '90vw' : 'min(max-content, 90vw)',
-            paddingInline: isMobile ? 0 : '5rem',
+            ...selectorPaddingMargin('padding', isMobile ? titlePaddingSelectMobile : titlePaddingSelect, isMobile ? titlePaddingTextMobile : titlePaddingText),
+            ...selectorPaddingMargin('margin',  isMobile ? titleMarginSelectMobile  : titleMarginSelect,  isMobile ? titleMarginTextMobile  : titleMarginText),
           }}
         >
           {line1}
@@ -254,8 +315,9 @@ function SubBanner(props: SubBannerProps) {
             WebkitBackgroundClip: 'text',
             lineHeight: 1.4,
             width: '100%',
-            paddingInline: isMobile ? '5vw' : 0,
             fontSize: `${isMobile ? descSizeMobile : descSize}px`,
+            ...selectorPaddingMargin('padding', isMobile ? descPaddingSelectMobile : descPaddingSelect, isMobile ? descPaddingTextMobile : descPaddingText),
+            ...selectorPaddingMargin('margin',  isMobile ? descMarginSelectMobile  : descMarginSelect,  isMobile ? descMarginTextMobile  : descMarginText),
             fontFamily: descFamily,
             fontWeight: descWeight,
             letterSpacing: `${descSpacing}px`,
@@ -334,6 +396,45 @@ export const schema = createSchema({
       ],
     },
     {
+      group: 'Contenedor (cont-text)',
+      inputs: [
+        { type: 'select', name: 'contPaddingSelect',       label: 'Padding tipo – desktop',  configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'contPaddingText',         label: 'Padding – desktop',        defaultValue: '0px' },
+        { type: 'select', name: 'contPaddingSelectMobile', label: 'Padding tipo – mobile',   configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'contPaddingTextMobile',   label: 'Padding – mobile',         defaultValue: '0px' },
+        { type: 'select', name: 'contMarginSelect',        label: 'Margin tipo – desktop',   configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'contMarginText',          label: 'Margin – desktop',         defaultValue: '0px' },
+        { type: 'select', name: 'contMarginSelectMobile',  label: 'Margin tipo – mobile',    configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'contMarginTextMobile',    label: 'Margin – mobile',          defaultValue: '0px' },
+      ],
+    },
+    {
+      group: 'Título h3 – espaciado',
+      inputs: [
+        { type: 'select', name: 'titlePaddingSelect',       label: 'Padding tipo – desktop',  configs: { options: SELECTOR_OPTIONS }, defaultValue: 'x' },
+        { type: 'text',   name: 'titlePaddingText',         label: 'Padding – desktop',        defaultValue: '5rem' },
+        { type: 'select', name: 'titlePaddingSelectMobile', label: 'Padding tipo – mobile',   configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'titlePaddingTextMobile',   label: 'Padding – mobile',         defaultValue: '0px' },
+        { type: 'select', name: 'titleMarginSelect',        label: 'Margin tipo – desktop',   configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'titleMarginText',          label: 'Margin – desktop',         defaultValue: '0px' },
+        { type: 'select', name: 'titleMarginSelectMobile',  label: 'Margin tipo – mobile',    configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'titleMarginTextMobile',    label: 'Margin – mobile',          defaultValue: '0px' },
+      ],
+    },
+    {
+      group: 'Descripción p – espaciado',
+      inputs: [
+        { type: 'select', name: 'descPaddingSelect',       label: 'Padding tipo – desktop',  configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'descPaddingText',         label: 'Padding – desktop',        defaultValue: '0px' },
+        { type: 'select', name: 'descPaddingSelectMobile', label: 'Padding tipo – mobile',   configs: { options: SELECTOR_OPTIONS }, defaultValue: 'x' },
+        { type: 'text',   name: 'descPaddingTextMobile',   label: 'Padding – mobile',         defaultValue: '5vw' },
+        { type: 'select', name: 'descMarginSelect',        label: 'Margin tipo – desktop',   configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'descMarginText',          label: 'Margin – desktop',         defaultValue: '0px' },
+        { type: 'select', name: 'descMarginSelectMobile',  label: 'Margin tipo – mobile',    configs: { options: SELECTOR_OPTIONS }, defaultValue: 'a' },
+        { type: 'text',   name: 'descMarginTextMobile',    label: 'Margin – mobile',          defaultValue: '0px' },
+      ],
+    },
+    {
       group: 'Layout',
       inputs: [
         {
@@ -378,5 +479,17 @@ export const schema = createSchema({
     contentTopMobile: 50,
     titleAlignMobile: 'center',
     descAlignMobile: 'center',
+    contPaddingSelect: 'a',  contPaddingText: '0px',
+    contPaddingSelectMobile: 'a', contPaddingTextMobile: '0px',
+    contMarginSelect: 'a',   contMarginText: '0px',
+    contMarginSelectMobile: 'a',  contMarginTextMobile: '0px',
+    titlePaddingSelect: 'x', titlePaddingText: '5rem',
+    titlePaddingSelectMobile: 'a', titlePaddingTextMobile: '0px',
+    titleMarginSelect: 'a',  titleMarginText: '0px',
+    titleMarginSelectMobile: 'a',  titleMarginTextMobile: '0px',
+    descPaddingSelect: 'a',  descPaddingText: '0px',
+    descPaddingSelectMobile: 'x',  descPaddingTextMobile: '5vw',
+    descMarginSelect: 'a',   descMarginText: '0px',
+    descMarginSelectMobile: 'a',   descMarginTextMobile: '0px',
   },
 })

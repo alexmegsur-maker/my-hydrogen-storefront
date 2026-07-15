@@ -448,7 +448,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
           alt=""
           style={chairStyle}
         />
-        <div className="hero-img-copy fixed bottom-[5%] left-1/2 -translate-x-1/2 [will-change:opacity] z-[5]">
+        <div className="hero-img-copy fixed bottom-[5%] left-1/2 -translate-x-1/2 [will-change:opacity] z-[5] flex flex-col">
           <p
             style={{
               fontSize: `${isMobile ? scrollSizeMobile : scrollSize}px`,
@@ -464,7 +464,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
             viewBox="0 0 25 25"
             strokeWidth={1}
             stroke="currentColor"
-            className="arrow-down animate-arrow-pulse"
+            className="arrow-down animate-arrow-pulse h-[40px]"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
           </svg>
