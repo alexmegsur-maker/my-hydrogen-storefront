@@ -261,7 +261,7 @@ function SubBanner(props: SubBannerProps) {
       ref={sectionRef} 
     >
       <div
-        className='cont-text'
+        className='cont-text w-full'
         style={{
           ...containerStyle,
           ...selectorPaddingMargin('padding', isMobile ? contPaddingSelectMobile : contPaddingSelect, isMobile ? contPaddingTextMobile : contPaddingText),
