@@ -65,6 +65,7 @@ export function ScrollingAnnouncement() {
           "--gap": `${topbarScrollingGap}px`,
           fontSize:topbarSize,
           borderBottom:`1px solid ${headerBorderColor}`,
+          zIndex:3
         } as React.CSSProperties
       }
     >
