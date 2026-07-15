@@ -27,6 +27,11 @@ interface PrincipalBannerProps extends HydrogenComponentProps {
   phraseWeight: string
   phraseSpacing: number
   phraseAlign: 'left' | 'center' | 'right'
+  phraseTop: number
+  phraseTopMobile: number
+  phraseColor: string
+  phraseWidth: string
+  phraseWidthMobile: string
   // Headline
   preorderLine1: string
   preorderLine2: string
@@ -139,6 +144,11 @@ function PrincipalBanner(props: PrincipalBannerProps) {
     phraseWeight = '500',
     phraseSpacing = 0,
     phraseAlign = 'left',
+    phraseTop = 15,
+    phraseTopMobile = 15,
+    phraseColor = '#ffffff',
+    phraseWidth = '27rem',
+    phraseWidthMobile = '85vw',
     // Headline
     preorderLine1,
     preorderLine2,
@@ -430,8 +440,11 @@ function PrincipalBanner(props: PrincipalBannerProps) {
         />
         <div className="hero-img-logo z-[5] flex items-center w-screen h-screen justify-center absolute">
           <h3
-            className="frase-principal fixed top-[15vh] w-[27rem] leading-[0.9] [word-spacing:4px] max-[700px]:w-[85vw]"
+            className="frase-principal fixed leading-[0.9] [word-spacing:4px]"
             style={{
+              top: `${isMobile ? phraseTopMobile : phraseTop}vh`,
+              width: isMobile ? phraseWidthMobile : phraseWidth,
+              color: phraseColor,
               fontSize: `${isMobile ? phraseSizeMobile : phraseSize}px`,
               fontFamily: phraseFamily,
               fontWeight: phraseWeight,
@@ -667,6 +680,11 @@ export const schema = createSchema({
         { type: 'select', name: 'phraseWeight', label: 'Font weight', configs: { options: WEIGHT_OPTIONS }, defaultValue: '500' },
         { type: 'range', name: 'phraseSpacing', label: 'Letter spacing (px)', defaultValue: 0, configs: { min: -5, max: 20, step: 0.5, unit: 'px' } },
         { type: 'select', name: 'phraseAlign', label: 'Alignment', configs: { options: ALIGN_OPTIONS }, defaultValue: 'left' },
+        { type: 'range', name: 'phraseTop', label: 'Top – desktop (vh)', defaultValue: 15, configs: { min: 0, max: 100, step: 1, unit: 'vh' } },
+        { type: 'range', name: 'phraseTopMobile', label: 'Top – mobile (vh)', defaultValue: 15, configs: { min: 0, max: 100, step: 1, unit: 'vh' } },
+        { type: 'color', name: 'phraseColor', label: 'Color', defaultValue: '#ffffff' },
+        { type: 'text', name: 'phraseWidth', label: 'Ancho – desktop', defaultValue: '27rem' },
+        { type: 'text', name: 'phraseWidthMobile', label: 'Ancho – mobile', defaultValue: '85vw' },
       ],
     },
     {
@@ -788,6 +806,11 @@ export const schema = createSchema({
     phraseWeight: '500',
     phraseSpacing: 0,
     phraseAlign: 'left',
+    phraseTop: 15,
+    phraseTopMobile: 15,
+    phraseColor: '#ffffff',
+    phraseWidth: '27rem',
+    phraseWidthMobile: '85vw',
     // Headline
     preorderLine1: 'Pre-order',
     preorderLine2: 'now',
