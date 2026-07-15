@@ -3828,7 +3828,7 @@ export type PrincipalCardQuery = {
       Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
         reference?: StorefrontAPI.Maybe<{
           image?: StorefrontAPI.Maybe<
-            Pick<StorefrontAPI.Image, 'url' | 'width' | 'height' | 'altText'>
+            Pick<StorefrontAPI.Image, 'url' | 'altText'>
           >;
         }>;
       }
@@ -4197,7 +4197,7 @@ interface GeneratedQueryTypes {
     return: OurTeamQuery;
     variables: OurTeamQueryVariables;
   };
-  '#graphql\n  query PrincipalCard($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "principal_card" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url width height altText }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query PrincipalCard($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "principal_card" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n        }\n      }\n    }\n  }\n': {
     return: PrincipalCardQuery;
     variables: PrincipalCardQueryVariables;
   };

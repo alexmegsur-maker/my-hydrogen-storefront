@@ -31,10 +31,12 @@ interface ChairSectionLoaderData {
 interface ChairSectionProps extends ChairSectionLoaderData {
   loaderData: ChairSectionLoaderData | null;
   metaobject: string;
+
   index?: number;
   isLast?: boolean;
   changePosition:boolean;
   // Estilos — Título
+  decoration?:string;
   tituloFamily?: string;
   tituloSize?: string;
   tituloColor?: string;
@@ -414,7 +416,8 @@ export default function ChairSection(props: ChairSectionProps) {
     btnBorderColor = "#fef289",
     btnFontSize = "18px",
     btnFontFamily = "'EB Garamond', serif",
-    mobileImagePosition = 50
+    mobileImagePosition = 50,
+    decoration
   } = props;
 
   const titulo       = loaderData?.titulo       ?? "";
@@ -739,22 +742,34 @@ export default function ChairSection(props: ChairSectionProps) {
             style={{
               gridColumn: "2/span 5",
               textAlign: "left",
-              fontFamily: tituloFamily,
               direction: "ltr",
               width: "100%",
               display: "flex",
               height: "auto",
               alignItems: "center",
-              fontSize: tituloSize,
-              color: tituloColor,
-              fontWeight: tituloWeight,
+              
               textTransform: "uppercase",
             }}
           >
             {titleImgUrl ? (
               <img src={titleImgUrl} alt={titulo || "titulo"} style={{ maxWidth: '100%', height: 'auto' }} />
             ) : (
-              <h2>{titulo}</h2>
+              <h2 
+                style={{
+                  fontSize: tituloSize,
+                  color: tituloColor,
+                  fontWeight: tituloWeight,
+                  fontFamily: tituloFamily,
+
+                }}
+              >
+                {titulo}
+                {decoration &&
+                  <span className="text-sm">
+                    {decoration}
+                  </span>
+                }
+              </h2>
             )}
           </div>
           <div
@@ -954,6 +969,12 @@ export const schema = createSchema({
     {
       group: "Estilos — Título",
       inputs: [
+        {
+          type: "text",
+          label: "decoration title",
+          name: "decoration",
+          defaultValue: "TM",
+        },
         {
           type: "color",
           label: "Color",
