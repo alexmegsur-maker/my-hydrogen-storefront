@@ -19,7 +19,7 @@ import { useLenis } from "lenis/react";
 
 interface ChairSectionLoaderData {
   titulo?: string;
-  imgTitulo?: WeaverseImage;
+  img_titulo?: WeaverseImage;
   subtitle?: string;
   description?: string;
   button_text?: string;
@@ -58,6 +58,9 @@ interface ChairSectionProps extends ChairSectionLoaderData {
   btnFontFamily?: string;
   // Imagen mobile
   mobileImagePosition?: number;
+  // Imagen título
+  titleImgWidth?: string;
+  titleImgWidthMobile?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -417,11 +420,13 @@ export default function ChairSection(props: ChairSectionProps) {
     btnFontSize = "18px",
     btnFontFamily = "'EB Garamond', serif",
     mobileImagePosition = 50,
-    decoration
+    decoration,
+    titleImgWidth = '100%',
+    titleImgWidthMobile = '100%',
   } = props;
 
   const titulo       = loaderData?.titulo       ?? "";
-  const imgTitulo    = loaderData?.imgTitulo;
+  const imgTitulo    = loaderData?.img_titulo;
   const subtitle     = loaderData?.subtitle     ?? "";
   const description  = loaderData?.description  ?? "";
   const button_text  = loaderData?.button_text  ?? "Comprar ahora";
@@ -752,7 +757,11 @@ export default function ChairSection(props: ChairSectionProps) {
             }}
           >
             {titleImgUrl ? (
-              <img src={titleImgUrl} alt={titulo || "titulo"} style={{ maxWidth: '100%', height: 'auto' }} />
+              <img
+                src={titleImgUrl}
+                alt={titulo || "titulo"}
+                style={{ width: isMobile ? titleImgWidthMobile : titleImgWidth, height: 'auto', display: 'block' }}
+              />
             ) : (
               <h2 
                 style={{
@@ -974,6 +983,18 @@ export const schema = createSchema({
           label: "decoration title",
           name: "decoration",
           defaultValue: "TM",
+        },
+        {
+          type: "text",
+          label: "Ancho imagen título – desktop",
+          name: "titleImgWidth",
+          defaultValue: "100%",
+        },
+        {
+          type: "text",
+          label: "Ancho imagen título – mobile",
+          name: "titleImgWidthMobile",
+          defaultValue: "100%",
         },
         {
           type: "color",
