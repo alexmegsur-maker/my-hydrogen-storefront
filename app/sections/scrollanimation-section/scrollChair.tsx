@@ -843,7 +843,7 @@ export default function ChairSection(props: ChairSectionProps) {
           className="section-2"
           style={{
             gridColumn: "span 6",
-            paddingTop: "calc(100vh/6)",
+            paddingTop: isMobile ?"20px":"calc(100vh/6)",
           }}
         >
           <div

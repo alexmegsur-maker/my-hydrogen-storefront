@@ -228,7 +228,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
           } as CSSProperties
         }
-        className="bg-background text-body antialiased overflow-x-hidden"
+        className="bg-background text-body antialiased overflow-x-clip"
       >
 
         <noscript>
