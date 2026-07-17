@@ -5,7 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
 import { Image } from "~/components/image"
 import { Section, sectionSettings } from "~/components/section"
-import { useIsMobile } from "~/hooks/use-is-mobile";
 
 
 export interface CardSelectorProps{
@@ -32,7 +31,6 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
     ...rest
   }=props
 
-  const isMobile = useIsMobile(600)
   const childInstances =useChildInstances()
   const headerChildsId =childInstances.map(
     (instance:any)=>{ 
@@ -95,14 +93,12 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
       })}
     </div>
 
-    <div 
-      className="universes-grid"
+    <div
+      className="universes-grid flex flex-col min-[600px]:grid"
       ref={container}
       style={{
         width: "100%",
-        display: isMobile ?"flex":"grid",
-        gridTemplateColumns: !isMobile ?`repeat(${numberElm}, 1fr)`:"unset",
-        flexDirection:isMobile ? "column":"unset",
+        gridTemplateColumns: `repeat(${numberElm}, 1fr)`,
         gap: `${gap}rem`,
         borderTop: `1px solid ${borderColor}`,
         borderBottom: `1px solid ${borderColor}`

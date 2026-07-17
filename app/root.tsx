@@ -40,6 +40,9 @@ import { GlobalStyle } from "./weaverse/style";
 import { useJudgeme } from '@judgeme/shopify-hydrogen';
 import { GoogleTagManager } from "./components/google-tag-manager";
 import CookieConsentBanner from "./components/CookieConsent";
+import { IsMobileContext } from "./hooks/is-mobile-context";
+
+const MOBILE_UA_REGEX = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i;
 
 export type RootLoader = typeof loader;
 
@@ -72,13 +75,15 @@ export const links: LinksFunction = () => {
 };
 
 export async function loader(args: LoaderFunctionArgs) {
-  const { context } = args;
+  const { context, request } = args;
   const deferredData = loadDeferredData(args);
   const criticalData = await loadCriticalData(args);
+  const isMobileUA = MOBILE_UA_REGEX.test(request.headers.get("user-agent") ?? "");
 
   return {
     ...deferredData,
     ...criticalData,
+    isMobileUA,
     judgeme: {
       shopDomain: context.env.JUDGEME_SHOP_DOMAIN,
       publicToken: context.env.JUDGEME_PUBLIC_TOKEN,
@@ -182,8 +187,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
+    <IsMobileContext.Provider value={data?.isMobileUA ?? false}>
     <html lang={locale.language}>
-      <head> 
+      <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
@@ -280,6 +286,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Scripts nonce={nonce} />
       </body>
     </html>
+    </IsMobileContext.Provider>
   );
 }
 
