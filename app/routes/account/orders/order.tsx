@@ -2,7 +2,7 @@ import { flattenConnection } from "@shopify/hydrogen";
 import type { FulfillmentStatus } from "@shopify/hydrogen/customer-account-api-types";
 import type { OrderFragment, OrderQuery } from "customer-account-api.generated";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { Await, defer, redirect, useLoaderData } from "react-router";
+import { Await, redirect, useLoaderData } from "react-router";
 import { Suspense, useEffect, useRef } from "react";
 import { Link } from "~/components/link";
 import { ORDER_STATUS } from "~/routes/account/dashboard/orders-history";
@@ -56,7 +56,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
       getLangFromRequest(request),
     );
 
-    return defer({
+    return {
       order,
       lineItems,
       discountValue,
@@ -64,7 +64,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
       fulfillmentStatus,
       cancelledAt,
       tracking: trackingPromise,
-    });
+    };
   } catch (error) {
     throw new Response(error instanceof Error ? error.message : undefined, { status: 404 });
   }
