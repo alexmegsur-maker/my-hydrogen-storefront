@@ -19,6 +19,7 @@ pnpm-lock.yaml
 .claude/
 .github/copilot-instructions.md
 memory/
-scripts/
+scripts/*
+!scripts/sync-tracking.cts
 specs/
 templates/
