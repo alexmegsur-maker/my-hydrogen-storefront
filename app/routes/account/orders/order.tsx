@@ -2,13 +2,15 @@ import { flattenConnection } from "@shopify/hydrogen";
 import type { FulfillmentStatus } from "@shopify/hydrogen/customer-account-api-types";
 import type { OrderFragment, OrderQuery } from "customer-account-api.generated";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { redirect, useLoaderData } from "react-router";
+import { Await, defer, redirect, useLoaderData } from "react-router";
+import { Suspense, useEffect, useRef } from "react";
 import { Link } from "~/components/link";
 import { ORDER_STATUS } from "~/routes/account/dashboard/orders-history";
+import { resolveTracking } from "~/lib/tracking/resolver.server";
+import { OrderTracking, OrderTrackingLoading } from "~/components/OrderTracking";
 import { OrderLineItem } from "./order-line-item";
 import { CUSTOMER_ORDER_QUERY } from "./order-query";
 import { OrderSummary } from "./order-summary";
-import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -44,11 +46,98 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     const fulfillments = flattenConnection(order.fulfillments);
     const fulfillmentStatus =
       fulfillments.length > 0 ? fulfillments[0].status : ("OPEN" as FulfillmentStatus);
-    return { order, lineItems, discountValue, discountPercentage, fulfillmentStatus ,cancelledAt};
+
+    // La Customer Account API no expone trackingInfo en Fulfillment.
+    // Obtenemos el tracking number via Admin API usando el order.name que sí tenemos.
+    const trackingPromise = getTrackingViaAdminApi(
+      order.name,
+      context.env as Record<string, string | undefined>,
+      resolveTracking,
+      getLangFromRequest(request),
+    );
+
+    return defer({
+      order,
+      lineItems,
+      discountValue,
+      discountPercentage,
+      fulfillmentStatus,
+      cancelledAt,
+      tracking: trackingPromise,
+    });
   } catch (error) {
     throw new Response(error instanceof Error ? error.message : undefined, { status: 404 });
   }
 }
+
+// ─── Admin API helper ────────────────────────────────────────────────────────
+// La Customer Account API no expone trackingInfo en Fulfillment,
+// así que consultamos el Admin API con el order.name (ej: "#3247").
+
+const ADMIN_TRACKING_QUERY = `
+  query OrderTracking($query: String!) {
+    orders(first: 1, query: $query) {
+      edges { node {
+        fulfillments(first: 1) {
+          trackingInfo(first: 1) { company number url }
+        }
+      }}
+    }
+  }
+`;
+
+function getLangFromRequest(request: Request): string {
+  const match = new URL(request.url).pathname.match(/^\/(en|fr|es|de|it)(\/|$)/i);
+  return match ? match[1].toLowerCase() : "es";
+}
+
+async function getTrackingViaAdminApi(
+  orderName: string,
+  env: Record<string, string | undefined>,
+  resolver: typeof resolveTracking,
+  language: string,
+) {
+  const shop       = env.PUBLIC_STORE_DOMAIN;
+  const adminToken = env.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
+  const apiVersion = env.SHOPIFY_API_VERSION ?? "2026-01";
+
+  if (!shop || !adminToken) return null;
+
+  try {
+    const res = await fetch(`https://${shop}/admin/api/${apiVersion}/graphql.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": adminToken,
+      },
+      body: JSON.stringify({
+        query: ADMIN_TRACKING_QUERY,
+        variables: { query: `name:${orderName}` },
+      }),
+    });
+
+    if (!res.ok) return null;
+
+    const { data } = (await res.json()) as any;
+    const ti = data?.orders?.edges?.[0]?.node?.fulfillments?.[0]?.trackingInfo?.[0];
+
+    console.log(`[order.tsx] trackingInfo for ${orderName}:`, JSON.stringify(ti));
+
+    if (!ti?.number) return null;
+
+    return resolver({
+      trackingNumber: ti.number,
+      company: ti.company,
+      language,
+      env,
+    });
+  } catch (e) {
+    console.error("[order.tsx] getTrackingViaAdminApi error:", e);
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const statusStyle: Record<string, React.CSSProperties> = {
   SUCCESS: { borderColor: "#A1A1AA", color: "#A1A1AA" },
@@ -58,7 +147,7 @@ const statusStyle: Record<string, React.CSSProperties> = {
 };
 
 export default function OrderDetails() {
-  const { order, lineItems, fulfillmentStatus ,cancelledAt } = useLoaderData<typeof loader>();
+  const { order, lineItems, fulfillmentStatus, cancelledAt, tracking } = useLoaderData<typeof loader>();
   
   const container = useRef(null)
   useGSAP(() => {
@@ -173,6 +262,13 @@ export default function OrderDetails() {
           </span>
         )}
       </div>
+
+      {/* Tracking */}
+      <Suspense fallback={<OrderTrackingLoading />}>
+        <Await resolve={tracking}>
+          {(data) => <OrderTracking tracking={data} />}
+        </Await>
+      </Suspense>
 
       {/* Grid: line items + resumen + dirección */}
       <div

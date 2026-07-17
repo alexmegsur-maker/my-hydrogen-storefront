@@ -170,6 +170,7 @@ import * as PlacaCard from "~/sections/slider-placas/placa-card"
 import * as Anillo360 from "~/sections/anillo-360"
 import * as PrincipalCard from "~/sections/principal-card"
 import * as PrincipalCardGrid from "~/sections/principal-card/grid"
+import * as OrderTrackingSection from "~/sections/order-tracking"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -348,4 +349,5 @@ export const components: HydrogenComponent[] = [
   Anillo360,
   PrincipalCard,
   PrincipalCardGrid,
+  OrderTrackingSection,
 ];

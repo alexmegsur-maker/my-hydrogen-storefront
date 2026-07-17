@@ -69,7 +69,6 @@ export function ScrollingAnnouncement() {
         } as React.CSSProperties
       }
     >
-      
       {repeat ? new Array(10).fill("").map((_, idx) => {
         return AnunceBar;
       }):AnunceBar}

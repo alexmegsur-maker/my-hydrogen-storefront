@@ -1,0 +1,37 @@
+name: Sync Tracking Status
+
+# Ejecuta 3 veces al día: 08:00, 13:00 y 18:00 hora de España (verano, CEST = UTC+2)
+# Las horas en cron de GitHub Actions son siempre UTC.
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 08:00 CEST  (06:00 UTC)
+    - cron: '0 11 * * *'  # 13:00 CEST  (11:00 UTC)
+    - cron: '0 16 * * *'  # 18:00 CEST  (16:00 UTC)
+  workflow_dispatch:       # Permite lanzarlo manualmente desde la pestaña Actions
+
+jobs:
+  sync:
+    name: Actualizar estados de envío
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar sync-tracking
+        run: npx ts-node --project tsconfig.scripts.json scripts/sync-tracking.ts
+        env:
+          SHOPIFY_STORE_DOMAIN:              ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_ACCESS_TOKEN:    ${{ secrets.SHOPIFY_ADMIN_API_ACCESS_TOKEN }}
+          DHL_PARCEL_ES_API_KEY:             ${{ secrets.DHL_PARCEL_ES_API_KEY }}
+          SHOPIFY_API_VERSION:               '2026-01'
