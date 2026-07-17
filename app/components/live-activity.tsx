@@ -188,7 +188,7 @@ const LiveActivity = forwardRef<HTMLDivElement, LiveActivityProps>(
     useEffect(() => {
       const t = setInterval(() => {
         fetchLiveActivity(maxItems).then(setItems);
-      }, 60_000);
+      }, 300_000);
       return () => clearInterval(t);
     }, [maxItems]);
 
