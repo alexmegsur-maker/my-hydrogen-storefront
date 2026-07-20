@@ -89,7 +89,7 @@ const currentY = y;
     <header
       suppressHydrationWarning
       className={cn(
-        "z-20 w-full",
+        "z-10 w-full",
         "transition-all duration-300 ease-in-out",
         "bg-(--color-header-bg) hover:bg-(--color-header-bg)",
         "text-(--color-header-text) hover:text-(--color-header-text)",
