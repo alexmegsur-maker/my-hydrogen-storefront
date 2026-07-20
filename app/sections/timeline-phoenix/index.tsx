@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/dist/ScrollTrigger"; // Importante: Registrar ScrollTrigger
 import { useEffect, useRef } from "react";
 import { Section, sectionSettings, type SectionProps } from "~/components/section";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 // Registrar el plugin de GSAP
 
@@ -19,6 +20,7 @@ export default function TimeLinePhoenix(props: TimeLinePhoenixProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const progressLineRef = useRef<HTMLDivElement>(null);
+  const isMobile= useIsMobile(700)
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -56,7 +58,7 @@ export default function TimeLinePhoenix(props: TimeLinePhoenixProps) {
             <div
               className="absolute h-full"
               style={{
-                left: "2.5rem", // Alineado con el centro del dot (5rem / 2)
+                left: isMobile?"0.5rem":"2.5rem", // Alineado con el centro del dot (5rem / 2)
                 width: "2px",
                 backgroundColor: colorLineBorder,
                 zIndex: 0,
@@ -67,7 +69,7 @@ export default function TimeLinePhoenix(props: TimeLinePhoenixProps) {
               ref={progressLineRef}
               className="absolute h-full"
               style={{
-                left: "2.5rem",
+                left: isMobile?"0.5rem":"2.5rem",
                 width: "2px",
                 background: "linear-gradient(to bottom, transparent, #FFFFFF, #FFFFFF)",
                 boxShadow: "0 0 15px rgba(255,255,255,0.8)",
