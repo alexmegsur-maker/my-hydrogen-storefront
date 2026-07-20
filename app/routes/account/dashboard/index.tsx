@@ -131,7 +131,7 @@ export default function AccountDashboard() {
               Bienvenido de nuevo,{" "}
               <strong style={{ color: "#FFFFFF" }}>{fullName}</strong>
             </p>
-            <div 
+            {/* <div 
               className="tagFounder"
               style={{
                 background: "#FFFFFF",
@@ -149,7 +149,7 @@ export default function AccountDashboard() {
               }}
             >
               Autorización Nivel 1 (Founder)
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
