@@ -43,7 +43,7 @@ export const schema: HydrogenComponentSchema = {
           placeholder:
             "/* Escribe aquí tu CSS — se aplica a toda la página */\n\n/* Ejemplo:\nbody {\n  background: #000;\n  color: #fff;\n}\n\n.header {\n  border-bottom: 1px solid red;\n}\n*/",
           helpText:
-            "Todo el CSS escrito aquí se inyecta globalmente en la página. Puedes usar selectores, variables CSS, media queries, etc.",
+            "El CSS solo se aplica en esta página. Al navegar a otra página desaparece automáticamente. Puedes usar cualquier selector, variable CSS o media query.",
         },
       ],
     },
