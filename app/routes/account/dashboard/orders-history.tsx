@@ -1,6 +1,7 @@
 import { flattenConnection } from "@shopify/hydrogen";
 import type { OrderCardFragment } from "customer-account-api.generated";
 import { Link } from "react-router";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 // ─── Mapa completo de estados ─────────────────────────────────────────────────
 // Cubre tanto `fulfillmentStatus` a nivel de orden (Customer API)
@@ -148,6 +149,8 @@ function OrdersTable({ orders }: OrderCardsProps) {
     color: "#A1A1AA",
   };
 
+  const isMobile=useIsMobile(700)
+
   return (
     <div
       style={{
@@ -161,7 +164,9 @@ function OrdersTable({ orders }: OrderCardsProps) {
       <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
         <thead>
           <tr>
-            {["Identificador", "Fecha", "Estado", "Importe", "Acción"].map((h) => (
+            {isMobile ? ["Id", "Fecha", "Estado", "Imp.", ""].map((h) => (
+              <th key={h} style={TH}>{h}</th>
+            )):["Identificador", "Fecha", "Estado", "Importe", "Acción"].map((h) => (
               <th key={h} style={TH}>{h}</th>
             ))}
           </tr>

@@ -11,6 +11,7 @@ import { getFeaturedProducts } from "~/utils/featured-products";
 import { doLogout } from "./auth/logout";
 import AccountDashboard from "./dashboard";
 import { useEffect } from "react";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 export const headers = routeHeaders;
 
@@ -53,6 +54,7 @@ export default function AccountLayout() {
   const loaderData = useLoaderData<typeof loader>();
   const location = useLocation();
   const matches = useMatches();
+  const isMobile = useIsMobile(700);
 
   const renderInModal = matches.find(
     (match: { handle?: { renderInModal?: boolean } }) =>
@@ -92,7 +94,7 @@ export default function AccountLayout() {
         ID Operador: {customer?.firstName ?? "–"}
       </div>
 
-      {NAV_LINKS.map(({ to, label, exact }) => {
+      { NAV_LINKS.map(({ to, label, exact }) => {
         const isActive = exact
           ? location.pathname === to
           : location.pathname.startsWith(to) && to !== "/account";
@@ -102,6 +104,7 @@ export default function AccountLayout() {
         const active = isActive || isDashboardActive;
 
         return (
+          isMobile ?<></>:
           <Link
             key={to}
             to={to}
