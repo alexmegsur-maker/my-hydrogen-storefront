@@ -137,7 +137,7 @@ export default function AccountLayout() {
       <form
         method="post"
         action="/account/logout"
-        style={{ marginTop: "3rem" }}
+        style={{ marginTop: isMobile?"unset":"3rem" }}
       >
         <button
           type="submit"
@@ -263,6 +263,9 @@ function PhoenixAccountShell({
   children: React.ReactNode;
 })
  {
+
+  const isMobile=useIsMobile(700)
+
   return (
     <div
       style={{
@@ -279,8 +282,8 @@ function PhoenixAccountShell({
       {/* Layout grid */}
       <div
         style={{
-          maxWidth: "1200px",
-          margin: "4rem auto 4rem",
+          maxWidth:"1200px",
+          margin: isMobile ? "1rem auto 4rem" : "4rem auto 4rem",
           padding: "0 2rem",
           gridTemplateColumns: "250px 1fr",
           gap: "4rem",
