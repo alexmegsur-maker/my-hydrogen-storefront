@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useFetcher } from "react-router";
+import { useEffect, useState } from "react";
+import { useFetcher, useSearchParams } from "react-router";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useLanguage } from "~/hooks/useLanguage";
 import { translations } from "~/utils/translations";
@@ -134,16 +134,33 @@ function OrderTrackingSection(props: OrderTrackingSectionProps) {
   const lang = useLanguage();
   const t    = translations[lang] ?? translations.ES;
 
-  const [activeTab, setActiveTab]     = useState<Tab>("order");
-  const [orderNumber, setOrderNumber] = useState("");
-  const [email, setEmail]             = useState("");
-  const [trackingNum, setTrackingNum] = useState("");
+  const [searchParams] = useSearchParams();
+
+  const [activeTab, setActiveTab]     = useState<Tab>(() => (searchParams.get("trackingNumber") ? "tracking" : "order"));
+  const [orderNumber, setOrderNumber] = useState(() => searchParams.get("order") ?? "");
+  const [email, setEmail]             = useState(() => searchParams.get("email") ?? "");
+  const [trackingNum, setTrackingNum] = useState(() => searchParams.get("trackingNumber") ?? "");
 
   const fetcher   = useFetcher<FetcherData>();
   const isLoading = fetcher.state !== "idle";
   const data      = fetcher.data as FetcherData;
   const apiError  = data && "error" in data ? (data as { error: string }).error : null;
   const tracking  = data && !("error" in data) ? (data as NormalizedTracking) : null;
+
+  // Rellena y busca automáticamente cuando se llega desde el enlace "Ver tu pedido" del email
+  useEffect(() => {
+    const orderParam       = searchParams.get("order");
+    const emailParam       = searchParams.get("email");
+    const trackingNumParam = searchParams.get("trackingNumber");
+
+    if (trackingNumParam) {
+      fetcher.load(`/api/tracking?trackingNumber=${encodeURIComponent(trackingNumParam)}`);
+    } else if (orderParam && emailParam) {
+      fetcher.load(`/api/tracking?order=${encodeURIComponent(orderParam)}&email=${encodeURIComponent(emailParam)}`);
+    }
+    // Solo al montar: es una prefill desde la URL, no debe repetirse en cada render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
