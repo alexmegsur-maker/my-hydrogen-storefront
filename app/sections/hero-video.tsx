@@ -12,6 +12,7 @@ import { useInView } from "react-intersection-observer";
 import type { OverlayProps } from "~/components/overlay";
 import { Overlay, overlayInputs } from "~/components/overlay";
 import { useAnimation } from "~/hooks/use-animation";
+import { cn } from "~/utils/cn";
 
 const SECTION_HEIGHTS = {
   small: {
@@ -38,6 +39,7 @@ interface HeroVideoData extends OverlayProps, VariantProps<typeof variants> {
 
 export interface HeroVideoProps extends HeroVideoData, HydrogenComponentProps {
   ref: React.Ref<HTMLElement>;
+  clName?:string;
 }
 
 const variants = cva(
@@ -88,6 +90,7 @@ const ReactPlayer = lazy(() => import("react-player/lazy"));
 export default function HeroVideo(props: HeroVideoProps) {
   const {
     ref,
+    clName,
     videoURL,
     gap,
     height,
@@ -150,7 +153,10 @@ export default function HeroVideo(props: HeroVideoProps) {
     <section
       ref={setRefs}
       {...rest}
-      className="h-full w-full overflow-hidden"
+      className={cn(
+        "h-full w-full overflow-hidden",
+        clName && clName
+      )}
       style={sectionStyle}
     >
       <div
@@ -209,6 +215,11 @@ export const schema = createSchema({
         {
           type: "heading",
           label: "Layout",
+        },
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
         },
         {
           type: "select",

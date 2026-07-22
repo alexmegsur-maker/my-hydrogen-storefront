@@ -8,6 +8,7 @@ import {
   type HydrogenComponentProps,
   type WeaverseImage,
 } from '@weaverse/hydrogen'
+import { cn } from '~/utils/cn'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -75,7 +76,8 @@ interface PrincipalBannerProps extends HydrogenComponentProps {
   mbLogoYEnd: number
   // Video
   showPlayButton: boolean
-  videoUrl: string
+  videoUrl: string;
+  clName?:string;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -130,6 +132,7 @@ function parseViewBox(viewBox: string): { minX: number; minY: number; width: num
 
 function PrincipalBanner(props: PrincipalBannerProps) {
   const {
+    clName,
     backgroundImage,
     chairImage,
     separatorImage,
@@ -428,7 +431,12 @@ function PrincipalBanner(props: PrincipalBannerProps) {
   }
 
   return (
-    <section className="hero relative z-[2] h-[400vh] overflow-hidden" ref={heroRef}>
+    <section className = {cn(
+      "hero relative z-[2] h-[400vh] overflow-hidden",
+      clName && clName 
+
+    )}
+    ref={heroRef}>
 
       {/* Background + product image */}
       <div className="hero-img-container fixed top-0 left-0 w-[100vw] h-auto z-[2]">
@@ -670,6 +678,16 @@ export const schema = createSchema({
   type: 'principal-banner',
   title: 'Principal Banner',
   settings: [
+    {
+      group:"General",
+      inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ]
+    },
     {
       group: 'Hero Phrase',
       inputs: [

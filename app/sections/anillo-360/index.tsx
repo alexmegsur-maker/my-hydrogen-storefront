@@ -10,6 +10,7 @@ import {
 } from '@weaverse/hydrogen'
 import { updateImageCanva } from '~/utils/general'
 import { useIsMobile } from '~/hooks/use-is-mobile'
+import { cn } from '~/utils/cn'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -57,6 +58,7 @@ interface Anillo360Props extends HydrogenComponentProps {
   // Mobile
   mobileStaticBg?: WeaverseImage
   mobileCanvasPositionX: number
+  clName?:string;
 }
 
 // ─── GraphQL query (same as scrollChair) ──────────────────────────────────
@@ -135,6 +137,7 @@ function toUrl(img: WeaverseImage | undefined): string {
 function Anillo360(props: Anillo360Props) {
   const {
     loaderData,
+    clName,
     subtitle = '',
     title = '',
     line1 = '', line2 = '', line3 = '', line4 = '',
@@ -270,7 +273,10 @@ function Anillo360(props: Anillo360Props) {
   if (isMobile) {
     const bgUrl = toUrl(mobileStaticBg) || toUrl(imagenes_360[0] as WeaverseImage)
     return (
-      <section className="relative w-full overflow-hidden">
+      <section className={cn(
+        "relative w-full overflow-hidden",
+        clName && clName
+      )}>
         <div
           className="relative w-full h-screen overflow-hidden"
           style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.8s ease' }}
@@ -484,6 +490,16 @@ export const schema = createSchema({
   type: 'anillo-360',
   title: 'Anillo 360°',
   settings: [
+    {
+      group:"class",
+      inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ]
+    },
     {
       group: 'Imágenes (metaobject)',
       inputs: [

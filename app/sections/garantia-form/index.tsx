@@ -271,6 +271,10 @@ export const schema = createSchema({
   title: "Garantia Form",
   settings: [
     {
+      group: "Layout",
+      inputs: layoutInputs.filter(({ name }) => name !== "gap"),
+    },
+    {
       group: "Header",
       inputs: [
         {
@@ -476,10 +480,7 @@ export const schema = createSchema({
         },
       ],
     },
-    {
-      group: "Layout",
-      inputs: layoutInputs.filter(({ name }) => name !== "gap"),
-    },
+    
   ],
   childTypes: ["form-field", "form-submit-button","slide-elements"],
   presets: {

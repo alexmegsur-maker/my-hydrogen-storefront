@@ -1,5 +1,6 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import { useEffect, useState } from "react";
+import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
 interface GridImagesProps extends HydrogenComponentProps{
@@ -31,10 +32,12 @@ interface GridImagesProps extends HydrogenComponentProps{
   dPaddingText?:string;
   dMarginSelect:string;
   dMarginText?:string;
+  clName?:string;
 }
 
 function GridImages(props:GridImagesProps){
   const{
+    clName,
     title,
     description,  
     bgColor,
@@ -71,7 +74,10 @@ function GridImages(props:GridImagesProps){
   
   return (  
     <div 
-      className="py-16 lg:py-32"
+      className={cn(
+        "py-16 lg:py-32",
+        clName && clName
+      )}
       style={{
         background:bgColor,
       }}
@@ -131,6 +137,11 @@ export const schema =createSchema({
     {
       group:"General",
       inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
         {
           type:'text',
           label:'title',

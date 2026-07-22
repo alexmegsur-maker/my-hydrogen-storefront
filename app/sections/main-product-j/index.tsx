@@ -17,6 +17,7 @@ interface ProductInformationData
   extends Omit<ProductMediaProps, "selectedVariant" | "media"> {
   ref: React.Ref<HTMLDivElement>;
   color:string;
+  clName?:string;
 }
 
 export default function ProductInformationJ(props:ProductInformationData &SectionProps){
@@ -146,6 +147,11 @@ export const schema = createSchema({
     {
       group:"General",
       inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
         {
           type:'switch',
           label:'hide header',

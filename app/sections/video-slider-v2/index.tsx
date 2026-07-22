@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import{Pagination,Navigation,Autoplay} from "swiper/modules"
 import { cva, type VariantProps } from "class-variance-authority";
 import VideoSliderBar from "~/components/video-slider-bar";
+import { cn } from "~/utils/cn";
 
 const variants = cva("group [&_.swiper]:h-full", {
   variants: {
@@ -37,6 +38,7 @@ const variants = cva("group [&_.swiper]:h-full", {
 });
 
 interface VideoSliderV2Props extends VariantProps<typeof variants>,HydrogenComponentProps{
+  clName?:string;
   showBar:boolean;
   showLateral:boolean;
   showArrows:boolean;
@@ -62,7 +64,7 @@ interface VideoSliderV2Props extends VariantProps<typeof variants>,HydrogenCompo
 function VideoSliderV2( props:VideoSliderV2Props){
   const{showBar,showLateral,showArrows,showBorder,showTimer,loop,time,height,children=[],
     color,bgColor,progressColor,bgProgressColor,bColor,borderColor,fullWidth,showDot,
-    colorSelected,bgColorSelected,fontSize }=props
+    colorSelected,bgColorSelected,fontSize,clName }=props
   
   const [swiperRef,setSwiperRef] = useState<SwiperType>(null);
   const [activeIndex,setActiveIndex] = useState(0)
@@ -80,7 +82,10 @@ function VideoSliderV2( props:VideoSliderV2Props){
   }, [swiperRef, children.length])
 
   return(
-    <section className={variants({height,enableTransparentHeader}) + " overflow-hidden"}>
+    <section className={cn(
+     variants({height,enableTransparentHeader}) + " overflow-hidden",
+     clName && clName 
+    )}>
       <div className="relative w-full h-full">
         <Swiper
           loop = {loop}
@@ -157,6 +162,11 @@ export const schema= createSchema({
     {
       group:"General",
       inputs:[
+        {
+          type:"text",
+          name:"clName",
+          label:"className",
+        },
         {
           type: "select",
           name: "height",

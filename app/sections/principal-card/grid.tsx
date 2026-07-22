@@ -16,22 +16,24 @@ const SELECTOR_OPTIONS = [
 ]
 
 interface PrincipalCardGridProps extends HydrogenComponentProps {
-  columns: number
-  columnsMobile: number
-  gap: number
-  gapMobile: number
-  paddingSelect: string
-  paddingText: string
-  paddingSelectMobile: string
-  paddingTextMobile: string
-  marginSelect: string
-  marginText: string
-  marginSelectMobile: string
-  marginTextMobile: string
+  columns: number;
+  columnsMobile: number;
+  gap: number;
+  gapMobile: number;
+  paddingSelect: string;
+  paddingText: string;
+  paddingSelectMobile: string;
+  paddingTextMobile: string;
+  marginSelect: string;
+  marginText: string;
+  marginSelectMobile: string;
+  marginTextMobile: string;
+  clName?:string;
 }
 
 function PrincipalCardGrid(props: PrincipalCardGridProps) {
   const {
+    clName,
     columns = 3,
     columnsMobile = 1,
     gap = 24,
@@ -67,6 +69,7 @@ function PrincipalCardGrid(props: PrincipalCardGridProps) {
           isMobile ? marginTextMobile   : marginText,
         ),
       }}
+      className={clName}
     >
       {children}
     </section>
@@ -80,6 +83,16 @@ export const schema = createSchema({
   title: 'Cards Grid',
   childTypes: ['principal-card'],
   settings: [
+    {
+      group:"class",
+      inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ]
+    },
     {
       group: 'Grid',
       inputs: [

@@ -10,6 +10,7 @@ import './collection-slider.css'
 import LinkCollection from "./linkCollection";
 import SliderCard from "./sliderCard";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { cn } from "~/utils/cn";
 
 interface MyCollectionSliderLoaderData{
   collectionsData:any[]
@@ -69,6 +70,7 @@ interface CollectionSliderProps extends SectionProps<MyCollectionSliderLoaderDat
   collectionColorHover:string;
   collectionSize:string;
   collectionFont:string;
+  clName?:string;
 }
 
 const GET_COLLECTIONS_BY_ID_QUERY=`
@@ -156,6 +158,7 @@ export async function loader({weaverse,data}:ComponentLoaderArgs<CollectionSlide
 function CollectionSlider(props:CollectionSliderProps) {
   
   const {
+    clName,
     loaderData,
     titulo,
     spaceS,
@@ -306,7 +309,11 @@ function CollectionSlider(props:CollectionSliderProps) {
   
   
   return (
-    <div className="py-16 lg:py-20">
+    <div className={cn(
+      "py-16 lg:py-20",
+      clName && clName
+    )}
+    >
       <h3 
         className="container mx-auto text-center lg:text-start"
         style={{
@@ -538,6 +545,16 @@ export const schema = createSchema({
   type:"colections-slider",
   title:"Collections Slider",
   settings:[
+    {
+      group:"class",
+      inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ]
+    },
     {
       group:"Info", 
       inputs:[

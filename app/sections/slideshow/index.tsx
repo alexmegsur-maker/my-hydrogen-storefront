@@ -17,6 +17,7 @@ import { Dots } from "./dots";
 import { Bar } from "./bar";
 import type { Swiper as SwiperType } from "swiper";
 import { useRef, useState } from "react";
+import { cn } from "~/utils/cn";
 
 const variants = cva("group [&_.swiper]:h-full", {
   variants: {
@@ -73,6 +74,7 @@ export interface SlideshowData
   barWeight:string;
   barLetterSpacing:number;
   barRounded:number;
+  clName?:string;
 
 }
 
@@ -80,6 +82,7 @@ export default function Slideshow(
   props: SlideshowData & HydrogenComponentProps,
 ) {
   const {
+    clName,
     ref,
     height,
     effect,
@@ -128,7 +131,10 @@ export default function Slideshow(
         .join("-")}
       ref={ref}
       {...rest}
-      className={variants({ height, enableTransparentHeader })}
+      className={cn(
+        variants({ height, enableTransparentHeader }),
+        clName && clName
+      )}
     >
       <Swiper
         onSwiper={(swiper)=>{swiperRef.current=swiper}}
@@ -211,6 +217,11 @@ export const schema = createSchema({
     {
       group: "Slideshow",
       inputs: [
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
         {
           type: "select",
           name: "height",

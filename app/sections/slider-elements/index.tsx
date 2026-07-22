@@ -3,6 +3,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { Image } from "~/components/image";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useScrollAnimation } from "~/hooks/use-scroll-animation";
+import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
 interface SliderElementsProps extends HydrogenComponentProps{
@@ -36,10 +37,12 @@ interface SliderElementsProps extends HydrogenComponentProps{
   marginSelect:string;
   marginText:string;
   family:string;
+  clName?:string;
 }
 
 export default function SliderElements(props:SliderElementsProps){
   const {
+    clName,
     gap,
     contPaddingSelect,
     contPaddingText,
@@ -86,7 +89,11 @@ export default function SliderElements(props:SliderElementsProps){
   }, []) 
   
   return(
-    <div {...rest} className="flex flex-col">
+    <div {...rest} className={cn(
+      "flex flex-col",
+      clName && clName
+    )} 
+    >
       <section 
         className="selector-wrapper justify-center items-start"
         style={{
@@ -194,6 +201,11 @@ export const schema = createSchema({
     {
       group:"general",
       inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
         {
           type:'range',
           label:'gap',

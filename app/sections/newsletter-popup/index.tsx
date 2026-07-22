@@ -3,12 +3,14 @@ import type { HydrogenComponentProps, WeaverseImage } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Image } from "~/components/image";
+import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
 const STORAGE_SHOWN = "newsletter_popup_shown";
 const STORAGE_SUBSCRIBED = "newsletter_popup_subscribed";
 
 interface NewsletterPopupProps extends Partial<HydrogenComponentProps> {
+  clName?:string;
   // Banner
   bannerImage: WeaverseImage | string;
   bannerHeight: string;
@@ -77,6 +79,7 @@ export default function NewsletterPopup(
     iconColor,
     iconSize,
     delaySeconds,
+    clName,
   } = props;
 
   const [mounted, setMounted] = useState(false);
@@ -128,7 +131,11 @@ export default function NewsletterPopup(
     <>
       {/* Overlay + popup — always in DOM, visibility via opacity to avoid CLS */}
       <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-opacity duration-300"
+        className={cn(
+          "fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-opacity duration-300",
+          clName && clName
+
+        )}
         style={{
           background: overlayColor ?? "rgba(0,0,0,0.6)",
           opacity: isOpen ? 1 : 0,
@@ -295,6 +302,16 @@ export const schema = createSchema({
   type: "newsletter-popup",
   title: "Newsletter Popup",
   settings: [
+    {
+      group:"General",
+      inputs:[
+        {
+          type:"text",
+          name:"clName",
+          label:"className",
+        },
+      ]
+    },
     {
       group: "Banner",
       inputs: [

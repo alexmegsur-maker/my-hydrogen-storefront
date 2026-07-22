@@ -7,6 +7,7 @@ import { useSliderStore } from "./videoSliderStore";
 import Link from "~/components/link";
 import { Image } from "~/components/image";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { cn } from "~/utils/cn";
 
 interface VideoSliderProps extends HydrogenComponentProps {
   color: string;
@@ -16,6 +17,7 @@ interface VideoSliderProps extends HydrogenComponentProps {
   bColor: string;
   borderColor: string;
   time: number;
+  clName?:string;
 }
 
 function VideoSlider(props: VideoSliderProps) {
@@ -35,6 +37,7 @@ function VideoSlider(props: VideoSliderProps) {
     bColor,
     borderColor,
     time,
+    clName,
   } = props;
 
   const sliderElements = useSliderStore((state) => state.sliderElement);
@@ -67,9 +70,9 @@ function VideoSlider(props: VideoSliderProps) {
 
   return (
     <>
-      <div className="hidden">{children}</div>
+      <div className= {cn("hidden",clName && clName)} >{children}</div>
 
-      <div className="relative w-full bg-slate-300">
+      <div className={cn("relative w-full bg-slate-300",clName && clName)} >
         <Swiper
           loop={true}
           effect="slide"
@@ -495,6 +498,11 @@ export const schema = createSchema({
     {
       group: "General",
       inputs: [
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
         {
           type: "color",
           label: "color text selector",

@@ -121,6 +121,11 @@ export const schema = createSchema({
       group: "Layout",
       inputs: [
         {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+        {
           type: "select",
           name: "height",
           label: "Section height",

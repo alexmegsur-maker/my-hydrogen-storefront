@@ -15,6 +15,7 @@ export interface FaqSectionStyles {
   // Modo acordeón: solo uno abierto a la vez
   // (se gestiona elevando el estado al contenedor)
   accordionMode: boolean;
+  clName?:string;
 }
 
 export interface FaqSectionProps
@@ -33,13 +34,14 @@ export function FaqSection(props: FaqSectionProps) {
     children,
     className,
     style,
+    clName,
     ...rest
   } = props;
 
   return (
     <div
       {...rest}
-      className={cn("w-full", className)}
+      className={cn("w-full", className, clName && clName)}
       style={{
         maxWidth: `${maxWidth}px`,
         margin: "0 auto",
@@ -60,6 +62,11 @@ export default FaqSection;
 
 export const faqSectionInputs: InspectorGroup["inputs"] = [
   { type: "heading", label: "Layout" },
+  {
+    type:'text',
+    label:'className',
+    name:'clName',
+  },
   {
     type: "range",
     name: "maxWidth",

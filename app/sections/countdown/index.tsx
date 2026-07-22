@@ -39,6 +39,11 @@ export const schema = createSchema({
       group: "Layout",
       inputs: [
         {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+        {
           type: "select",
           name: "width",
           label: "Content width",

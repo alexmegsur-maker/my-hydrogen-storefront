@@ -8,6 +8,7 @@ import {
 } from '@weaverse/hydrogen'
 import { useIsMobile } from '~/hooks/use-is-mobile'
 import { selectorPaddingMargin } from '~/utils/general'
+import { cn } from '~/utils/cn'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,7 @@ interface SliderPlacasProps extends HydrogenComponentProps {
   // Colors
   gradientColorStart: string
   gradientColorEnd: string
+  clName?:string
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -94,6 +96,7 @@ const WEIGHT_OPTIONS = [
 
 function SliderPlacas(props: SliderPlacasProps) {
   const {
+    clName,
     bannerImage,
     bannerTitle = 'Colección de Placas',
     titleSize = 40,
@@ -239,7 +242,11 @@ function SliderPlacas(props: SliderPlacasProps) {
   }
 
   return (
-    <section className="relative w-full">
+    <section className ={cn(
+      "relative w-full",
+      clName && clName
+    )} 
+    >
 
       {/* ── Trigger (visible on page) ─────────────────────────── */}
       <div
@@ -450,6 +457,16 @@ export const schema = createSchema({
   title: 'Slider Placas',
   childTypes: ['placa-card'],
   settings: [
+    {
+      group:"class",
+      inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ]
+    },
     {
       group: 'Banner',
       inputs: [

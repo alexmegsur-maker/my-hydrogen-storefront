@@ -286,7 +286,7 @@ function PhoenixAccountShell({
           margin: isMobile ? "1rem auto 4rem" : "4rem auto 4rem",
           padding: "0 2rem",
           gridTemplateColumns: "250px 1fr",
-          gap: "4rem",
+          gap: isMobile?"1rem":"4rem",
 
         }}
         className="flex md:grid flex-col"

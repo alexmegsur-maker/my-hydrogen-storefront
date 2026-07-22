@@ -79,12 +79,14 @@ interface ComparisonWrapperProps
   // Animation
   fadeY?: number;
   fadeDuration?: number;
+  clName?:string;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 function ComparisonWrapper(props: ComparisonWrapperProps) {
   const {
+    clName,
     eyebrow,
     title,
     note,
@@ -205,7 +207,7 @@ function ComparisonWrapper(props: ComparisonWrapperProps) {
   };
 
   return (
-    <section style={sectionStyle}>
+    <section style={sectionStyle} className={clName}>
       <div
         className="mx-auto text-center"
         style={containerStyle}
@@ -280,6 +282,16 @@ export const schema = createSchema({
   title: "Comparison Wrapper",
   childTypes: ["comparison-col"],
   settings: [
+    {
+      group:"class",
+      inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ]
+    },
     {
       group: "Content",
       inputs: [

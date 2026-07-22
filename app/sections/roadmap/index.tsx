@@ -13,6 +13,7 @@ export interface RoadmapLayoutStyles {
   lineWidth: number;
   maxWidth: number;
   itemGap: number;
+  clName?: string;
 }
 
 export interface RoadmapTimelineProps
@@ -26,6 +27,7 @@ export interface RoadmapTimelineProps
 
 export function RoadmapTimeline(props: RoadmapTimelineProps) {
   const {
+    clName,
     lineColor = "rgba(255,255,255,0.1)",
     lineWidth = 1,
     maxWidth = 800,
@@ -39,7 +41,9 @@ export function RoadmapTimeline(props: RoadmapTimelineProps) {
   return (
     <div
       {...rest}
-      className={cn("relative w-full", className)}
+      className={cn("relative w-full", className, clName && clName)
+
+      }
       style={{
         maxWidth: `${maxWidth}px`,
         margin: "0 auto",
@@ -81,7 +85,10 @@ export default RoadmapTimeline;
 // ─── Inspector inputs ─────────────────────────────────────────────────────────
 
 export const roadmapLayoutInputs: InspectorGroup["inputs"] = [
+  { type: "heading", label: "class" },
+  { type:'text', label:'className', name:'clName',},
   { type: "heading", label: "Línea central" },
+
   {
     type: "color",
     name: "lineColor",

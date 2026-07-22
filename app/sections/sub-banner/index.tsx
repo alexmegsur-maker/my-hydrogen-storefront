@@ -9,6 +9,7 @@ import {
 } from '@weaverse/hydrogen'
 import { useIsMobile } from '~/hooks/use-is-mobile'
 import { selectorPaddingMargin } from '~/utils/general'
+import { cn } from '~/utils/cn'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -70,6 +71,7 @@ interface SubBannerProps extends HydrogenComponentProps {
   descMarginText: string
   descMarginSelectMobile: string
   descMarginTextMobile: string
+  clName?:string
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -161,6 +163,7 @@ function SubBanner(props: SubBannerProps) {
     descPaddingSelectMobile = 'x', descPaddingTextMobile = '5vw',
     descMarginSelect = 'a', descMarginText = '0px',
     descMarginSelectMobile = 'a', descMarginTextMobile = '0px',
+    clName,
   } = props
 
   const isMobile = useIsMobile(700)
@@ -257,7 +260,10 @@ function SubBanner(props: SubBannerProps) {
 
   return (
     <section
-      className="sub-banner relative z-[11] h-[300vh] overflow-visible" 
+      className={cn(
+        "sub-banner relative z-[11] h-[300vh] overflow-visible", 
+        clName && clName
+      )} 
       ref={sectionRef} 
     >
       <div
@@ -340,6 +346,16 @@ export const schema = createSchema({
   type: 'sub-banner',
   title: 'Sub Banner',
   settings: [
+    {
+      group:"general",
+      inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ]
+    },
     {
       group: 'Headline',
       inputs: [

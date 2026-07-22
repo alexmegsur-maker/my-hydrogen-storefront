@@ -19,7 +19,13 @@ export const schema = createSchema({
   settings: [
     {
       group: "General",
-      inputs: [],
+      inputs: [
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+      ],
     },
   ],
 })

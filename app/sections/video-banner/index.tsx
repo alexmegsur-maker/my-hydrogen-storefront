@@ -3,12 +3,14 @@ import { useHoverStore } from "./useHoverStore";
 import type { HydrogenComponentProps, WeaverseImage, WeaverseVideo } from "@weaverse/hydrogen"
 import React, { useState } from "react";
 import "~/styles/video-banner.css"
+import { cn } from "~/utils/cn";
 
 interface VideoBanner extends HydrogenComponentProps{
   heading:string;
   mediaVideo:WeaverseVideo;
   prevImage:WeaverseImage;
   prevImagemb:WeaverseImage;
+  clName?:string;
 }
 
 function  VideoBanner(props:VideoBanner){
@@ -19,6 +21,7 @@ function  VideoBanner(props:VideoBanner){
     prevImage,
     prevImagemb,
     children,
+    clName,
     ...rest
   }=props;
   const mouseEnter=()=>{
@@ -30,7 +33,11 @@ function  VideoBanner(props:VideoBanner){
 
   return (
     <>
-      <div className="hidden lg:block relative">
+      <div className={cn(
+        "hidden lg:block relative",
+        clName && clName
+      )}
+      >
         <video className="w-full h-full lg:h-[650px] 2xl:h-[960px] object-cover hidden lg:block" 
           loop 
           autoPlay
@@ -51,7 +58,11 @@ function  VideoBanner(props:VideoBanner){
           </div>
         </div>
       </div>
-      <div className="lg:hidden bg-black">
+      <div  className={cn(
+        "lg:hidden bg-black",
+        clName && clName
+      )}
+      >
         <div className="sticky top-0 start-0">
           <video className="w-full h-full object-cover block lg:hidden" 
             autoPlay 
@@ -83,6 +94,11 @@ export const schema = createSchema({
     {
       group:"General",
       inputs:[
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
         {
           type:"video",
           name:"mediaVideo",

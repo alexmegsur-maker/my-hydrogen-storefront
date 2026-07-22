@@ -800,6 +800,8 @@ export const schema = createSchema({
   type: "desistimiento-form",
   title: "Formulario de Desistimiento",
   settings: [
+    { group: "Layout",  inputs: layoutInputs },
+    { group: "Fondo",   inputs: backgroundInputs },
     // ── All text content in one place ────────────────────────────────────────
     {
       group: "Textos",
@@ -1030,8 +1032,7 @@ export const schema = createSchema({
       ],
     },
 
-    { group: "Layout",  inputs: layoutInputs },
-    { group: "Fondo",   inputs: backgroundInputs },
+    
   ],
 
   presets: {

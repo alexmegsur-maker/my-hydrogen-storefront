@@ -32,6 +32,7 @@ export interface SectionProps<T = any>
     Partial<OverlayProps> {
   ref?: React.Ref<HTMLElement>;
   as?: React.ElementType;
+  clName?:string;
   borderRadius?: number;
   containerClassName?: string;
   children?: React.ReactNode;
@@ -102,6 +103,7 @@ export function Section(props: SectionProps) {
     as: Component = "section",
     width,
     gap,
+    clName,
     overflow,
     verticalPadding,
     borderRadius,
@@ -224,6 +226,7 @@ export function Section(props: SectionProps) {
         hasBackground &&
           !isBgForContent &&
           "rounded-(--section-radius) bg-(--section-bg-color)",
+          clName && clName
       )}
     >
       {showSmoke && <ForgeCanvas {...forgeProps}/>}
@@ -248,6 +251,11 @@ export function Section(props: SectionProps) {
 }
 
 export const layoutInputs: InspectorGroup["inputs"] = [
+  {
+    type:"text",
+    name:"clName",
+    label:"className",
+  },
   {
     type: "select",
     name: "width",

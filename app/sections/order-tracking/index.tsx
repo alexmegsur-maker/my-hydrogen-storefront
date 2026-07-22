@@ -76,6 +76,7 @@ interface OrderTrackingSectionProps extends HydrogenComponentProps {
   eventFontSize: number;
   eventLocationColor: string;
   eventTimestampColor: string;
+  clName?:string;
 }
 
 type FetcherData = NormalizedTracking | { error: string } | null;
@@ -85,6 +86,7 @@ type Tab = "order" | "tracking";
 
 function OrderTrackingSection(props: OrderTrackingSectionProps) {
   const {
+    clName,
     bgColor            = "#0a0a0a",
     titleColor         = "#FFFFFF",
     titleSize          = 2,
@@ -195,6 +197,7 @@ function OrderTrackingSection(props: OrderTrackingSectionProps) {
         justifyContent: "center",
         padding: "5rem 1.5rem",
       }}
+      className={clName}
     >
       <div style={{ width: "100%", maxWidth: "580px", display: "flex", flexDirection: "column", gap: "2rem" }}>
 
@@ -323,6 +326,12 @@ export const schema = createSchema({
   type: "order-tracking",
   title: "Order Tracking",
   settings: [
+    {
+      group: "class",
+      inputs: [
+        { type: "text", name: "clName", label: "ClassName" },
+      ],
+    },
     {
       group: "Fondo",
       inputs: [

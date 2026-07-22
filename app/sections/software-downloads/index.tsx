@@ -5,6 +5,7 @@ import {
   type HydrogenComponentProps,
   type WeaverseCollection,
 } from '@weaverse/hydrogen'
+import { cn } from '~/utils/cn'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -33,7 +34,9 @@ interface SoftwareDownloadsSectionData {
 
 interface SoftwareDownloadsProps
   extends HydrogenComponentProps,
-    SoftwareDownloadsSectionData {}
+    SoftwareDownloadsSectionData {
+      clName?:string;
+    }
 
 // ─── Raw API shapes ────────────────────────────────────────────────────────
 
@@ -285,7 +288,7 @@ function ProductCard(props: { product: SoftwareProduct; isActive: boolean; onCli
 
 function SoftwareDownloads(props: SoftwareDownloadsProps) {
   const loaderData = (props.loaderData ?? { products: [] }) as SoftwareDownloadsLoaderData
-  const { title, subtitle } = props
+  const { title, subtitle,clName } = props
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -312,7 +315,11 @@ function SoftwareDownloads(props: SoftwareDownloadsProps) {
   }
 
   return (
-    <section className="bg-[#050505] py-16 px-4 sm:px-8">
+    <section className={cn(
+      "bg-[#050505] py-16 px-4 sm:px-8",
+      clName && clName
+    )}
+    >
       <div className="max-w-5xl mx-auto">
 
         {(title || subtitle) && (
@@ -423,6 +430,11 @@ export const schema = createSchema({
     {
       group: 'Contenido',
       inputs: [
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
         {
           type: 'text',
           name: 'title',
