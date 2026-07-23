@@ -263,7 +263,7 @@ export default function CrossellProduct(props: CrossellProductProps) {
       >
         <div className="acc-left flex items-center gap-[1.2rem]">
           <div
-            className="acc-img w-[44px] h-[44px] rounded-md"
+            className="acc-img w-[44px] h-[44px] rounded-md flex justify-center items-center"
             style={{
               filter: hover ? "grayscale(0)" : "grayscale(1)",
               transition: "filter 0.4s",
