@@ -290,7 +290,12 @@ function resolveToFromType(
       return `/${routePrefix.SEARCH}`;
     case "CATALOG":
       return `/${routePrefix.CATALOG}`;
-    // common cases: BLOG, PAGE, COLLECTION, PRODUCT, SHOP_POLICY, HTTP
+    // HTTP = enlace pegado como URL directa en el editor de menús (no un recurso
+    // seleccionado). El pathname ya es la ruta final del sitio, así que se usa tal cual
+    // en vez de recortarlo al último segmento (eso rompía rutas de varios niveles, ej. /products/handle).
+    case "HTTP":
+      return pathname;
+    // common cases: BLOG, PAGE, COLLECTION, PRODUCT, SHOP_POLICY
     default:
       return routePrefix[type]
         ? `/${routePrefix[type]}/${handle}`
