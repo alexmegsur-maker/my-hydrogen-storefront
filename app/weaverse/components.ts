@@ -172,6 +172,8 @@ import * as PrincipalCard from "~/sections/principal-card"
 import * as PrincipalCardGrid from "~/sections/principal-card/grid"
 import * as OrderTrackingSection from "~/sections/order-tracking"
 import * as CustomCss from "~/sections/custom-css"
+import * as MaskReveal from "~/sections/mask-reveal"
+import * as Product3DViewer from "~/sections/product-3d-viewer"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -352,4 +354,6 @@ export const components: HydrogenComponent[] = [
   PrincipalCardGrid,
   OrderTrackingSection,
   CustomCss,
+  MaskReveal,
+  Product3DViewer,
 ];

@@ -3,13 +3,17 @@ import { STATUS_LABELS } from './types';
 import { fetchDhlParcelEs } from './carriers/dhl-parcel-es.server';
 import { fetchCttExpress } from './carriers/ctt-express.server';
 import { fetchFulfilio } from './carriers/fulfilio.server';
+import { fetchCorreosExpress } from './carriers/correos-express.server';
 
-function detectCarrier(company?: string | null): 'dhl' | 'ctt' | 'fulfilio' | null {
+function detectCarrier(company?: string | null): 'dhl' | 'ctt' | 'fulfilio' | 'correos_express' | null {
   if (!company) return null;
   const c = company.toLowerCase();
   if (c.includes('dhl')) return 'dhl';
   if (c.includes('ctt')) return 'ctt';
   if (c.includes('fulfilio')) return 'fulfilio';
+  if (c.includes('correos express') || c.includes('correosexpress') || c === 'cex' || c.includes('correos_express')) {
+    return 'correos_express';
+  }
   return null;
 }
 
@@ -60,6 +64,13 @@ export async function resolveTracking(
         return await fetchFulfilio(
           referenceNumber ?? trackingNumber!,
           env.FULFILIO_API_KEY,
+        );
+
+      case 'correos_express':
+        return await fetchCorreosExpress(
+          trackingNumber!,
+          env.CORREOS_EXPRESS_CLIENT_ID,
+          env.CORREOS_EXPRESS_CLIENT_SECRET,
         );
 
       default:

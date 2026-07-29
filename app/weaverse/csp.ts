@@ -13,6 +13,14 @@ export function getWeaverseCsp(
     weaverseHosts.push(weaverseHost);
   }
 
+  // Dominio de checkout/CDN propio de la tienda — Shopify sirve archivos
+  // (ej. modelos 3D .glb/.usdz de metaobjetos/metacampos) desde aquí.
+  const checkoutDomain = context.env.PUBLIC_CHECKOUT_DOMAIN;
+  const storefrontHosts = ["https://cdn.shopify.com"];
+  if (checkoutDomain) {
+    storefrontHosts.push(`*.${checkoutDomain}`, checkoutDomain);
+  }
+
   const updatedCsp: { [x: string]: string[] | string | boolean } = {
     defaultSrc: [
       "data:",
@@ -90,6 +98,7 @@ export function getWeaverseCsp(
       "https://*.facebook.net",
       "*.trustedshops.com",
       "*.etrusted.com",
+      ...storefrontHosts,
       ...weaverseHosts,
     ],
     frameSrc: [
@@ -119,6 +128,7 @@ export function getWeaverseCsp(
       "https://cdn.jsdelivr.net",
       "*.trustedshops.com",
       "*.etrusted.com",
+      ...storefrontHosts,
     ]
   };
 

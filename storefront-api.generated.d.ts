@@ -3836,6 +3836,54 @@ export type PrincipalCardQuery = {
   }>;
 };
 
+export type Product3DViewerQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+  handle: StorefrontAPI.Scalars['String']['input'];
+  ids:
+    | Array<StorefrontAPI.Scalars['ID']['input']>
+    | StorefrontAPI.Scalars['ID']['input'];
+}>;
+
+export type Product3DViewerQuery = {
+  metaobject?: StorefrontAPI.Maybe<{
+    fields: Array<
+      Pick<StorefrontAPI.MetaobjectField, 'key'> & {
+        reference?: StorefrontAPI.Maybe<
+          | Pick<StorefrontAPI.GenericFile, 'url'>
+          | {
+              sources: Array<
+                Pick<StorefrontAPI.Model3dSource, 'url' | 'format' | 'mimeType'>
+              >;
+            }
+        >;
+      }
+    >;
+  }>;
+  nodes: Array<
+    StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
+        material?: StorefrontAPI.Maybe<{
+          reference?: StorefrontAPI.Maybe<{
+            fields: Array<
+              Pick<StorefrontAPI.MetaobjectField, 'key'> & {
+                reference?: StorefrontAPI.Maybe<{
+                  image?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Image, 'url'>>;
+                }>;
+              }
+            >;
+          }>;
+        }>;
+        logo?: StorefrontAPI.Maybe<{
+          reference?: StorefrontAPI.Maybe<{
+            image?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Image, 'url'>>;
+          }>;
+        }>;
+      }
+    >
+  >;
+};
+
 export type SoftwareProductsQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
@@ -4200,6 +4248,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query PrincipalCard($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "principal_card" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n        }\n      }\n    }\n  }\n': {
     return: PrincipalCardQuery;
     variables: PrincipalCardQueryVariables;
+  };
+  '#graphql\n  query Product3DViewer($country: CountryCode, $language: LanguageCode, $handle: String!, $ids: [ID!]!)\n  @inContext(country: $country, language: $language) {\n    metaobject(handle: { handle: $handle, type: "product_3d_viewer" }) {\n      fields {\n        key\n        reference {\n          ... on GenericFile {\n            url\n          }\n          ... on Model3d {\n            sources {\n              url\n              format\n              mimeType\n            }\n          }\n        }\n      }\n    }\n    nodes(ids: $ids) {\n      ... on Product {\n        id\n        title\n        handle\n        material: metafield(namespace: "custom", key: "chair_material") {\n          reference {\n            ... on Metaobject {\n              fields {\n                key\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n        logo: metafield(namespace: "custom", key: "chair_logo") {\n          reference {\n            ... on MediaImage {\n              image {\n                url\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: Product3DViewerQuery;
+    variables: Product3DViewerQueryVariables;
   };
   '#graphql\n  query softwareProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $first: Int!\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      products(first: $first) {\n        nodes {\n          id\n          title\n          handle\n          featuredImage {\n            url\n            altText\n          }\n          software: metafield(namespace: "custom", key: "software") {\n            references(first: 10) {\n              nodes {\n                ... on GenericFile {\n                  id\n                  url\n                  alt\n                  mimeType\n                }\n                ... on MediaImage {\n                  id\n                  image {\n                    url\n                    altText\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: SoftwareProductsQuery;
