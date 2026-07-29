@@ -17,6 +17,7 @@ import { selectorPaddingMargin } from "~/utils/general";
 import { translations } from "~/utils/translations";
 import { pushAddToCart, pushBeginCheckout } from "~/utils/dataLayer";
 import { Image } from "~/components/image";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 
 interface BuyButtonsProductJProps {
   showCart: boolean;
@@ -169,6 +170,7 @@ export default function BuyButtonsProductJ(props: BuyButtonsProductJProps) {
   const buyButton = useRef(null);
   const container = useRef(null);
   const [size, setSize] = useState(0);
+  const isMobile=useIsMobile(700)
 
   const cartIdsVariants = useMemo((): CartLineInput[] => {
     const result: CartLineInput[] = [];
@@ -322,8 +324,8 @@ export default function BuyButtonsProductJ(props: BuyButtonsProductJProps) {
         ref={container}
         className="container-buttons absolute bottom-0 flex flex-col gap-4"
         style={{
-          width: "calc(100% + 8rem)",
-          left: "-4rem",
+          width: isMobile?"100vw": "calc(100% + 8rem)",
+          left: isMobile?"-1.5rem":"-4rem",
           borderTop: "1px solid #ffffff20",
           paddingBlock: "2rem",
           background: "#050505",
@@ -570,8 +572,8 @@ export default function BuyButtonsProductJ(props: BuyButtonsProductJProps) {
               </div>
             </>
           ))}
-        <div className="flex gap-2 px-2 justify-center">
-          <div className="flex h-full align-center ms-[2rem] md:ms-0">
+        <div className="flex gap-2 px-2 justify-center w-full">
+          <div className="flex  h-full align-center ">
             <svg
               role="img"
               xmlns="http://www.w3.org/2000/svg"
