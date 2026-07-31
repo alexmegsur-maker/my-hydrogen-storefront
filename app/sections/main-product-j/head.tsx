@@ -1,6 +1,8 @@
 import { JudgemePreviewBadge,  JudgemeReviewWidget, JudgemeVerifiedBadge } from "@judgeme/shopify-hydrogen";
 import { createSchema } from "@weaverse/hydrogen"
+import { useState, type CSSProperties } from "react";
 import { useLoaderData } from "react-router";
+import LateralCollection from "~/components/product-j/lateral-collection";
 import { Section } from "~/components/section";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
@@ -41,6 +43,28 @@ interface HeadProps{
   pTWeight:string;
   pWeight:string;
   pCWeight:string;
+  lcTitle:string;
+  lcBgColor:string;
+  lcBrColor:string;
+  lcBrSize:string;
+  lcBrLetter:number;
+  lcBrUpper:boolean;
+  lcBrFamily:string;
+  lcBrPaddingSelect:string;
+  lcBrPaddingText:string;
+  lcBrMarginSelect:string;
+  lcBrMarginText:string;
+  lcBrWeight:string;
+  lcNtColor:string;
+  lcNtSize:string;
+  lcNtLetter:number;
+  lcNtUpper:boolean;
+  lcNtFamily:string;
+  lcNtPaddingSelect:string;
+  lcNtPaddingText:string;
+  lcNtMarginSelect:string;
+  lcNtMarginText:string;
+  lcNtWeight:string;
 
 }
 
@@ -77,24 +101,85 @@ export default function Head(props:HeadProps){
     pTWeight,
     pWeight,
     pCWeight,
+    lcTitle,
+    lcBgColor,
+    lcBrColor,
+    lcBrSize,
+    lcBrLetter,
+    lcBrUpper,
+    lcBrFamily,
+    lcBrPaddingSelect,
+    lcBrPaddingText,
+    lcBrMarginSelect,
+    lcBrMarginText,
+    lcBrWeight,
+    lcNtColor,
+    lcNtSize,
+    lcNtLetter,
+    lcNtUpper,
+    lcNtFamily,
+    lcNtPaddingSelect,
+    lcNtPaddingText,
+    lcNtMarginSelect,
+    lcNtMarginText,
+    lcNtWeight,
     ...rest
   } = props
   const currentProduct= useCurrentProduct(state=>state.currentProduct)
   const {product,language} = useLoaderData<typeof productRouteLoader>()
   const t = translations[language]??translations["ES"]
+  const [showReviews,setShowReviews] = useState(false)
   return(
     <Section {...rest}>
-      <div style={{
+      <div
+        className="review-stars"
+        onClickCapture={()=>setShowReviews(true)}
+        style={{
           color:rColor,
           fontSize:rSize,
           fontFamily:rFamily,
           fontWeight:rWeight,
+          cursor:"pointer",
           ...selectorPaddingMargin("padding",rPaddingSelect,rPaddingText),
           ...selectorPaddingMargin("margin",rMarginSelect,rMarginText)
 
         }}>
         <JudgemePreviewBadge id={currentProduct.id} template="" />
       </div>
+      <LateralCollection
+        title={lcTitle}
+        show={showReviews}
+        close={()=>setShowReviews(false)}
+        style={{
+          background:lcBgColor,
+        }}
+        estilos={{
+          "--brColor":lcBrColor,
+          "--brSize":lcBrSize,
+          "--brLetter":lcBrLetter,
+          "--brUpper":lcBrUpper,
+          "--brFamily":lcBrFamily,
+          "--brPaddingSelect":lcBrPaddingSelect,
+          "--brPaddingText":lcBrPaddingText,
+          "--brMarginSelect":lcBrMarginSelect,
+          "--brMarginText":lcBrMarginText,
+          "--brWeight":lcBrWeight,
+          "--ntColor":lcNtColor,
+          "--ntSize":lcNtSize,
+          "--ntLetter":lcNtLetter,
+          "--ntUpper":lcNtUpper,
+          "--ntFamily":lcNtFamily,
+          "--ntPaddingSelect":lcNtPaddingSelect,
+          "--ntPaddingText":lcNtPaddingText,
+          "--ntMarginSelect":lcNtMarginSelect,
+          "--ntMarginText":lcNtMarginText,
+          "--ntWeight":lcNtWeight,
+        } as CSSProperties}
+      >
+        <div className="mx-4 md:mx-6">
+          <JudgemeReviewWidget id={currentProduct.id} />
+        </div>
+      </LateralCollection>
       <h1
         style={{
           color:tColor,
@@ -480,6 +565,229 @@ export const schema= createSchema({
           name:'pMarginText',
         },
 
+      ]
+    },
+    {
+      group:"reviews drawer",
+      inputs:[
+        {
+          type:'text',
+          label:'title',
+          name:'lcTitle',
+          defaultValue:'Reseñas',
+        },
+        {
+          type:'color',
+          label:'background color',
+          name:'lcBgColor',
+          defaultValue:'#050505',
+        },
+        {
+          type:'heading',
+          label:'button return'
+        },
+        {
+          type:'color',
+          label:'color',
+          name:'lcBrColor',
+          defaultValue:'#A1A1AA',
+        },
+        {
+          type:'text',
+          label:'font size',
+          name:'lcBrSize',
+          defaultValue:'0.75rem',
+        },
+        {
+          type:'range',
+          label:'letter spacing',
+          name:'lcBrLetter',
+          defaultValue:2,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          }
+        },
+        {
+          type:'switch',
+          label:'uppercase',
+          name:'lcBrUpper',
+          defaultValue:true,
+        },
+        {
+          type:'text',
+          label:'font family',
+          name:'lcBrFamily',
+          defaultValue:'Montserrat',
+        },
+        {
+          type:'select',
+          label:'Padding type',
+          name:'lcBrPaddingSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'a',
+        },
+        {
+          type:'text',
+          label:'Padding text',
+          name:'lcBrPaddingText',
+        },
+        {
+          type:'select',
+          label:'Margin type',
+          name:'lcBrMarginSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'a',
+        },
+        {
+          type:'text',
+          label:'Margin text',
+          name:'lcBrMarginText',
+        },
+        {
+          type:'select',
+          label:'Font weight',
+          name:'lcBrWeight',
+          configs:{
+            options:[
+              {value:'100',label:'100'},
+              {value:'200',label:'200'},
+              {value:'300',label:'300'},
+              {value:'400',label:'400'},
+              {value:'500',label:'500'},
+              {value:'600',label:'600'},
+              {value:'700',label:'700'},
+              {value:'800',label:'800'},
+              {value:'900',label:'900'},
+            ]
+          },
+          defaultValue:'600',
+        },
+        {
+          type:'heading',
+          label:'nav title'
+        },
+        {
+          type:'color',
+          label:'color',
+          name:'lcNtColor',
+          defaultValue:'#fff',
+        },
+        {
+          type:'text',
+          label:'font size',
+          name:'lcNtSize',
+          defaultValue:'0.75rem',
+        },
+        {
+          type:'range',
+          label:'letter spacing',
+          name:'lcNtLetter',
+          defaultValue:2,
+          configs:{
+            min:0,
+            max:50,
+            step:1,
+            unit:'px',
+          }
+        },
+        {
+          type:'switch',
+          label:'uppercase',
+          name:'lcNtUpper',
+          defaultValue:true,
+        },
+        {
+          type:'text',
+          label:'font family',
+          name:'lcNtFamily',
+          defaultValue:'Montserrat',
+        },
+        {
+          type:'select',
+          label:'Padding type',
+          name:'lcNtPaddingSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'a',
+        },
+        {
+          type:'text',
+          label:'Padding text',
+          name:'lcNtPaddingText',
+        },
+        {
+          type:'select',
+          label:'Margin type',
+          name:'lcNtMarginSelect',
+          configs:{
+            options:[
+              {value:'t',label:'Top'},
+              {value:'b',label:'Bottom'},
+              {value:'l',label:'Left'},
+              {value:'r',label:'Right'},
+              {value:'x',label:'Inline'},
+              {value:'y',label:'Block'},
+              {value:'a',label:'Custom'},
+            ]
+          },
+          defaultValue:'a',
+        },
+        {
+          type:'text',
+          label:'Margin text',
+          name:'lcNtMarginText',
+        },
+        {
+          type:'select',
+          label:'Font weight',
+          name:'lcNtWeight',
+          configs:{
+            options:[
+              {value:'100',label:'100'},
+              {value:'200',label:'200'},
+              {value:'300',label:'300'},
+              {value:'400',label:'400'},
+              {value:'500',label:'500'},
+              {value:'600',label:'600'},
+              {value:'700',label:'700'},
+              {value:'800',label:'800'},
+              {value:'900',label:'900'},
+            ]
+          },
+          defaultValue:'600',
+        },
       ]
     },
   ]

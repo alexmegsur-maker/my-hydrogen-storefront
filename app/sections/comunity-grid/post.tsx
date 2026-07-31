@@ -4,6 +4,7 @@ import { useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router";
 import { Image } from "~/components/image";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import type { CommunityGridPostNode } from "~/types/comunityGrid";
 import type { ImageAspectRatio } from "~/types/others";
 import { selectorPaddingMargin } from "~/utils/general";
 import { calculateAspectRatio } from "~/utils/image";
@@ -34,19 +35,23 @@ const variants = cva("", {
   },
 });
 
-interface CommunityPostProps 
+interface CommunityPostProps
 extends VariantProps<typeof variants>,
 HydrogenComponentProps{
   ref?:React.Ref<HTMLDivElement>;
-  image:WeaverseImage;
-  link:string;
+  /** Metaobjeto "comunidad_post" del que sacar image/link/user/model. Si se
+   * pasa, tiene prioridad sobre esos props sueltos (usado por
+   * comunity-grid-metaobject/post.tsx). */
+  selfPost?: CommunityGridPostNode | null;
+  image?:WeaverseImage;
+  link?:string;
   bgColor:string;
   bgHColor:string;
   borderColor:string;
   borderHColor:string;
   rounded:number;
   imageAspectRatio:ImageAspectRatio;
-  user:string;
+  user?:string;
   tColor:string;
   tSize:string;
   tLetter:number;
@@ -58,7 +63,7 @@ HydrogenComponentProps{
   tMarginSelect:string;
   tMarginText:string;
   tWeight:string;
-  model:string;
+  model?:string;
   dColor:string;
   dSize:string;
   dLetter:number;
@@ -78,6 +83,7 @@ HydrogenComponentProps{
 export default function CommunityPost(props:CommunityPostProps){
   const {
     ref,
+    selfPost,
     image,
     size,
     rowSize,
@@ -120,12 +126,58 @@ export default function CommunityPost(props:CommunityPostProps){
   const [isHover,setIsHover]=useState(false)
   const isMobile=useIsMobile(600)
 
-  const linkfeed = ()=>{
-    if(link){
-      navigate(link)
+  // Si viene un metaobjeto "comunidad_post" (selfPost), sus campos
+  // (imagen/url/usuario/modelo) tienen prioridad sobre image/link/user/model.
+  let resolvedImage = image;
+  let resolvedLink = link;
+  let resolvedUser = user;
+  let resolvedModel = model;
+
+  if (selfPost) {
+    resolvedImage = {
+      id: selfPost.id,
+      url: IMAGES_PLACEHOLDERS.image,
+      altText: "",
+      width: 800,
+      height: 800,
+      previewSrc: IMAGES_PLACEHOLDERS.image,
+    };
+    resolvedLink = "";
+    resolvedUser = "";
+    resolvedModel = "";
+
+    for (const { key, value, reference } of selfPost.fields) {
+      if (key === "imagen" && reference?.image) {
+        resolvedImage = {
+          id: selfPost.id,
+          url: reference.image.url,
+          altText: reference.image.altText ?? "",
+          width: reference.image.width,
+          height: reference.image.height,
+          previewSrc: reference.image.url,
+        };
+      } else if (key === "url") {
+        resolvedLink = value ?? "";
+      } else if (key === "usuario") {
+        resolvedUser = value ?? "";
+      } else if (key === "modelo") {
+        resolvedModel = value ?? "";
+      }
     }
-  }  
-  
+  }
+
+  const linkfeed = ()=>{
+    if(!resolvedLink) return
+    // Los links externos (http/https/protocolo relativo) deben salir del
+    // sitio; navigate() de react-router los trataría como rutas internas y
+    // los concatenaría a la URL actual en vez de navegar afuera.
+    if(/^(https?:)?\/\//i.test(resolvedLink)){
+      window.location.href = resolvedLink
+    } else {
+      navigate(resolvedLink)
+    }
+  }
+
   return (
     <div 
       ref={ref}
@@ -146,8 +198,8 @@ export default function CommunityPost(props:CommunityPostProps){
 
       >
       <div className="social-img w-ful h-full object-cover">
-        <Image 
-          data={typeof image === "object" ? image : { url: image }}
+        <Image
+          data={typeof resolvedImage === "object" ? resolvedImage : { url: resolvedImage }}
           sizes="auto"
           className="h-full w-full object-cover"
           style={{
@@ -157,7 +209,7 @@ export default function CommunityPost(props:CommunityPostProps){
             transition:"filter 0.3s ease"
 
           } as CSSProperties}
-          aspectRatio={calculateAspectRatio(image, imageAspectRatio)}
+          aspectRatio={calculateAspectRatio(resolvedImage, imageAspectRatio)}
         />
       </div>
       <div 
@@ -185,7 +237,7 @@ export default function CommunityPost(props:CommunityPostProps){
             ...selectorPaddingMargin("margin", tMarginSelect, tMarginText),
           }}
           >
-          {user}
+          {resolvedUser}
         </div>
         <div 
           className="social-model"
@@ -201,7 +253,7 @@ export default function CommunityPost(props:CommunityPostProps){
             ...selectorPaddingMargin("margin", dMarginSelect, dMarginText),
           }}    
           >
-          {model}
+          {resolvedModel}
         </div>
       </div>
     </div>

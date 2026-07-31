@@ -3392,6 +3392,31 @@ export type ChairMetaobjectQuery = {
   }>;
 };
 
+export type CommunityGridMetaobjectPostsQueryVariables = StorefrontAPI.Exact<{
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+}>;
+
+export type CommunityGridMetaobjectPostsQuery = {
+  metaobjects: {
+    nodes: Array<
+      Pick<StorefrontAPI.Metaobject, 'id' | 'handle'> & {
+        fields: Array<
+          Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
+            reference?: StorefrontAPI.Maybe<{
+              image?: StorefrontAPI.Maybe<
+                Pick<
+                  StorefrontAPI.Image,
+                  'url' | 'altText' | 'width' | 'height'
+                >
+              >;
+            }>;
+          }
+        >;
+      }
+    >;
+  };
+};
+
 export type CollectionsByIdsQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
@@ -4228,6 +4253,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query ChairMetaobject($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "scroll_chair" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url width height altText }\n          }\n        }\n        references(first: 50) {\n          nodes {\n            ... on MediaImage {\n              image { url width height altText }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: ChairMetaobjectQuery;
     variables: ChairMetaobjectQueryVariables;
+  };
+  '#graphql\n  query CommunityGridMetaobjectPosts($first: Int) {\n    metaobjects(type: "comunidad_post", first: $first) {\n      nodes {\n        id\n        handle\n        fields {\n          key\n          value\n          reference {\n            ... on MediaImage {\n              image {\n                url\n                altText\n                width\n                height\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: CommunityGridMetaobjectPostsQuery;
+    variables: CommunityGridMetaobjectPostsQueryVariables;
   };
   '#graphql\n  query collectionsByIds($country: CountryCode, $language: LanguageCode, $ids: [ID!]!)\n  @inContext(country: $country, language: $language) {\n    nodes(ids: $ids) {\n      ... on Collection {\n        id\n        title\n        handle\n        onlineStoreUrl\n        description\n        image {\n          id\n          altText\n          width\n          height\n          url\n        }\n      }\n    }\n  }\n': {
     return: CollectionsByIdsQuery;

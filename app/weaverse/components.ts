@@ -115,6 +115,9 @@ import * as SimpleProductItem from "~/sections/simple-product-grid/product"
 import * as CommunityGrid from "~/sections/comunity-grid"
 import * as CommunityItems from "~/sections/comunity-grid/items"
 import * as CommunityPost from "~/sections/comunity-grid/post"
+import * as CommunityGridMetaobject from "~/sections/comunity-grid-metaobject"
+import * as CommunityGridMetaobjectItems from "~/sections/comunity-grid-metaobject/items"
+import * as CommunityGridMetaobjectPost from "~/sections/comunity-grid-metaobject/post"
 import * as LegalWrapper from "~/sections/legal-wrapper"
 import * as LegalWrapperSection from "~/sections/legal-wrapper/section"
 import * as TimeLine from "~/sections/timeline-phoenix"
@@ -298,6 +301,9 @@ export const components: HydrogenComponent[] = [
   CommunityGrid,
   CommunityItems,
   CommunityPost,
+  CommunityGridMetaobject,
+  CommunityGridMetaobjectItems,
+  CommunityGridMetaobjectPost,
   LegalWrapper,
   LegalWrapperSection,
   TimeLine,

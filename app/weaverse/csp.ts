@@ -128,6 +128,9 @@ export function getWeaverseCsp(
       "https://cdn.jsdelivr.net",
       "*.trustedshops.com",
       "*.etrusted.com",
+      "*.judge.me",
+      "cdnwidget.judge.me",
+      "*.judgeme.com",
       ...storefrontHosts,
     ]
   };

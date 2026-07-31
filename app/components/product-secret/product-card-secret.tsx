@@ -91,7 +91,7 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="group relative block overflow-hidden "
+            className="h-full group relative block overflow-hidden "
             onMouseEnter={()=>setHoverImage((state)=>state==false && true)}
             onMouseLeave={()=>setHoverImage((state)=>state==true && false)}
             
