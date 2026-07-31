@@ -11,6 +11,7 @@ const GET_ORDER_BY_NAME = `
           cancelledAt
           email
           customer {
+            id
             email
           }
         }
@@ -189,6 +190,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
       // solo se envía cuando el flujo de creación (StepCreate) selecciona un producto.
       if (productoReturn) {
         fields.push({ key: "producto_return", value: productoReturn });
+      }
+      // cliente es una referencia a Customer; solo existe si el pedido tiene
+      // una cuenta de cliente asociada (no en pedidos de invitado).
+      if (orderNode?.customer?.id) {
+        fields.push({ key: "cliente", value: orderNode.customer.id });
       }
 
       const result = await shopifyAdmin(adminUrl, adminToken, CREATE_METAOBJECT_DESISTIMIENTO, {
