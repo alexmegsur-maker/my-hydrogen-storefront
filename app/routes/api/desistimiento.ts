@@ -155,6 +155,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
     const nombre = (formData.get("nombre") as string)?.trim();
     const correo = (formData.get("correo") as string)?.trim();
     const motivo = (formData.get("motivo") as string)?.trim() ?? "";
+    const productoReturn = (formData.get("producto_return") as string)?.trim();
 
     if (!orderNumber || !nombre || !correo) {
       return data(
@@ -178,16 +179,23 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
       const handle = `solicitud-${orderNumber}-${Date.now()}`;
 
+      const fields = [
+        { key: "pedido", value: orderNumber },
+        { key: "correo", value: correo },
+        { key: "motivo", value: motivo },
+        { key: "state", value: "Solicitada" },
+      ];
+      // producto_return es una referencia a Product (metaobjeto "solicitud_de_devolucion");
+      // solo se envía cuando el flujo de creación (StepCreate) selecciona un producto.
+      if (productoReturn) {
+        fields.push({ key: "producto_return", value: productoReturn });
+      }
+
       const result = await shopifyAdmin(adminUrl, adminToken, CREATE_METAOBJECT_DESISTIMIENTO, {
         input: {
           type: "solicitud_de_devolucion",
           handle,
-          fields: [
-            { key: "pedido", value: orderNumber },
-            { key: "correo", value: correo },
-            { key: "motivo", value: motivo },
-            { key: "state", value: "Solicitada" },
-          ],
+          fields,
         },
       });
 
