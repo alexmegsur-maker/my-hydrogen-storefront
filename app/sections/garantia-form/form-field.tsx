@@ -243,6 +243,7 @@ export const schema = createSchema({
           label: "Select options (comma separated)",
           defaultValue: "Opción 1, Opción 2, Opción 3",
           helpText: 'Solo se usa cuando el tipo es "Select (dropdown)".',
+          condition: (data: FormFieldProps) => data.fieldType === "select",
         },
         {
           type: "range",
@@ -251,6 +252,7 @@ export const schema = createSchema({
           defaultValue: 4,
           configs: { min: 2, max: 12, step: 1, unit: "rows" },
           helpText: 'Solo se usa cuando el tipo es "Textarea".',
+          condition: (data: FormFieldProps) => data.fieldType === "textarea",
         },
         {
           type: "range",

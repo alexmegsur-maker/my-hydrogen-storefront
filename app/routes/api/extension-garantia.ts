@@ -247,6 +247,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const email          = formData.get("contact[email]") as string;
   const pedido         = formData.get("contact[phone]") as string;
   const urlPublicacion = formData.get("contact[body]") as string;
+  const comercioDeCompra = (formData.get("properties[comercio_de_compra]") as string)?.trim();
 
   if (!email || !pedido || !urlPublicacion) {
     return data(
@@ -270,16 +271,21 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const adminUrl = `https://${shop}/admin/api/${apiVersion}/graphql.json`;
 
   try {
+    const garantiaFields = [
+      { key: "correo",         value: email },
+      { key: "numero_pedido",  value: pedido },
+      { key: "url",            value: urlPublicacion },
+    ];
+    if (comercioDeCompra) {
+      garantiaFields.push({ key: "comercio_de_compra", value: comercioDeCompra });
+    }
+
     // Ejecutamos ambas operaciones en paralelo para no añadir latencia
     const [garantiaResult, _newsletter] = await Promise.allSettled([
       shopifyAdmin(adminUrl, adminToken, CREATE_METAOBJECT_GARANTIA, {
         input: {
           type: "extension_de_garantia",
-          fields: [
-            { key: "correo",         value: email },
-            { key: "numero_pedido",  value: pedido },
-            { key: "url",            value: urlPublicacion },
-          ],
+          fields: garantiaFields,
         },
       }),
       subscribeToNewsletter(email, adminUrl, adminToken),

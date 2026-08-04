@@ -60,6 +60,8 @@ interface PrincipalCardProps extends HydrogenComponentProps {
   buttonLetterSpacing: number
   buttonPaddingV: number
   buttonPaddingH: number
+  // Link behavior
+  fullCardLink: boolean
 }
 
 // ─── GraphQL query ─────────────────────────────────────────────────────────
@@ -126,6 +128,7 @@ function PrincipalCard(props: PrincipalCardProps) {
     buttonFontSize = 16, buttonFontSizeMobile = 14,
     buttonFamily = 'Quicksand, sans-serif',
     buttonLetterSpacing = 2, buttonPaddingV = 12, buttonPaddingH = 17,
+    fullCardLink = false,
   } = props
 
   const isMobile = useIsMobile(700)
@@ -144,12 +147,20 @@ function PrincipalCard(props: PrincipalCardProps) {
   const h = isMobile ? cardHeightMobile : cardHeight
   const tr = (ms: number) => `${ms}ms linear`
 
+  const CardWrapper: React.ElementType = fullCardLink ? 'a' : 'div'
+
   return (
-    <div
-      style={{ width: w, height: h, position: 'relative', flexShrink: 0 }}
+    <CardWrapper
+      {...(fullCardLink ? { href: linkUrl } : {})}
+      style={{
+        width: w, height: h, position: 'relative', flexShrink: 0,
+        display: fullCardLink ? 'block' : undefined,
+        textDecoration: fullCardLink ? 'none' : undefined,
+        color: fullCardLink ? 'inherit' : undefined,
+      }}
       onMouseEnter={() => !isMobile && setHovered(true)}
       onMouseLeave={() => !isMobile && setHovered(false)}
-      onClick={() => isMobile && setHovered(v => !v)}
+      onClick={() => isMobile && !fullCardLink && setHovered(v => !v)}
     >
       <div
         style={{
@@ -281,30 +292,41 @@ function PrincipalCard(props: PrincipalCardProps) {
               {sinopsisText}
             </p>
           )}
-          <a href={linkUrl} style={{ textDecoration: 'none' }}>
-            <button
-              type="button"
-              style={{
-                padding: `${buttonPaddingV}px ${buttonPaddingH}px`,
-                fontSize: `${isMobile ? buttonFontSizeMobile : buttonFontSize}px`,
-                backgroundColor: buttonBg,
-                color: buttonColor,
-                borderRadius: `${buttonRadius}px`,
-                border: 'none',
-                cursor: 'pointer',
-                marginTop: '2.2rem',
-                textTransform: 'uppercase',
-                fontWeight: 'bold',
-                letterSpacing: `${buttonLetterSpacing}px`,
-                fontFamily: buttonFamily,
-              }}
-            >
-              {btnText}
-            </button>
-          </a>
+          {(() => {
+            const buttonEl = (
+              <button
+                type="button"
+                style={{
+                  padding: `${buttonPaddingV}px ${buttonPaddingH}px`,
+                  fontSize: `${isMobile ? buttonFontSizeMobile : buttonFontSize}px`,
+                  backgroundColor: buttonBg,
+                  color: buttonColor,
+                  borderRadius: `${buttonRadius}px`,
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginTop: '2.2rem',
+                  textTransform: 'uppercase',
+                  fontWeight: 'bold',
+                  letterSpacing: `${buttonLetterSpacing}px`,
+                  fontFamily: buttonFamily,
+                }}
+              >
+                {btnText}
+              </button>
+            )
+            // Si toda la tarjeta ya es un <a>, evitamos anidar otro <a> dentro
+            // (HTML inválido) — el botón simplemente hereda el click del padre.
+            return fullCardLink ? (
+              buttonEl
+            ) : (
+              <a href={linkUrl} style={{ textDecoration: 'none' }}>
+                {buttonEl}
+              </a>
+            )
+          })()}
         </div>
       </div>
-    </div>
+    </CardWrapper>
   )
 }
 
@@ -334,6 +356,13 @@ export const schema = createSchema({
           label: 'Handle del metaobject (tipo: principal_card)',
           placeholder: 'ej: mi-coleccion',
           defaultValue: '',
+        },
+        {
+          type: 'switch',
+          name: 'fullCardLink',
+          label: 'Toda la tarjeta es un link',
+          helpText: 'Si está activo, toda la tarjeta enlaza a la url del metaobjeto (no solo el botón).',
+          defaultValue: false,
         },
       ],
     },
@@ -393,6 +422,7 @@ export const schema = createSchema({
   ],
   presets: {
     metaobject: '',
+    fullCardLink: false,
     cardWidth: '26vw', cardHeight: '75vh',
     cardWidthMobile: '90vw', cardHeightMobile: '70vh',
     subtitleColor: '#E3CE79',

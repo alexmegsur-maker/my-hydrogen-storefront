@@ -527,6 +527,15 @@ export const schema = createSchema({
       },
       {
         type: "form-field",
+        fieldName: "properties[comercio_de_compra]",
+        fieldType: "select",
+        label: "Comercio de Compra",
+        placeholder: "Selecciona una tienda",
+        required: true,
+        selectOptions: "Selectro, Web, PcComponentes, Dynos",
+      },
+      {
+        type: "form-field",
         fieldName: "contact[body]",
         fieldType: "textarea",
         label: "URL de la Publicación Pública",
