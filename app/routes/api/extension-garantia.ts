@@ -247,11 +247,27 @@ export async function action({ request, context }: ActionFunctionArgs) {
   const email          = formData.get("contact[email]") as string;
   const pedido         = formData.get("contact[phone]") as string;
   const urlPublicacion = formData.get("contact[body]") as string;
-  const comercioDeCompra = (formData.get("properties[comercio_de_compra]") as string)?.trim();
+  const comercioDeCompra = (formData.get("contact[comercio_de_compra]") as string)?.trim();
 
   if (!email || !pedido || !urlPublicacion) {
     return data(
       { success: false, error: "Por favor, completa todos los campos." },
+      { status: 400 }
+    );
+  }
+
+  // El número de pedido de la tienda propia ("Web") siempre tiene 4 dígitos;
+  // en otros comercios (Selectro, PcComponentes, Dynos...) puede ser más largo.
+  // No confiamos solo en el maxLength del input — se valida también aquí.
+  if (comercioDeCompra === "Web" && pedido.length !== 4) {
+    return data(
+      { success: false, error: "El número de pedido debe tener 4 dígitos." },
+      { status: 400 }
+    );
+  }
+  if (pedido.length > 32) {
+    return data(
+      { success: false, error: "El número de pedido es demasiado largo." },
       { status: 400 }
     );
   }

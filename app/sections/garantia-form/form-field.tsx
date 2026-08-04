@@ -2,7 +2,7 @@ import {
   createSchema,
   type HydrogenComponentProps,
 } from "@weaverse/hydrogen";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface FormFieldProps extends HydrogenComponentProps {
   // Field config
@@ -13,6 +13,12 @@ interface FormFieldProps extends HydrogenComponentProps {
   required: boolean;
   selectOptions: string; // comma-separated options for select type
   rows: number; // for textarea
+
+  // Conditional max length (depende del valor de otro campo del formulario)
+  enableConditionalMaxLength: boolean;
+  watchFieldName: string; // name (HTML) del campo a observar, ej: properties[comercio_de_compra]
+  watchFieldValue: string; // valor que activa la restricción, ej: "Web"
+  maxLengthWhenMatch: number; // maxLength aplicado cuando watchFieldName === watchFieldValue
 
   // Spacing
   marginBottom: number;
@@ -47,6 +53,10 @@ function FormField(props: FormFieldProps) {
     required,
     selectOptions,
     rows,
+    enableConditionalMaxLength,
+    watchFieldName,
+    watchFieldValue,
+    maxLengthWhenMatch,
     marginBottom,
     labelColor,
     labelSize,
@@ -68,6 +78,33 @@ function FormField(props: FormFieldProps) {
   } = props;
 
   const [isFocused, setIsFocused] = useState(false);
+  const [watchedMatches, setWatchedMatches] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Observa el valor de otro campo (mismo <form>) para restringir dinámicamente
+  // el maxLength de este input — ej: número de pedido limitado a 4 dígitos
+  // solo cuando "comercio de compra" es "Web".
+  useEffect(() => {
+    if (!enableConditionalMaxLength || !watchFieldName) return;
+    const formEl = inputRef.current?.form;
+    const watched = formEl?.elements.namedItem(watchFieldName) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | null;
+    if (!watched) return;
+
+    const check = () => setWatchedMatches(watched.value === watchFieldValue);
+    check();
+    watched.addEventListener("change", check);
+    watched.addEventListener("input", check);
+    return () => {
+      watched.removeEventListener("change", check);
+      watched.removeEventListener("input", check);
+    };
+  }, [enableConditionalMaxLength, watchFieldName, watchFieldValue]);
+
+  const activeMaxLength =
+    enableConditionalMaxLength && watchedMatches ? maxLengthWhenMatch : undefined;
 
   const sharedInputStyle: React.CSSProperties = {
     width: "100%",
@@ -165,11 +202,13 @@ function FormField(props: FormFieldProps) {
         </select>
       ) : (
         <input
+          ref={inputRef}
           id={inputId}
           type={fieldType}
           name={fieldName}
           placeholder={placeholder}
           required={required}
+          maxLength={activeMaxLength}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           style={sharedInputStyle}
@@ -260,6 +299,41 @@ export const schema = createSchema({
           label: "Margin bottom",
           defaultValue: 2.5,
           configs: { min: 0, max: 8, step: 0.5, unit: "rem" },
+        },
+      ],
+    },
+    {
+      group: "Max length condicional",
+      inputs: [
+        {
+          type: "switch",
+          name: "enableConditionalMaxLength",
+          label: "Limitar longitud según otro campo",
+          defaultValue: false,
+          helpText:
+            'Ej: limitar "Número de pedido" a 4 caracteres solo cuando "Comercio de compra" sea "Web".',
+        },
+        {
+          type: "text",
+          name: "watchFieldName",
+          label: "Campo a observar (name HTML)",
+          placeholder: "properties[comercio_de_compra]",
+          condition: (data: FormFieldProps) => data.enableConditionalMaxLength === true,
+        },
+        {
+          type: "text",
+          name: "watchFieldValue",
+          label: "Valor que activa el límite",
+          placeholder: "Web",
+          condition: (data: FormFieldProps) => data.enableConditionalMaxLength === true,
+        },
+        {
+          type: "range",
+          name: "maxLengthWhenMatch",
+          label: "Longitud máxima",
+          defaultValue: 4,
+          configs: { min: 1, max: 50, step: 1 },
+          condition: (data: FormFieldProps) => data.enableConditionalMaxLength === true,
         },
       ],
     },
@@ -388,6 +462,10 @@ export const schema = createSchema({
     required: false,
     selectOptions: "Opción 1, Opción 2, Opción 3",
     rows: 4,
+    enableConditionalMaxLength: false,
+    watchFieldName: "",
+    watchFieldValue: "",
+    maxLengthWhenMatch: 4,
     marginBottom: 2.5,
     labelColor: "#71717A",
     labelSize: "0.75rem",
