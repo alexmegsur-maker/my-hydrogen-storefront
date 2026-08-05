@@ -12,6 +12,7 @@ import  type {loader as productRouteLoader} from "~/routes/products/product";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import "~/styles/product-j.css"
 import { translations } from "~/utils/translations";
+import { BuyButtonsSkeleton, CrossellSkeleton, FilterOptionSizeSkeleton, HeadSkeleton, ProductMediaSkeleton, VariantSelectorSecretSkeleton } from "./skeletons";
 
 interface ProductInformationData
   extends Omit<ProductMediaProps, "selectedVariant" | "media"> {
@@ -43,6 +44,19 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
   const setProduct= useCurrentProduct((state)=>state.setProduct)
   const productStore = useCurrentProduct((state)=>state.currentProduct)
   const isMobile = useIsMobile(600);
+
+  // Todas las secciones de Weaverse se pintan 100% en cliente (no hay SSR de
+  // contenido) — sin este mínimo, el esqueleto se sustituye por el contenido
+  // real en el mismo frame de montaje y nunca llega a verse.
+  const [minLoadingTimePassed, setMinLoadingTimePassed] = useState(false);
+  useEffect(() => {
+    // Se reinicia por cada producto (misma instancia de componente al
+    // navegar entre productos, React no la desmonta) para que el esqueleto
+    // vuelva a mostrarse en cada navegación, no solo en el montaje inicial.
+    setMinLoadingTimePassed(false);
+    const id = setTimeout(() => setMinLoadingTimePassed(true), 400);
+    return () => clearTimeout(id);
+  }, [product?.id]);
   const restoreHeaderFooter=()=>{
       const header = document.querySelector("header")
       const announcement = document.querySelector("#announcement-bar") as HTMLDivElement
@@ -80,7 +94,15 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
     setCurrentProduct(productStore)
   },[productStore])
 
-if(productStore){
+// El store de zustand persiste entre navegaciones cliente-side (no se
+// resetea al cambiar de producto). Si solo comprobáramos `productStore`
+// (truthy), al navegar a otro producto se vería un flash con los datos del
+// producto ANTERIOR hasta que el efecto de arriba lo actualice. Comparando
+// el id contra el `product` del loader (ya resuelto para la ruta actual)
+// nos aseguramos de mostrar el esqueleto mientras llega el producto correcto.
+const isCurrentProductReady = minLoadingTimePassed && productStore && productStore.id === product?.id;
+
+if(isCurrentProductReady){
   return(
     <Section  ref={ref} {...rest}  className="md:h-[100dvh] "
     style={{background:color}}>
@@ -120,7 +142,46 @@ if(productStore){
     </Section>
   )
 }
-return <Section {...rest}></Section>
+  // ── Loading skeleton ──────────────────────────────────────────────────────
+  // Se muestra mientras `productStore` (zustand) todavía no está listo.
+  // Las piezas (HeadSkeleton, …) se van añadiendo a medida que se define cada
+  // sección — ver app/sections/main-product-j/skeletons.tsx.
+  return (
+    <Section ref={ref} {...rest} className="md:h-[100dvh]" style={{ background: color }}>
+      <div className="lg:flex grid grid-cols-1 md:h-[100vh] relative">
+        <ProductMediaSkeleton />
+        <div
+          className="container-info relative w-full overflow-y-auto"
+          style={{ background: color }}
+        >
+          <div
+            className="fixed md:sticky top-0 left-0 flex w-full items-center"
+            style={{
+              padding: !isMobile ? "1.5rem 4rem" : "1.5rem 2rem",
+              borderBottom: "1px solid #ffffff08",
+              background: color,
+              zIndex: 10,
+            }}
+          >
+            <Link to={"/"} onClick={restoreHeaderFooter}>← {t.home}</Link>
+          </div>
+          <div
+            style={{
+              padding: !isMobile ? "3rem 4rem 0 4rem" : "1.5rem 1.5rem 0 1.5rem",
+            }}
+          >
+            <div className="flex flex-col gap-8">
+              <HeadSkeleton />
+              <FilterOptionSizeSkeleton rows={2} />
+              <VariantSelectorSecretSkeleton />
+              <CrossellSkeleton rows={3} />
+              <BuyButtonsSkeleton />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  )
 }
 
 export const schema = createSchema({

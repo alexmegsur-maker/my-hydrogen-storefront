@@ -32,7 +32,7 @@ export function MobileMenu() {
       <Dialog.Portal>
         <Dialog.Overlay
           className={cn(
-            "fixed inset-0 z-10 bg-black/50",
+            "fixed inset-0 z-15 bg-black/50",
             "data-[state=open]:animate-[fade-in_150ms_ease-out]",
             "data-[state=closed]:animate-[fade-out_150ms_ease-in]",
           )}
@@ -40,7 +40,7 @@ export function MobileMenu() {
         <Dialog.Content
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={cn([
-            "fixed inset-0 z-10 h-screen bg-(--color-header-bg) pt-4 pb-2",
+            "fixed inset-0 z-15 h-screen bg-(--color-header-bg) pt-4 pb-2",
             "data-[state=open]:animate-[enter-from-left_200ms_ease-out]",
             "data-[state=closed]:animate-[exit-to-left_200ms_ease-in]",
             "focus-visible:outline-hidden",

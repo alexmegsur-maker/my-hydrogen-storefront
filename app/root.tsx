@@ -29,6 +29,7 @@ import { ScrollingAnnouncement } from "./components/layout/scrolling-announcemen
 // ELIMINADO: CustomAnalytics ya no se importa para evitar la duplicidad con la Web Pixels API
 import { GenericError } from "./components/root/generic-error";
 import { GlobalLoading } from "./components/root/global-loading";
+import { ProductNavigationSkeleton } from "./components/root/product-navigation-skeleton";
 import {
   NewsletterPopup,
   useShouldRenderNewsletterPopup,
@@ -282,6 +283,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           children
         )}
         <GlobalLoading />
+        <ProductNavigationSkeleton />
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
