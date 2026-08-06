@@ -67,7 +67,8 @@ interface PrincipalCardProps extends HydrogenComponentProps {
 // ─── GraphQL query ─────────────────────────────────────────────────────────
 
 const PRINCIPAL_CARD_QUERY = `#graphql
-  query PrincipalCard($handle: String!) {
+  query PrincipalCard($handle: String!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
     metaobject(handle: { handle: $handle, type: "principal_card" }) {
       fields {
         key
@@ -92,9 +93,11 @@ export const loader = async ({
   const handle = data?.metaobject
   if (!handle) return null
 
+  const { country, language } = weaverse.storefront.i18n
+
   try {
     const response = await storefront.query(PRINCIPAL_CARD_QUERY, {
-      variables: { handle },
+      variables: { handle, country, language },
     })
     if (!response?.metaobject) return null
 

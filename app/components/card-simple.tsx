@@ -6,6 +6,7 @@ import {
 } from "@weaverse/hydrogen";
 import { Section } from "./section";
 import { Image } from "./image";
+import { Skeleton } from "./skeleton";
 import { calculateAspectRatio } from "~/utils/image";
 import type { ImageAspectRatio } from "~/types/others";
 import { selectorPaddingMargin } from "~/utils/general";
@@ -126,6 +127,7 @@ export default function CardSimple(
   } = props;
 
   const [isHover,setIsHover] = useState(false)
+  const [imageLoaded,setImageLoaded] = useState(false)
   const isMobile =useIsMobile(600)
   const linkElm = useRef(null)
 
@@ -150,7 +152,7 @@ export default function CardSimple(
       onClick={linkAllCard}
     >
       <div
-        className="universe-img"
+        className="universe-img relative"
         style={{
           aspectRatio: calculateAspectRatio(image, imageAspectRatio) ?? (imageAspectRatio && imageAspectRatio !== "adapt" ? imageAspectRatio : "3/4"),
           width: "100%",
@@ -160,12 +162,17 @@ export default function CardSimple(
           overflow: "hidden",
         }}
       >
+        {/* Esqueleto de precarga — visible hasta que la imagen real termine de cargar */}
+        {!imageLoaded && (
+          <Skeleton className="absolute inset-0 rounded-none bg-white/10" />
+        )}
         <Image
           data={image}
           className="h-full object-cover rounded-(--radius)"
           aspectRatio={calculateAspectRatio(image, imageAspectRatio)}
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           width={600}
+          onLoad={() => setImageLoaded(true)}
         />
       </div>
       <div

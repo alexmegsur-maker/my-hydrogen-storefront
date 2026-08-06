@@ -3845,6 +3845,8 @@ export type OurTeamQuery = {
 
 export type PrincipalCardQueryVariables = StorefrontAPI.Exact<{
   handle: StorefrontAPI.Scalars['String']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
 
 export type PrincipalCardQuery = {
@@ -4274,7 +4276,7 @@ interface GeneratedQueryTypes {
     return: OurTeamQuery;
     variables: OurTeamQueryVariables;
   };
-  '#graphql\n  query PrincipalCard($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "principal_card" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query PrincipalCard($handle: String!, $country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    metaobject(handle: { handle: $handle, type: "principal_card" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n        }\n      }\n    }\n  }\n': {
     return: PrincipalCardQuery;
     variables: PrincipalCardQueryVariables;
   };

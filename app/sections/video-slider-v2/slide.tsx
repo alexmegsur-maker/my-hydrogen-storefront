@@ -87,6 +87,18 @@ function SlideVideoV2(props:SlideProps){
     })
   }
 
+  // Preload the hero slide's actual video file too — antes solo se
+  // precargaba el poster de móvil, así que en desktop el vídeo del hero
+  // arrancaba en frío (0 bytes descargados) hasta que el IntersectionObserver
+  // llamaba a play(). Esto le da ventaja al navegador desde el primer render.
+  if (isHero && showMedia === 'video' && video?.url) {
+    preload(video.url, {
+      as: 'video',
+      // @ts-ignore — fetchPriority es una opción de React 19 preload
+      fetchPriority: 'high',
+    })
+  }
+
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -100,7 +112,12 @@ function SlideVideoV2(props:SlideProps){
           el.pause()
         }
       },
-      { threshold: 0.5 },
+      // rootMargin le da ventaja: en Swiper el slide siguiente está posicionado
+      // justo pegado al viewport actual, así que este margen hace que el
+      // navegador empiece a bufferear un poco antes de que el slide esté
+      // realmente visible, sin adelantar tanto la reproducción como para que
+      // se note un salto de contenido.
+      { threshold: 0.25, rootMargin: '0px 200px' },
     )
     observer.observe(el)
     return () => observer.disconnect()
@@ -135,7 +152,7 @@ function SlideVideoV2(props:SlideProps){
             <video
               ref={videoRef}
               className="object-cover w-full h-full hidden lg:block"
-              preload="none"
+              preload={isHero ? "auto" : "metadata"}
               muted
               loop={loop}
               playsInline

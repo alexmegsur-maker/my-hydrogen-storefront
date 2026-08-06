@@ -68,7 +68,8 @@ interface ChairSectionProps extends ChairSectionLoaderData {
 // ---------------------------------------------------------------------------
 
 const CHAIR_METAOBJECT_QUERY = `#graphql
-  query ChairMetaobject($handle: String!) {
+  query ChairMetaobject($handle: String!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
     metaobject(handle: { handle: $handle, type: "scroll_chair" }) {
       fields {
         key
@@ -103,9 +104,11 @@ export const loader = async ({
 
   if (!handle) return null;
 
+  const { country, language } = weaverse.storefront.i18n;
+
   try {
     const response = await storefront.query(CHAIR_METAOBJECT_QUERY, {
-      variables: { handle },
+      variables: { handle, country, language },
     });
 
     if (!response?.metaobject) {
