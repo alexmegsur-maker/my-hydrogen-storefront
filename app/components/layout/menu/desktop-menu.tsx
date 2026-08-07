@@ -51,9 +51,7 @@ export function DesktopMenu( props:DesktopMenuProps) {
         >
           {items.map((menuItem ,idx) => {
             const half =Math.floor(items.length/2)
-            const { id, items: childItems = [],url, title, to } = menuItem;
-            const product = url.includes("/products")?"/products":""
-        
+            const { id, items: childItems = [], title, to } = menuItem;
 
             const level = getMaxDepth(menuItem);
             const hasSubmenu = level > 1;
@@ -86,7 +84,7 @@ export function DesktopMenu( props:DesktopMenuProps) {
                       </>
                     ) : (
                       <NavigationMenu.Link asChild>
-                        <Link to={product+to} className="transition-none">
+                        <Link to={to} className="transition-none">
                           {title}
                         </Link>
                       </NavigationMenu.Link>

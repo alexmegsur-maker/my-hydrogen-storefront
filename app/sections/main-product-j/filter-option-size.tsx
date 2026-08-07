@@ -8,6 +8,8 @@ import "~/styles/filter-option.css";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useFilterProduct } from "~/stores/filterProductStore";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 
 interface FilterOptionSizeProps extends HydrogenComponentProps {
   title: string;
@@ -213,6 +215,9 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
     ...rest
   } = props;
 
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations["ES"];
+
   const [variantSelected, setVariantSelected] = useState({
     button: "",
     options: [],
@@ -274,11 +279,11 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
 
   useEffect(() => {
     if (height > 179 || weight > 99) {
-      setRecommendation("EXTRA LARGE (XL)");
+      setRecommendation(t.sizeFilter_extraLarge);
     } else {
-      setRecommendation("REGULAR (R)");
+      setRecommendation(t.sizeFilter_regular);
     }
-  }, [height, weight]);
+  }, [height, weight, t]);
 
   useEffect(() => {
     const currentVariant = currentProduct?.selectedVariant;
@@ -331,7 +336,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
               ...selectorPaddingMargin("margin", tMarginSelect, tMarginText),
             }}
           >
-            {title ? title : "Talla"}
+            {title ? title : t.sizeFilter_title}
           </div>
           <span
             className="config-link cursor-pointer"
@@ -427,7 +432,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
       </div>
 
       <LateralCollection
-        title={"SISTEMA DE AJUSTE"}
+        title={t.sizeFilter_adjustSystemTitle}
         confirmBtn={false}
         show={show}
         close={() => setShow(false)}
@@ -514,7 +519,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                   fontFamily: "Montserrat",
                 }}
               >
-                ANALYZING...
+                {t.sizeFilter_analyzing}
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -546,7 +551,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                   ...selectorPaddingMargin("margin", tllDMarginSelect, tllDMarginText),
                 }}
               >
-                CHASIS RECOMENDADO
+                {t.sizeFilter_recommendedChassis}
               </span>
             </div>
           </div>
@@ -581,7 +586,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                     ...selectorPaddingMargin("margin", tllStMarginSelect, tllStMarginText),
                   }}
                 >
-                  Estatura
+                  {t.sizeFilter_height}
                 </label>
                 <span
                   id="hTxt"
@@ -592,7 +597,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                     color: tllNColor,
                   }}
                 >
-                  {height} CM
+                  {height} {t.sizeFilter_cmUnit}
                 </span>
               </div>
               <input
@@ -636,7 +641,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                     ...selectorPaddingMargin("margin", tllStMarginSelect, tllStMarginText),
                   }}
                 >
-                  Masa Corporal
+                  {t.sizeFilter_weight}
                 </label>
                 <span
                   id="wTxt"
@@ -647,7 +652,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                     color: tllNColor,
                   }}
                 >
-                  {weight} KG
+                  {weight} {t.sizeFilter_kgUnit}
                 </span>
               </div>
               <input
@@ -689,7 +694,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                   fontFamily: tllStFamily,
                 }}
               >
-                Pistón Hidráulico
+                {t.sizeFilter_hydraulicPiston}
               </small>
               <p
                 style={{
@@ -699,7 +704,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                   color: tllNColor,
                 }}
               >
-                Clase 4 (150kg)
+                {t.sizeFilter_hydraulicPistonValue}
               </p>
             </div>
             <div>
@@ -713,7 +718,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                   textTransform: "uppercase",
                 }}
               >
-                Estructura
+                {t.sizeFilter_structure}
               </small>
               <p
                 style={{
@@ -723,7 +728,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
                   color: tllNColor,
                 }}
               >
-                Acero Forjado
+                {t.sizeFilter_structureValue}
               </p>
             </div>
           </div>
@@ -738,8 +743,7 @@ export default function FilterOptionSize(props: FilterOptionSizeProps) {
               fontStyle: "italic",
             }}
           >
-            *Ambos modelos garantizan la misma certificación de carga (150kg). El
-            chasis XL optimiza la ergonomía para envergaduras superiores.
+            {t.sizeFilter_footerNote}
           </p>
         </div>
       </LateralCollection>
