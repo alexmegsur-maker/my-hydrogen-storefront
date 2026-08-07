@@ -16,12 +16,16 @@ export const loader:LoaderFunction = async({request,context}:LoaderFunctionArgs)
       ok:false,      
     },{status:400})
   }
+  const { country, language } = context.storefront.i18n;
+
   try{
     const result= await context.storefront.query<GetVariantsOptionsQuery>(
       GET_VARIANT_OPTIONS,
       {
         variables:{
-          handle:handle
+          handle:handle,
+          country,
+          language,
         }
       }
     )

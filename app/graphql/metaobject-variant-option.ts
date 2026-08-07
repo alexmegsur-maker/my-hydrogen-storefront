@@ -1,5 +1,6 @@
 export const GET_VARIANT_OPTIONS = `#graphql
-  query GetVariantsOptions ($handle:String!) {
+  query GetVariantsOptions ($handle:String!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
     metaobjects(type: $handle, first: 10) {
       edges {
         node {
