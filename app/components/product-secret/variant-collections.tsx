@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useLoaderData } from "react-router";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import LateralPopupVariant from "./lateral-popup-variant";
 import type { RequestCollection } from "~/sections/secret-main-product/variants-secret";
@@ -7,6 +8,8 @@ import Material from "./material";
 import type { GetMaterialsQuery } from "storefront-api.generated";
 import type { Image } from "~/types/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
+import { translations } from "~/utils/translations";
+import type { loader as productRouteLoader } from "~/routes/products/product";
 interface FieldsRequest {
   key:string;
   value:string;
@@ -126,6 +129,8 @@ function VariantCollections(props:VariantCollectionsProps){
     variantSecretProps,
   }=props;
   const properties = variantSecretProps
+  const { language } = useLoaderData<typeof productRouteLoader>();
+  const t = translations[language] ?? translations["ES"];
   const lateralProperties ={
     navBgColor:properties.navBgColor,
     navColor:properties.navColor,
@@ -445,7 +450,7 @@ function VariantCollections(props:VariantCollectionsProps){
                                   color:properties.filterNavColor
                                 }}
                                 >
-                                Filtros
+                                {t.varFilter_filters}
                               </span>
                               {numberFilter > 0 && (
                                 <span className="w-4 h-4 lg:w-[18px] lg:h-[18px] rounded-full bg-black flex items-center justify-center text-tag-sm colour-text-on-colour-primary">
@@ -473,7 +478,7 @@ function VariantCollections(props:VariantCollectionsProps){
                       fontFamily:properties.filterFamily
                     }}
                   >
-                    {showFilter ?"Ocultar":"Mostrar"}
+                    {showFilter ? t.varFilter_hide : t.varFilter_show}
                   </div>
 
                   <div
@@ -519,7 +524,7 @@ function VariantCollections(props:VariantCollectionsProps){
                           fontWeight:properties.tFWeight,
                         }}
                       >
-                        Edición
+                        {t.varFilter_edition}
                       </span>
                     </div>
 
@@ -537,7 +542,7 @@ function VariantCollections(props:VariantCollectionsProps){
                           checked={selectedCollection ===""}
                           onChange={(e)=>setSelectedCollection(e.target.value)}
                           />
-                        Todas
+                        {t.varFilter_all}
                       </label>
                   
 
@@ -578,7 +583,7 @@ function VariantCollections(props:VariantCollectionsProps){
                           fontWeight:properties.tFWeight,
                         }}
                       >
-                        Tapizados
+                        {t.varFilter_upholstery}
                       </span>
                       {selectedFilters.length > 0 && (
                         <span className="flex-none w-4 h-4 lg:w-[18px] lg:h-[18px] rounded-full bg-black flex items-center justify-center text-tag-sm colour-text-on-colour-primary">
@@ -591,7 +596,7 @@ function VariantCollections(props:VariantCollectionsProps){
                       className="body-sm cursor-pointer underline text-[#6C757D] flex-none"
                       data-popup-modal="true"
                     >
-                      ¿Necesitas ayuda para elegir la tapicería?
+                      {t.varFilter_upholsteryHelp}
                     </div>
                   </div>
 
@@ -633,7 +638,7 @@ function VariantCollections(props:VariantCollectionsProps){
           {isLoading  ? (
             <div className="px-4 transition-discrete" >
               <div className="caption-xl py-4 font-bold">
-                prueba
+                {t.loadingText}
               </div>
               <div className="grid gap-2 pb-4 grid-cols-3">
                 {items.map((index)=>(

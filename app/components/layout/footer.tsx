@@ -14,7 +14,9 @@ import { Banner } from "~/components/banner";
 import { Button } from "~/components/button";
 import Link from "~/components/link";
 import { useShopMenu } from "~/hooks/use-shop-menu";
+import { useLanguage } from "~/hooks/useLanguage";
 import { cn } from "~/utils/cn";
+import { translations } from "~/utils/translations";
 import { CountrySelector } from "./country-selector";
 import { FooterMenu } from "./menu/footer-menu";
 import { useEffect, useState } from "react";
@@ -70,12 +72,14 @@ export function Footer() {
 
   } = useThemeSettings();
   const fetcher = useFetcher<{ ok: boolean; error: string }>();
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations["ES"];
 
   // Compute message and error from fetcher data
-  const message = fetcher.data?.ok ? "Thank you for signing up! 🎉" : "";
+  const message = fetcher.data?.ok ? t.footer_signupSuccess : "";
   const error =
     fetcher.data && !fetcher.data.ok
-      ? fetcher.data.error || "An error occurred while signing up."
+      ? fetcher.data.error || t.footer_signupError
       : "";
 
   const SOCIAL_ACCOUNTS = [
@@ -164,7 +168,7 @@ export function Footer() {
                 <div className="text-base">{addressTitle}</div>
                 <div className="space-y-2">
                   <p>{storeAddress}</p>
-                  <p>Email: {storeEmail}</p>
+                  <p>{t.rma_emailLabel}: {storeEmail}</p>
                 </div>
               </div>
             }
@@ -233,9 +237,9 @@ export function Footer() {
           <div id="copyright-text" suppressHydrationWarning dangerouslySetInnerHTML={{__html:copyright}}/>
 
           <div className=" flex gap-2">
-            <Link to={legal} className={`hover:text-white`}>Aviso Legal</Link>
-            <Link to={privacidad} className={`text-[${footerCopyColor}] hover:text-white`}>Privacidad</Link>
-            <Link to={cookies} className={`text-[${footerCopyColor}] hover:text-white`}>Cookies</Link>
+            <Link to={legal} className={`hover:text-white`}>{t.footer_legalLink}</Link>
+            <Link to={privacidad} className={`text-[${footerCopyColor}] hover:text-white`}>{t.footer_privacyLink}</Link>
+            <Link to={cookies} className={`text-[${footerCopyColor}] hover:text-white`}>{t.footer_cookiesLink}</Link>
           </div>
         </div>
       </div>

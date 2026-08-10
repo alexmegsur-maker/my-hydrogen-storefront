@@ -144,7 +144,7 @@ export default function  LateralCollection (props:LateralCollectionProps){
                 letterSpacing:estilos["--lbLetter"]>0 ?`${estilos["--lbLetter"]}px`:"normal",
               }}
               >
-              <span>{buttonText? buttonText:"Confirmar Selección"}</span>
+              <span>{buttonText? buttonText:t.varFilter_confirmSelection}</span>
             </button>
           </div>
         }

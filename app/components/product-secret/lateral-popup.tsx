@@ -3,6 +3,8 @@ import gsap from "gsap"
 import {useGSAP}from "@gsap/react"
 import type { SectionProps } from "../section";
 import { selectorPaddingMargin } from "~/utils/general";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 
 interface estiloProps{
   defNavBgColor:string,
@@ -31,7 +33,9 @@ interface  lateralPopupProps extends SectionProps {
 function LateralPopup(props:lateralPopupProps){
 
   const {widthSize, setActive, title, estilo,children}=props
-  
+  const lang = useLanguage()
+  const t = translations[lang] ?? translations["ES"]
+
   const container =useRef(null)
   const content =useRef(null)
   const show =useRef(null)
@@ -121,7 +125,7 @@ function LateralPopup(props:lateralPopupProps){
                   ...selectorPaddingMargin("margin",estilo.defButtonMarginSelect,estilo.defButtonMarginText),
                 }}
               >
-                Confirmar selección
+                {t.varFilter_confirmSelection}
               </button>
             </div>
           </div>

@@ -136,6 +136,24 @@ export const translations: Record<string, Record<string, string>> = {
     sizeFilter_structure: "Estructura",
     sizeFilter_structureValue: "Acero Forjado",
     sizeFilter_footerNote: "*Ambos modelos garantizan la misma certificación de carga (150kg). El chasis XL optimiza la ergonomía para envergaduras superiores.",
+    // ── Buy buttons (main-product-j) ──────────────────────────
+    klarnaInstallments: "3 plazos de {amount}€ sin intereses (0% TAE) con Klarna",
+    // ── Filtro de variantes (variant-secret-collection) ────────
+    varFilter_filters: "Filtros",
+    varFilter_hide: "Ocultar",
+    varFilter_show: "Mostrar",
+    varFilter_edition: "Edición",
+    varFilter_all: "Todas",
+    varFilter_upholstery: "Tapizados",
+    varFilter_upholsteryHelp: "¿Necesitas ayuda para elegir la tapicería?",
+    varFilter_selectModel: "Seleccionar modelo...",
+    varFilter_confirmSelection: "Confirmar selección",
+    // ── Footer ──────────────────────────────────────────────────
+    footer_signupSuccess: "¡Gracias por suscribirte! 🎉",
+    footer_signupError: "Se produjo un error al suscribirte.",
+    footer_legalLink: "Aviso Legal",
+    footer_privacyLink: "Privacidad",
+    footer_cookiesLink: "Cookies",
   },
 
   EN: {
@@ -271,6 +289,24 @@ export const translations: Record<string, Record<string, string>> = {
     sizeFilter_structure: "Structure",
     sizeFilter_structureValue: "Forged Steel",
     sizeFilter_footerNote: "*Both models guarantee the same load certification (150kg). The XL chassis optimizes ergonomics for larger builds.",
+    // ── Buy buttons (main-product-j) ──────────────────────────
+    klarnaInstallments: "3 interest-free instalments of {amount}€ (0% APR) with Klarna",
+    // ── Variant filter (variant-secret-collection) ─────────────
+    varFilter_filters: "Filters",
+    varFilter_hide: "Hide",
+    varFilter_show: "Show",
+    varFilter_edition: "Edition",
+    varFilter_all: "All",
+    varFilter_upholstery: "Upholstery",
+    varFilter_upholsteryHelp: "Need help choosing the upholstery?",
+    varFilter_selectModel: "Select model...",
+    varFilter_confirmSelection: "Confirm selection",
+    // ── Footer ──────────────────────────────────────────────────
+    footer_signupSuccess: "Thank you for signing up! 🎉",
+    footer_signupError: "An error occurred while signing up.",
+    footer_legalLink: "Legal Notice",
+    footer_privacyLink: "Privacy",
+    footer_cookiesLink: "Cookies",
   },
   DE: {
     loadPrev: "↑ Vorherige laden",
@@ -405,6 +441,24 @@ export const translations: Record<string, Record<string, string>> = {
     sizeFilter_structure: "Struktur",
     sizeFilter_structureValue: "Geschmiedeter Stahl",
     sizeFilter_footerNote: "*Beide Modelle garantieren die gleiche Belastungszertifizierung (150kg). Das XL-Chassis optimiert die Ergonomie für größere Körperbauten.",
+    // ── Buy buttons (main-product-j) ──────────────────────────
+    klarnaInstallments: "3 zinsfreie Raten von {amount}€ (0% effektiver Jahreszins) mit Klarna",
+    // ── Variantenfilter (variant-secret-collection) ────────────
+    varFilter_filters: "Filter",
+    varFilter_hide: "Ausblenden",
+    varFilter_show: "Anzeigen",
+    varFilter_edition: "Edition",
+    varFilter_all: "Alle",
+    varFilter_upholstery: "Bezüge",
+    varFilter_upholsteryHelp: "Brauchst du Hilfe bei der Wahl des Bezugs?",
+    varFilter_selectModel: "Modell auswählen...",
+    varFilter_confirmSelection: "Auswahl bestätigen",
+    // ── Footer ──────────────────────────────────────────────────
+    footer_signupSuccess: "Danke für deine Anmeldung! 🎉",
+    footer_signupError: "Bei der Anmeldung ist ein Fehler aufgetreten.",
+    footer_legalLink: "Impressum",
+    footer_privacyLink: "Datenschutz",
+    footer_cookiesLink: "Cookies",
   },
 
   FR: {
@@ -540,6 +594,24 @@ export const translations: Record<string, Record<string, string>> = {
     sizeFilter_structure: "Structure",
     sizeFilter_structureValue: "Acier forgé",
     sizeFilter_footerNote: "*Les deux modèles garantissent la même certification de charge (150kg). Le châssis XL optimise l'ergonomie pour les gabarits plus imposants.",
+    // ── Buy buttons (main-product-j) ──────────────────────────
+    klarnaInstallments: "3 mensualités sans intérêts de {amount}€ (TAEG 0 %) avec Klarna",
+    // ── Filtre de variantes (variant-secret-collection) ────────
+    varFilter_filters: "Filtres",
+    varFilter_hide: "Masquer",
+    varFilter_show: "Afficher",
+    varFilter_edition: "Édition",
+    varFilter_all: "Toutes",
+    varFilter_upholstery: "Revêtements",
+    varFilter_upholsteryHelp: "Besoin d'aide pour choisir le revêtement ?",
+    varFilter_selectModel: "Sélectionner un modèle...",
+    varFilter_confirmSelection: "Confirmer la sélection",
+    // ── Footer ──────────────────────────────────────────────────
+    footer_signupSuccess: "Merci de votre inscription ! 🎉",
+    footer_signupError: "Une erreur s'est produite lors de l'inscription.",
+    footer_legalLink: "Mentions légales",
+    footer_privacyLink: "Confidentialité",
+    footer_cookiesLink: "Cookies",
   },
 
   IT: {
@@ -675,5 +747,23 @@ export const translations: Record<string, Record<string, string>> = {
     sizeFilter_structure: "Struttura",
     sizeFilter_structureValue: "Acciaio forgiato",
     sizeFilter_footerNote: "*Entrambi i modelli garantiscono la stessa certificazione di carico (150kg). Il telaio XL ottimizza l'ergonomia per corporature più grandi.",
+    // ── Buy buttons (main-product-j) ──────────────────────────
+    klarnaInstallments: "3 rate senza interessi da {amount}€ (TAEG 0%) con Klarna",
+    // ── Filtro varianti (variant-secret-collection) ────────────
+    varFilter_filters: "Filtri",
+    varFilter_hide: "Nascondi",
+    varFilter_show: "Mostra",
+    varFilter_edition: "Edizione",
+    varFilter_all: "Tutte",
+    varFilter_upholstery: "Rivestimenti",
+    varFilter_upholsteryHelp: "Hai bisogno di aiuto per scegliere il rivestimento?",
+    varFilter_selectModel: "Seleziona modello...",
+    varFilter_confirmSelection: "Conferma selezione",
+    // ── Footer ──────────────────────────────────────────────────
+    footer_signupSuccess: "Grazie per esserti iscritto! 🎉",
+    footer_signupError: "Si è verificato un errore durante l'iscrizione.",
+    footer_legalLink: "Note legali",
+    footer_privacyLink: "Privacy",
+    footer_cookiesLink: "Cookie",
   },
 };

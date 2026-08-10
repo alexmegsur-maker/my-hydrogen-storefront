@@ -5,6 +5,8 @@ import type { SectionProps } from "../section";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 
 interface LateralPopProp {
   navBgColor:string,
@@ -59,8 +61,10 @@ function LateralPopupVariant(props:lateralPopupProps){
   const {active, widthSize, title, setActive, lateralProps, children}=props
 
   let currentProd = useCurrentProduct(state=>state.currentProduct)
-  const [variant,setVariant]=useState({nombre:"",tooltip:"",price:""})  
-  
+  const [variant,setVariant]=useState({nombre:"",tooltip:"",price:""})
+  const lang = useLanguage()
+  const t = translations[lang] ?? translations["ES"]
+
   const container =useRef(null)
   const content =useRef(null)
   const show =useRef(null)
@@ -310,7 +314,7 @@ function LateralPopupVariant(props:lateralPopupProps){
                         fontWeight:lateralProps.sProdPriceWeight,
                       }}
                     >
-                      Desde { checkPrice(variant.price) } €
+                      {t.from} { checkPrice(variant.price) } €
                     </span>
                   </div>
                 </div>
@@ -329,7 +333,7 @@ function LateralPopupVariant(props:lateralPopupProps){
                   ...selectorPaddingMargin("margin",lateralProps.buttonMarginSelect,lateralProps.buttonMarginText),
                 }}
               >
-                Confirmar selección
+                {t.varFilter_confirmSelection}
               </button>
             </div>
           </div>

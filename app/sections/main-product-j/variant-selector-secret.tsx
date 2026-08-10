@@ -4,6 +4,7 @@ import {
   type WeaverseCollection,
 } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useLoaderData } from "react-router";
 import type {
   CollectionsByIdsQuery,
   GetMaterialsQuery,
@@ -18,6 +19,8 @@ import { useCurrentProduct } from "~/stores/currentProduct";
 import { renderRichText, selectorPaddingMargin } from "~/utils/general";
 import { useVariantOptions } from "./filter-step";
 import { checkPrice } from "~/utils/product";
+import { translations } from "~/utils/translations";
+import type { loader as productRouteLoader } from "~/routes/products/product";
 
 // ❌ ELIMINADOS (no se usan):
 // import { useIsMobile } from "~/hooks/use-is-mobile";
@@ -493,6 +496,9 @@ export default function SelectorVariantSecret(
   // cptlColor, cptlSize, cptlLetter, cptlUpper, cptlFamily, cptlPaddingSelect, cptlPaddingText, cptlMarginSelect, cptlMarginText, cptlWeight
   // borderColor
 
+  const { language } = useLoaderData<typeof productRouteLoader>();
+  const t = translations[language] ?? translations["ES"];
+
   const collectionListProps = {
     collectionTColor,
     collectionSize: collecitonSize,
@@ -737,7 +743,7 @@ export default function SelectorVariantSecret(
               >
                 {currentProduct
                   ? `${currentProduct.nombre ?? currentProduct.title}${currentProduct.tooltip ? ` -${currentProduct.tooltip}` : ""}`
-                  : "Seleccionar modelo..."}
+                  : t.varFilter_selectModel}
               </span>
             </div>
             <div
@@ -815,7 +821,7 @@ export default function SelectorVariantSecret(
                     fontSize: fSize,
                   }}
                 >
-                  Filtros
+                  {t.varFilter_filters}
                 </span>
                 {numberFilter > 0 && (
                   <span className="w-4 h-4 lg:w-[18px] lg:h-[18px] rounded-full bg-black flex items-center justify-center text-tag-sm colour-text-on-colour-primary">
@@ -835,7 +841,7 @@ export default function SelectorVariantSecret(
                 fontSize: fbSize,
               }}
             >
-              {showFilter ? "Ocultar" : "Mostrar"}
+              {showFilter ? t.varFilter_hide : t.varFilter_show}
             </div>
             <svg
               width="15"
@@ -888,7 +894,7 @@ export default function SelectorVariantSecret(
                 ),
               }}
             >
-              Edición
+              {t.varFilter_edition}
             </span>
             <div
               className="p-1 flex flex-row justify-between flex-wrap gap-1 border border-solid rounded-full colour-background-white"
@@ -919,7 +925,7 @@ export default function SelectorVariantSecret(
                   checked={selectedCollection === ""}
                   onChange={(e) => setSelectedCollection(e.target.value)}
                 />
-                Todas
+                {t.varFilter_all}
               </label>
               {filterCollection.map((elm) => {
                 const value = elm.trim();
@@ -982,7 +988,7 @@ export default function SelectorVariantSecret(
                   ),
                 }}
               >
-                Tapizados
+                {t.varFilter_upholstery}
               </span>
               {selectedFilters.length > 0 && (
                 <span className="flex-none w-4 h-4 lg:w-[18px] lg:h-[18px] rounded-full bg-black flex items-center justify-center text-tag-sm colour-text-on-colour-primary">
@@ -994,7 +1000,7 @@ export default function SelectorVariantSecret(
               className="body-sm cursor-pointer underline text-[#6C757D] flex-none"
               onClick={() => setShowGuiaMaterials((state) => !state)}
             >
-              ¿Necesitas ayuda para elegir la tapicería?
+              {t.varFilter_upholsteryHelp}
             </div>
           </div>
 
@@ -1160,7 +1166,7 @@ export default function SelectorVariantSecret(
                       fontWeight: sProdPriceWeight,
                     }}
                   >
-                    Desde{" "}
+                    {t.from}{" "}
                     {checkPrice(currentProduct.selectedVariant.price.amount)} €
                   </span>
                 </div>
@@ -1191,7 +1197,7 @@ export default function SelectorVariantSecret(
                 ),
               }}
             >
-              Confirmar selección
+              {t.varFilter_confirmSelection}
             </button>
           </div>
         </div>

@@ -14,7 +14,7 @@ import { useCurrentProduct } from "~/stores/currentProduct";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
-import { translations } from "~/utils/translations";
+import { interpolate, translations } from "~/utils/translations";
 import { pushAddToCart, pushBeginCheckout } from "~/utils/dataLayer";
 import { Image } from "~/components/image";
 import { useIsMobile } from "~/hooks/use-is-mobile";
@@ -601,13 +601,14 @@ export default function BuyButtonsProductJ(props: BuyButtonsProductJProps) {
             </svg>
           </div>
           <p className=" text-[0.85rem] text-stone-500">
-            3 plazos de {Math.ceil(totalPrice / 3)}€ sin intereses (0% TAE) con
-            Klarna{" "}
+            {interpolate(t.klarnaInstallments, {
+              amount: Math.ceil(totalPrice / 3),
+            })}{" "}
             <a
               href="https://www.klarna.com/es/legal/"
               className="text-white underline"
             >
-              Más información
+              {t.learnMore}
             </a>
           </p>
         </div>
