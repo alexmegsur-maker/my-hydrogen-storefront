@@ -131,6 +131,7 @@ export function getWeaverseCsp(
       "*.judge.me",
       "cdnwidget.judge.me",
       "*.judgeme.com",
+      "*.imgix.net",
       ...storefrontHosts,
     ]
   };

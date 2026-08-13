@@ -177,6 +177,8 @@ import * as OrderTrackingSection from "~/sections/order-tracking"
 import * as CustomCss from "~/sections/custom-css"
 import * as MaskReveal from "~/sections/mask-reveal"
 import * as Product3DViewer from "~/sections/product-3d-viewer"
+import * as Product3DItem from "~/sections/product-3d-viewer/product3d"
+import * as Product3DSection from "~/sections/product-3d-viewer/product3d-section"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -362,4 +364,6 @@ export const components: HydrogenComponent[] = [
   CustomCss,
   MaskReveal,
   Product3DViewer,
+  Product3DItem,
+  Product3DSection,
 ];

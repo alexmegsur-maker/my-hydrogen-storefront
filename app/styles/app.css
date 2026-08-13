@@ -126,6 +126,11 @@ html{
   --animate-exit-to-left: exit-to-left 300ms ease forwards;
   --animate-exit-to-right: exit-to-right 300ms ease forwards;
   --animate-exit-to-top: exit-to-top 200ms ease forwards;
+  /* "Caída": desenfocado/transparente/corrido hacia abajo → nítido/opaco en
+     su lugar. Pensado para textos que aparecen de a uno (con
+     animation-delay por elemento, vía `style`, para que entren
+     escalonados — ver product-3d-viewer/index.tsx). */
+  --animate-drop-in: drop-in 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
   @keyframes arrow-pulse {
     from { transform: scale(0.7); }
@@ -249,6 +254,18 @@ html{
     }
     100% {
       transform: translateY(-100%);
+    }
+  }
+  @keyframes drop-in {
+    0% {
+      opacity: 0;
+      filter: blur(14px);
+      transform: translateY(28px);
+    }
+    100% {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
     }
   }
   @keyframes marquee {
