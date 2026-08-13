@@ -1242,7 +1242,16 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Tiktok",
           defaultValue: "https://www.tiktok.com/@phoenixtechnologiesspain",
         },
-
+        {
+          type:'heading',
+          label:'Medals reviews'
+        },
+        {
+          type:'switch',
+          label:'Show medals',
+          name:'showMedal',
+          defaultValue:false,
+        },
         {
           type: "heading",
           label: "Store information",

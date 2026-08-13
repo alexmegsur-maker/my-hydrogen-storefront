@@ -20,6 +20,7 @@ import { translations } from "~/utils/translations";
 import { CountrySelector } from "./country-selector";
 import { FooterMenu } from "./menu/footer-menu";
 import { useEffect, useState } from "react";
+import { JudgemeMedals } from "@judgeme/shopify-hydrogen";
 
 const variants = cva("", {
   variants: {
@@ -69,6 +70,7 @@ export function Footer() {
     cookies,
     footerCopyColor,
     footerCopySize,
+    showMedal,
 
   } = useThemeSettings();
   const fetcher = useFetcher<{ ok: boolean; error: string }>();
@@ -162,6 +164,10 @@ export function Footer() {
                   </Link>
                 ))}
               </div>
+              {
+                showMedal &&
+                <JudgemeMedals/>
+              }
             </div>
             {showStoreInfo &&
               <div className="flex flex-col gap-6">
