@@ -14,10 +14,20 @@ export function getWeaverseCsp(
   }
 
   // Dominio de checkout/CDN propio de la tienda — Shopify sirve archivos
-  // (ej. modelos 3D .glb/.usdz de metaobjetos/metacampos) desde aquí.
+  // (ej. modelos 3D .glb/.usdz de metaobjetos/metacampos) desde acá, NO
+  // desde cdn.shopify.com. Si la env var PUBLIC_CHECKOUT_DOMAIN no está
+  // seteada en el entorno de Oxygen, cae al dominio *.myshopify.com (ver
+  // entry.server.tsx) y esta lista se queda sin el dominio real — por eso
+  // el fallback hardcodeado de abajo, así nunca depende de que esa env var
+  // esté bien configurada.
   const checkoutDomain = context.env.PUBLIC_CHECKOUT_DOMAIN;
-  const storefrontHosts = ["https://cdn.shopify.com"];
-  if (checkoutDomain) {
+  const KNOWN_CHECKOUT_DOMAIN = "checkout.phoenixchairs.eu";
+  const storefrontHosts = [
+    "https://cdn.shopify.com",
+    `https://${KNOWN_CHECKOUT_DOMAIN}`,
+    `*.${KNOWN_CHECKOUT_DOMAIN}`,
+  ];
+  if (checkoutDomain && checkoutDomain !== KNOWN_CHECKOUT_DOMAIN) {
     storefrontHosts.push(`*.${checkoutDomain}`, checkoutDomain);
   }
 
