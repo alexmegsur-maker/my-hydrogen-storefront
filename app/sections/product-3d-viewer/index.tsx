@@ -1056,22 +1056,28 @@ function Product3DViewer(props: Product3DViewerProps) {
     let touchStartY = 0
     let touchActive = false
     const onTouchStart = (e: TouchEvent) => {
-      if (dragCarouselModeRef.current) return
+      // El swipe de navegación es VERTICAL y el arrastre del "Modo
+      // carrusel" es HORIZONTAL (pointerdown/pointermove, ver el efecto de
+      // three.js) — son ejes distintos, así que no hace falta desactivar
+      // esto en esa toma (antes sí, cuando este swipe todavía era
+      // horizontal y chocaba con el arrastre).
       touchStartX = e.touches[0].clientX
       touchStartY = e.touches[0].clientY
       touchActive = true
     }
     const onTouchEnd = (e: TouchEvent) => {
-      if (dragCarouselModeRef.current) return
       if (!touchActive) return
       touchActive = false
       const deltaX = touchStartX - e.changedTouches[0].clientX
       const deltaY = touchStartY - e.changedTouches[0].clientY
-      // Umbral + que sea más horizontal que vertical, así un swipe para
-      // hacer scroll normal de la página (vertical) no dispara un cambio
-      // de frame por error.
-      if (Math.abs(deltaX) < 40 || Math.abs(deltaX) < Math.abs(deltaY)) return
-      if (deltaX > 0) goNextFrame()
+      // Cambia de toma con un swipe VERTICAL — el mismo gesto de "scrollear
+      // hacia abajo/arriba" que ya usan la rueda del mouse y las flechas,
+      // en vez de uno horizontal (que quedaba raro/inesperado en mobile).
+      // Umbral + que sea más vertical que horizontal, así un swipe para
+      // arrastrar de costado (ej. "Modo carrusel") no dispara un cambio de
+      // toma por error.
+      if (Math.abs(deltaY) < 40 || Math.abs(deltaY) < Math.abs(deltaX)) return
+      if (deltaY > 0) goNextFrame()
       else goPrevFrame()
     }
 
