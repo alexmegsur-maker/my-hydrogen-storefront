@@ -75,7 +75,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
 // así que consultamos el Admin API con el order.name (ej: "#3247").
 
 const ADMIN_TRACKING_QUERY = `
-  query OrderTracking($query: String!) {
+  query AccountOrderTracking($query: String!) {
     orders(first: 1, query: $query) {
       edges { node {
         fulfillments(first: 1) {

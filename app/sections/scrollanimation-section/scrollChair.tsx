@@ -68,7 +68,7 @@ interface ChairSectionProps extends ChairSectionLoaderData {
 // ---------------------------------------------------------------------------
 
 const CHAIR_METAOBJECT_QUERY = `#graphql
-  query ChairMetaobject($handle: String!, $country: CountryCode, $language: LanguageCode)
+  query ScrollChairMetaobject($handle: String!, $country: CountryCode, $language: LanguageCode)
   @inContext(country: $country, language: $language) {
     metaobject(handle: { handle: $handle, type: "scroll_chair" }) {
       fields {

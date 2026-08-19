@@ -179,6 +179,10 @@ import * as MaskReveal from "~/sections/mask-reveal"
 import * as Product3DViewer from "~/sections/product-3d-viewer"
 import * as Product3DItem from "~/sections/product-3d-viewer/product3d"
 import * as Product3DSection from "~/sections/product-3d-viewer/product3d-section"
+import * as Product3DVideo from "~/sections/product-3d-viewer/product3d-video"
+import * as Product3DFaq from "~/sections/product-3d-viewer/product3d-faq"
+import * as Product3DFaqItem from "~/sections/product-3d-viewer/product3d-faq-item"
+import * as Product3DCarouselChild from "~/sections/product-3d-viewer/product3d-carousel"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -366,4 +370,8 @@ export const components: HydrogenComponent[] = [
   Product3DViewer,
   Product3DItem,
   Product3DSection,
+  Product3DVideo,
+  Product3DFaq,
+  Product3DFaqItem,
+  Product3DCarouselChild,
 ];

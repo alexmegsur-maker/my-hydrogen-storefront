@@ -1058,6 +1058,8 @@ export type CartApiQueryFragment = Pick<
 
 export type GetVariantsOptionsQueryVariables = StorefrontAPI.Exact<{
   handle: StorefrontAPI.Scalars['String']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
 
 export type GetVariantsOptionsQuery = {
@@ -2187,6 +2189,22 @@ export type BlogQuery = {
         }>;
       };
     }
+  >;
+};
+
+export type ArticleCardFragment = Pick<
+  StorefrontAPI.Article,
+  | 'contentHtml'
+  | 'excerpt'
+  | 'excerptHtml'
+  | 'handle'
+  | 'id'
+  | 'publishedAt'
+  | 'title'
+> & {
+  author?: StorefrontAPI.Maybe<Pick<StorefrontAPI.ArticleAuthor, 'name'>>;
+  image?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Image, 'id' | 'altText' | 'url' | 'width' | 'height'>
   >;
 };
 
@@ -3367,11 +3385,11 @@ export type StoreRobotsQueryVariables = StorefrontAPI.Exact<{
 
 export type StoreRobotsQuery = {shop: Pick<StorefrontAPI.Shop, 'id'>};
 
-export type ChairMetaobjectQueryVariables = StorefrontAPI.Exact<{
+export type AnilloChairMetaobjectQueryVariables = StorefrontAPI.Exact<{
   handle: StorefrontAPI.Scalars['String']['input'];
 }>;
 
-export type ChairMetaobjectQuery = {
+export type AnilloChairMetaobjectQuery = {
   metaobject?: StorefrontAPI.Maybe<{
     fields: Array<
       Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
@@ -3867,9 +3885,6 @@ export type Product3DViewerQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   handle: StorefrontAPI.Scalars['String']['input'];
-  ids:
-    | Array<StorefrontAPI.Scalars['ID']['input']>
-    | StorefrontAPI.Scalars['ID']['input'];
 }>;
 
 export type Product3DViewerQuery = {
@@ -3887,28 +3902,33 @@ export type Product3DViewerQuery = {
       }
     >;
   }>;
-  nodes: Array<
-    StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
-        material?: StorefrontAPI.Maybe<{
-          reference?: StorefrontAPI.Maybe<{
-            fields: Array<
-              Pick<StorefrontAPI.MetaobjectField, 'key'> & {
-                reference?: StorefrontAPI.Maybe<{
-                  image?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Image, 'url'>>;
-                }>;
-              }
+};
+
+export type ScrollChairMetaobjectQueryVariables = StorefrontAPI.Exact<{
+  handle: StorefrontAPI.Scalars['String']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type ScrollChairMetaobjectQuery = {
+  metaobject?: StorefrontAPI.Maybe<{
+    fields: Array<
+      Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'> & {
+        reference?: StorefrontAPI.Maybe<{
+          image?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Image, 'url' | 'width' | 'height' | 'altText'>
+          >;
+        }>;
+        references?: StorefrontAPI.Maybe<{
+          nodes: Array<{
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'width' | 'height' | 'altText'>
             >;
           }>;
         }>;
-        logo?: StorefrontAPI.Maybe<{
-          reference?: StorefrontAPI.Maybe<{
-            image?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Image, 'url'>>;
-          }>;
-        }>;
       }
-    >
-  >;
+    >;
+  }>;
 };
 
 export type SoftwareProductsQueryVariables = StorefrontAPI.Exact<{
@@ -4148,7 +4168,7 @@ interface GeneratedQueryTypes {
     return: CollectionsByIdslistQuery;
     variables: CollectionsByIdslistQueryVariables;
   };
-  "#graphql\n  query GetVariantsOptions ($handle:String!) {\n    metaobjects(type: $handle, first: 10) {\n      edges {\n        node {\n          id\n          handle\n          fields {\n            key\n            value\n            # Para campos de referencia UNICA (como 'guia')\n            reference {\n              ... on Metaobject {\n                id\n                handle\n                fields {\n                  key\n                  value\n                  imagenes:references(first:10){\n                    edges{\n                      node{\n                        ... on MediaImage {\n                          id\n                          image {\n                            url\n                            altText\n                          }\n                        }\n                        \n                      }\n                    }\n                  }\n                  metaobjetos:references(first:10){\n                    edges{\n                      node{\n                        ... on Metaobject{\n                          id\n                          handle\n                          fields {\n                            key\n                            value\n                          }\n                        }\n                        \n                      }\n                    }\n                  }\n                }\n              }\n            }\n            # Para campos de LISTA de referencias (como 'material' o 'imagenes')\n            references(first: 10) {\n              edges {\n                node {\n                  ... on Metaobject {\n                    id\n                    handle\n                    fields {\n                      key\n                      value\n                    }\n                  } \n                  \n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n": {
+  "#graphql\n  query GetVariantsOptions ($handle:String!, $country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    metaobjects(type: $handle, first: 10) {\n      edges {\n        node {\n          id\n          handle\n          fields {\n            key\n            value\n            # Para campos de referencia UNICA (como 'guia')\n            reference {\n              ... on Metaobject {\n                id\n                handle\n                fields {\n                  key\n                  value\n                  imagenes:references(first:10){\n                    edges{\n                      node{\n                        ... on MediaImage {\n                          id\n                          image {\n                            url\n                            altText\n                          }\n                        }\n                        \n                      }\n                    }\n                  }\n                  metaobjetos:references(first:10){\n                    edges{\n                      node{\n                        ... on Metaobject{\n                          id\n                          handle\n                          fields {\n                            key\n                            value\n                          }\n                        }\n                        \n                      }\n                    }\n                  }\n                }\n              }\n            }\n            # Para campos de LISTA de referencias (como 'material' o 'imagenes')\n            references(first: 10) {\n              edges {\n                node {\n                  ... on Metaobject {\n                    id\n                    handle\n                    fields {\n                      key\n                      value\n                    }\n                  } \n                  \n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n": {
     return: GetVariantsOptionsQuery;
     variables: GetVariantsOptionsQueryVariables;
   };
@@ -4204,7 +4224,7 @@ interface GeneratedQueryTypes {
     return: ArticleQuery;
     variables: ArticleQueryVariables;
   };
-  '#graphql\n  query blog(\n    $language: LanguageCode\n    $blogHandle: String!\n    $pageBy: Int!\n    $cursor: String\n  ) @inContext(language: $language) {\n    blog(handle: $blogHandle) {\n      title\n      handle\n      seo {\n        title\n        description\n      }\n      articles(first: $pageBy, after: $cursor) {\n        edges {\n          node {\n            ...Article\n          }\n        }\n      }\n    }\n  }\n\n  fragment Article on Article {\n    author: authorV2 {\n      name\n    }\n    contentHtml\n    excerpt\n    excerptHtml\n    handle\n    id\n    image {\n      id\n      altText\n      url\n      width\n      height\n    }\n    publishedAt\n    title\n  }\n': {
+  '#graphql\n  query blog(\n    $language: LanguageCode\n    $blogHandle: String!\n    $pageBy: Int!\n    $cursor: String\n  ) @inContext(language: $language) {\n    blog(handle: $blogHandle) {\n      title\n      handle\n      seo {\n        title\n        description\n      }\n      articles(first: $pageBy, after: $cursor) {\n        edges {\n          node {\n            ...ArticleCard\n          }\n        }\n      }\n    }\n  }\n\n  fragment ArticleCard on Article {\n    author: authorV2 {\n      name\n    }\n    contentHtml\n    excerpt\n    excerptHtml\n    handle\n    id\n    image {\n      id\n      altText\n      url\n      width\n      height\n    }\n    publishedAt\n    title\n  }\n': {
     return: BlogQuery;
     variables: BlogQueryVariables;
   };
@@ -4252,9 +4272,9 @@ interface GeneratedQueryTypes {
     return: StoreRobotsQuery;
     variables: StoreRobotsQueryVariables;
   };
-  '#graphql\n  query ChairMetaobject($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "scroll_chair" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url width height altText }\n          }\n        }\n        references(first: 50) {\n          nodes {\n            ... on MediaImage {\n              image { url width height altText }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
-    return: ChairMetaobjectQuery;
-    variables: ChairMetaobjectQueryVariables;
+  '#graphql\n  query AnilloChairMetaobject($handle: String!) {\n    metaobject(handle: { handle: $handle, type: "scroll_chair" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url width height altText }\n          }\n        }\n        references(first: 50) {\n          nodes {\n            ... on MediaImage {\n              image { url width height altText }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: AnilloChairMetaobjectQuery;
+    variables: AnilloChairMetaobjectQueryVariables;
   };
   '#graphql\n  query CommunityGridMetaobjectPosts($first: Int) {\n    metaobjects(type: "comunidad_post", first: $first) {\n      nodes {\n        id\n        handle\n        fields {\n          key\n          value\n          reference {\n            ... on MediaImage {\n              image {\n                url\n                altText\n                width\n                height\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: CommunityGridMetaobjectPostsQuery;
@@ -4280,9 +4300,13 @@ interface GeneratedQueryTypes {
     return: PrincipalCardQuery;
     variables: PrincipalCardQueryVariables;
   };
-  '#graphql\n  query Product3DViewer($country: CountryCode, $language: LanguageCode, $handle: String!, $ids: [ID!]!)\n  @inContext(country: $country, language: $language) {\n    metaobject(handle: { handle: $handle, type: "product_3d_viewer" }) {\n      fields {\n        key\n        reference {\n          ... on GenericFile {\n            url\n          }\n          ... on Model3d {\n            sources {\n              url\n              format\n              mimeType\n            }\n          }\n        }\n      }\n    }\n    nodes(ids: $ids) {\n      ... on Product {\n        id\n        title\n        handle\n        material: metafield(namespace: "custom", key: "chair_material") {\n          reference {\n            ... on Metaobject {\n              fields {\n                key\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n        logo: metafield(namespace: "custom", key: "chair_logo") {\n          reference {\n            ... on MediaImage {\n              image {\n                url\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query Product3DViewer($country: CountryCode, $language: LanguageCode, $handle: String!)\n  @inContext(country: $country, language: $language) {\n    metaobject(handle: { handle: $handle, type: "product_3d_viewer" }) {\n      fields {\n        key\n        reference {\n          ... on GenericFile {\n            url\n          }\n          ... on Model3d {\n            sources {\n              url\n              format\n              mimeType\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: Product3DViewerQuery;
     variables: Product3DViewerQueryVariables;
+  };
+  '#graphql\n  query ScrollChairMetaobject($handle: String!, $country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    metaobject(handle: { handle: $handle, type: "scroll_chair" }) {\n      fields {\n        key\n        value\n        reference {\n          ... on MediaImage {\n            image { url width height altText }\n          }\n        }\n        references(first: 50) {\n          nodes {\n            ... on MediaImage {\n              image { url width height altText }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: ScrollChairMetaobjectQuery;
+    variables: ScrollChairMetaobjectQueryVariables;
   };
   '#graphql\n  query softwareProducts(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $first: Int!\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      products(first: $first) {\n        nodes {\n          id\n          title\n          handle\n          featuredImage {\n            url\n            altText\n          }\n          software: metafield(namespace: "custom", key: "software") {\n            references(first: 10) {\n              nodes {\n                ... on GenericFile {\n                  id\n                  url\n                  alt\n                  mimeType\n                }\n                ... on MediaImage {\n                  id\n                  image {\n                    url\n                    altText\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: SoftwareProductsQuery;

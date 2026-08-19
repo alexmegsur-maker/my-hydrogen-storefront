@@ -11,7 +11,7 @@ import {
 } from "~/lib/tracking/resolver.server";
 
 const ORDER_TRACKING_QUERY = `
-  query OrderTracking($query: String!) {
+  query ApiOrderTracking($query: String!) {
     orders(first: 1, query: $query) {
       edges {
         node {

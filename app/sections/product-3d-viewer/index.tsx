@@ -5,6 +5,8 @@ import {
   useWeaverse,
   type ComponentLoaderArgs,
   type HydrogenComponentProps,
+  type WeaverseImage,
+  type WeaverseVideo,
 } from '@weaverse/hydrogen'
 import { cn } from '~/utils/cn'
 import { useIsMobile } from '~/hooks/use-is-mobile'
@@ -36,6 +38,25 @@ import { selectorPaddingMargin } from '~/utils/general'
 
 interface ProductSection {
   id: string
+  // 'section' (product3d-section.tsx, el bloque de texto normal), 'video'
+  // (product3d-video.tsx: video de fondo + frase gigante), 'faq'
+  // (product3d-faq.tsx: encabezado + acordeón de preguntas) o 'carousel'
+  // (product3d-carousel.tsx: NO es un bloque de texto — mientras esta toma
+  // está activa, la fila entera se puede recorrer ARRASTRANDO libremente,
+  // en bucle infinito, en vez de mostrar el objeto en su pose de sección;
+  // al navegar a la toma siguiente/anterior se vuelve al comportamiento
+  // normal). Determina qué bloque de texto/fondo se dibuja para esta toma
+  // — la posición/rotación/escala del objeto 3D funciona igual para
+  // section/video/faq (mismos nombres de campo), 'carousel' no la usa.
+  kind: 'section' | 'video' | 'faq' | 'carousel'
+  // Solo para kind === 'carousel' — ver product3d-carousel.tsx.
+  dragSensitivity: number
+  dragInertiaEnabled: boolean
+  dragFriction: number
+  // Reemplaza a `inactiveDimIntensityRef` (el "Apagado de las copias no
+  // seleccionadas" general de "Interacción") mientras esta toma carrusel
+  // está activa — así cada carrusel puede tener su propio apagado.
+  carouselSideShadowIntensity: number
   title: string
   description: string
   // Etiqueta/badge chica arriba del título — vacía = no se muestra.
@@ -132,6 +153,65 @@ interface ProductSection {
   shadowClearRotationX: number
   shadowClearRotationY: number
   shadowClearRotationZ: number
+  // ── Solo para kind === 'video' (ver product3d-video.tsx) ────────────
+  bgVideoUrl: string
+  bgVideoPosterUrl: string
+  bgVideoBlur: number
+  phraseText: string
+  phraseTextAlign: 'left' | 'center' | 'right'
+  phraseColor: string
+  phraseWeight: string
+  phraseFontSizeDesktop: string
+  phraseFontSizeMobile: string
+  phraseLetterSpacing: number
+  phraseLineHeight: number
+  phraseFontFamily: string
+  phraseGlowBlur: number
+  phraseGlowOpacity: number
+  // ── Solo para kind === 'faq' (ver product3d-faq.tsx/product3d-faq-item.tsx) ──
+  faqContentAlign: 'left' | 'center' | 'right'
+  faqContainerPaddingSelect: string
+  faqContainerPaddingText: string
+  faqContainerMarginSelect: string
+  faqContainerMarginText: string
+  headingText: string
+  headingColor: string
+  headingWeight: string
+  headingFontSizeDesktop: string
+  headingFontSizeMobile: string
+  headingLetterSpacing: number
+  headingLineHeight: number
+  headingFontFamily: string
+  faqMaxWidth: number
+  faqAccordionMode: boolean
+  faqItemBorderColor: string
+  faqItemBorderColorHover: string
+  faqQuestionColor: string
+  faqQuestionFontSize: string
+  faqQuestionFontWeight: string
+  faqIconColor: string
+  faqIconColorActive: string
+  faqAnswerColor: string
+  faqAnswerFontSize: string
+  faqAnswerLineHeight: number
+  faqItems: Array<{
+    id: string
+    question: string
+    answer: string
+    // Vacío/0 = usa el estilo general de la lista (los faq* de arriba).
+    questionColor: string
+    questionFontSize: string
+    questionFontFamily: string
+    questionTextAlign: '' | 'left' | 'center' | 'right'
+    questionFontWeight: string
+    questionLetterSpacing: number
+    answerColor: string
+    answerFontSize: string
+    answerFontFamily: string
+    answerTextAlign: '' | 'left' | 'center' | 'right'
+    answerFontWeight: string
+    answerLetterSpacing: number
+  }>
 }
 
 interface ProductDesign {
@@ -170,6 +250,11 @@ interface Product3DViewerProps extends HydrogenComponentProps {
   modelPositionY: number
   modelGap: number
   cameraDistance: number
+  // Qué tan gradual es el movimiento del objeto al cambiar de frame (fila
+  // ↔ sección, o de una sección a otra) — más bajo = más lento/suave, más
+  // alto = más rápido/directo. Se usa como factor de lerp cuadro a cuadro
+  // para posición/rotación/escala (ver animate(), Paso 7.10).
+  transitionSmoothness: number
   autoRotate: boolean
   autoRotateSpeed: number
   enableDrag: boolean
@@ -272,6 +357,308 @@ export const loader = async ({
   }
 }
 
+// Convierte una instancia hija (item de Weaverse) en un `ProductSection` —
+// soporta los tres tipos de hijo de product3d.tsx: 'producto-3d-seccion'
+// (product3d-section.tsx, bloque de texto normal), 'producto-3d-video'
+// (product3d-video.tsx, video de fondo + frase) y 'producto-3d-faq'
+// (product3d-faq.tsx, encabezado + acordeón de preguntas — cuyo contenido a
+// su vez vive en hijos "Pregunta", ver product3d-faq-item.tsx, por eso
+// necesita `weaverse` para poder resolverlos igual que el padre resuelve
+// estas mismas secciones). La posición/rotación/escala del objeto 3D usan
+// los MISMOS nombres de campo en los tres tipos a propósito — así
+// animate() no necesita distinguirlos (ver Paso 7.10).
+function readProductSection(sec: any, weaverse: any): ProductSection {
+  const isVideo = sec?.data?.type === 'producto-3d-video'
+  const isFaq = sec?.data?.type === 'producto-3d-faq'
+  const isCarousel = sec?.data?.type === 'producto-3d-carrusel'
+  const faqItems: ProductSection['faqItems'] = isFaq
+    ? ((sec.data?.children ?? []) as Array<{ id: string }>)
+        .map((ref) => weaverse?.itemInstances?.get(ref.id))
+        .filter(Boolean)
+        .map((item: any) => ({
+          id: item._id,
+          question: (item.data?.question as string) || '',
+          answer: (item.data?.answer as string) || '',
+          questionColor: (item.data?.questionColor as string) || '',
+          questionFontSize: (item.data?.questionFontSize as string) || '',
+          questionFontFamily: (item.data?.questionFontFamily as string) || '',
+          questionTextAlign: (item.data?.questionTextAlign || '') as ProductSection['faqItems'][number]['questionTextAlign'],
+          questionFontWeight: (item.data?.questionFontWeight as string) || '',
+          questionLetterSpacing: Number(item.data?.questionLetterSpacing ?? 0),
+          answerColor: (item.data?.answerColor as string) || '',
+          answerFontSize: (item.data?.answerFontSize as string) || '',
+          answerFontFamily: (item.data?.answerFontFamily as string) || '',
+          answerTextAlign: (item.data?.answerTextAlign || '') as ProductSection['faqItems'][number]['answerTextAlign'],
+          answerFontWeight: (item.data?.answerFontWeight as string) || '',
+          answerLetterSpacing: Number(item.data?.answerLetterSpacing ?? 0),
+        }))
+    : []
+  return {
+    id: sec._id,
+    kind: isCarousel ? 'carousel' : isVideo ? 'video' : isFaq ? 'faq' : 'section',
+    // Solo se usan con kind === 'carousel' — en el resto quedan en sus
+    // valores por defecto, sin efecto.
+    dragSensitivity: Number(sec.data?.dragSensitivity ?? 1),
+    dragInertiaEnabled: sec.data?.dragInertiaEnabled !== false,
+    dragFriction: Number(sec.data?.dragFriction ?? 0.94),
+    carouselSideShadowIntensity: Number(sec.data?.sideShadowIntensity ?? 55),
+    title: (sec.data?.title as string) || '',
+    description: (sec.data?.description as string) || '',
+    badgeText: (sec.data?.badgeText as string) || '',
+    badgeColor: (sec.data?.badgeColor as string) || '',
+    badgeBackground: (sec.data?.badgeBackground as string) || '',
+    badgeStrikethrough: Boolean(sec.data?.badgeStrikethrough),
+    badgeShowIcon: sec.data?.badgeShowIcon !== false,
+    badgePaddingSelect: (sec.data?.badgePaddingSelect as string) || 'a',
+    badgePaddingText: (sec.data?.badgePaddingText as string) || '',
+    badgeMarginSelect: (sec.data?.badgeMarginSelect as string) || 'a',
+    badgeMarginText: (sec.data?.badgeMarginText as string) || '',
+    dropEffectEnabled: sec.data?.dropEffectEnabled !== false,
+    // Estilo del texto — texto vacío = usa el look por defecto (ver el JSX
+    // donde se arma el `style={}` del título/desc.). No aplica a kind
+    // 'video' (usa sus propios campos "phrase*", más abajo).
+    titleColor: (sec.data?.titleColor as string) || '',
+    titleWeight: (sec.data?.titleWeight as string) || '',
+    titleFontSizeDesktop: (sec.data?.titleFontSizeDesktop as string) || '',
+    titleFontSizeMobile: (sec.data?.titleFontSizeMobile as string) || '',
+    titleLetterSpacing: Number(sec.data?.titleLetterSpacing ?? 0),
+    titleLineHeight: Number(sec.data?.titleLineHeight ?? 0),
+    titleFontFamily: (sec.data?.titleFontFamily as string) || '',
+    titleTextShadowEnabled: Boolean(sec.data?.titleTextShadowEnabled),
+    titleTextShadow: (sec.data?.titleTextShadow as string) || '',
+    titlePaddingSelect: (sec.data?.titlePaddingSelect as string) || 'a',
+    titlePaddingText: (sec.data?.titlePaddingText as string) || '',
+    titleMarginSelect: (sec.data?.titleMarginSelect as string) || 'a',
+    titleMarginText: (sec.data?.titleMarginText as string) || '',
+    descColor: (sec.data?.descColor as string) || '',
+    descFontSize: (sec.data?.descFontSize as string) || '',
+    descLineHeight: Number(sec.data?.descLineHeight ?? 0),
+    descFontFamily: (sec.data?.descFontFamily as string) || '',
+    descPaddingSelect: (sec.data?.descPaddingSelect as string) || 'a',
+    descPaddingText: (sec.data?.descPaddingText as string) || '',
+    descMarginSelect: (sec.data?.descMarginSelect as string) || 'a',
+    descMarginText: (sec.data?.descMarginText as string) || '',
+    textAlign: (sec.data?.textAlign as ProductSection['textAlign']) || 'left',
+    posX: Number(sec.data?.posX ?? 0),
+    posY: Number(sec.data?.posY ?? 0),
+    posZ: Number(sec.data?.posZ ?? 0),
+    mobilePositionEnabled: Boolean(sec.data?.mobilePositionEnabled),
+    posXMobile: Number(sec.data?.posXMobile ?? 0),
+    posYMobile: Number(sec.data?.posYMobile ?? (isVideo ? 0 : 0.6)),
+    posZMobile: Number(sec.data?.posZMobile ?? 0),
+    rotationXMobile: Number(sec.data?.rotationXMobile ?? 0),
+    rotationYMobile: Number(sec.data?.rotationYMobile ?? 15),
+    rotationZMobile: Number(sec.data?.rotationZMobile ?? 0),
+    rotationX: Number(sec.data?.rotationX ?? 0),
+    rotationY: Number(sec.data?.rotationY ?? 0),
+    rotationZ: Number(sec.data?.rotationZ ?? 0),
+    scaleMultiplier: Number(sec.data?.scaleMultiplier ?? 1),
+    scaleMultiplierMobile: Number(sec.data?.scaleMultiplierMobile ?? 1.4),
+    background: (sec.data?.background as string) || '',
+    // El campo del editor guarda 0–100 (%) — acá lo pasamos a 0–1 para
+    // usarlo directo como factor de mezcla de color. (THREE no está
+    // importado acá arriba — se carga dinámico solo dentro del efecto
+    // pesado de three.js, más abajo.) kind 'video' no tiene estos campos
+    // en su editor, así que siempre quedan en 0/false (objeto normalmente
+    // iluminado, sin sombra parcial).
+    shadowIntensity: Math.min(Math.max(Number(sec.data?.shadowIntensity ?? 0) / 100, 0), 1),
+    shadowClearEnabled: Boolean(sec.data?.shadowClearEnabled),
+    shadowClearStrength: Math.min(Math.max(Number(sec.data?.shadowClearStrength ?? 100) / 100, 0), 1),
+    shadowClearShape: (sec.data?.shadowClearShape as ProductSection['shadowClearShape']) || 'sphere',
+    shadowClearRadius: Number(sec.data?.shadowClearRadius ?? 1),
+    shadowClearSizeX: Number(sec.data?.shadowClearSizeX ?? 1),
+    shadowClearSizeY: Number(sec.data?.shadowClearSizeY ?? 2),
+    shadowClearSizeZ: Number(sec.data?.shadowClearSizeZ ?? 1),
+    shadowClearX: Number(sec.data?.shadowClearX ?? 0.6),
+    shadowClearY: Number(sec.data?.shadowClearY ?? 0.6),
+    shadowClearZ: Number(sec.data?.shadowClearZ ?? 0.6),
+    shadowClearRotationX: (Number(sec.data?.shadowClearRotationX ?? 0) * Math.PI) / 180,
+    shadowClearRotationY: (Number(sec.data?.shadowClearRotationY ?? 0) * Math.PI) / 180,
+    shadowClearRotationZ: (Number(sec.data?.shadowClearRotationZ ?? 0) * Math.PI) / 180,
+    // ── Solo para kind === 'video' ──────────────────────────────────
+    bgVideoUrl: (sec.data?.bgVideo as WeaverseVideo)?.url || '',
+    bgVideoPosterUrl: (sec.data?.bgVideoPoster as WeaverseImage)?.url || '',
+    bgVideoBlur: Number(sec.data?.bgVideoBlur ?? 30),
+    phraseText: (sec.data?.phraseText as string) ?? '',
+    phraseTextAlign: (sec.data?.phraseTextAlign as ProductSection['phraseTextAlign']) || 'center',
+    phraseColor: (sec.data?.phraseColor as string) || '#ffffff26',
+    phraseWeight: (sec.data?.phraseWeight as string) || '900',
+    phraseFontSizeDesktop: (sec.data?.phraseFontSizeDesktop as string) || '',
+    phraseFontSizeMobile: (sec.data?.phraseFontSizeMobile as string) || '',
+    phraseLetterSpacing: Number(sec.data?.phraseLetterSpacing ?? 0),
+    phraseLineHeight: Number(sec.data?.phraseLineHeight ?? 0.85),
+    phraseFontFamily: (sec.data?.phraseFontFamily as string) || '',
+    phraseGlowBlur: Number(sec.data?.phraseGlowBlur ?? 40),
+    phraseGlowOpacity: Number(sec.data?.phraseGlowOpacity ?? 0.5),
+    // ── Solo para kind === 'faq' ────────────────────────────────────
+    faqContentAlign: (sec.data?.contentAlign as ProductSection['faqContentAlign']) || 'center',
+    faqContainerPaddingSelect: (sec.data?.containerPaddingSelect as string) || 'a',
+    faqContainerPaddingText: (sec.data?.containerPaddingText as string) || '',
+    faqContainerMarginSelect: (sec.data?.containerMarginSelect as string) || 'a',
+    faqContainerMarginText: (sec.data?.containerMarginText as string) || '',
+    headingText: (sec.data?.headingText as string) || '',
+    headingColor: (sec.data?.headingColor as string) || '#ffffff',
+    headingWeight: (sec.data?.headingWeight as string) || '900',
+    headingFontSizeDesktop: (sec.data?.headingFontSizeDesktop as string) || '',
+    headingFontSizeMobile: (sec.data?.headingFontSizeMobile as string) || '',
+    headingLetterSpacing: Number(sec.data?.headingLetterSpacing ?? 0),
+    headingLineHeight: Number(sec.data?.headingLineHeight ?? 0.95),
+    headingFontFamily: (sec.data?.headingFontFamily as string) || '',
+    faqMaxWidth: Number(sec.data?.faqMaxWidth ?? 700),
+    faqAccordionMode: sec.data?.faqAccordionMode !== false,
+    faqItemBorderColor: (sec.data?.faqItemBorderColor as string) || 'rgba(255,255,255,0.15)',
+    faqItemBorderColorHover: (sec.data?.faqItemBorderColorHover as string) || 'rgba(255,255,255,0.35)',
+    faqQuestionColor: (sec.data?.faqQuestionColor as string) || '#ffffff',
+    faqQuestionFontSize: (sec.data?.faqQuestionFontSize as string) || '1.15rem',
+    faqQuestionFontWeight: (sec.data?.faqQuestionFontWeight as string) || '500',
+    faqIconColor: (sec.data?.faqIconColor as string) || '#a1a1aa',
+    faqIconColorActive: (sec.data?.faqIconColorActive as string) || '#ffffff',
+    faqAnswerColor: (sec.data?.faqAnswerColor as string) || '#a1a1aa',
+    faqAnswerFontSize: (sec.data?.faqAnswerFontSize as string) || '0.95rem',
+    faqAnswerLineHeight: Number(sec.data?.faqAnswerLineHeight ?? 1.6),
+    faqItems,
+  }
+}
+
+// El editor "richtext" de Weaverse a veces guarda el HTML doble-escapado —
+// mismo problema/arreglo que ya usa faq-item.tsx.
+function decodeFaqAnswer(html: string): string {
+  if (typeof document === 'undefined') return html
+  const txt = document.createElement('textarea')
+  txt.innerHTML = html
+  return txt.value
+}
+
+// Encabezado + acordeón de preguntas para una toma kind === 'faq' (ver
+// product3d-faq.tsx/product3d-faq-item.tsx). Tiene su propio estado de
+// "qué pregunta está abierta" — el padre lo remonta con `key={section.id}`
+// cada vez que cambia la toma FAQ activa, así el estado no se arrastra de
+// una toma a otra. Va DESPUÉS del <canvas> en el DOM (con z-10, igual que
+// el bloque de texto de una sección normal) para poder recibir clics — a
+// diferencia del video/frase de product3d-video.tsx, que es solo
+// decorativo y va antes (detrás) del canvas.
+function FaqOverlay({ section, isMobile }: { section: ProductSection; isMobile: boolean }) {
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set())
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const toggle = (id: string) => {
+    setOpenIds((prev) => {
+      if (section.faqAccordionMode) return prev.has(id) ? new Set() : new Set([id])
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  return (
+    <div
+      className={cn(
+        'absolute inset-0 z-10 flex flex-col gap-10 overflow-y-auto px-6 py-20 md:px-16 md:py-24',
+        section.faqContentAlign === 'left' && 'items-start text-left',
+        section.faqContentAlign === 'center' && 'items-center text-center',
+        section.faqContentAlign === 'right' && 'items-end text-right',
+      )}
+      style={{
+        ...selectorPaddingMargin('padding', section.faqContainerPaddingSelect, section.faqContainerPaddingText),
+        ...selectorPaddingMargin('margin', section.faqContainerMarginSelect, section.faqContainerMarginText),
+      }}
+    >
+      {section.headingText && (
+        <h2
+          className="w-full font-black uppercase"
+          style={{
+            color: section.headingColor,
+            fontWeight: section.headingWeight,
+            fontSize: isMobile
+              ? section.headingFontSizeMobile || section.headingFontSizeDesktop || undefined
+              : section.headingFontSizeDesktop || section.headingFontSizeMobile || undefined,
+            letterSpacing: section.headingLetterSpacing ? `${section.headingLetterSpacing}px` : undefined,
+            lineHeight: section.headingLineHeight > 0 ? section.headingLineHeight : undefined,
+            fontFamily: section.headingFontFamily || undefined,
+            whiteSpace: 'pre-line',
+          }}
+        >
+          {section.headingText}
+        </h2>
+      )}
+      {section.faqItems.length > 0 && (
+        <div
+          className={cn(
+            'w-full',
+            section.faqContentAlign === 'center' && 'mx-auto',
+            section.faqContentAlign === 'right' && 'ml-auto',
+          )}
+          style={{ maxWidth: section.faqMaxWidth }}
+        >
+          <div style={{ borderTop: `1px solid ${section.faqItemBorderColor}` }}>
+            {section.faqItems.map((item) => {
+              const open = openIds.has(item.id)
+              const hovered = hoveredId === item.id
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    borderBottom: `1px solid ${hovered || open ? section.faqItemBorderColorHover : section.faqItemBorderColor}`,
+                    transition: 'border-color 0.3s ease',
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggle(item.id)}
+                    onMouseEnter={() => setHoveredId(item.id)}
+                    onMouseLeave={() => setHoveredId((current) => (current === item.id ? null : current))}
+                    className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                    aria-expanded={open}
+                  >
+                    <span
+                      style={{
+                        color: item.questionColor || section.faqQuestionColor,
+                        fontSize: item.questionFontSize || section.faqQuestionFontSize,
+                        fontFamily: item.questionFontFamily || undefined,
+                        fontWeight: item.questionFontWeight || section.faqQuestionFontWeight,
+                        letterSpacing: item.questionLetterSpacing ? `${item.questionLetterSpacing}px` : undefined,
+                        textAlign: item.questionTextAlign || undefined,
+                        flex: item.questionTextAlign ? '1 1 auto' : undefined,
+                      }}
+                    >
+                      {item.question}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 text-xl leading-none transition-transform duration-300"
+                      style={{
+                        color: open ? section.faqIconColorActive : section.faqIconColor,
+                        transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
+                      }}
+                    >
+                      +
+                    </span>
+                  </button>
+                  <div style={{ maxHeight: open ? '600px' : '0px', overflow: 'hidden', transition: 'max-height 0.4s ease' }}>
+                    <div
+                      className="pb-5"
+                      style={{
+                        color: item.answerColor || section.faqAnswerColor,
+                        fontSize: item.answerFontSize || section.faqAnswerFontSize,
+                        fontFamily: item.answerFontFamily || undefined,
+                        fontWeight: item.answerFontWeight || undefined,
+                        letterSpacing: item.answerLetterSpacing ? `${item.answerLetterSpacing}px` : undefined,
+                        textAlign: item.answerTextAlign || undefined,
+                        lineHeight: section.faqAnswerLineHeight,
+                      }}
+                      dangerouslySetInnerHTML={{ __html: decodeFaqAnswer(item.answer) }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Section ───────────────────────────────────────────────────────────────
 
 function Product3DViewer(props: Product3DViewerProps) {
@@ -287,6 +674,7 @@ function Product3DViewer(props: Product3DViewerProps) {
     modelPositionY = 0,
     modelGap = 0.4,
     cameraDistance = 5,
+    transitionSmoothness = 0.06,
     autoRotate = false,
     autoRotateSpeed = 1.2,
     // Apagado por defecto: el arrastre para orbitar (OrbitControls) usa el
@@ -330,6 +718,12 @@ function Product3DViewer(props: Product3DViewerProps) {
   useEffect(() => {
     inactiveDimIntensityRef.current = inactiveDimIntensity
   }, [inactiveDimIntensity])
+  // Mismo motivo: "Suavidad al mover el objeto" se lee en vivo dentro de
+  // animate() (ver Paso 7.10), sin reconstruir la escena al tocar el slider.
+  const transitionSmoothnessRef = useRef(transitionSmoothness)
+  useEffect(() => {
+    transitionSmoothnessRef.current = transitionSmoothness
+  }, [transitionSmoothness])
 
   // Paso 2: leer los productos desde los hijos "Producto 3D" agregados en
   // el editor, y — para cada uno — sus propios hijos "Sección de producto
@@ -351,82 +745,7 @@ function Product3DViewer(props: Product3DViewerProps) {
           const sections: ProductSection[] = childRefs
             .map((ref) => weaverse?.itemInstances?.get(ref.id))
             .filter(Boolean)
-            .map((sec: any) => {
-              return {
-                id: sec._id,
-                title: (sec.data?.title as string) || '',
-                description: (sec.data?.description as string) || '',
-                badgeText: (sec.data?.badgeText as string) || '',
-                badgeColor: (sec.data?.badgeColor as string) || '',
-                badgeBackground: (sec.data?.badgeBackground as string) || '',
-                badgeStrikethrough: Boolean(sec.data?.badgeStrikethrough),
-                badgeShowIcon: sec.data?.badgeShowIcon !== false,
-                badgePaddingSelect: (sec.data?.badgePaddingSelect as string) || 'a',
-                badgePaddingText: (sec.data?.badgePaddingText as string) || '',
-                badgeMarginSelect: (sec.data?.badgeMarginSelect as string) || 'a',
-                badgeMarginText: (sec.data?.badgeMarginText as string) || '',
-                dropEffectEnabled: sec.data?.dropEffectEnabled !== false,
-                // Estilo del texto — texto vacío = usa el look por defecto
-                // (ver el JSX donde se arma el `style={}` del título/desc.).
-                titleColor: (sec.data?.titleColor as string) || '',
-                titleWeight: (sec.data?.titleWeight as string) || '',
-                titleFontSizeDesktop: (sec.data?.titleFontSizeDesktop as string) || '',
-                titleFontSizeMobile: (sec.data?.titleFontSizeMobile as string) || '',
-                titleLetterSpacing: Number(sec.data?.titleLetterSpacing ?? 0),
-                titleLineHeight: Number(sec.data?.titleLineHeight ?? 0),
-                titleFontFamily: (sec.data?.titleFontFamily as string) || '',
-                titleTextShadowEnabled: Boolean(sec.data?.titleTextShadowEnabled),
-                titleTextShadow: (sec.data?.titleTextShadow as string) || '',
-                titlePaddingSelect: (sec.data?.titlePaddingSelect as string) || 'a',
-                titlePaddingText: (sec.data?.titlePaddingText as string) || '',
-                titleMarginSelect: (sec.data?.titleMarginSelect as string) || 'a',
-                titleMarginText: (sec.data?.titleMarginText as string) || '',
-                descColor: (sec.data?.descColor as string) || '',
-                descFontSize: (sec.data?.descFontSize as string) || '',
-                descLineHeight: Number(sec.data?.descLineHeight ?? 0),
-                descFontFamily: (sec.data?.descFontFamily as string) || '',
-                descPaddingSelect: (sec.data?.descPaddingSelect as string) || 'a',
-                descPaddingText: (sec.data?.descPaddingText as string) || '',
-                descMarginSelect: (sec.data?.descMarginSelect as string) || 'a',
-                descMarginText: (sec.data?.descMarginText as string) || '',
-                textAlign: (sec.data?.textAlign as ProductSection['textAlign']) || 'left',
-                posX: Number(sec.data?.posX ?? 0),
-                posY: Number(sec.data?.posY ?? 0),
-                posZ: Number(sec.data?.posZ ?? 0),
-                mobilePositionEnabled: Boolean(sec.data?.mobilePositionEnabled),
-                posXMobile: Number(sec.data?.posXMobile ?? 0),
-                posYMobile: Number(sec.data?.posYMobile ?? 0.6),
-                posZMobile: Number(sec.data?.posZMobile ?? 0),
-                rotationXMobile: Number(sec.data?.rotationXMobile ?? 0),
-                rotationYMobile: Number(sec.data?.rotationYMobile ?? 15),
-                rotationZMobile: Number(sec.data?.rotationZMobile ?? 0),
-                rotationX: Number(sec.data?.rotationX ?? 0),
-                rotationY: Number(sec.data?.rotationY ?? 0),
-                rotationZ: Number(sec.data?.rotationZ ?? 0),
-                scaleMultiplier: Number(sec.data?.scaleMultiplier ?? 1),
-                scaleMultiplierMobile: Number(sec.data?.scaleMultiplierMobile ?? 1.4),
-                background: (sec.data?.background as string) || '',
-                // El campo del editor guarda 0–100 (%) — acá lo pasamos a
-                // 0–1 para usarlo directo como factor de mezcla de color.
-                // (THREE no está importado acá arriba — se carga dinámico
-                // solo dentro del efecto pesado de three.js, más abajo.)
-                shadowIntensity: Math.min(Math.max(Number(sec.data?.shadowIntensity ?? 0) / 100, 0), 1),
-                shadowClearEnabled: Boolean(sec.data?.shadowClearEnabled),
-                // También en 0–100 (%) en el editor — se pasa a 0–1.
-                shadowClearStrength: Math.min(Math.max(Number(sec.data?.shadowClearStrength ?? 100) / 100, 0), 1),
-                shadowClearShape: (sec.data?.shadowClearShape as ProductSection['shadowClearShape']) || 'sphere',
-                shadowClearRadius: Number(sec.data?.shadowClearRadius ?? 1),
-                shadowClearSizeX: Number(sec.data?.shadowClearSizeX ?? 1),
-                shadowClearSizeY: Number(sec.data?.shadowClearSizeY ?? 2),
-                shadowClearSizeZ: Number(sec.data?.shadowClearSizeZ ?? 1),
-                shadowClearX: Number(sec.data?.shadowClearX ?? 0.6),
-                shadowClearY: Number(sec.data?.shadowClearY ?? 0.6),
-                shadowClearZ: Number(sec.data?.shadowClearZ ?? 0.6),
-                shadowClearRotationX: (Number(sec.data?.shadowClearRotationX ?? 0) * Math.PI) / 180,
-                shadowClearRotationY: (Number(sec.data?.shadowClearRotationY ?? 0) * Math.PI) / 180,
-                shadowClearRotationZ: (Number(sec.data?.shadowClearRotationZ ?? 0) * Math.PI) / 180,
-              }
-            })
+            .map((sec: any) => readProductSection(sec, weaverse))
 
           return {
             id: instance._id,
@@ -447,6 +766,9 @@ function Product3DViewer(props: Product3DViewerProps) {
   const missingTitles = useMemo(
     () =>
       childInstances
+        // El hijo "Modo carrusel" no es un producto — no tiene por qué
+        // tener textura, así que no cuenta como "falta imagen".
+        .filter((instance: any) => instance?.data?.type !== 'producto-3d-carrusel')
         .filter((instance) => !(instance.data?.baseColorImage as any)?.url)
         .map((instance) => (instance.data?.title as string) || 'Sin nombre'),
     [childInstances],
@@ -510,6 +832,31 @@ function Product3DViewer(props: Product3DViewerProps) {
   const activeSectionIndex = currentFrame.sectionIndex
   const active = designs[Math.min(activeProductIndex, Math.max(designs.length - 1, 0))]
   const activeSection = activeSectionIndex != null ? active?.sections[activeSectionIndex] : undefined
+  // "Modo carrusel": no es un switch — es la TOMA que está activa ahora
+  // mismo. Si es un hijo "Modo carrusel" (product3d-carousel.tsx, dentro
+  // de un "Producto 3D"), en vez de mover el objeto a una pose normal, la
+  // fila entera se puede recorrer arrastrando en bucle infinito — al
+  // navegar a la toma siguiente/anterior se vuelve al comportamiento
+  // normal solo.
+  const dragCarouselMode = activeSection?.kind === 'carousel'
+  const dragSensitivity = activeSection?.dragSensitivity ?? 1
+  const dragInertiaEnabled = activeSection?.dragInertiaEnabled ?? true
+  const dragFriction = activeSection?.dragFriction ?? 0.94
+  // Se leen dentro de efectos con deps vacías (scroll/teclado/swipe, y el
+  // loop de three.js — a propósito NO están en las deps del efecto pesado
+  // de three.js: entrar/salir de la toma "carrusel" no tiene que
+  // reconstruir toda la escena 3D, solo cambiar cómo se interpreta el
+  // arrastre cuadro a cuadro).
+  const dragCarouselModeRef = useRef(dragCarouselMode)
+  const dragSensitivityRef = useRef(dragSensitivity)
+  const dragInertiaEnabledRef = useRef(dragInertiaEnabled)
+  const dragFrictionRef = useRef(dragFriction)
+  useEffect(() => {
+    dragCarouselModeRef.current = dragCarouselMode
+    dragSensitivityRef.current = dragSensitivity
+    dragInertiaEnabledRef.current = dragInertiaEnabled
+    dragFrictionRef.current = dragFriction
+  }, [dragCarouselMode, dragSensitivity, dragInertiaEnabled, dragFriction])
 
   // Transición de fondo (crossfade): un simple `transition: background` de
   // CSS no anima bien de un linear-gradient a otro (ni de color a
@@ -539,6 +886,14 @@ function Product3DViewer(props: Product3DViewerProps) {
   // dirección — como hay copias repetidas de sobra (SIDE_REPEATS), la que
   // "sigue" ya está ahí, lista, sin tener que recorrer nada.
   const visualIndexRef = useRef(0)
+  // Posición CONTINUA de la fila del "Modo carrusel" — SU PROPIO carrusel,
+  // totalmente aparte de `visualIndexRef`. Arrastrar en la toma "carrusel"
+  // solo mueve esto; `visualIndexRef`/`activeIndexRef` (título, barra de
+  // progreso, click-to-select, qué producto es "el activo") quedan intactos
+  // durante todo el arrastre — por eso al salir de la toma "carrusel" la
+  // navegación normal sigue exactamente donde estaba, sin que el arrastre la
+  // haya movido un solo pixel.
+  const carouselIndexRef = useRef(0)
   const activeSectionIndexRef = useRef<number | null>(null)
   const activeFrameRef = useRef(0) // índice de FRAME activo (para saber si es el primero/último al scrollear)
   useEffect(() => {
@@ -655,6 +1010,10 @@ function Product3DViewer(props: Product3DViewerProps) {
     if (!container) return
 
     const onKeyDown = (e: KeyboardEvent) => {
+      // Las flechas siguen cambiando de toma igual que en cualquier otra
+      // (incluso estando en "Modo carrusel") — solo el ARRASTRE horizontal
+      // con el mouse/dedo es exclusivo de esa toma (ver el efecto de
+      // three.js, más abajo). Así nunca queda "trabado" ahí.
       if (isEditingField(e.target)) return
       if (e.key === 'ArrowRight') {
         e.preventDefault()
@@ -671,6 +1030,9 @@ function Product3DViewer(props: Product3DViewerProps) {
     let lastWheelAt = 0
     const WHEEL_COOLDOWN_MS = 650
     const onWheel = (e: WheelEvent) => {
+      // La rueda sigue avanzando de toma en toma igual que siempre, incluso
+      // estando en "Modo carrusel" — no se queda "atrapado" ahí (ver
+      // comentario de onKeyDown).
       if (Math.abs(e.deltaY) < 4) return
       const total = framesRef.current.length
       if (total <= 1) return
@@ -694,11 +1056,13 @@ function Product3DViewer(props: Product3DViewerProps) {
     let touchStartY = 0
     let touchActive = false
     const onTouchStart = (e: TouchEvent) => {
+      if (dragCarouselModeRef.current) return
       touchStartX = e.touches[0].clientX
       touchStartY = e.touches[0].clientY
       touchActive = true
     }
     const onTouchEnd = (e: TouchEvent) => {
+      if (dragCarouselModeRef.current) return
       if (!touchActive) return
       touchActive = false
       const deltaX = touchStartX - e.changedTouches[0].clientX
@@ -827,7 +1191,11 @@ function Product3DViewer(props: Product3DViewerProps) {
       const controls = new OrbitControls(camera, canvas)
       controls.enablePan = false
       controls.enableZoom = false
-      controls.enabled = enableDrag
+      // En la toma "carrusel" el arrastre lo usa la fila (ver más abajo) —
+      // se fuerza apagado para que no compita por el mismo gesto (valor
+      // inicial acá; se actualiza en vivo cuadro a cuadro en animate(),
+      // porque puede cambiar de toma en toma sin reconstruir la escena).
+      controls.enabled = dragCarouselModeRef.current ? false : enableDrag
       controls.autoRotate = autoRotate
       controls.autoRotateSpeed = autoRotateSpeed
       controls.enableDamping = true
@@ -981,6 +1349,9 @@ function Product3DViewer(props: Product3DViewerProps) {
       const raycaster = new THREE.Raycaster()
       const pointerNdc = new THREE.Vector2()
       function onCanvasClick(e: MouseEvent) {
+        // En "Modo carrusel" un clic no selecciona nada — es puro
+        // escaparate, se recorre arrastrando (ver el bloque de arrastre).
+        if (dragCarouselModeRef.current) return
         if (clones.length === 0) return
         const rect = canvas.getBoundingClientRect()
         pointerNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
@@ -1000,6 +1371,85 @@ function Product3DViewer(props: Product3DViewerProps) {
       }
       canvas.addEventListener('click', onCanvasClick)
       cleanupFns.push(() => canvas.removeEventListener('click', onCanvasClick))
+
+      // Paso 7.7b: "Modo carrusel" — arrastre libre con inercia, para
+      // recorrer la fila SIN cambiar de sección ni entrar a detalle (ver
+      // dragCarouselMode). Reusa el MISMO mecanismo de loop infinito de la
+      // fila (cloneLogicalIndex) que ya usa la navegación normal, pero con
+      // su PROPIA posición continua (`carouselIndexRef`) — el arrastre
+      // nunca toca `visualIndexRef` (esa es la de la navegación normal).
+      let dragVelocity = 0
+      let isRowDragging = false
+      let lastDragPointerX = 0
+      // Para detectar el momento exacto en que se ENTRA a la toma
+      // "carrusel" (ver animate()) y arrancar `carouselIndexRef` desde
+      // donde esté el producto activo en ese momento.
+      let wasCarouselActive = false
+      // Para no escribir `canvas.style.cursor` en cada cuadro — solo
+      // cuando de verdad cambia si estamos en la toma "carrusel" o no.
+      let cursorModeSynced = false
+      // Estado de la fila (todas las copias visibles) del cuadro ANTERIOR —
+      // para detectar el instante exacto en que pasa de oculta a visible
+      // (ver `revealFromSides` en animate()) y disparar la entrada "desde
+      // los laterales" una sola vez, no en cada cuadro.
+      let prevShowRow = false
+
+      // Cuántos píxeles de pantalla equivalen a una unidad del mundo 3D a
+      // la distancia de cámara actual — para que arrastrar se sienta 1 a 1
+      // (el objeto "sigue" al dedo/mouse).
+      function pixelsPerWorldUnit() {
+        const vFov = THREE.MathUtils.degToRad(camera.fov)
+        const camDist = camera.position.distanceTo(controls.target)
+        const visibleHeight = 2 * Math.tan(vFov / 2) * camDist
+        const canvasHeightPx = canvas.clientHeight || 1
+        return canvasHeightPx / Math.max(visibleHeight, 0.0001)
+      }
+
+      function onRowPointerDown(e: PointerEvent) {
+        if (!dragCarouselModeRef.current) return
+        isRowDragging = true
+        dragVelocity = 0
+        lastDragPointerX = e.clientX
+        canvas.setPointerCapture(e.pointerId)
+        canvas.style.cursor = 'grabbing'
+      }
+      function onRowPointerMove(e: PointerEvent) {
+        if (!isRowDragging) return
+        const deltaXpx = e.clientX - lastDragPointerX
+        lastDragPointerX = e.clientX
+        const { spacing } = computeLayout(baseScale, baseGap)
+        const deltaLogical = (deltaXpx / pixelsPerWorldUnit() / spacing) * dragSensitivityRef.current
+        // Arrastrar hacia la derecha tiene que mover la fila hacia la
+        // derecha (el objeto "sigue" al dedo) — por eso se resta acá (ver
+        // el signo de `rowX` en animate(), más abajo).
+        carouselIndexRef.current -= deltaLogical
+        dragVelocity = -deltaLogical
+      }
+      function onRowPointerUp(e: PointerEvent) {
+        if (!isRowDragging) return
+        isRowDragging = false
+        canvas.style.cursor = 'grab'
+        try {
+          canvas.releasePointerCapture(e.pointerId)
+        } catch {
+          // el pointer ya pudo haberse liberado solo (ej. pointercancel)
+        }
+      }
+      canvas.addEventListener('pointerdown', onRowPointerDown)
+      canvas.addEventListener('pointermove', onRowPointerMove)
+      window.addEventListener('pointerup', onRowPointerUp)
+      window.addEventListener('pointercancel', onRowPointerUp)
+      cleanupFns.push(() => {
+        canvas.removeEventListener('pointerdown', onRowPointerDown)
+        canvas.removeEventListener('pointermove', onRowPointerMove)
+        window.removeEventListener('pointerup', onRowPointerUp)
+        window.removeEventListener('pointercancel', onRowPointerUp)
+      })
+      // pan-y: el arrastre horizontal (cuando corresponda) lo maneja este
+      // JS; el scroll vertical de la página sigue funcionando normal con
+      // el dedo. Se deja siempre puesto (no hace nada mientras no se está
+      // en la toma "carrusel" — los handlers de arriba ya filtran eso).
+      canvas.style.touchAction = 'pan-y'
 
       // Cuántas veces se repite cada producto a los costados para el
       // "loop infinito" de la fila (ver comentario de `cloneLogicalIndex`
@@ -1129,6 +1579,15 @@ function Product3DViewer(props: Product3DViewerProps) {
             clone.traverse((child) => {
               const mesh = child as any
               if (!mesh.isMesh) return
+              // Si el .glb no trae normales calculadas (pasa con algunos
+              // modelos exportados sin ese dato — ej. el clásico
+              // Flamingo.glb de los ejemplos de three.js), la luz no tiene
+              // cómo saber hacia dónde "mira" cada cara y el modelo entero
+              // se ve negro sin importar cuánta luz le pongas. Si faltan,
+              // se calculan acá mismo a partir de la geometría.
+              if (mesh.geometry && !mesh.geometry.attributes.normal) {
+                mesh.geometry.computeVertexNormals()
+              }
               // aoMap requiere un segundo canal UV — si el modelo no lo
               // trae, reusamos el UV principal para que se aplique igual.
               if (material.aoMap && mesh.geometry?.attributes.uv && !mesh.geometry.attributes.uv2) {
@@ -1358,7 +1817,63 @@ function Product3DViewer(props: Product3DViewerProps) {
       function animate() {
         raf = requestAnimationFrame(animate)
 
+        // La toma "carrusel" puede prenderse/apagarse sin reconstruir la
+        // escena (navegando de toma en toma) — por eso se revisa en vivo,
+        // cuadro a cuadro, en vez de una sola vez al armar la escena.
+        controls.enabled = dragCarouselModeRef.current ? false : enableDrag
+        if (dragCarouselModeRef.current && !wasCarouselActive) {
+          // Se ACABA de entrar a la toma "carrusel" — el carrusel propio
+          // arranca desde donde esté el producto activo en este momento,
+          // para que la transición se sienta continua. A partir de acá el
+          // arrastre solo mueve `carouselIndexRef`; la fila/navegación
+          // normal (`visualIndexRef`) queda completamente intacta, así que
+          // al volver a la toma anterior/siguiente todo sigue exactamente
+          // donde estaba, sin importar cuánto se haya arrastrado acá.
+          carouselIndexRef.current = visualIndexRef.current
+          dragVelocity = 0
+        }
+        if (dragCarouselModeRef.current && !isRowDragging) {
+          // Inercia: al soltar, la fila sigue deslizándose y frena de a
+          // poco — se desactiva mientras se está arrastrando (el
+          // dedo/mouse manda).
+          if (dragInertiaEnabledRef.current) {
+            carouselIndexRef.current += dragVelocity
+            dragVelocity *= dragFrictionRef.current
+            if (Math.abs(dragVelocity) < 0.0001) dragVelocity = 0
+          } else {
+            dragVelocity = 0
+          }
+        }
+        if (wasCarouselActive && !dragCarouselModeRef.current && isRowDragging) {
+          // Se navegó a otra toma (rueda/flechas) con el mouse/dedo
+          // todavía apretado arrastrando — corta el arrastre acá en vez de
+          // dejarlo "colgado" (cursor en grabbing, capture del puntero sin
+          // soltar).
+          isRowDragging = false
+          dragVelocity = 0
+        }
+        wasCarouselActive = dragCarouselModeRef.current
+        if (cursorModeSynced !== dragCarouselModeRef.current) {
+          cursorModeSynced = dragCarouselModeRef.current
+          if (!isRowDragging) canvas.style.cursor = cursorModeSynced ? 'grab' : ''
+        }
+
         const sectionMode = activeSectionIndexRef.current !== null
+        // "Modo carrusel" es técnicamente una toma más (sectionMode true —
+        // tiene su propio activeSectionIndex), pero visualmente tiene que
+        // comportarse como la toma general/overview: TODOS los clones
+        // visibles en fila (no solo el activo), atenuados con luz los que
+        // no son el centrado — es lo que arrastrás para recorrerlos.
+        const showRow = !sectionMode || dragCarouselModeRef.current
+        // Disparador de la entrada "desde los laterales" (solo para "Modo
+        // carrusel", no para la fila general): se activa en el ÚNICO cuadro
+        // en el que la fila pasa de oculta (veníamos de una toma con texto/
+        // video/FAQ) a visible. Empuja las copias no activas bien afuera
+        // de encuadre ESE cuadro nomás — de ahí en más el lerp normal de
+        // posición (más abajo) las trae de vuelta a su lugar en la fila,
+        // dando el efecto de "entran acercándose al objeto seleccionado".
+        const revealFromSides = showRow && !prevShowRow && dragCarouselModeRef.current
+        prevShowRow = showRow
         const activeSection = sectionMode
           ? designsRef.current[activeIndexRef.current]?.sections[activeSectionIndexRef.current as number]
           : undefined
@@ -1388,17 +1903,27 @@ function Product3DViewer(props: Product3DViewerProps) {
             }
           : activeSection
 
-        const { spacing: activeSpacing } = computeLayout(baseScale, baseGap)
+        // Posición de fila "efectiva" para este cuadro: la del carrusel
+        // propio mientras esa toma está activa, si no la de la navegación
+        // normal — son dos posiciones independientes (ver comentario de
+        // `carouselIndexRef` más arriba), esto solo elige cuál dibujar.
+        const rowPos = dragCarouselModeRef.current ? carouselIndexRef.current : visualIndexRef.current
+        const { spacing: activeSpacing, totalWidth: activeTotalWidth } = computeLayout(baseScale, baseGap)
         clones.forEach((clone, i) => {
           // `cloneLogicalIndex[i]` es la posición "de fila" fija de esta
           // copia (puede ser negativa o mayor a designs.length-1 — son las
           // copias repetidas para el loop infinito, ver más abajo). Activa
-          // = la ÚNICA copia cuya posición lógica coincide con
-          // `visualIndexRef` (la posición CONTINUA, sin wrap) — NO con
-          // `activeIndexRef` (que sí tiene wrap): tras dar la vuelta, la
-          // copia que queda centrada es la del set repetido siguiente, no
-          // la del set original en esa misma posición 0..N-1.
-          const isActive = cloneLogicalIndex[i] === visualIndexRef.current
+          // = la ÚNICA copia cuya posición lógica coincide con `rowPos` —
+          // NO con `activeIndexRef` (que sí tiene wrap): tras dar la vuelta,
+          // la copia que queda centrada es la del set repetido siguiente,
+          // no la del set original en esa misma posición 0..N-1.
+          // En "Modo carrusel" `rowPos` es un flotante continuo (arrastre
+          // libre) — casi nunca va a coincidir EXACTO con un índice entero,
+          // así que ahí se usa "la más cercana al centro" en vez de una
+          // igualdad exacta.
+          const isActive = dragCarouselModeRef.current
+            ? Math.abs(cloneLogicalIndex[i] - rowPos) < 0.5
+            : cloneLogicalIndex[i] === rowPos
           // En mobile, si la sección definió su propia posición/rotación/
           // escala, se usa esa en vez de la de escritorio (ver "Posición,
           // rotación y escala distinta en mobile" en product3d-section.tsx)
@@ -1411,33 +1936,54 @@ function Product3DViewer(props: Product3DViewerProps) {
               ? baseScale * (useMobilePos ? activeSection.scaleMultiplierMobile : activeSection.scaleMultiplier)
               : baseScale * 1.18
             : baseScale
-          clone.scale.setScalar(THREE.MathUtils.lerp(clone.scale.x, targetScale, 0.15))
+          // Factor de lerp cuadro a cuadro para TODO el movimiento del
+          // objeto (posición/rotación/escala) — configurable desde
+          // "Interacción" → "Suavidad al mover el objeto". Más bajo = tarda
+          // más en llegar al destino (más suave/lento), más alto = más
+          // directo/rápido.
+          const moveFactor = transitionSmoothnessRef.current
+          clone.scale.setScalar(THREE.MathUtils.lerp(clone.scale.x, targetScale, moveFactor))
 
-          const rowX = (cloneLogicalIndex[i] - visualIndexRef.current) * activeSpacing
+          const rowX = (cloneLogicalIndex[i] - rowPos) * activeSpacing
           const targetX = isActive && activeSection ? (useMobilePos ? activeSection.posXMobile : activeSection.posX) : rowX
           const targetY = isActive && activeSection ? (useMobilePos ? activeSection.posYMobile : activeSection.posY) : modelPositionY
           const targetZ = isActive && activeSection ? (useMobilePos ? activeSection.posZMobile : activeSection.posZ) : 0
-          clone.position.x = THREE.MathUtils.lerp(clone.position.x, targetX, 0.12)
-          clone.position.y = THREE.MathUtils.lerp(clone.position.y, targetY, 0.12)
-          clone.position.z = THREE.MathUtils.lerp(clone.position.z, targetZ, 0.12)
+          if (revealFromSides && !isActive) {
+            // La manda bien afuera del encuadre, del mismo lado en el que
+            // ya está (izquierda sigue de largo a la izquierda, derecha a
+            // la derecha) — ESTE cuadro nomás, sin lerp — así el próximo
+            // cuadro el lerp de acá abajo arranca desde "afuera de
+            // pantalla" acercándose al objeto seleccionado, en vez de
+            // aparecer ya en su lugar.
+            const dir = cloneLogicalIndex[i] - rowPos >= 0 ? 1 : -1
+            clone.position.x = rowX + dir * activeTotalWidth
+          }
+          clone.position.x = THREE.MathUtils.lerp(clone.position.x, targetX, moveFactor)
+          clone.position.y = THREE.MathUtils.lerp(clone.position.y, targetY, moveFactor)
+          clone.position.z = THREE.MathUtils.lerp(clone.position.z, targetZ, moveFactor)
 
           const targetRotationX = isActive && activeSection ? THREE.MathUtils.degToRad(useMobilePos ? activeSection.rotationXMobile : activeSection.rotationX) : 0
           const targetRotationY = isActive && activeSection ? THREE.MathUtils.degToRad(useMobilePos ? activeSection.rotationYMobile : activeSection.rotationY) : 0
           const targetRotationZ = isActive && activeSection ? THREE.MathUtils.degToRad(useMobilePos ? activeSection.rotationZMobile : activeSection.rotationZ) : 0
-          clone.rotation.x = THREE.MathUtils.lerp(clone.rotation.x, targetRotationX, 0.12)
-          clone.rotation.y = THREE.MathUtils.lerp(clone.rotation.y, targetRotationY, 0.12)
-          clone.rotation.z = THREE.MathUtils.lerp(clone.rotation.z, targetRotationZ, 0.12)
+          clone.rotation.x = THREE.MathUtils.lerp(clone.rotation.x, targetRotationX, moveFactor)
+          clone.rotation.y = THREE.MathUtils.lerp(clone.rotation.y, targetRotationY, moveFactor)
+          clone.rotation.z = THREE.MathUtils.lerp(clone.rotation.z, targetRotationZ, moveFactor)
 
           const material = materials[i]
           if (material) {
-            // En la fila (toma general), todas las copias quedan opacas —
-            // la que NO está activa ya no se atenúa con transparencia, se
-            // "apaga" con luz (ver `rowDim` más abajo), igual que la sombra
-            // que ya usan las secciones. En modo sección sí sigue
+            // En la fila (toma general o "Modo carrusel" — ver `showRow`),
+            // todas las copias quedan opacas — la que NO está activa ya no
+            // se atenúa con transparencia, se "apaga" con luz (ver `rowDim`
+            // más abajo), igual que la sombra que ya usan las secciones. En
+            // el resto de las tomas (con texto/video/FAQ) sí sigue
             // desapareciendo del todo (opacity 0) — ahí no tiene sentido
             // dejarla ver oscurecida, tiene que sacarse de encima.
-            const targetOpacity = sectionMode ? (isActive ? 1 : 0) : 1
-            material.opacity = THREE.MathUtils.lerp(material.opacity, targetOpacity, 0.15)
+            const targetOpacity = showRow ? 1 : isActive ? 1 : 0
+            // En la entrada "desde los laterales" del carrusel no hay
+            // desvanecido — la copia ya arranca 100% opaca (lo que se ve
+            // "aparecer" es el desplazamiento de `revealFromSides`, más
+            // arriba, no un fade de transparencia).
+            material.opacity = revealFromSides ? 1 : THREE.MathUtils.lerp(material.opacity, targetOpacity, 0.15)
 
             // "Sombra sobre el objeto" + "sombra parcial" + "apagado de
             // fila": se aplican por-píxel en el shader propio de este
@@ -1447,10 +1993,18 @@ function Product3DViewer(props: Product3DViewerProps) {
             const shader = material.userData.shader
             if (shader) {
               const wantsShadow = isActive && effectiveLight
-              // Fuera de modo sección, las copias no activas se oscurecen
+              // En la fila (`showRow`), las copias no activas se oscurecen
               // con el mismo mecanismo — regulable con "inactiveDimIntensity"
-              // (ver el input en la sección "Interacción" del visor).
-              const rowDim = !sectionMode && !isActive ? inactiveDimIntensityRef.current / 100 : 0
+              // (ver el input en la sección "Interacción" del visor), salvo
+              // en "Modo carrusel": ahí cada carrusel tiene su propio
+              // "Apagado de las copias no seleccionadas" (ver
+              // product3d-carousel.tsx), que pisa al general mientras esa
+              // toma está activa.
+              const rowDimPct =
+                dragCarouselModeRef.current && activeSection
+                  ? activeSection.carouselSideShadowIntensity
+                  : inactiveDimIntensityRef.current
+              const rowDim = showRow && !isActive ? rowDimPct / 100 : 0
               const wantsClear = isActive && effectiveLight?.shadowClearEnabled
               const isRect = wantsClear && effectiveLight.shadowClearShape === 'rect'
               const targetAmount = wantsShadow ? effectiveLight.shadowIntensity : rowDim
@@ -1498,15 +2052,21 @@ function Product3DViewer(props: Product3DViewerProps) {
           }
         })
 
-        // La luz extra solo tiene sentido en la toma general (resaltar la
-        // activa entre varias visibles) — en modo sección el resto ya
-        // desapareció, así que se apaga sola. Con el loop infinito, `clones`
-        // ya no está indexado por producto — hay que buscar la copia cuya
-        // posición lógica coincide con `visualIndexRef` (ver comentario de
-        // `isActive`, más arriba).
-        const activeCloneIdx = cloneLogicalIndex.indexOf(visualIndexRef.current)
+        // La luz extra solo tiene sentido en la fila (`showRow` — resaltar
+        // la activa entre varias visibles) — en el resto de las tomas el
+        // resto ya desapareció, así que se apaga sola. Con el loop
+        // infinito, `clones` ya no está indexado por producto — hay que
+        // buscar la copia cuya posición lógica coincide con `rowPos` (ver
+        // comentario de `isActive`, más arriba).
+        // En "Modo carrusel" `rowPos` es un flotante que cambia todo el
+        // tiempo arrastrando — casi nunca coincide EXACTO con un índice
+        // entero, así que acá también se busca "la más cercana" (mismo
+        // umbral que `isActive`) en vez de una igualdad exacta.
+        const activeCloneIdx = dragCarouselModeRef.current
+          ? cloneLogicalIndex.findIndex((v) => Math.abs(v - rowPos) < 0.5)
+          : cloneLogicalIndex.indexOf(rowPos)
         const activeClone = activeCloneIdx >= 0 ? clones[activeCloneIdx] : undefined
-        if (activeClone && !sectionMode) {
+        if (activeClone && showRow) {
           const camDist = camera.position.distanceTo(controls.target)
           highlightLight.position.set(
             activeClone.position.x,
@@ -1582,6 +2142,11 @@ function Product3DViewer(props: Product3DViewerProps) {
     // escena; el texto y las posiciones de sección se leen en vivo desde
     // `designsRef` dentro de animate(), sin necesidad de recargar el .glb.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // dragCarouselMode/dragSensitivity/dragInertiaEnabled/dragFriction NO
+    // están acá a propósito — cambian de valor cada vez que la toma activa
+    // entra/sale de kind 'carousel', y eso no tiene que reconstruir la
+    // escena 3D entera (se leen en vivo vía ref, ver más arriba).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelUrl, designsKey, modelScale, modelPositionY, modelGap, cameraDistance, autoRotate, autoRotateSpeed, enableDrag, showDebugPanel])
 
   // Paso 8: el JSX — el <canvas> centrado, el título (de la toma general o
@@ -1595,7 +2160,12 @@ function Product3DViewer(props: Product3DViewerProps) {
       // de desplazar la página, avanza frames (ver paso 6). Al llegar al
       // último frame, seguir bajando da la vuelta al primero (loop); en el
       // primer frame, subir sí deja pasar el scroll normal de la página.
-      className={cn('fixed inset-0 z-40 flex flex-col items-center justify-center overflow-hidden', clName)}
+      // z-10 (no z-40): tiene que quedar POR DEBAJO del header (z-15,
+      // ver header.tsx) para que el menú/logo se sigan viendo arriba del
+      // visor — sigue tapando el contenido normal de la página igual que
+      // antes, porque cualquier elemento `fixed` ya pinta por encima del
+      // flujo normal sin necesidad de un z-index alto.
+      className={cn('fixed inset-0 z-10 flex flex-col items-center justify-center overflow-hidden', clName)}
     >
       {/* Capas de fondo apiladas (crossfade) — van DETRÁS del <canvas> por
           orden en el DOM, no por z-index. La primera capa se ve de
@@ -1616,6 +2186,83 @@ function Product3DViewer(props: Product3DViewerProps) {
           }}
         />
       ))}
+
+      {/* Video de fondo + frase gigante — solo mientras la toma activa es
+          de tipo 'video' (product3d-video.tsx). Va ANTES del <canvas> en
+          el DOM (como bgLayers) y sin z-index propio, así queda DETRÁS del
+          objeto 3D — el canvas es transparente, así que se ve alrededor
+          del objeto, igual que la referencia de ciaoenergy. */}
+      {activeSection?.kind === 'video' && (
+        <div key={activeSection.id} className="animate-fade-in absolute inset-0" style={{ animationDuration: '500ms' }}>
+          {activeSection.bgVideoUrl && (
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{
+                filter: activeSection.bgVideoBlur > 0 ? `blur(${activeSection.bgVideoBlur}px)` : undefined,
+                transform: activeSection.bgVideoBlur > 0 ? 'scale(1.15)' : undefined,
+              }}
+              muted
+              loop
+              autoPlay
+              playsInline
+              preload="auto"
+              poster={activeSection.bgVideoPosterUrl || undefined}
+            >
+              <source src={activeSection.bgVideoUrl} type="video/webm" />
+              <source src={activeSection.bgVideoUrl} type="video/mp4" />
+            </video>
+          )}
+          {activeSection.phraseText && (
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-0 flex items-center justify-center px-6 text-center uppercase',
+                activeSection.phraseTextAlign === 'left' && 'justify-start text-left',
+                activeSection.phraseTextAlign === 'right' && 'justify-end text-right',
+              )}
+            >
+              {/* Duplicado desenfocado detrás — efecto de resplandor/glow,
+                  igual idea que `argument_svg-blur` en la referencia. */}
+              {activeSection.phraseGlowBlur > 0 && (
+                <h2
+                  aria-hidden="true"
+                  className="absolute font-black"
+                  style={{
+                    color: activeSection.phraseColor,
+                    fontWeight: activeSection.phraseWeight,
+                    fontSize: isMobile
+                      ? activeSection.phraseFontSizeMobile || activeSection.phraseFontSizeDesktop || undefined
+                      : activeSection.phraseFontSizeDesktop || activeSection.phraseFontSizeMobile || undefined,
+                    letterSpacing: activeSection.phraseLetterSpacing ? `${activeSection.phraseLetterSpacing}px` : undefined,
+                    lineHeight: activeSection.phraseLineHeight > 0 ? activeSection.phraseLineHeight : undefined,
+                    fontFamily: activeSection.phraseFontFamily || undefined,
+                    whiteSpace: 'pre-line',
+                    filter: `blur(${activeSection.phraseGlowBlur}px)`,
+                    opacity: activeSection.phraseGlowOpacity,
+                  }}
+                >
+                  {activeSection.phraseText}
+                </h2>
+              )}
+              <h2
+                className="relative font-black"
+                style={{
+                  color: activeSection.phraseColor,
+                  fontWeight: activeSection.phraseWeight,
+                  fontSize: isMobile
+                    ? activeSection.phraseFontSizeMobile || activeSection.phraseFontSizeDesktop || undefined
+                    : activeSection.phraseFontSizeDesktop || activeSection.phraseFontSizeMobile || undefined,
+                  letterSpacing: activeSection.phraseLetterSpacing ? `${activeSection.phraseLetterSpacing}px` : undefined,
+                  lineHeight: activeSection.phraseLineHeight > 0 ? activeSection.phraseLineHeight : undefined,
+                  fontFamily: activeSection.phraseFontFamily || undefined,
+                  whiteSpace: 'pre-line',
+                }}
+              >
+                {activeSection.phraseText}
+              </h2>
+            </div>
+          )}
+        </div>
+      )}
 
       <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
 
@@ -1640,8 +2287,9 @@ function Product3DViewer(props: Product3DViewerProps) {
 
       {/* Título de la toma GENERAL — grande, en mayúsculas y bien bold,
           abajo del objeto. Se oculta apenas hay una sección activa (esa
-          tiene su propio bloque de texto, más abajo). */}
-      {active && !activeSection && (
+          tiene su propio bloque de texto, más abajo) y también en "Modo
+          carrusel" (ahí es puro escaparate, sin texto). */}
+      {active && !activeSection && !dragCarouselMode && (
         <div className="pointer-events-none absolute inset-x-0 bottom-28 z-10 flex flex-col items-center px-6 text-center md:bottom-36">
           <h3
             key={`title-${active.id}`}
@@ -1668,8 +2316,10 @@ function Product3DViewer(props: Product3DViewerProps) {
           siempre. En MOBILE, en cambio, va SIEMPRE anclado abajo de la
           pantalla y a todo el ancho (el "textAlign" ahí solo alinea el
           texto, no lo pega a un costado) — la referencia de ciaoenergy en
-          mobile lo muestra así. */}
-      {activeSection && (
+          mobile lo muestra así. Solo para kind 'section' — 'video' ya tiene
+          su propia frase (bloque de más arriba) y 'faq' su propio
+          encabezado + acordeón (bloque de más abajo). */}
+      {activeSection && activeSection.kind === 'section' && (
         <div
           className={cn(
             'pointer-events-none absolute inset-x-0 bottom-24 z-10 flex max-w-none flex-col px-6',
@@ -1757,12 +2407,22 @@ function Product3DViewer(props: Product3DViewerProps) {
         </div>
       )}
 
+      {/* Encabezado + acordeón de preguntas — solo para kind 'faq' (ver
+          product3d-faq.tsx). Se remonta (key={activeSection.id}) cada vez
+          que cambia la toma FAQ activa, así el estado de "qué pregunta está
+          abierta" no se arrastra de una a otra. */}
+      {activeSection && activeSection.kind === 'faq' && (
+        <FaqOverlay key={activeSection.id} section={activeSection} isMobile={isMobile} />
+      )}
+
       {/* Barra + flechas: navegan de OBJETO 3D en objeto (saltándose sus
           secciones), a diferencia del scroll/swipe/teclado que sí recorren
           frame a frame (sección por sección) — paso 6. Se oculta apenas
           hay una SECCIÓN activa — en ese modo el objeto ya está mostrando
-          el contenido de detalle y esta barra estorba en pantalla. */}
-      {showProgress && designs.length > 1 && !activeSection && (
+          el contenido de detalle y esta barra estorba en pantalla. También
+          se oculta en "Modo carrusel" — ahí se recorre arrastrando, no con
+          barra/flechas. */}
+      {showProgress && designs.length > 1 && !activeSection && !dragCarouselMode && (
         <div className="absolute inset-x-0 bottom-10 z-10 flex flex-col items-center gap-4 md:bottom-14">
           <input
             ref={rangeInputRef}
@@ -1846,8 +2506,9 @@ function Product3DViewer(props: Product3DViewerProps) {
       )}
 
       {/* Pista de "deslizá para descubrir" — solo antes de la primera
-          interacción, se va sola apenas el usuario cambia de frame. */}
-      {!hasInteracted && frames.length > 1 && (
+          interacción, se va sola apenas el usuario cambia de frame. No
+          aplica en "Modo carrusel" (ahí no hay "frames" que descubrir). */}
+      {!hasInteracted && frames.length > 1 && !dragCarouselMode && (
         <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 animate-pulse text-center text-[11px] tracking-[0.3em] text-white/40 uppercase">
           Deslizá para descubrir
         </div>
@@ -2002,6 +2663,14 @@ export const schema = createSchema({
         },
         { type: 'switch', name: 'autoRotate', label: 'Autorotación', defaultValue: false },
         { type: 'range', name: 'autoRotateSpeed', label: 'Velocidad de autorotación', defaultValue: 1.2, configs: { min: 0, max: 10, step: 0.1 }, condition: (data: Product3DViewerProps) => data.autoRotate === true },
+        {
+          type: 'range',
+          name: 'transitionSmoothness',
+          label: 'Suavidad al mover el objeto',
+          helpText: 'Qué tan gradual es el movimiento del objeto al cambiar de frame (fila ↔ sección, o de una sección a otra). Más bajo = más lento/suave. Más alto = más directo/rápido.',
+          defaultValue: 0.06,
+          configs: { min: 0.02, max: 0.3, step: 0.01 },
+        },
       ],
     },
     {
@@ -2026,6 +2695,7 @@ export const schema = createSchema({
     modelPositionY: 0,
     modelGap: 0.4,
     cameraDistance: 4,
+    transitionSmoothness: 0.06,
     enableDrag: false,
     autoRotate: false,
     autoRotateSpeed: 1.2,

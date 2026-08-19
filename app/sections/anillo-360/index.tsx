@@ -64,7 +64,7 @@ interface Anillo360Props extends HydrogenComponentProps {
 // ─── GraphQL query (same as scrollChair) ──────────────────────────────────
 
 const CHAIR_METAOBJECT_QUERY = `#graphql
-  query ChairMetaobject($handle: String!) {
+  query AnilloChairMetaobject($handle: String!) {
     metaobject(handle: { handle: $handle, type: "scroll_chair" }) {
       fields {
         key

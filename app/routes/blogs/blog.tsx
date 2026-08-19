@@ -77,14 +77,14 @@ const BLOGS_QUERY = `#graphql
       articles(first: $pageBy, after: $cursor) {
         edges {
           node {
-            ...Article
+            ...ArticleCard
           }
         }
       }
     }
   }
 
-  fragment Article on Article {
+  fragment ArticleCard on Article {
     author: authorV2 {
       name
     }

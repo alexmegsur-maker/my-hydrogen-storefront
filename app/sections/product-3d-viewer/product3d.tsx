@@ -16,9 +16,13 @@ import {
 // padre lee los datos de todos sus hijos con `useChildInstances()` y es
 // quien realmente dibuja el modelo 3D texturizado en su <canvas>.
 //
-// A su vez, cada "Producto 3D" puede tener sus propios hijos "Sección de
-// producto 3D" (ver product3d-section.tsx) — cada uno define una toma con
-// su propio texto y la posición a la que se anima el objeto.
+// A su vez, cada "Producto 3D" puede tener sus propios hijos-toma: "Sección
+// de producto 3D" (product3d-section.tsx, texto normal), "Toma con video de
+// fondo" (product3d-video.tsx), "Toma con FAQ" (product3d-faq.tsx), o "Modo
+// carrusel" (product3d-carousel.tsx) — esta última no es un bloque de
+// texto: mientras esa toma está activa, se puede arrastrar la fila entera
+// para recorrer TODOS los productos en bucle infinito, en vez de ver la
+// pose normal de esta toma.
 
 export interface Product3DItemProps extends HydrogenComponentProps {
   title: string
@@ -43,7 +47,7 @@ export default function Product3DItem(_props: Product3DItemProps) {
 export const schema = createSchema({
   type: 'producto-3d',
   title: 'Producto 3D',
-  childTypes: ['producto-3d-seccion'],
+  childTypes: ['producto-3d-seccion', 'producto-3d-video', 'producto-3d-faq', 'producto-3d-carrusel'],
   settings: [
     {
       group: 'Producto',
