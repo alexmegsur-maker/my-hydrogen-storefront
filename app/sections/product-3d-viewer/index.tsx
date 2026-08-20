@@ -1209,9 +1209,21 @@ function Product3DViewer(props: Product3DViewerProps) {
 
       // Paso 7.5: mantener el tamaño del render sincronizado con el
       // contenedor.
+      let lastResizeW = -1
+      let lastResizeH = -1
       function resize() {
         const w = container!.clientWidth
         const h = container!.clientHeight
+        // Corta si el tamaño no cambió de verdad — `renderer.setSize` toca
+        // el <canvas> (ancho/alto reales, no solo CSS), y en algunos
+        // navegadores mobile eso puede disparar OTRO evento "resize" (ej.
+        // por la barra de direcciones mostrándose/ocultándose sola al
+        // togglear `touch-action`) — sin este corte, ese vaivén se
+        // retroalimenta solo y termina siendo el "loop infinito" que
+        // satura el render.
+        if (w === lastResizeW && h === lastResizeH) return
+        lastResizeW = w
+        lastResizeH = h
         camera.aspect = w / Math.max(h, 1)
         camera.updateProjectionMatrix()
         renderer.setSize(w, h)
@@ -1387,6 +1399,14 @@ function Product3DViewer(props: Product3DViewerProps) {
       let dragVelocity = 0
       let isRowDragging = false
       let lastDragPointerX = 0
+      // A qué eje quedó "comprometido" el gesto actual: null = todavía no
+      // se movió lo suficiente para saberlo. 'x' = arrastre del carrusel.
+      // 'y' = es un swipe vertical (cambiar de toma, ver onTouchStart/
+      // onTouchEnd más arriba) — el carrusel lo ignora del todo, así un
+      // swipe para bajar/subir de sección nunca mueve la fila ni un poco.
+      let dragAxisLocked: 'x' | 'y' | null = null
+      let dragDownX = 0
+      let dragDownY = 0
       // Para detectar el momento exacto en que se ENTRA a la toma
       // "carrusel" (ver animate()) y arrancar `carouselIndexRef` desde
       // donde esté el producto activo en ese momento.
@@ -1414,13 +1434,45 @@ function Product3DViewer(props: Product3DViewerProps) {
       function onRowPointerDown(e: PointerEvent) {
         if (!dragCarouselModeRef.current) return
         isRowDragging = true
+        dragAxisLocked = null
         dragVelocity = 0
         lastDragPointerX = e.clientX
+        dragDownX = e.clientX
+        dragDownY = e.clientY
         canvas.setPointerCapture(e.pointerId)
-        canvas.style.cursor = 'grabbing'
+        // El cursor recién pasa a "grabbing" si el gesto termina siendo
+        // horizontal (ver más abajo) — así un swipe vertical no se ve
+        // "agarrado" por error.
       }
       function onRowPointerMove(e: PointerEvent) {
         if (!isRowDragging) return
+        if (dragAxisLocked === null) {
+          const totalX = e.clientX - dragDownX
+          const totalY = e.clientY - dragDownY
+          // Espera a que se mueva lo suficiente antes de decidir el eje —
+          // el temblor normal de la mano justo al tocar no cuenta.
+          if (Math.abs(totalX) < 8 && Math.abs(totalY) < 8) {
+            lastDragPointerX = e.clientX
+            return
+          }
+          dragAxisLocked = Math.abs(totalX) >= Math.abs(totalY) ? 'x' : 'y'
+          lastDragPointerX = e.clientX
+          if (dragAxisLocked === 'y') {
+            // Gesto vertical — no es un arrastre de carrusel, es un swipe
+            // de navegación (lo maneja onTouchEnd). Suelta el puntero para
+            // no seguir "reservándolo": de acá en más este gesto no toca
+            // la fila para nada.
+            try {
+              canvas.releasePointerCapture(e.pointerId)
+            } catch {
+              // ya se pudo haber liberado solo
+            }
+            return
+          }
+          canvas.style.cursor = 'grabbing'
+          return
+        }
+        if (dragAxisLocked === 'y') return
         const deltaXpx = e.clientX - lastDragPointerX
         lastDragPointerX = e.clientX
         const { spacing } = computeLayout(baseScale, baseGap)
@@ -1434,6 +1486,7 @@ function Product3DViewer(props: Product3DViewerProps) {
       function onRowPointerUp(e: PointerEvent) {
         if (!isRowDragging) return
         isRowDragging = false
+        dragAxisLocked = null
         canvas.style.cursor = 'grab'
         try {
           canvas.releasePointerCapture(e.pointerId)
@@ -1451,11 +1504,17 @@ function Product3DViewer(props: Product3DViewerProps) {
         window.removeEventListener('pointerup', onRowPointerUp)
         window.removeEventListener('pointercancel', onRowPointerUp)
       })
-      // pan-y: el arrastre horizontal (cuando corresponda) lo maneja este
-      // JS; el scroll vertical de la página sigue funcionando normal con
-      // el dedo. Se deja siempre puesto (no hace nada mientras no se está
-      // en la toma "carrusel" — los handlers de arriba ya filtran eso).
-      canvas.style.touchAction = 'pan-y'
+      // 'none': acá NO hay scroll real de página que dejarle al navegador
+      // (el cambio de toma es 100% virtual, vía `goNextFrame`/`goPrevFrame`
+      // — ver `onTouchStart`/`onTouchEnd` más arriba) — con "pan-y" puesto,
+      // el navegador intentaba hacer SU PROPIO paneo vertical nativo al
+      // mismo tiempo que este JS cambiaba de toma con el swipe vertical, y
+      // esa pelea (encima dentro de un contenedor `fixed`, que no tiene a
+      // dónde "paneear" de verdad) se sentía como que la página se quedaba
+      // trabada. Con "none" el navegador no toca nada — todo el gesto
+      // táctil (para cambiar de toma o para arrastrar el carrusel) queda
+      // 100% en manos de este JS.
+      canvas.style.touchAction = 'none'
 
       // Cuántas veces se repite cada producto a los costados para el
       // "loop infinito" de la fila (ver comentario de `cloneLogicalIndex`
