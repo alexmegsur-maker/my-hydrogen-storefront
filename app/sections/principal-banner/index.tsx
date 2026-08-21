@@ -78,6 +78,7 @@ interface PrincipalBannerProps extends HydrogenComponentProps {
   showPlayButton: boolean
   videoUrl: string;
   clName?:string;
+  bgGeneral?:string;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -133,6 +134,7 @@ function parseViewBox(viewBox: string): { minX: number; minY: number; width: num
 function PrincipalBanner(props: PrincipalBannerProps) {
   const {
     clName,
+    bgGeneral,
     backgroundImage,
     chairImage,
     separatorImage,
@@ -294,8 +296,8 @@ function PrincipalBanner(props: PrincipalBannerProps) {
 
       tlSecond.fromTo(
         overlayImgBgRef.current,
-        { backgroundImage: `linear-gradient(151deg,#050505 0%, transparent 99%, transparent 100%)` },
-        { backgroundImage: `linear-gradient(151deg,#050505 0%, transparent 2%, transparent 100%)` },
+        { backgroundImage: `linear-gradient(151deg,${bgGeneral} 0%, transparent 99%, transparent 100%)` },
+        { backgroundImage: `linear-gradient(151deg,${bgGeneral} 0%, transparent 2%, transparent 100%)` },
         '<',
       )
 
@@ -366,7 +368,7 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       tlRevert.fromTo(
         fadeOverlayRef.current,
         { background: `linear-gradient(151deg,${gradientColor1} 0%, ${gradientColor1} 99%, ${gradientColor1} 100%)` },
-        { background: `linear-gradient(151deg,${gradientColor1} 0%, #050505 2%, #050505 100%)` },
+        { background: `linear-gradient(151deg,${gradientColor1} 0%, ${bgGeneral} 2%, ${bgGeneral} 100%)` },
         '<',
       )
       tlRevert.fromTo(
@@ -383,14 +385,14 @@ function PrincipalBanner(props: PrincipalBannerProps) {
       )
       tlRevert.fromTo(
         overlayImgBgRef.current,
-        { background: `linear-gradient(151deg,transparent 0%, transparent 75%, #050505 99%, #050505 100%)` },
+        { background: `linear-gradient(151deg,transparent 0%, transparent 75%, ${bgGeneral} 99%, ${bgGeneral} 100%)` },
         {
-          background: `linear-gradient(151deg,transparent 0%,transparent 1%, #050505 35%, #050505 100%)`,
+          background: `linear-gradient(151deg,transparent 0%,transparent 1%, ${bgGeneral} 35%, ${bgGeneral} 100%)`,
           onComplete: () => {
             gsap.fromTo(
               overlayImgBgRef.current,
-              { background: `linear-gradient(151deg,transparent 0%,transparent 1%, #050505 35%, #050505 100%)` },
-              { background: `linear-gradient(151deg,transparent 0%,transparent 1%, #050505 2%, #050505 100%)` },
+              { background: `linear-gradient(151deg,transparent 0%,transparent 1%, ${bgGeneral} 35%, ${bgGeneral} 100%)` },
+              { background: `linear-gradient(151deg,transparent 0%,transparent 1%, ${bgGeneral} 2%, ${bgGeneral} 100%)` },
             )
           },
         },
@@ -532,12 +534,12 @@ function PrincipalBanner(props: PrincipalBannerProps) {
                 viewBox={parsedLogo.viewBox}
                 width="100%"
                 height="100%"
-                fill="black"
+                fill={bgGeneral}
                 dangerouslySetInnerHTML={{ __html: parsedLogo.content }}
               />
             </mask>
           </defs>
-          <rect width="100%" height="100%" fill="#050505" mask="url(#logoRevealMask)" />
+          <rect width="100%" height="100%" fill={bgGeneral} mask="url(#logoRevealMask)" />
         </svg>
       </div>
 
@@ -685,6 +687,12 @@ export const schema = createSchema({
           type:'text',
           label:'className',
           name:'clName',
+        },
+        {
+          type:'color',
+          label:'color',
+          name:'bgGeneral',
+          defaultValue:'#050505',
         },
       ]
     },
