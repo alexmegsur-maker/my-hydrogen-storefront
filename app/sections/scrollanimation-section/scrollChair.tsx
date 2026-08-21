@@ -61,6 +61,7 @@ interface ChairSectionProps extends ChairSectionLoaderData {
   // Imagen título
   titleImgWidth?: string;
   titleImgWidthMobile?: string;
+  bgGeneral?:string;
 }
 
 // ---------------------------------------------------------------------------
@@ -426,6 +427,7 @@ export default function ChairSection(props: ChairSectionProps) {
     decoration,
     titleImgWidth = '100%',
     titleImgWidthMobile = '100%',
+    bgGeneral,
   } = props;
 
   const titulo       = loaderData?.titulo       ?? "";
@@ -708,7 +710,7 @@ export default function ChairSection(props: ChairSectionProps) {
             height: "100vh",
             top: 0,
             left: 0,
-            backgroundColor: "#050505",
+            backgroundColor: bgGeneral,
             transform: "scaleY(1.1)",
             opacity: 1,
           }}
@@ -949,7 +951,7 @@ export const schema = createSchema({
   type: "scroll-chair",
   settings: [
     {
-      group: "360 / Metaobject",
+      group: "General",
       inputs: [
         {
           type: "text",
@@ -963,6 +965,12 @@ export const schema = createSchema({
           label:'change Position',
           name:'changePosition',
           defaultValue:false,
+        },
+        {
+          type:'color',
+          label:'background color',
+          name:'bgGeneral',
+          defaultValue:'#050505',
         },
       ],
     },
