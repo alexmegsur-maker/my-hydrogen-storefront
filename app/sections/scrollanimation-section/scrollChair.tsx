@@ -62,6 +62,8 @@ interface ChairSectionProps extends ChairSectionLoaderData {
   titleImgWidth?: string;
   titleImgWidthMobile?: string;
   bgGeneral?:string;
+  bgImage?:WeaverseImage;
+  clName?:string;
 }
 
 // ---------------------------------------------------------------------------
@@ -428,6 +430,8 @@ export default function ChairSection(props: ChairSectionProps) {
     titleImgWidth = '100%',
     titleImgWidthMobile = '100%',
     bgGeneral,
+    bgImage,
+    clName,
   } = props;
 
   const titulo       = loaderData?.titulo       ?? "";
@@ -658,7 +662,9 @@ export default function ChairSection(props: ChairSectionProps) {
 
   return (
     <div
+      className={clName}
       style={{
+
         // SUPERPOSICIÓN: z-index inverso al índice.
         // La primera sección (index=0) tiene z-index:10 y queda ENCIMA.
         // Las siguientes van por debajo hasta que su scroll las eleva.
@@ -666,6 +672,9 @@ export default function ChairSection(props: ChairSectionProps) {
         position: "relative",
         // FIX: altura fija para que ScrollTrigger pueda medir el recorrido
         height: last?"auto":"400vh",
+        backgroundImage:bgImage?.url &&`url("${bgImage.url}")`,
+        backgroundRepeat:"no-repeat",
+        backgroundSize:"cover"
       } as React.CSSProperties}
       ref={chairContainer}
     >
@@ -953,12 +962,23 @@ export const schema = createSchema({
     {
       group: "General",
       inputs: [
+
         {
           type: "text",
           label: "Handle del metaobjeto",
           name: "metaobject",
           defaultValue: "",
           placeholder: "ej: rivendell",
+        },
+        {
+          type:'text',
+          label:'className',
+          name:'clName',
+        },
+        {
+          type:'image',
+          label:'background image',
+          name:'bgImage',
         },
         {
           type:'switch',
