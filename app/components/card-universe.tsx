@@ -317,7 +317,7 @@ export default function CardUniverse(props: CardUniverseProps & HydrogenComponen
         }}
       >
         {/* Esqueleto de precarga — visible hasta que la imagen real termine de cargar */}
-        {!imageLoaded && <Skeleton className="absolute inset-0 rounded-none" />}
+        {!imageLoaded && <Skeleton className="absolute inset-0 rounded-none bg-white/10" />}
         <img
           src={image.url}
           className={cn(
@@ -337,7 +337,7 @@ export default function CardUniverse(props: CardUniverseProps & HydrogenComponen
               "--img-translate": smallHeight ? "translateY(-50%) scale(0.8)" : "none",
             } as CSSProperties
           }
-          onLoad={() => setImageLoaded(true)}
+          onLoad={() => image.url && setImageLoaded(true)}
           alt={image.altText}
         />
 
