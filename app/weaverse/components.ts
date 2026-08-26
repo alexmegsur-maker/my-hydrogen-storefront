@@ -183,6 +183,8 @@ import * as Product3DVideo from "~/sections/product-3d-viewer/product3d-video"
 import * as Product3DFaq from "~/sections/product-3d-viewer/product3d-faq"
 import * as Product3DFaqItem from "~/sections/product-3d-viewer/product3d-faq-item"
 import * as Product3DCarouselChild from "~/sections/product-3d-viewer/product3d-carousel"
+import * as CardUniverses from "~/sections/card-universes"
+import * as CardUniverse from "~/components/card-universe"
 
 export const components: HydrogenComponent[] = [
   // He movido HeroImage aquí arriba para asegurar que se registre primero
@@ -374,4 +376,6 @@ export const components: HydrogenComponent[] = [
   Product3DFaq,
   Product3DFaqItem,
   Product3DCarouselChild,
+  CardUniverses,
+  CardUniverse
 ];
