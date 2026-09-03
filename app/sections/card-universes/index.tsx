@@ -2,8 +2,7 @@ import { useGSAP } from "@gsap/react";
 import { createSchema, IMAGES_PLACEHOLDERS, useChildInstances, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef, useState } from "react";
-import { Image } from "~/components/image"
+import { useRef } from "react";
 import { Section, sectionSettings } from "~/components/section"
 import "./card-universes.css"
 
@@ -50,7 +49,7 @@ export default function CardUniverses( props: CardUniversesProps & HydrogenCompo
 
         // Selecciona los hijos directos del contenedor
         const items = gsap.utils.toArray<HTMLElement>(
-          ":scope > *",
+          ":scope > *", 
           container.current!,
         );
    
@@ -105,10 +104,10 @@ export default function CardUniverses( props: CardUniversesProps & HydrogenCompo
         borderBottom: `1px solid ${borderColor}`
       }}
       >
-      {children.map((child,idx)=>{
+      { children.map((child,idx)=>{
         if(!headerChildsId.find((elm)=>elm ==child.props.id)){
           return child
-        }
+        } 
       })}
     </div>
   </Section>
