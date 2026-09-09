@@ -227,7 +227,7 @@ function CollectionSlider(props:CollectionSliderProps) {
   const collections = loaderData?.collectionsData || []  
 
   useEffect(()=>{
-    if(actualTitle!=null){
+    if(actualTitle!=null && actualTitle.slides?.[0]){
       setTSlides(actualTitle.slides)
       setCurrentCollection(actualTitle.slides[0].dataset.collection)
     }

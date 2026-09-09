@@ -38,7 +38,7 @@ import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
 import { DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
-import { useJudgeme } from '@judgeme/shopify-hydrogen';
+import { useJudgemeWithNonce } from "./hooks/use-judgeme-with-nonce";
 import { GoogleTagManager } from "./components/google-tag-manager";
 import CookieConsentBanner from "./components/CookieConsent";
 import { IsMobileContext } from "./hooks/is-mobile-context";
@@ -89,7 +89,7 @@ export async function loader(args: LoaderFunctionArgs) {
       shopDomain: context.env.JUDGEME_SHOP_DOMAIN,
       publicToken: context.env.JUDGEME_PUBLIC_TOKEN,
       cdnHost: context.env.JUDGEME_CDN_HOST,
-      delay: 3000,
+      delay: 500,
     },
   };
 }
@@ -155,7 +155,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
   const [isHydrated,setIsHydrated] = useState(false)
 
-  useJudgeme(data?.judgeme ?? { shopDomain: '', publicToken: '', cdnHost: '', delay: 500 });
+  useJudgemeWithNonce(
+    data?.judgeme ?? { shopDomain: 'ef3391-3.myshopify.com', publicToken: '3L7QwDBlzFlG9mdchClFIZZ5PbU', cdnHost: 'https://cdn.judge.me', delay: 500 },
+    nonce,
+  );
 
   useEffect(() => {
     setIsHydrated(true);

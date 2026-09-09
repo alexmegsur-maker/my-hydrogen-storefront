@@ -107,6 +107,13 @@ import * as FilterOption from "~/sections/main-product-j/filter-option"
 import * as CrossellProductJ from "~/sections/main-product-j/crossell"
 import * as BuyButtonsProductJ from "~/sections/main-product-j/buy-buttons"
 import * as ProductSoftwareDownload from "~/sections/main-product-j/software-download"
+import * as ProductMainD from "~/sections/main-product-d"
+import * as ProductNameHeaderD from "~/sections/main-product-d/product-name-header"
+import * as SizeSelectorD from "~/sections/main-product-d/size-selector"
+import * as MaterialFinishSelectorD from "~/sections/main-product-d/material-finish-selector"
+import * as AccessoriesSelectorD from "~/sections/main-product-d/accessories-selector"
+import * as AddToCartSectionD from "~/sections/main-product-d/add-to-cart-section"
+import * as UniverseSelectorD from "~/sections/main-product-d/universe-selector"
 import * as CardSelector from "~/sections/card-selector"
 import * as CardSimple from "~/components/card-simple"
 import * as SimpleProductGrid from "~/sections/simple-product-grid"
@@ -300,6 +307,13 @@ export const components: HydrogenComponent[] = [
   CrossellProductJ,
   BuyButtonsProductJ,
   ProductSoftwareDownload,
+  ProductMainD,
+  ProductNameHeaderD,
+  SizeSelectorD,
+  MaterialFinishSelectorD,
+  AccessoriesSelectorD,
+  AddToCartSectionD,
+  UniverseSelectorD,
   GroupButtons,
   CardSelector,
   CardSimple,

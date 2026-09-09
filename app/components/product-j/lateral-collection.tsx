@@ -71,7 +71,7 @@ export default function  LateralCollection (props:LateralCollectionProps){
           className="top-nav-sticky sticky flex items-center justify-between top-0 left-0 w-full backdrop-blur-md z-[15]"
           style={{
             backgroundColor:"#050505f2",
-            padding: !isMobile?"1.5rem 4rem":"1.5rem",
+            padding: !isMobile? estilos["--paddingsH"]?estilos["--paddingsH"]: "1.5rem 4rem":estilos["--mbPaddingsH"]?estilos["--mbPaddingsH"]:"1.5rem",
             // position:"absolute",
             top:0,
             borderBottom:"1px solid #ffffff08"

@@ -3833,6 +3833,52 @@ export type ProductsByIdsQuery = {
   >;
 };
 
+export type UniverseCollectionsQueryVariables = StorefrontAPI.Exact<{
+  ids:
+    | Array<StorefrontAPI.Scalars['ID']['input']>
+    | StorefrontAPI.Scalars['ID']['input'];
+  productsFirst?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['Int']['input']
+  >;
+}>;
+
+export type UniverseCollectionsQuery = {
+  nodes: Array<
+    StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
+        name?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'value'>>;
+        products: {
+          edges: Array<{
+            node: Pick<StorefrontAPI.Product, 'id' | 'handle' | 'title'> & {
+              featuredImage?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Image, 'url' | 'altText'>
+              >;
+              principalImg?: StorefrontAPI.Maybe<{
+                reference?: StorefrontAPI.Maybe<{
+                  previewImage?: StorefrontAPI.Maybe<
+                    Pick<StorefrontAPI.Image, 'url' | 'altText'>
+                  >;
+                }>;
+              }>;
+              material?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Metafield, 'value'>
+              >;
+              nombre?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Metafield, 'value'>
+              >;
+              variants: {
+                nodes: Array<
+                  Pick<StorefrontAPI.ProductVariant, 'availableForSale'>
+                >;
+              };
+            };
+          }>;
+        };
+      }
+    >
+  >;
+};
+
 export type OurTeamQueryVariables = StorefrontAPI.Exact<{
   type: StorefrontAPI.Scalars['String']['input'];
   first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
@@ -4291,6 +4337,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query productsByIds($country: CountryCode, $language: LanguageCode, $ids: [ID!]!)\n  @inContext(country: $country, language: $language) {\n    nodes(ids: $ids) {\n      ... on Product {\n        ...ProductCard\n      }\n    }\n  }\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    publishedAt\n    handle\n    vendor\n    tags\n    images(first: 50) {\n      nodes {\n        id\n        url\n        altText\n        width\n        height\n      }\n    }\n    nombre:metafield(namespace:"custom",key:"name_style_secret"){\n      id  \n      value\n    }\n    principalImg:metafield(namespace:"custom",key:"img_principal") {\n      key\n      value\n      reference{\n        ... on Media{\n          previewImage{\n            altText  \n            url\n          }\n        }\n      }\n    }\n    secondImg:metafield(namespace:"custom",key:"img_second") {\n      key\n      value\n      reference{\n        ... on Media{\n          previewImage{\n            altText  \n            url\n          }\n        }\n      }\n    }\n    tooltip:metafield(namespace:"custom",key:"tooltip"){\n      id\n      value\n    }\n    options {\n      ...ProductOption\n    }\n    badges: metafields(identifiers: [\n      { namespace: "custom", key: "best_seller" }\n    ]) {\n      key\n      namespace\n      value\n    }\n    priceRange {\n      maxVariantPrice {\n        amount\n        currencyCode\n      }\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    selectedOrFirstAvailableVariant(\n      selectedOptions: []\n      ignoreUnknownOptions: true\n      caseInsensitiveMatch: true\n    ) {\n      ...ProductVariant\n    }\n    # Check if the product is a bundle\n    isBundle: selectedOrFirstAvailableVariant(ignoreUnknownOptions: true, selectedOptions: { name: "", value: ""}) {\n      ...on ProductVariant {\n        requiresComponents\n      }\n    }\n  }\n  #graphql\n  fragment ProductOption on ProductOption {\n    name\n    optionValues {\n      name\n      firstSelectableVariant {\n        ...ProductVariant\n      }\n      swatch {\n        color\n        image {\n          previewImage {\n            url\n            altText\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    quantityAvailable\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n    requiresComponents\n    components(first: 10) {\n      nodes {\n        productVariant {\n          id\n          title\n          product {\n            handle\n          }\n        }\n        quantity\n      }\n    }\n    groupedBy(first: 10) {\n      nodes {\n        id\n        title\n        product {\n          handle\n        }\n      }\n    }\n  }\n\n\n\n': {
     return: ProductsByIdsQuery;
     variables: ProductsByIdsQueryVariables;
+  };
+  '#graphql\n  query UniverseCollections($ids: [ID!]!, $productsFirst: Int = 12) {\n    nodes(ids: $ids) {\n      ... on Collection {\n        id\n        title\n        handle\n        name: metafield(namespace: "custom", key: "name") {\n          value\n        }\n        products(first: $productsFirst) {\n          edges {\n            node {\n              id\n              handle\n              title\n              featuredImage {\n                url\n                altText\n              }\n              principalImg: metafield(namespace: "custom", key: "img_principal") {\n                reference {\n                  ... on Media {\n                    previewImage {\n                      url\n                      altText\n                    }\n                  }\n                }\n              }\n              material: metafield(namespace: "custom", key: "material") {\n                value\n              }\n              nombre: metafield(namespace: "custom", key: "name_style_secret") {\n                value\n              }\n              variants(first: 1) {\n                nodes {\n                  availableForSale\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+    return: UniverseCollectionsQuery;
+    variables: UniverseCollectionsQueryVariables;
   };
   '#graphql\n  query OurTeam ($type: String!, $first: Int) {\n    metaobjects(type: $type, first: $first) {\n      nodes {\n        fields {\n          key\n          type\n          value\n          reference {\n            ... on MediaImage {\n              alt\n              image {\n                altText\n                url\n                width\n                height\n              }\n            }\n          }\n        }\n        handle\n        id\n        type\n      }\n    }\n  }\n': {
     return: OurTeamQuery;
