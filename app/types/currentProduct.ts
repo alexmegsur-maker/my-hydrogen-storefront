@@ -85,6 +85,7 @@ export interface Variants {
   selectedOptions:selectedOptions[];
   price:Price
   tooltip:Metafield;
+  especification?:Metafield;
   fechaReserva?:Metafield;
   totalReserva?:Metafield;
   pedidosReserva?:Metafield;
@@ -110,6 +111,7 @@ export interface CurrentProduct{
   listVideos:string[];
   nombre:string;
   tooltip:Metafield;
+  modelo?:string | null;
   material:string | null;
 
 }

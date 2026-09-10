@@ -195,7 +195,7 @@ export default function ProductInformationD(
           <div
             data-lenis-prevent
             style={{
-              padding: !isMobile ? "1rem 1rem 0 1rem" : ".5rem .5rem 0 .5rem",
+              padding: !isMobile ? "1rem 1.6rem 0 1.6rem" : ".5rem 1rem 0 1rem",
             }}
           >
             {isCurrentProductReady ? (
@@ -225,6 +225,7 @@ export const schema = createSchema({
     "size-selector-d",
     "material-finish-d",
     "accessories-selector-d",
+    "spec-sheet-d",
     "add-to-cart-d",
     "heading",
     "subheading",
@@ -302,6 +303,7 @@ export const schema = createSchema({
       { type: "size-selector-d" },
       { type: "material-finish-d" },
       { type: "accessories-selector-d" },
+      { type: "spec-sheet-d" },
       { type: "add-to-cart-d" },
     ],
   },

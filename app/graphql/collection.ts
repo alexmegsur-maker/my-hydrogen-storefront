@@ -99,7 +99,7 @@ export const COLLECTION_BY_IDS_SECRET_QUERY = `#graphql
                 id
                 value
               }
-              modelo:metafield(namespace:"custom",key:"modelo"){
+              modelo:metafield(namespace:"custom",key:"model_tag"){
                 id
                 value
               }

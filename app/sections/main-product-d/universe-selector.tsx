@@ -10,6 +10,12 @@ import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { createCurProVar } from "~/routes/collections/utils";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
+import { ModelTag } from "./model-tag";
+import {
+  buildOptionTitleMap,
+  OPTION_METAOBJECTS_QUERY,
+  type OptionMetaobjectsResult,
+} from "./utils";
 
 /**
  * Trae, por cada colección seleccionada en el Studio, su título y sus
@@ -53,6 +59,12 @@ const UNIVERSE_COLLECTIONS_QUERY = `#graphql
               nombre: metafield(namespace: "custom", key: "name_style_secret") {
                 value
               }
+              modelo: metafield(namespace: "custom", key: "model_tag") {
+                value
+              }
+              modelDescription: metafield(namespace: "custom", key: "model_description") {
+                value
+              }
               variants(first: 1) {
                 nodes {
                   availableForSale
@@ -74,6 +86,8 @@ interface UniverseProductNode {
   principalImg: { reference: { previewImage: { url: string; altText: string | null } | null } | null } | null;
   material: { value: string } | null;
   nombre: { value: string } | null;
+  modelo: { value: string } | null;
+  modelDescription: { value: string } | null;
   variants: { nodes: { availableForSale: boolean }[] };
 }
 
@@ -103,6 +117,8 @@ interface UniverseCard {
   title: string;
   family: string;
   label: string;
+  modelo: string;
+  modelDescription: string;
   image: string | null;
   available: boolean;
 }
@@ -138,6 +154,7 @@ interface UniverseSelectorProps extends HydrogenComponentProps {
   // tarjeta (misma lógica de imagen que material-finish-selector.tsx: prioriza
   // custom.img_principal, cae a featuredImage, aspect-ratio + object-contain)
   cBgColor: string;
+  cBgColorImg:string;
   cBorderColor: string;
   cActiveBorderColor: string;
   cRadius: string;
@@ -154,6 +171,40 @@ interface UniverseSelectorProps extends HydrogenComponentProps {
   nSize: string;
   nFamily: string;
   nWeight: string;
+  // etiqueta de modelo (custom.model_tag), superpuesta en la esquina de la imagen
+  mdlColor: string;
+  mdlSize: string;
+  mdlLetter: number;
+  mdlFamily: string;
+  mdlWeight: string;
+  mdlBgColor: string;
+  mdlRadius: string;
+  mdlPaddingSelect: string;
+  mdlPaddingText: string;
+  mdlMarginSelect: string;
+  mdlMarginText: string;
+  // tooltip de la etiqueta de modelo (custom.model_description), al hacer clic sobre ella
+  mdlTipColor: string;
+  mdlTipSize: string;
+  mdlTipLetter: number;
+  mdlTipFamily: string;
+  mdlTipWeight: string;
+  mdlTipBgColor: string;
+  mdlTipRadius: string;
+  mdlTipPaddingSelect: string;
+  mdlTipPaddingText: string;
+  // descripción (custom.tooltip) del producto seleccionado, debajo del listado
+  descColor: string;
+  descSize: string;
+  descLetter: number;
+  descFamily: string;
+  descWeight: string;
+  descBgColor: string;
+  descRadius: string;
+  descPaddingSelect: string;
+  descPaddingText: string;
+  descMarginSelect: string;
+  descMarginText: string;
 }
 
 interface ApiResponseProduct {
@@ -164,21 +215,28 @@ interface ApiResponseProduct {
 
 export const loader = async ({ data, weaverse }: ComponentLoaderArgs<UniverseSelectorProps>) => {
   const { collections, productsPerCollection } = data;
-  if (!collections?.length) return { collections: [] };
+  if (!collections?.length) return { collections: [], options: null };
 
   const ids = collections.map((elm) => `gid://shopify/Collection/${elm.id}`);
 
   try {
-    const result = await weaverse.storefront.query<UniverseCollectionsResult>(
-      UNIVERSE_COLLECTIONS_QUERY,
-      {
+    const [result, options] = await Promise.all([
+      weaverse.storefront.query<UniverseCollectionsResult>(UNIVERSE_COLLECTIONS_QUERY, {
         variables: { ids, productsFirst: productsPerCollection || 12 },
-      },
+      }),
+      weaverse.storefront
+        .query<OptionMetaobjectsResult>(OPTION_METAOBJECTS_QUERY, { variables: { first: 50 } })
+        .catch((error) => {
+          console.error("Error cargando metaobjetos option:", error);
+          return null;
+        }),
+    ]);
+    return JSON.parse(
+      JSON.stringify({ collections: result?.nodes?.filter(Boolean) ?? [], options }),
     );
-    return JSON.parse(JSON.stringify({ collections: result?.nodes?.filter(Boolean) ?? [] }));
   } catch (error) {
     console.error("Error cargando universos:", error);
-    return { collections: [] };
+    return { collections: [], options: null };
   }
 };
 
@@ -217,6 +275,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
     pillFamily,
     pillWeight,
     pillRadius,
+    cBgColorImg,
     cBgColor,
     cBorderColor,
     cActiveBorderColor,
@@ -232,6 +291,37 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
     nSize,
     nFamily,
     nWeight,
+    mdlColor,
+    mdlSize,
+    mdlLetter,
+    mdlFamily,
+    mdlWeight,
+    mdlBgColor,
+    mdlRadius,
+    mdlPaddingSelect,
+    mdlPaddingText,
+    mdlMarginSelect,
+    mdlMarginText,
+    mdlTipColor,
+    mdlTipSize,
+    mdlTipLetter,
+    mdlTipFamily,
+    mdlTipWeight,
+    mdlTipBgColor,
+    mdlTipRadius,
+    mdlTipPaddingSelect,
+    mdlTipPaddingText,
+    descColor,
+    descSize,
+    descLetter,
+    descFamily,
+    descWeight,
+    descBgColor,
+    descRadius,
+    descPaddingSelect,
+    descPaddingText,
+    descMarginSelect,
+    descMarginText,
     ...rest
   } = props;
 
@@ -242,6 +332,9 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
 
   const [loadingHandle, setLoadingHandle] = useState<string | null>(null);
 
+  // valor de custom.material (ej. "cuero") -> title del metaobjeto option (ej. "Prime Hybrid™")
+  const optionTitleMap = useMemo(() => buildOptionTitleMap(loaderData?.options), [loaderData]);
+
   const collections = useMemo<UniverseCollection[]>(() => {
     const raw = (loaderData?.collections ?? []) as UniverseCollectionNode[];
     return raw.map((collection) => ({
@@ -250,17 +343,25 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
       // "The lord of the Rings"); si no está informado se usa el título de
       // la colección en Shopify.
       title: collection.name?.value || collection.title,
-      products: collection.products.edges.map(({ node }) => ({
-        id: node.id,
-        handle: node.handle,
-        title: node.title,
-        family: node.material?.value ?? "",
-        label: node.nombre?.value || node.title,
-        image: node.principalImg?.reference?.previewImage?.url ?? node.featuredImage?.url ?? null,
-        available: node.variants?.nodes?.some((variant) => variant.availableForSale) ?? false,
-      })),
+      products: collection.products.edges.map(({ node }) => {
+        const materialValue = node.material?.value ?? "";
+        return {
+          id: node.id,
+          handle: node.handle,
+          title: node.title,
+          // El producto conecta con el metaobjeto option a través de
+          // custom.material: se busca la entrada option cuyo campo `product`
+          // coincide con ese valor y se usa su `title` como familia.
+          family: optionTitleMap[materialValue.trim().toLowerCase()] || materialValue,
+          label: node.nombre?.value || node.title,
+          modelo: node.modelo?.value || "",
+          modelDescription: node.modelDescription?.value || "",
+          image: node.principalImg?.reference?.previewImage?.url ?? node.featuredImage?.url ?? null,
+          available: node.variants?.nodes?.some((variant) => variant.availableForSale) ?? false,
+        };
+      }),
     }));
-  }, [loaderData]);
+  }, [loaderData, optionTitleMap]);
 
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
   const activeCollection = collections.find((elm) => elm.id === activeCollectionId) ?? collections[0] ?? null;
@@ -374,8 +475,8 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
         </div>
 
         <div
-          className="universe-grid grid gap-3"
-          style={{ gridTemplateColumns: `repeat(${columns || 3}, minmax(0, 1fr))` }}
+          className="universe-grid flex flex-wrap gap-2"
+          // style={{ gridTemplateColumns: `repeat(${columns || 5}, minmax(110px, 1fr))` }}
         >
           {activeCollection?.products.map((card) => {
             const active = card.handle === currentProduct?.handle;
@@ -391,12 +492,17 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
                 data-active={active}
                 className="universe-card flex flex-col overflow-hidden text-left items-stretch "
                 style={{
+                  minWidth:"110px",
+                  width:"110px",
                   background: cBgColor,
                   border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
                   borderRadius: cRadius,
                   cursor: card.available ? "pointer" : "not-allowed",
                   opacity: card.available ? 1 : 0.35,
                   transition: "all 0.3s ease",
+                  // justifyContent:"center",
+                  alignItems:"center",
+                  position:"relative"
                 }}
               >
                 <div
@@ -405,48 +511,104 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
                     aspectRatio: swatchRatio || "3/4",
                     filter: isLoading ? "brightness(0.6)" : "none",
                     transition: "filter 0.3s ease",
+                    width:"90%",
+                    height:"70%",
+                    marginTop:"5%",
+                    overflow:"hidden"
                   }}
                 >
                   {card.image && (
-                    <img src={card.image} alt={card.label} className="h-full w-full object-contain" />
+                    <img src={card.image} alt={card.label} className="h-full w-full object-contain" style={{transform:"scale(1.4)",background:cBgColorImg,marginTop:"calc(5% * 2)" }} />
                   )}
-                  <div
-                    className="flex flex-col gap-[2px] absolute inset-x-0 bottom-0"
-                    style={{ ...selectorPaddingMargin("padding", "a", cTextPadding || "0.8rem") }}
-                  >
-                    {card.family && (
-                      <span
-                        className="universe-card-family"
-                        style={{
-                          color: fColor,
-                          fontFamily: fFamily,
-                          fontSize: fSize,
-                          fontWeight: fWeight,
-                          letterSpacing: fLetter > 0 ? `${fLetter}px` : "normal",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {card.family}
-                      </span>
-                    )}
+                  {card.modelo && (
+                    <ModelTag
+                      label={card.modelo}
+                      description={card.modelDescription}
+                      tagStyle={{
+                        color: mdlColor,
+                        size: mdlSize,
+                        letter: mdlLetter,
+                        family: mdlFamily,
+                        weight: mdlWeight,
+                        bgColor: mdlBgColor,
+                        radius: mdlRadius,
+                        paddingSelect: mdlPaddingSelect,
+                        paddingText: mdlPaddingText || "0.2rem 0.45rem",
+                        marginSelect: mdlMarginSelect,
+                        marginText: mdlMarginText,
+                      }}
+                      tooltipStyle={{
+                        color: mdlTipColor,
+                        size: mdlTipSize,
+                        letter: mdlTipLetter,
+                        family: mdlTipFamily,
+                        weight: mdlTipWeight,
+                        bgColor: mdlTipBgColor,
+                        radius: mdlTipRadius,
+                        paddingSelect: mdlTipPaddingSelect,
+                        paddingText: mdlTipPaddingText,
+                      }}
+                    />
+                  )}
+                </div>
+                <div
+                  className="flex flex-col gap-[2px] absolute inset-x-0 bottom-0"
+                  style={{ 
+                    background:cBgColor,
+                    ...selectorPaddingMargin("padding", "a", cTextPadding || "0.8rem") 
+                  }}
+                >
+                  {card.family && (
                     <span
-                      className="universe-card-name"
+                      className="universe-card-family"
                       style={{
-                        color: nColor,
-                        fontFamily: nFamily,
-                        fontSize: nSize,
-                        fontWeight: nWeight,
+                        color: fColor,
+                        fontFamily: fFamily,
+                        fontSize: fSize,
+                        fontWeight: fWeight,
+                        letterSpacing: fLetter > 0 ? `${fLetter}px` : "normal",
+                        textTransform: "uppercase",
                       }}
                     >
-                      {card.label}
+                      {card.family}
                     </span>
-                  </div>
+                  )}
+                  <span
+                    className="universe-card-name"
+                    style={{
+                      color: nColor,
+                      fontFamily: nFamily,
+                      fontSize: nSize,
+                      fontWeight: nWeight,
+                    }}
+                  >
+                    {card.label}
+                  </span>
                 </div>
-
               </button>
             );
           })}
         </div>
+
+        {/* Descripción (custom.tooltip) del producto seleccionado */}
+        {currentProduct?.tooltip && (
+          <div
+            className="universe-description"
+            style={{
+              color: descColor,
+              fontFamily: descFamily,
+              fontSize: descSize,
+              fontWeight: descWeight,
+              letterSpacing: descLetter > 0 ? `${descLetter}px` : "normal",
+              background: descBgColor,
+              borderRadius: descRadius,
+              ...selectorPaddingMargin("padding", descPaddingSelect, descPaddingText),
+              ...selectorPaddingMargin("margin", descMarginSelect, descMarginText || "0.8rem"),
+            }}
+          >
+            {currentProduct.tooltip as unknown as string}
+          </div>
+        )}
       </div>
     </Section>
   );
@@ -579,6 +741,7 @@ export const schema = createSchema({
     {
       group: "Tarjeta",
       inputs: [
+        { type: "color", label: "Background Image", name: "cBgColorImg", defaultValue: "#0A0A0A" },
         { type: "color", label: "Background", name: "cBgColor", defaultValue: "#0A0A0A" },
         { type: "color", label: "Borde", name: "cBorderColor", defaultValue: "#ffffff14" },
         { type: "color", label: "Borde activo", name: "cActiveBorderColor", defaultValue: "#C9A227" },
@@ -634,6 +797,174 @@ export const schema = createSchema({
           },
           defaultValue: "700",
         },
+      ],
+    },
+    {
+      group: "Etiqueta de modelo (custom.model_tag)",
+      inputs: [
+        { type: "color", label: "Color", name: "mdlColor", defaultValue: "#FFFFFF" },
+        { type: "text", label: "Font size", name: "mdlSize", defaultValue: "0.6rem" },
+        {
+          type: "range",
+          label: "Letter spacing",
+          name: "mdlLetter",
+          defaultValue: 0,
+          configs: { min: 0, max: 20, step: 1, unit: "px" },
+        },
+        { type: "text", label: "Font family", name: "mdlFamily", defaultValue: "Montserrat" },
+        {
+          type: "select",
+          label: "Font weight",
+          name: "mdlWeight",
+          configs: {
+            options: [
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+              { value: "600", label: "600" },
+            ],
+          },
+          defaultValue: "600",
+        },
+        { type: "color", label: "Background", name: "mdlBgColor", defaultValue: "#050505cc" },
+        { type: "text", label: "Border radius", name: "mdlRadius", defaultValue: "4px" },
+        {
+          type: "select",
+          label: "Padding type",
+          name: "mdlPaddingSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Padding value", name: "mdlPaddingText", defaultValue: "0.2rem 0.45rem" },
+        {
+          type: "select",
+          label: "Margin type",
+          name: "mdlMarginSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Margin value", name: "mdlMarginText" },
+      ],
+    },
+    {
+      group: "Tooltip de la etiqueta (custom.model_description)",
+      inputs: [
+        { type: "color", label: "Color", name: "mdlTipColor", defaultValue: "#FFFFFF" },
+        { type: "text", label: "Font size", name: "mdlTipSize", defaultValue: "0.8rem" },
+        {
+          type: "range",
+          label: "Letter spacing",
+          name: "mdlTipLetter",
+          defaultValue: 0,
+          configs: { min: 0, max: 20, step: 1, unit: "px" },
+        },
+        { type: "text", label: "Font family", name: "mdlTipFamily", defaultValue: "Montserrat" },
+        {
+          type: "select",
+          label: "Font weight",
+          name: "mdlTipWeight",
+          configs: {
+            options: [
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+            ],
+          },
+          defaultValue: "400",
+        },
+        { type: "color", label: "Background", name: "mdlTipBgColor", defaultValue: "#3f3f46e6" },
+        { type: "text", label: "Border radius", name: "mdlTipRadius", defaultValue: "10px" },
+        {
+          type: "select",
+          label: "Padding type",
+          name: "mdlTipPaddingSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Padding value", name: "mdlTipPaddingText", defaultValue: "0.7rem 0.9rem" },
+      ],
+    },
+    {
+      group: "Descripción (custom.tooltip)",
+      inputs: [
+        { type: "color", label: "Color", name: "descColor", defaultValue: "#A1A1AA" },
+        { type: "text", label: "Font size", name: "descSize", defaultValue: "0.8rem" },
+        {
+          type: "range",
+          label: "Letter spacing",
+          name: "descLetter",
+          defaultValue: 0,
+          configs: { min: 0, max: 20, step: 1, unit: "px" },
+        },
+        { type: "text", label: "Font family", name: "descFamily", defaultValue: "Montserrat" },
+        {
+          type: "select",
+          label: "Font weight",
+          name: "descWeight",
+          configs: {
+            options: [
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+            ],
+          },
+          defaultValue: "400",
+        },
+        { type: "color", label: "Background", name: "descBgColor" },
+        { type: "text", label: "Border radius", name: "descRadius" },
+        {
+          type: "select",
+          label: "Padding type",
+          name: "descPaddingSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Padding value", name: "descPaddingText" },
+        {
+          type: "select",
+          label: "Margin type",
+          name: "descMarginSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "t",
+        },
+        { type: "text", label: "Margin value", name: "descMarginText", defaultValue: "0.8rem" },
       ],
     },
   ],

@@ -134,7 +134,11 @@ export const PRODUCT_QUERY = `#graphql
         id
         value
       }
-      modelo:metafield(namespace:"custom",key:"modelo"){
+      modelo:metafield(namespace:"custom",key:"model_tag"){
+        id
+        value
+      }
+      modelDescription:metafield(namespace:"custom",key:"model_description"){
         id
         value
       }
@@ -162,6 +166,10 @@ export const PRODUCT_QUERY = `#graphql
             currencyCode
           }
           tooltip:metafield(namespace:"custom",key:"tooltip"){
+            id
+            value
+          }
+          especification:metafield(namespace:"custom",key:"especification"){
             id
             value
           }

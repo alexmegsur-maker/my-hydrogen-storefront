@@ -12,7 +12,15 @@ import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { createCurProVar } from "~/routes/collections/utils";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
-import { getSelectedOptionValue, lookupLine, parseKeyValueLines } from "./utils";
+import { ModelTag } from "./model-tag";
+import {
+  buildOptionTitleMap,
+  getSelectedOptionValue,
+  lookupLine,
+  OPTION_METAOBJECTS_QUERY,
+  parseKeyValueLines,
+  type OptionMetaobjectsResult,
+} from "./utils";
 
 interface MaterialFinishSelectorProps extends HydrogenComponentProps {
   title: string;
@@ -58,6 +66,40 @@ interface MaterialFinishSelectorProps extends HydrogenComponentProps {
   // check
   checkBgColor: string;
   checkColor: string;
+  // etiqueta de modelo (custom.model_tag), superpuesta en la esquina de la imagen
+  mdlColor: string;
+  mdlSize: string;
+  mdlLetter: number;
+  mdlFamily: string;
+  mdlWeight: string;
+  mdlBgColor: string;
+  mdlRadius: string;
+  mdlPaddingSelect: string;
+  mdlPaddingText: string;
+  mdlMarginSelect: string;
+  mdlMarginText: string;
+  // tooltip de la etiqueta de modelo (custom.model_description), al hacer clic sobre ella
+  mdlTipColor: string;
+  mdlTipSize: string;
+  mdlTipLetter: number;
+  mdlTipFamily: string;
+  mdlTipWeight: string;
+  mdlTipBgColor: string;
+  mdlTipRadius: string;
+  mdlTipPaddingSelect: string;
+  mdlTipPaddingText: string;
+  // descripción (custom.tooltip) del producto seleccionado, debajo del listado
+  descColor: string;
+  descSize: string;
+  descLetter: number;
+  descFamily: string;
+  descWeight: string;
+  descBgColor: string;
+  descRadius: string;
+  descPaddingSelect: string;
+  descPaddingText: string;
+  descMarginSelect: string;
+  descMarginText: string;
 }
 
 interface ApiResponseProduct {
@@ -73,6 +115,8 @@ interface MaterialCard {
   title: string;
   family: string;
   label: string;
+  modelo: string;
+  modelDescription: string;
   image: string | null;
   available: boolean;
 }
@@ -88,29 +132,37 @@ export const loader = async ({
   const { language, country } = weaverse.storefront.i18n;
   const { productos } = data;
 
-  if (!productos?.length) return { products: [] };
+  if (!productos?.length) return { products: [], options: null };
 
-  const results = await Promise.all(
-    productos.map(async (producto) => {
-      if (!producto?.handle) return null;
-      try {
-        const { product } = await weaverse.storefront.query<ProductQuery>(PRODUCT_QUERY, {
-          variables: {
-            country,
-            language,
-            selectedOptions: [],
-            handle: producto.handle,
-          },
-        });
-        return product ?? null;
-      } catch (error) {
-        console.error("Error cargando material:", error);
+  const [results, options] = await Promise.all([
+    Promise.all(
+      productos.map(async (producto) => {
+        if (!producto?.handle) return null;
+        try {
+          const { product } = await weaverse.storefront.query<ProductQuery>(PRODUCT_QUERY, {
+            variables: {
+              country,
+              language,
+              selectedOptions: [],
+              handle: producto.handle,
+            },
+          });
+          return product ?? null;
+        } catch (error) {
+          console.error("Error cargando material:", error);
+          return null;
+        }
+      }),
+    ),
+    weaverse.storefront
+      .query<OptionMetaobjectsResult>(OPTION_METAOBJECTS_QUERY, { variables: { first: 50 } })
+      .catch((error) => {
+        console.error("Error cargando metaobjetos option:", error);
         return null;
-      }
-    }),
-  );
+      }),
+  ]);
 
-  return JSON.parse(JSON.stringify({ products: results.filter(Boolean) }));
+  return JSON.parse(JSON.stringify({ products: results.filter(Boolean), options }));
 };
 
 /**
@@ -158,6 +210,37 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
     nWeight,
     checkBgColor,
     checkColor,
+    mdlColor,
+    mdlSize,
+    mdlLetter,
+    mdlFamily,
+    mdlWeight,
+    mdlBgColor,
+    mdlRadius,
+    mdlPaddingSelect,
+    mdlPaddingText,
+    mdlMarginSelect,
+    mdlMarginText,
+    mdlTipColor,
+    mdlTipSize,
+    mdlTipLetter,
+    mdlTipFamily,
+    mdlTipWeight,
+    mdlTipBgColor,
+    mdlTipRadius,
+    mdlTipPaddingSelect,
+    mdlTipPaddingText,
+    descColor,
+    descSize,
+    descLetter,
+    descFamily,
+    descWeight,
+    descBgColor,
+    descRadius,
+    descPaddingSelect,
+    descPaddingText,
+    descMarginSelect,
+    descMarginText,
     ...rest
   } = props;
 
@@ -173,26 +256,38 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
   const familyMap = useMemo(() => parseKeyValueLines(families), [families]);
   const labelMap = useMemo(() => parseKeyValueLines(labels), [labels]);
   const colorMap = useMemo(() => parseKeyValueLines(swatchColors), [swatchColors]);
+  // valor de custom.material (ej. "cuero") -> title del metaobjeto option (ej. "Prime Hybrid™")
+  const optionTitleMap = useMemo(() => buildOptionTitleMap(loaderData?.options), [loaderData]);
 
   const cards = useMemo<MaterialCard[]>(() => {
     return products.filter(Boolean).map((product) => {
       const anyProduct = product as any;
+      const materialValue = anyProduct.material?.value as string | undefined;
       return {
         id: product.id,
         handle: product.handle,
         title: product.title,
-        // La familia sale del metafield `material` del producto; el mapeo del
-        // Studio solo se usa como respaldo si el metafield no está informado.
-        family: anyProduct.material?.value || lookupLine(familyMap, product.handle),
+        // El producto conecta con el metaobjeto option a través de
+        // custom.material: se busca la entrada option cuyo campo `product`
+        // coincide con ese valor y se usa su `title` como familia. Si no hay
+        // coincidencia, cae al mapeo manual del Studio y, por último, al
+        // valor crudo del metafield.
+        family:
+          optionTitleMap[(materialValue ?? "").trim().toLowerCase()] ||
+          lookupLine(familyMap, product.handle) ||
+          materialValue ||
+          "",
         label:
           lookupLine(labelMap, product.handle) || anyProduct.nombre?.value || product.title,
+        modelo: anyProduct.modelo?.value || "",
+        modelDescription: anyProduct.modelDescription?.value || "",
         // Prioriza el metafield custom.img_principal (pensado para el swatch)
         // y cae a la imagen destacada del producto si no está informado.
         image: product.principalImg?.reference?.previewImage?.url ?? product.featuredImage?.url ?? null,
         available: product.variants?.nodes?.some((variant) => variant.availableForSale) ?? false,
       } satisfies MaterialCard;
     });
-  }, [products, familyMap, labelMap]);
+  }, [products, familyMap, labelMap, optionTitleMap]);
 
   /**
    * Cambia el producto actual y, si es posible, conserva la talla elegida
@@ -273,8 +368,8 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
         </div>
 
         <div
-          className="material-grid grid gap-3"
-          style={{ gridTemplateColumns: `repeat(${columns || 3}, minmax(0, 1fr))` }}
+          className="material-grid flex flex-wrap gap-2"
+          // style={{ gridTemplateColumns: `repeat(${columns || 3}, minmax(0, 1fr))` }}
         >
           {cards.map((card) => {
             const active = card.handle === currentProduct?.handle;
@@ -291,9 +386,14 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                 data-active={active}
                 className="material-card flex flex-col items-stretch text-left"
                 style={{
+                  minWidth:"110px",
+                  width:"110px",
+                  background:cBgColor,
                   cursor: card.available ? "pointer" : "not-allowed",
                   opacity: card.available ? 1 : 0.35,
                   transition: "all 0.3s ease",
+                  position:"relative",
+                  alignItems:"center"
                 }}
               >
                 <div
@@ -305,12 +405,46 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                     borderRadius: cRadius,
                     filter: isLoading ? "brightness(0.6)" : "none",
                     transition: "border-color 0.3s ease, filter 0.3s ease",
+                    width:"90%",
+                    height:"70%",
+                    marginTop:"5%",
                   }}
                 >
                   {card.image ? (
-                    <img src={card.image} alt={card.label} className="h-full w-full object-contain" />
+                    <img src={card.image} alt={card.label} className="h-full w-full object-contain" style={{ background: overlayColor,transform:"scale(1.4)",marginTop:"calc(5% * 2)" }} />
                   ) : (
-                    <div className="h-full w-full" style={{ background: color }} />
+                    <div className="h-full w-full" style={{ background: overlayColor }} />
+                  )}
+
+                  {card.modelo && (
+                    <ModelTag
+                      label={card.modelo}
+                      description={card.modelDescription}
+                      tagStyle={{
+                        color: mdlColor,
+                        size: mdlSize,
+                        letter: mdlLetter,
+                        family: mdlFamily,
+                        weight: mdlWeight,
+                        bgColor: mdlBgColor,
+                        radius: mdlRadius,
+                        paddingSelect: mdlPaddingSelect,
+                        paddingText: mdlPaddingText || "0.2rem 0.45rem",
+                        marginSelect: mdlMarginSelect,
+                        marginText: mdlMarginText,
+                      }}
+                      tooltipStyle={{
+                        color: mdlTipColor,
+                        size: mdlTipSize,
+                        letter: mdlTipLetter,
+                        family: mdlTipFamily,
+                        weight: mdlTipWeight,
+                        bgColor: mdlTipBgColor,
+                        radius: mdlTipRadius,
+                        paddingSelect: mdlTipPaddingSelect,
+                        paddingText: mdlTipPaddingText,
+                      }}
+                    />
                   )}
 
                   {active && (
@@ -333,45 +467,65 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                   )}
 
                   {/* Texto superpuesto sobre la imagen, con degradado para que se lea */}
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-[2px]"
-                    style={{
-                      background: `linear-gradient(to top, ${overlayColor} 0%, ${overlayColor}00 100%)`,
-                      ...selectorPaddingMargin("padding", "a", cTextGap ?? "1.5rem 0.7rem 0.7rem"),
-                    }}
-                  >
-                    {card.family && (
-                      <span
-                        className="material-family"
-                        style={{
-                          color: fColor,
-                          fontFamily: fFamily,
-                          fontSize: fSize,
-                          fontWeight: fWeight,
-                          letterSpacing: fLetter > 0 ? `${fLetter}px` : "normal",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {card.family}
-                      </span>
-                    )}
+                </div>
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-[2px]"
+                  style={{
+                    background: cBgColor,
+                    ...selectorPaddingMargin("padding", "a", cTextGap ?? "1.5rem 0.7rem 0.7rem"),
+                  }}
+                >
+                  {card.family && (
                     <span
-                      className="material-name"
+                      className="material-family"
                       style={{
-                        color: active ? nActiveColor || nColor : nColor,
-                        fontFamily: nFamily,
-                        fontSize: nSize,
-                        fontWeight: nWeight,
+                        color: fColor,
+                        fontFamily: fFamily,
+                        fontSize: fSize,
+                        fontWeight: fWeight,
+                        letterSpacing: fLetter > 0 ? `${fLetter}px` : "normal",
+                        textTransform: "uppercase",
                       }}
                     >
-                      {card.label}
+                      {card.family}
                     </span>
-                  </div>
+                  )}
+                  <span
+                    className="material-name"
+                    style={{
+                      color: active ? nActiveColor || nColor : nColor,
+                      fontFamily: nFamily,
+                      fontSize: nSize,
+                      fontWeight: nWeight,
+                    }}
+                  >
+                    {card.label}
+                  </span>
                 </div>
               </button>
             );
           })}
         </div>
+
+        {/* Descripción (custom.tooltip) del producto seleccionado */}
+        {currentProduct?.tooltip && (
+          <div
+            className="material-description"
+            style={{
+              color: descColor,
+              fontFamily: descFamily,
+              fontSize: descSize,
+              fontWeight: descWeight,
+              letterSpacing: descLetter > 0 ? `${descLetter}px` : "normal",
+              background: descBgColor,
+              borderRadius: descRadius,
+              ...selectorPaddingMargin("padding", descPaddingSelect, descPaddingText),
+              ...selectorPaddingMargin("margin", descMarginSelect, descMarginText || "0.8rem"),
+            }}
+          >
+            {currentProduct.tooltip as unknown as string}
+          </div>
+        )}
       </div>
     </Section>
   );
@@ -497,7 +651,7 @@ export const schema = createSchema({
         { type: "text", label: "Aspect ratio del swatch", name: "swatchRatio", defaultValue: "3/4" },
         {
           type: "color",
-          label: "Degradado bajo el texto",
+          label: "fondo imagen",
           name: "overlayColor",
           defaultValue: "#000000",
           helpText: "Color base del degradado que da legibilidad al texto superpuesto en la imagen.",
@@ -560,6 +714,174 @@ export const schema = createSchema({
           },
           defaultValue: "500",
         },
+      ],
+    },
+    {
+      group: "Etiqueta de modelo (custom.model_tag)",
+      inputs: [
+        { type: "color", label: "Color", name: "mdlColor", defaultValue: "#FFFFFF" },
+        { type: "text", label: "Font size", name: "mdlSize", defaultValue: "0.6rem" },
+        {
+          type: "range",
+          label: "Letter spacing",
+          name: "mdlLetter",
+          defaultValue: 0,
+          configs: { min: 0, max: 20, step: 1, unit: "px" },
+        },
+        { type: "text", label: "Font family", name: "mdlFamily", defaultValue: "Montserrat" },
+        {
+          type: "select",
+          label: "Font weight",
+          name: "mdlWeight",
+          configs: {
+            options: [
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+              { value: "600", label: "600" },
+            ],
+          },
+          defaultValue: "600",
+        },
+        { type: "color", label: "Background", name: "mdlBgColor", defaultValue: "#050505cc" },
+        { type: "text", label: "Border radius", name: "mdlRadius", defaultValue: "4px" },
+        {
+          type: "select",
+          label: "Padding type",
+          name: "mdlPaddingSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Padding value", name: "mdlPaddingText", defaultValue: "0.2rem 0.45rem" },
+        {
+          type: "select",
+          label: "Margin type",
+          name: "mdlMarginSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Margin value", name: "mdlMarginText" },
+      ],
+    },
+    {
+      group: "Tooltip de la etiqueta (custom.model_description)",
+      inputs: [
+        { type: "color", label: "Color", name: "mdlTipColor", defaultValue: "#FFFFFF" },
+        { type: "text", label: "Font size", name: "mdlTipSize", defaultValue: "0.8rem" },
+        {
+          type: "range",
+          label: "Letter spacing",
+          name: "mdlTipLetter",
+          defaultValue: 0,
+          configs: { min: 0, max: 20, step: 1, unit: "px" },
+        },
+        { type: "text", label: "Font family", name: "mdlTipFamily", defaultValue: "Montserrat" },
+        {
+          type: "select",
+          label: "Font weight",
+          name: "mdlTipWeight",
+          configs: {
+            options: [
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+            ],
+          },
+          defaultValue: "400",
+        },
+        { type: "color", label: "Background", name: "mdlTipBgColor", defaultValue: "#3f3f46e6" },
+        { type: "text", label: "Border radius", name: "mdlTipRadius", defaultValue: "10px" },
+        {
+          type: "select",
+          label: "Padding type",
+          name: "mdlTipPaddingSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Padding value", name: "mdlTipPaddingText", defaultValue: "0.7rem 0.9rem" },
+      ],
+    },
+    {
+      group: "Descripción (custom.tooltip)",
+      inputs: [
+        { type: "color", label: "Color", name: "descColor", defaultValue: "#A1A1AA" },
+        { type: "text", label: "Font size", name: "descSize", defaultValue: "0.8rem" },
+        {
+          type: "range",
+          label: "Letter spacing",
+          name: "descLetter",
+          defaultValue: 0,
+          configs: { min: 0, max: 20, step: 1, unit: "px" },
+        },
+        { type: "text", label: "Font family", name: "descFamily", defaultValue: "Montserrat" },
+        {
+          type: "select",
+          label: "Font weight",
+          name: "descWeight",
+          configs: {
+            options: [
+              { value: "400", label: "400" },
+              { value: "500", label: "500" },
+            ],
+          },
+          defaultValue: "400",
+        },
+        { type: "color", label: "Background", name: "descBgColor" },
+        { type: "text", label: "Border radius", name: "descRadius" },
+        {
+          type: "select",
+          label: "Padding type",
+          name: "descPaddingSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Padding value", name: "descPaddingText" },
+        {
+          type: "select",
+          label: "Margin type",
+          name: "descMarginSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "t",
+        },
+        { type: "text", label: "Margin value", name: "descMarginText", defaultValue: "0.8rem" },
       ],
     },
   ],

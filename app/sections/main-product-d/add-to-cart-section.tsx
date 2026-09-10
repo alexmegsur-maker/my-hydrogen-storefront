@@ -1,19 +1,30 @@
 import type { CartLineInput } from "@shopify/hydrogen/storefront-api-types";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
-import { useMemo } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
 import { Section } from "~/components/section";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useCurrentProduct } from "~/stores/currentProduct";
+import { cn } from "~/utils/cn";
 import { pushAddToCart } from "~/utils/dataLayer";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useProductConfiguratorD } from "./store";
 import { formatAmount } from "./utils";
 
+/** A partir de este ancho se considera "desktop" (coincide con `lg:flex` del layout de main-product-d). */
+const DESKTOP_BREAKPOINT = 1023;
+
 interface AddToCartSectionProps extends HydrogenComponentProps {
   label: string;
   soldOutLabel: string;
   showTotal: boolean;
+  // comportamiento fijo/flotante
+  pinBottom: boolean;
+  mobileFloat: boolean;
+  floatShadow: boolean;
+  floatZIndex: number;
   // enlace superior
   showLink: boolean;
   linkText: string;
@@ -62,6 +73,10 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
     label,
     soldOutLabel,
     showTotal,
+    pinBottom,
+    mobileFloat,
+    floatShadow,
+    floatZIndex,
     showLink,
     linkText,
     linkUrl,
@@ -164,69 +179,154 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
   const installments = financingInstallments > 0 ? financingInstallments : 3;
   const installmentAmount = total > 0 ? total / installments : 0;
 
-  return (
-    <Section {...rest}>
-      <div
-        className="cta-container flex flex-col gap-3"
-        style={{
-          background: containerBg,
-          borderTop: containerBorder ? `1px solid ${containerBorder}` : undefined,
-          ...selectorPaddingMargin("padding", paddingSelect, paddingText),
-        }}
-      >
-        {showLink && linkText && (
-          <Link
-            to={linkUrl || "#"}
-            className="cta-link"
-            style={{
-              color: lColor,
-              fontFamily: lFamily,
-              fontSize: lSize,
-              fontWeight: lWeight,
-              textDecoration: "underline",
-              textUnderlineOffset: "4px",
-            }}
-          >
-            {linkText}
-          </Link>
-        )}
+  // --- Comportamiento fijo (desktop) / flotante (mobile) ---------------------
+  const [mounted, setMounted] = useState(false);
+  const isMobile = useIsMobile(DESKTOP_BREAKPOINT);
+  // Ancla que permanece en el flujo normal (spacer en desktop, contenedor real
+  // en mobile). Sirve para medir el ancho/posición de la barra fija y para
+  // saber, con un IntersectionObserver, si el CTA "inline" ya está a la vista.
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<{ left: number; width: number } | null>(null);
+  const [barHeight, setBarHeight] = useState(0);
+  const [inlineInView, setInlineInView] = useState(false);
 
-        <AddToCartButton
-          disabled={!isAvailable}
-          route={cartRoute}
-          lines={cartLines}
-          onClick={() => {
-            if (isAvailable) pushAddToCart(analyticsItems, total);
-          }}
-          className="flex items-center justify-center w-full border-none cursor-pointer e2e-button-confirm-selection"
+  useEffect(() => setMounted(true), []);
+
+  const desktopPinned = mounted && !isMobile && pinBottom;
+  const showFloatingButton = mounted && isMobile && mobileFloat && !inlineInView;
+
+  // Desktop: la barra va `fixed` al fondo del panel derecho. Se alinea con el
+  // ancla (mismo left/width que ocupa el CTA en el flujo) y se recalcula al
+  // redimensionar o al cambiar el layout.
+  useEffect(() => {
+    if (!desktopPinned) {
+      setRect(null);
+      return;
+    }
+    const measure = () => {
+      const el = anchorRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setRect((prev) =>
+        prev && Math.abs(prev.left - r.left) < 0.5 && Math.abs(prev.width - r.width) < 0.5
+          ? prev
+          : { left: r.left, width: r.width },
+      );
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    const observer = new ResizeObserver(measure);
+    if (anchorRef.current) observer.observe(anchorRef.current);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+      observer.disconnect();
+    };
+  }, [desktopPinned]);
+
+  // Desktop: el spacer en el flujo reserva la altura real de la barra fija
+  // para que el contenido de arriba se pueda desplazar sin quedar tapado.
+  useEffect(() => {
+    if (!desktopPinned) {
+      setBarHeight(0);
+      return;
+    }
+    const el = barRef.current;
+    if (!el) return;
+    const update = () => setBarHeight(el.offsetHeight);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [desktopPinned]);
+
+  // Mobile: el botón flotante se oculta en cuanto el CTA "inline" entra en
+  // pantalla ("hasta que llegue a su componente").
+  useEffect(() => {
+    if (!mounted || !isMobile || !mobileFloat) {
+      setInlineInView(false);
+      return;
+    }
+    const el = anchorRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInlineInView(entry.isIntersecting),
+      { threshold: 0, rootMargin: "0px 0px -24px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [mounted, isMobile, mobileFloat]);
+
+  const containerStyle: CSSProperties = {
+    background: containerBg,
+    borderTop: containerBorder ? `1px solid ${containerBorder}` : undefined,
+    ...selectorPaddingMargin("padding", paddingSelect, paddingText),
+  };
+
+  const ctaButton = (floating = false) => (
+    <AddToCartButton
+      disabled={!isAvailable}
+      route={cartRoute}
+      lines={cartLines}
+      onClick={() => {
+        if (isAvailable) pushAddToCart(analyticsItems, total);
+      }}
+      className={cn(
+        "flex items-center justify-center w-full border-none cursor-pointer",
+        !floating && "e2e-button-confirm-selection",
+      )}
+      style={{
+        color: isAvailable ? acColor : acDisabledColor,
+        background: isAvailable ? acBgColor : acDisabledBg,
+        fontFamily: acFamily,
+        fontSize: acSize,
+        fontWeight: acWeight,
+        letterSpacing: acLetter > 0 ? `${acLetter}px` : "normal",
+        borderRadius: acRadius,
+        textTransform: "uppercase",
+        ...selectorPaddingMargin("padding", acPaddingSelect, acPaddingText),
+      }}
+    >
+      <span data-context="pdp-addtocart">
+        {isAvailable ? label : soldOutLabel}
+        {isAvailable && showTotal && total > 0 ? ` — ${formatAmount(total)} €` : ""}
+      </span>
+    </AddToCartButton>
+  );
+
+  const barContent = (
+    <>
+      {showLink && linkText && (
+        <Link
+          to={linkUrl || "#"}
+          className="cta-link"
           style={{
-            color: isAvailable ? acColor : acDisabledColor,
-            background: isAvailable ? acBgColor : acDisabledBg,
-            fontFamily: acFamily,
-            fontSize: acSize,
-            fontWeight: acWeight,
-            letterSpacing: acLetter > 0 ? `${acLetter}px` : "normal",
-            borderRadius: acRadius,
-            textTransform: "uppercase",
-            ...selectorPaddingMargin("padding", acPaddingSelect, acPaddingText),
+            color: lColor,
+            fontFamily: lFamily,
+            fontSize: lSize,
+            fontWeight: lWeight,
+            textDecoration: "underline",
+            textUnderlineOffset: "4px",
           }}
         >
-          <span data-context="pdp-addtocart">
-            {isAvailable ? label : soldOutLabel}
-            {isAvailable && showTotal && total > 0 ? ` — ${formatAmount(total)} €` : ""}
-          </span>
-        </AddToCartButton>
+          {linkText}
+        </Link>
+      )}
 
-        {showFinancing && total > 0 && (
-          <div
-            className="cta-financing flex items-center gap-2"
-            style={{
-              color: finColor,
-              fontFamily: finFamily,
-              fontSize: finSize,
-              fontWeight: finWeight,
-            }}
-          >
+      {ctaButton()}
+
+      {showFinancing && total > 0 && (
+        <div
+          className="cta-financing flex items-center gap-2"
+          style={{
+            color: finColor,
+            fontFamily: finFamily,
+            fontSize: finSize,
+            fontWeight: finWeight,
+          }}
+        >
             <svg
               role="img"
               xmlns="http://www.w3.org/2000/svg"
@@ -267,7 +367,71 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
             </span>
           </div>
         )}
-      </div>
+    </>
+  );
+
+  return (
+    <Section {...rest}>
+      {desktopPinned ? (
+        <>
+          <div
+            ref={anchorRef}
+            aria-hidden
+            className="cta-spacer"
+            style={{ height: barHeight }}
+          />
+          {typeof document !== "undefined" &&
+            createPortal(
+              <div
+                ref={barRef}
+                className="cta-container cta-container--pinned flex flex-col gap-3"
+                style={{
+                  ...containerStyle,
+                  position: "fixed",
+                  bottom: 0,
+                  left: rect?.left ?? 0,
+                  width: rect?.width ?? "100%",
+                  zIndex: floatZIndex,
+                  boxShadow: floatShadow ? "0 -14px 30px rgba(0,0,0,0.45)" : undefined,
+                  visibility: rect ? "visible" : "hidden",
+                }}
+              >
+                {barContent}
+              </div>,
+              document.body,
+            )}
+        </>
+      ) : (
+        <div
+          ref={anchorRef}
+          className="cta-container flex flex-col gap-3"
+          style={containerStyle}
+        >
+          {barContent}
+        </div>
+      )}
+
+      {showFloatingButton &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="cta-floating"
+            style={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: floatZIndex,
+              background: containerBg,
+              borderTop: containerBorder ? `1px solid ${containerBorder}` : undefined,
+              boxShadow: floatShadow ? "0 -14px 30px rgba(0,0,0,0.45)" : undefined,
+              ...selectorPaddingMargin("padding", paddingSelect, paddingText),
+            }}
+          >
+            {ctaButton(true)}
+          </div>,
+          document.body,
+        )}
     </Section>
   );
 }
@@ -283,6 +447,28 @@ export const schema = createSchema({
         { type: "text", label: "Texto del botón", name: "label", defaultValue: "Añadir al setup" },
         { type: "text", label: "Texto sin stock", name: "soldOutLabel", defaultValue: "Agotado" },
         { type: "switch", label: "Mostrar total", name: "showTotal", defaultValue: true },
+        {
+          type: "switch",
+          label: "Fijar abajo (desktop)",
+          name: "pinBottom",
+          defaultValue: true,
+          helpText: "En desktop la barra completa queda fija al fondo del panel, siempre visible.",
+        },
+        {
+          type: "switch",
+          label: "Botón flotante (mobile)",
+          name: "mobileFloat",
+          defaultValue: true,
+          helpText: "En mobile solo el botón queda flotante abajo hasta que se llega al componente.",
+        },
+        { type: "switch", label: "Sombra superior", name: "floatShadow", defaultValue: true },
+        {
+          type: "range",
+          label: "z-index",
+          name: "floatZIndex",
+          defaultValue: 40,
+          configs: { min: 1, max: 100, step: 1 },
+        },
         { type: "color", label: "Background", name: "containerBg", defaultValue: "#050505" },
         { type: "color", label: "Borde superior", name: "containerBorder", defaultValue: "#ffffff20" },
         {

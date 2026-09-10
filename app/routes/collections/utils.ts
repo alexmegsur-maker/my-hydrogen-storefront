@@ -109,6 +109,7 @@ export function createCurProVar(prod){
       compareAtPrice:firstSelect.compareAtPrice,
       selectedOptions:firstSelect.selectedOptions,
       tooltip:firstSelect.tooltip,
+      especification:firstSelect.especification,
       fechaReserva:firstSelect.fechaReserva,
       totalReserva:firstSelect.totalReserva,
       pedidosReserva:firstSelect.pedidosReserva,

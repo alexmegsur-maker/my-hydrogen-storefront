@@ -122,7 +122,91 @@ export function lookupLine(
   return map[(value ?? "").trim().toLowerCase()] ?? "";
 }
 
+/** Una fila de la ficha de configuración: `etiqueta` a la izquierda, `valor` a la derecha. */
+export interface SpecRow {
+  label: string;
+  value: string;
+}
+
+/**
+ * Parsea el metafield de variante `custom.especification`
+ * (list.single_line_text_field): su `value` llega como string JSON con un array
+ * de líneas del tipo `"Etiqueta: valor"`. Se parte por el primer `": "`; si una
+ * línea no lo tiene, se trata como valor sin etiqueta.
+ */
+export function parseSpecList(raw: string | null | undefined): SpecRow[] {
+  if (!raw) return [];
+  let items: unknown;
+  try {
+    items = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    .map((item) => {
+      const separator = item.indexOf(": ");
+      if (separator === -1) return { label: "", value: item.trim() };
+      return {
+        label: item.slice(0, separator).trim(),
+        value: item.slice(separator + 2).trim(),
+      };
+    });
+}
+
 /** Formatea un importe numérico como precio con separador decimal español. */
 export function formatAmount(amount: number): string {
   return Number.isInteger(amount) ? String(amount) : amount.toFixed(2).replace(".", ",");
+}
+
+/**
+ * Metaobjeto `option` (namespace type "option", campos title/description/product):
+ * define el nombre "de marca" de cada valor de opción —p. ej. product:"cuero" ->
+ * title:"Prime Hybrid™", product:"xl" -> title:"Extra Large (XL)"—. Un único
+ * catálogo compartido por talla y material, en vez de mantener el mapeo a mano
+ * en cada sección.
+ */
+export const OPTION_METAOBJECTS_QUERY = `#graphql
+  query OptionMetaobjects($first: Int = 50) {
+    metaobjects(type: "option", first: $first) {
+      edges {
+        node {
+          handle
+          fields {
+            key
+            value
+          }
+        }
+      }
+    }
+  }
+`;
+
+export interface OptionMetaobjectNode {
+  handle: string;
+  fields: { key: string; value: string | null }[];
+}
+
+export interface OptionMetaobjectsResult {
+  metaobjects: { edges: { node: OptionMetaobjectNode }[] } | null;
+}
+
+/**
+ * A partir del resultado de `OPTION_METAOBJECTS_QUERY`, arma un mapa
+ * `product` (en minúsculas) -> `title`. El producto se conecta con la opción
+ * a través del campo `product` del metaobjeto: un producto con
+ * `custom.material = "cuero"` encuentra la entrada `option` cuyo campo
+ * `product` valga "cuero" y usa su `title` ("Prime Hybrid™") como nombre.
+ */
+export function buildOptionTitleMap(
+  result: OptionMetaobjectsResult | null | undefined,
+): Record<string, string> {
+  const edges = result?.metaobjects?.edges ?? [];
+  return edges.reduce<Record<string, string>>((acc, { node }) => {
+    const fields = Object.fromEntries(node.fields.map((field) => [field.key, field.value ?? ""]));
+    const key = (fields.product ?? "").trim().toLowerCase();
+    if (key && fields.title) acc[key] = fields.title;
+    return acc;
+  }, {});
 }

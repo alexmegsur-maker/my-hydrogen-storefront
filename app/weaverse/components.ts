@@ -114,6 +114,7 @@ import * as MaterialFinishSelectorD from "~/sections/main-product-d/material-fin
 import * as AccessoriesSelectorD from "~/sections/main-product-d/accessories-selector"
 import * as AddToCartSectionD from "~/sections/main-product-d/add-to-cart-section"
 import * as UniverseSelectorD from "~/sections/main-product-d/universe-selector"
+import * as SpecSheetD from "~/sections/main-product-d/spec-sheet"
 import * as CardSelector from "~/sections/card-selector"
 import * as CardSimple from "~/components/card-simple"
 import * as SimpleProductGrid from "~/sections/simple-product-grid"
@@ -314,6 +315,7 @@ export const components: HydrogenComponent[] = [
   AccessoriesSelectorD,
   AddToCartSectionD,
   UniverseSelectorD,
+  SpecSheetD,
   GroupButtons,
   CardSelector,
   CardSimple,
