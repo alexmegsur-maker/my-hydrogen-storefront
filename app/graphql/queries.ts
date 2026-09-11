@@ -134,7 +134,11 @@ export const PRODUCT_QUERY = `#graphql
         id
         value
       }
-      modelo:metafield(namespace:"custom",key:"model_tag"){
+      modelo:metafield(namespace:"custom",key:"modelo"){
+        id
+        value
+      }
+      modelTag:metafield(namespace:"custom",key:"model_tag"){
         id
         value
       }

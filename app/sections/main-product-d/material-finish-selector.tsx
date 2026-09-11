@@ -279,7 +279,7 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
           "",
         label:
           lookupLine(labelMap, product.handle) || anyProduct.nombre?.value || product.title,
-        modelo: anyProduct.modelo?.value || "",
+        modelo: anyProduct.modelTag?.value || "",
         modelDescription: anyProduct.modelDescription?.value || "",
         // Prioriza el metafield custom.img_principal (pensado para el swatch)
         // y cae a la imagen destacada del producto si no está informado.

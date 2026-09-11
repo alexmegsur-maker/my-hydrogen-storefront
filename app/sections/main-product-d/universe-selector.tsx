@@ -59,7 +59,7 @@ const UNIVERSE_COLLECTIONS_QUERY = `#graphql
               nombre: metafield(namespace: "custom", key: "name_style_secret") {
                 value
               }
-              modelo: metafield(namespace: "custom", key: "model_tag") {
+              modelTag: metafield(namespace: "custom", key: "model_tag") {
                 value
               }
               modelDescription: metafield(namespace: "custom", key: "model_description") {
@@ -86,7 +86,7 @@ interface UniverseProductNode {
   principalImg: { reference: { previewImage: { url: string; altText: string | null } | null } | null } | null;
   material: { value: string } | null;
   nombre: { value: string } | null;
-  modelo: { value: string } | null;
+  modelTag: { value: string } | null;
   modelDescription: { value: string } | null;
   variants: { nodes: { availableForSale: boolean }[] };
 }
@@ -354,7 +354,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
           // coincide con ese valor y se usa su `title` como familia.
           family: optionTitleMap[materialValue.trim().toLowerCase()] || materialValue,
           label: node.nombre?.value || node.title,
-          modelo: node.modelo?.value || "",
+          modelo: node.modelTag?.value || "",
           modelDescription: node.modelDescription?.value || "",
           image: node.principalImg?.reference?.previewImage?.url ?? node.featuredImage?.url ?? null,
           available: node.variants?.nodes?.some((variant) => variant.availableForSale) ?? false,
