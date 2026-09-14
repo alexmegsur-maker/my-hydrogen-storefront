@@ -168,6 +168,8 @@ import * as VariantProd from "~/sections/main-product-j/product-var"
 import * as PhoenixAtuh from "~/sections/phoenixAuth"
 import * as ChairSection from "~/sections/scrollanimation-section/scrollChair"
 import * as GtaSection from "~/sections/scrollanimation-section"
+import * as ScrollJumpNav from "~/sections/scroll-jump-nav"
+import * as ScrollJumpStop from "~/sections/scroll-jump-nav/scroll-jump-stop"
 import * as SliderVideoV2 from "~/sections/video-slider-v2"
 import * as SlideVideoV2 from "~/sections/video-slider-v2/slide"
 import * as NewsletterPopup from "~/sections/newsletter-popup"
@@ -372,6 +374,8 @@ export const components: HydrogenComponent[] = [
   SliderVideoV2,
   SlideVideoV2,
   GtaSection,
+  ScrollJumpNav,
+  ScrollJumpStop,
   DesistimientoForm,
   ReturnForm,
   PrincipalBanner,
