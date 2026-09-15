@@ -33,7 +33,7 @@ export const schema = createSchema({
           label: "Salto (vh)",
           name: "amount",
           defaultValue: 80,
-          configs: { min: 10, max: 400, step: 5, unit: "vh" },
+          configs: { min: 10, max: 1000, step: 5, unit: "vh" },
           helpText: "Cuánto \"scroll de ratón\" simular en este salto — aprox. la altura de lo que quieres revelar.",
         },
       ],
