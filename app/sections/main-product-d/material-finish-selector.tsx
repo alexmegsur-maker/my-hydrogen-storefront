@@ -394,7 +394,8 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                   opacity: card.available ? 1 : 0.35,
                   transition: "all 0.3s ease",
                   position:"relative",
-                  alignItems:"center"
+                  alignItems:"center",
+                  minHeight:"137px"
 
                 }}
               >

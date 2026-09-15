@@ -502,7 +502,8 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
                   transition: "all 0.3s ease",
                   // justifyContent:"center",
                   alignItems:"center",
-                  position:"relative"
+                  position:"relative",
+                  minHeight:"137px"
                 }}
               >
                 <div
