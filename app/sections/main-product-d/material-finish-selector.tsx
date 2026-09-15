@@ -388,12 +388,14 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                 style={{
                   minWidth:"110px",
                   width:"110px",
+                  border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
                   background:cBgColor,
                   cursor: card.available ? "pointer" : "not-allowed",
                   opacity: card.available ? 1 : 0.35,
                   transition: "all 0.3s ease",
                   position:"relative",
                   alignItems:"center"
+
                 }}
               >
                 <div
@@ -401,7 +403,6 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                   style={{
                     aspectRatio: swatchRatio || "3/4",
                     background: cBgColor,
-                    border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
                     borderRadius: cRadius,
                     filter: isLoading ? "brightness(0.6)" : "none",
                     transition: "border-color 0.3s ease, filter 0.3s ease",
