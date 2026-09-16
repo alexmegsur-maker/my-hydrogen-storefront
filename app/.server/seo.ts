@@ -13,18 +13,10 @@ import type {
   ShopFragment,
 } from "storefront-api.generated";
 
-const LOCALE_PREFIXES = ["/en", "/de", "/fr", "/it"];
-
 function toCanonicalUrl(url: string): string {
-  try {
-    const u = new URL(url);
-    for (const prefix of LOCALE_PREFIXES) {
-      if (u.pathname === prefix || u.pathname.startsWith(prefix + "/")) {
-        u.pathname = u.pathname.slice(prefix.length) || "/";
-        return u.toString();
-      }
-    }
-  } catch {}
+  // El canonical debe auto-referenciar cada locale (/en, /de, /fr, /it incluidos).
+  // Antes esta función quitaba el prefijo de idioma, lo que hacía que todas las
+  // versiones traducidas canonicalizaran a la home en español.
   return url;
 }
 
@@ -140,10 +132,12 @@ function productJsonLd({
   product: productData,
   selectedVariant,
   url,
+  reviews,
 }: {
   product: ProductQuery["product"];
   selectedVariant: ProductQuery["product"]["selectedOrFirstAvailableVariant"];
   url: Request["url"];
+  reviews?: { rating: number; count: number };
 }): SeoConfig["jsonLd"] {
   const origin = new URL(url).origin;
   const description = truncate(
@@ -173,8 +167,14 @@ function productJsonLd({
     }
   }
 
-  // If no adjacent variants, add the selected variant
-  if (offers.length === 0 && selectedVariant) {
+  // Asegura que la variante seleccionada siempre tenga su propia oferta,
+  // aunque adjacentVariants ya haya aportado otras (antes podía quedar fuera,
+  // provocando que el sku de nivel superior no coincidiera con ningún offer).
+  const hasSelectedVariantOffer =
+    selectedVariant?.sku &&
+    offers.some((offer) => offer.sku === selectedVariant.sku);
+
+  if (selectedVariant && !hasSelectedVariantOffer) {
     const availability = selectedVariant.availableForSale
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock";
@@ -220,6 +220,17 @@ function productJsonLd({
       offers,
       sku: selectedVariant?.sku ?? "",
       url,
+      ...(reviews && reviews.count > 0
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: reviews.rating,
+              reviewCount: reviews.count,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }
+        : {}),
     },
   ];
 }
@@ -227,9 +238,11 @@ function productJsonLd({
 function product({
   product: productData,
   url,
+  reviews,
 }: {
   product: ProductQuery["product"];
   url: Request["url"];
+  reviews?: { rating: number; count: number };
 }): SeoConfig {
   const description = truncate(
     productData?.seo?.description ?? productData?.description ?? "",
@@ -237,13 +250,13 @@ function product({
   const selectedVariant = productData?.selectedOrFirstAvailableVariant;
   const canonicalUrl = toCanonicalUrl(url);
   return {
-    title: truncate(productData?.seo?.title ?? productData?.title ?? "", 22),
+    title: truncate(productData?.seo?.title ?? productData?.title ?? "", 48),
     description,
     titleTemplate: "%s — PhoenixChairs",
     handle: "@phoenixchairs",
     url: canonicalUrl,
     media: selectedVariant?.image,
-    jsonLd: productJsonLd({ product: productData, selectedVariant, url: canonicalUrl }),
+    jsonLd: productJsonLd({ product: productData, selectedVariant, url: canonicalUrl, reviews }),
   };
 }
 
@@ -328,7 +341,7 @@ function collection({
   const imageUrl = collectionData?.image?.url;
   const canonicalUrl = toCanonicalUrl(url);
   return {
-    title: truncate(rawTitle, 22),
+    title: truncate(rawTitle, 48),
     description: truncate(
       collectionData?.seo?.description ?? collectionData?.description ?? "",
     ),

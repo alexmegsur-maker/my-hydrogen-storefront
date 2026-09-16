@@ -36,7 +36,7 @@ import {
 } from "./components/root/newsletter-popup";
 import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
-import { DEFAULT_LOCALE } from "./utils/const";
+import { COUNTRIES, DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
 import { useJudgemeWithNonce } from "./hooks/use-judgeme-with-nonce";
 import { GoogleTagManager } from "./components/google-tag-manager";
@@ -44,6 +44,34 @@ import CookieConsentBanner from "./components/CookieConsent";
 import { IsMobileContext } from "./hooks/is-mobile-context";
 
 const MOBILE_UA_REGEX = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i;
+const SITE_ORIGIN = "https://phoenixchairs.eu";
+
+/**
+ * Construye el clúster hreflang (todas las versiones de idioma de la página
+ * actual, más x-default) a partir del pathname y el prefijo de locale activo.
+ * El sitio no tenía ninguna etiqueta hreflang (auditoría SEO, punto 2).
+ */
+function buildHreflangLinks(pathname: string, currentPrefix: string) {
+  const basePath =
+    currentPrefix && pathname.startsWith(currentPrefix)
+      ? pathname.slice(currentPrefix.length) || "/"
+      : pathname;
+
+  const prefixes = ["", ...Object.keys(COUNTRIES).filter((key) => key !== "default")];
+
+  const links = prefixes.map((prefix) => {
+    const locale = COUNTRIES[prefix || "default"];
+    const href = `${SITE_ORIGIN}${prefix}${basePath === "/" ? (prefix ? "" : "/") : basePath}`;
+    return { hreflang: locale.language.toLowerCase(), href };
+  });
+
+  links.push({
+    hreflang: "x-default",
+    href: `${SITE_ORIGIN}${basePath === "/" ? "/" : basePath}`,
+  });
+
+  return links;
+}
 
 export type RootLoader = typeof loader;
 
@@ -148,9 +176,11 @@ export function ErrorBoundary({ error }: { error: Error }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const nonce = useNonce(); 
+  const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
+  const hreflangLinks = buildHreflangLinks(location.pathname, locale.pathPrefix ?? "");
+  const ogLocale = `${locale.language.toLowerCase()}_${locale.country.toUpperCase()}`;
   const { topbarHeight, topbarText } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
   const [isHydrated,setIsHydrated] = useState(false)
@@ -198,8 +228,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
         <Meta />
+        <meta property="og:locale" content={ogLocale} />
+        {hreflangLinks.map((link) => (
+          <link
+            key={link.hreflang}
+            rel="alternate"
+            hrefLang={link.hreflang}
+            href={link.href}
+          />
+        ))}
         <Links />
-        <GlobalStyle /> 
+        <GlobalStyle />
          <script
           nonce={nonce}
           suppressHydrationWarning

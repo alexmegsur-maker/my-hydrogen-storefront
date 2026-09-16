@@ -1,23 +1,43 @@
 import type { LoaderFunctionArgs } from "react-router";
+import { COUNTRIES } from "~/utils/const";
+
+const SITE_ORIGIN = "https://phoenixchairs.eu";
+
+// Prefijos de idioma soportados por la tienda ("" = español, por defecto).
+// Se derivan de COUNTRIES (app/utils/const.ts) para que el sitemap nunca
+// quede desincronizado de los locales que la app realmente sirve.
+const LOCALE_PREFIXES: string[] = [
+  "",
+  ...Object.keys(COUNTRIES).filter((key) => key !== "default"),
+];
 
 // Interfaz para tipar las URLs que vienen de Shopify
 interface SitemapUrl {
-  url: string;
+  /** Ruta sin prefijo de idioma ni dominio, p. ej. "/" o "/products/handle" */
+  path: string;
   lastMod?: string;
+  /**
+   * Si es true, la URL se genera bajo todos los locales de LOCALE_PREFIXES
+   * con hreflang cruzado. Si es false, se publica solo en español (raíz),
+   * porque no hay confirmación de que exista traducción de esa página.
+   */
+  localize: boolean;
 }
 
+// Rutas estáticas confirmadas en español. No se replican por idioma porque
+// no hay confirmación de que estas páginas legales tengan traducción real
+// (ver auditoría SEO, punto 8) — pásalas a localize:true en cuanto la haya.
 const STATIC_ROUTES: SitemapUrl[] = [
-  // Español (Raíz)
-  { url: 'https://phoenixchairs.eu/' },
-  { url: 'https://phoenixchairs.eu/devolucion' },
-  { url: 'https://phoenixchairs.eu/legado' },
-  { url: 'https://phoenixchairs.eu/garantia-base' },
-  { url: 'https://phoenixchairs.eu/tecnologia' },
-  { url: 'https://phoenixchairs.eu/privacidad' },
-  { url: 'https://phoenixchairs.eu/extension-de-garantia' },
-  { url: 'https://phoenixchairs.eu/aviso-legal' },
-  { url: 'https://phoenixchairs.eu/landing-founders' },
-  { url: 'https://phoenixchairs.eu/contact' },
+  { path: "/", localize: true },
+  { path: "/devolucion", localize: false },
+  { path: "/legado", localize: false },
+  { path: "/garantia-base", localize: false },
+  { path: "/tecnologia", localize: false },
+  { path: "/privacidad", localize: false },
+  { path: "/extension-de-garantia", localize: false },
+  { path: "/aviso-legal", localize: false },
+  { path: "/landing-founders", localize: false },
+  { path: "/contact", localize: false },
 ];
 
 const SITEMAP_HEADERS = {
@@ -27,18 +47,20 @@ const SITEMAP_HEADERS = {
 
 export async function loader({ context }: LoaderFunctionArgs) {
   try {
-    const shopifySitemaps = await getShopifySitemaps(context);
-    const sitemapXml = generateSitemapXml(shopifySitemaps, STATIC_ROUTES);
+    const shopifyUrls = await getShopifySitemaps(context);
+    const sitemapXml = generateSitemapXml([...STATIC_ROUTES, ...shopifyUrls]);
     return new Response(sitemapXml, { headers: SITEMAP_HEADERS });
   } catch (error) {
     console.error('Sitemap loader failed, returning static-only sitemap:', error);
-    const fallbackXml = generateSitemapXml([], STATIC_ROUTES);
+    const fallbackXml = generateSitemapXml(STATIC_ROUTES);
     return new Response(fallbackXml, { headers: SITEMAP_HEADERS });
   }
 }
 
 /**
- * FUNCIÓN 1: Consulta la Storefront API de Shopify para extraer Productos y Colecciones dinámicas
+ * FUNCIÓN 1: Consulta la Storefront API de Shopify para extraer Productos y Colecciones dinámicas.
+ * Los handles son los mismos en todos los locales (Shopify no genera slugs distintos por idioma),
+ * así que basta con una consulta y luego se reutiliza el path bajo cada prefijo de idioma.
  */
 async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
   const urls: SitemapUrl[] = [];
@@ -48,7 +70,7 @@ async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
     console.error("Storefront context not found in sitemap loader");
     return urls;
   }
- 
+
   try {
     // Ejecutamos la consulta GraphQL pidiendo los primeros 250 productos y colecciones [cite: 226, 228]
     const data: any = await context.storefront.query(`#graphql
@@ -68,22 +90,22 @@ async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
       }
     `);
 
-    // Mapeamos los productos dinámicos de Shopify a URLs absolutas 
     if (data?.products?.nodes) {
       data.products.nodes.forEach((product: any) => {
         urls.push({
-          url: `https://phoenixchairs.eu/products/${product.handle}`,
+          path: `/products/${product.handle}`,
           lastMod: product.updatedAt ? product.updatedAt.split('T')[0] : undefined,
+          localize: true,
         });
       });
     }
 
-    // Mapeamos las colecciones dinámicas de Shopify a URLs absolutas 
     if (data?.collections?.nodes) {
       data.collections.nodes.forEach((collection: any) => {
         urls.push({
-          url: `https://phoenixchairs.eu/collections/${collection.handle}`,
+          path: `/collections/${collection.handle}`,
           lastMod: collection.updatedAt ? collection.updatedAt.split('T')[0] : undefined,
+          localize: true,
         });
       });
     }
@@ -94,30 +116,56 @@ async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
   return urls;
 }
 
+function localizedHref(prefix: string, path: string): string {
+  if (path === "/") {
+    return prefix ? `${SITE_ORIGIN}${prefix}` : `${SITE_ORIGIN}/`;
+  }
+  return `${SITE_ORIGIN}${prefix}${path}`;
+}
+
 /**
- * FUNCIÓN 2: Toma ambos arrays de URLs y construye la estructura XML estándar que exige Google
+ * FUNCIÓN 2: Construye el XML del sitemap, replicando cada URL bajo todos los
+ * locales soportados (home, productos, colecciones) y enlazándolos entre sí
+ * con <xhtml:link hreflang> — así el sitemap deja de ser "solo español" y
+ * además refuerza la señal de hreflang que falta en el <head>.
  */
-function generateSitemapXml(shopifyUrls: SitemapUrl[], staticUrls: SitemapUrl[]): string {
-  // Fusionamos ambos mundos en una sola lista única [cite: 217, 221]
-  const allUrls = [...staticUrls, ...shopifyUrls];
-  
-  // Obtenemos la fecha de hoy por si alguna ruta estática no tiene el campo 'lastMod' definido
+function generateSitemapXml(items: SitemapUrl[]): string {
   const today = new Date().toISOString().split('T')[0];
 
-  // Construimos el string XML puro respetando las directivas del protocolo sitemaps
-  const xmlEntries = allUrls
+  const xmlEntries = items
     .map((item) => {
-      return `  <url>
-    <loc>${item.url}</loc>
+      if (!item.localize) {
+        // Solo existe en español: una única entrada, sin alternates de idioma.
+        return `  <url>
+    <loc>${localizedHref("", item.path)}</loc>
     <lastmod>${item.lastMod || today}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>${item.url === 'https://phoenixchairs.eu/' ? '1.0' : '0.7'}</priority>
+    <priority>${item.path === '/' ? '1.0' : '0.7'}</priority>
   </url>`;
+      }
+
+      const alternates = LOCALE_PREFIXES.map((prefix) => {
+        const hreflang = COUNTRIES[prefix || "default"]?.language?.toLowerCase() ?? "es";
+        return `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${localizedHref(prefix, item.path)}" />`;
+      });
+      alternates.push(
+        `    <xhtml:link rel="alternate" hreflang="x-default" href="${localizedHref("", item.path)}" />`,
+      );
+
+      return LOCALE_PREFIXES.map((prefix) => {
+        return `  <url>
+    <loc>${localizedHref(prefix, item.path)}</loc>
+    <lastmod>${item.lastMod || today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>${item.path === '/' ? '1.0' : '0.7'}</priority>
+${alternates.join('\n')}
+  </url>`;
+      }).join('\n');
     })
     .join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${xmlEntries}
 </urlset>`;
 }

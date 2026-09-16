@@ -63,21 +63,22 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
   // Extraer datos de reseñas guardados por Judge.me en los metafields de Shopify
   const reviewsRating = product.metafields?.find((m: any) => m?.key === "reviews_average")?.value || "5.0";
   const reviewsCount = product.metafields?.find((m: any) => m?.key === "reviews_count")?.value || "0";
+  const reviews = {
+    rating: parseFloat(reviewsRating),
+    count: parseInt(reviewsCount, 10),
+  };
 
   return {
     shop,
     product,
     weaverseData,
     storeDomain: shop.primaryDomain.url,
-    seo: applyWeaverseSeo(seoPayload.product({ product, url: request.url }), weaverseData),
+    seo: applyWeaverseSeo(seoPayload.product({ product, url: request.url, reviews }), weaverseData),
     recommended,
     selectedOptions,
     language: storefront.i18n.language,
     url: request.url,
-    reviews: {
-      rating: parseFloat(reviewsRating),
-      count: parseInt(reviewsCount, 10),
-    },
+    reviews,
     modelo: product.modelo?.value ?? null,
   };
 }
@@ -93,7 +94,7 @@ export const meta = ({ matches }: MetaArgs<typeof loader>) => {
 };
 
 export default function Product() {
-  const { product, reviews, url } = useLoaderData<typeof loader>();
+  const { product } = useLoaderData<typeof loader>();
   const combinedListing = isCombinedListing(product);
   useGA4ProductView();
 
@@ -154,44 +155,14 @@ export default function Product() {
     }
   }, [selectedVariant?.selectedOptions, combinedListing]);
 
-  // Construcción del objeto JSON-LD enriquecido para Googlebot
-  const jsonLdSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": product.title,
-    "image": selectedVariant?.image?.url || product.featuredImage?.url,
-    "description": product.description,
-    "sku": selectedVariant?.sku || product.id,
-    "brand": {
-      "@type": "Brand",
-      "name": "Phoenix Chairs",
-    },
-    ...(reviews.count > 0 && {
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": reviews.rating,
-        "reviewCount": reviews.count,
-        "bestRating": "5",
-        "worstRating": "1"
-      }
-    }),
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": selectedVariant?.price?.currencyCode || "EUR",
-      "price": selectedVariant?.price?.amount || "0",
-      "availability": selectedVariant?.availableForSale ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      "url": url,
-    }
-  };
+  // El JSON-LD de Producto (incl. aggregateRating) se genera una sola vez,
+  // en seoPayload.product() -> productJsonLd() (app/.server/seo.ts), y se
+  // emite vía getSeoMeta() en el export `meta` de esta misma ruta. Antes había
+  // un segundo bloque <script type="application/ld+json"> aquí, duplicado e
+  // inconsistente con ese (offers y sku no coincidían) — se retiró.
 
   return (
     <>
-      {/* Datos Estructurados inyectados nativamente en el HTML para Google SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
-      />
-
       <WeaverseContent />
       
       {selectedVariant && (
