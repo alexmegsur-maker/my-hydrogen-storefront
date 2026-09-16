@@ -10,6 +10,22 @@
 html{
   scrollbar-gutter: stable;
 }
+
+/* Widget "Trustbadge" de Trusted Shops/eTrusted (inyectado por script externo
+   en root.tsx, widgets.trustedshops.com): por defecto se posiciona abajo a
+   la derecha vía CSS-in-JS con clases hasheadas (inestables entre versiones
+   del widget), así que lo recolocamos apuntando al `data-testid` estable del
+   botón flotante en vez de a esas clases. */
+div:has(> button[data-testid="minimized-trustbadge-floating"]) {
+  left: 20px !important;
+  right: auto !important;
+}
+/* Popup de reseñas que se abre al pulsar el badge — mismo lado */
+div[data-testid="maximized-trustbadge-container"] {
+  left: 20px !important;
+  right: auto !important;
+}
+
 /* CLS fix: slide content width — CSS-driven, no JS hydration mismatch */
 .slide-cont-width {
   width: var(--slide-cont-width, 100%);
