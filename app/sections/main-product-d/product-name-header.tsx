@@ -147,7 +147,7 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
           ...selectorPaddingMargin("margin", sMarginSelect, sMarginText),
         }}
       >
-        <div
+        <h1
           className="spec-line"
           style={{
             color: sColor,
@@ -162,7 +162,7 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
         >
           {prefix && <span className="mr-1">{prefix}</span>}
           {spec}
-        </div>
+        </h1>
 
         {showRating && currentProduct?.id && (
           <div
