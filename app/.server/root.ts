@@ -81,6 +81,7 @@ async function getLayoutData({ storefront, env ,headerMenuHandle,footerMenuHandl
         footerMenuHandle: footerMenuHandle,
         language: storefront.i18n.language,
       },
+      cache: storefront.CacheLong(),
     })
     .catch(console.error);
 
@@ -130,7 +131,7 @@ async function getSwatchesConfigs(context: AppLoadContext) {
   }
   const result = await context.storefront.query<SwatchesQuery>(
     SWATCHES_QUERY,
-    { variables: { type } },
+    { variables: { type }, cache: context.storefront.CacheLong() },
   ).catch((err)=>{
     console.error("getSwatchesConfigs query failed:",err);
     return null;
