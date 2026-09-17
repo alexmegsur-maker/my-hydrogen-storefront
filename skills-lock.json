@@ -6,6 +6,84 @@
       "sourceType": "github",
       "skillPath": "skills/caveman/SKILL.md",
       "computedHash": "7935e83f9c6a8b7cbb5404d144b0d19e3ba93583f4388301c3dada37cd25adf8"
+    },
+    "cloning-websites-to-weaverse": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloning-websites-to-weaverse/SKILL.md",
+      "computedHash": "f90445fde66eac875ddb84efbc331f6ea070274434d5f9d64ff3ea0509416313"
+    },
+    "figma-to-weaverse": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/figma-to-weaverse/SKILL.md",
+      "computedHash": "7e3a03bf81e4ba0723d7404fc2102f4b277230136aaab69625d55a8ab759f933"
+    },
+    "generating-weaverse-project-json": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/generating-weaverse-project-json/SKILL.md",
+      "computedHash": "85d56946ec3b75ae051330f4276260f5408644cb67ca9285036bc37c70e4c66d"
+    },
+    "hydrogen-analytics-tracking": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/hydrogen-analytics-tracking/SKILL.md",
+      "computedHash": "3d8660d89d7b138f06a4a9f78180f174ad44da15771f40614e837998ba07aaf7"
+    },
+    "hydrogen-cookbooks": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/hydrogen-cookbooks/SKILL.md",
+      "computedHash": "ed7cce27e7dbe1a3fefb8d479b6dfdf2be1cb651f139e73de029078dfb6b1f87"
+    },
+    "hydrogen-markets-localization": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/hydrogen-markets-localization/SKILL.md",
+      "computedHash": "c7adb6e5f1b95a0cc6e01768233537ab877894cf5d368a4d0f8196c84cc018b6"
+    },
+    "hydrogen-upgrades": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/hydrogen-upgrades/SKILL.md",
+      "computedHash": "6f78da52d79183db27206bb67e219f94cf175cadba8088ef21d670ab911f7510"
+    },
+    "setup-weaverse-project": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/setup-weaverse-project/SKILL.md",
+      "computedHash": "999b740e3723fbf062cbd84284fd3576f7fd9351ae4f0d985a00bc52b2a9aeb4"
+    },
+    "shopify-hydrogen": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/shopify-hydrogen/SKILL.md",
+      "computedHash": "bf2b3978884a2378071e168ecd849c77a705a09be4ceba024f8090ed99cec7d1"
+    },
+    "theme-update": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/theme-update/SKILL.md",
+      "computedHash": "833f5df10e8dd5910bd9dfe8680d9ebbc07a61359347782d6429fe39acb57b9b"
+    },
+    "weaverse-content-api": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/weaverse-content-api/SKILL.md",
+      "computedHash": "c20801616b1785bfd0290345144581a6a655f583a91fa7a259fa9a96b0cc79ae"
+    },
+    "weaverse-hydrogen": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/weaverse-hydrogen/SKILL.md",
+      "computedHash": "06b030d275ff688d21937d514d0c80c381cd83ce1fb0c1d768bc27c490722b87"
+    },
+    "weaverse-integration": {
+      "source": "Weaverse/shopify-hydrogen-skills",
+      "sourceType": "github",
+      "skillPath": "skills/weaverse-integration/SKILL.md",
+      "computedHash": "56d305cf0b4e55d0e9a9d88b31b4b9100c5be70c16f81d1d7678f84b2c59424d"
     }
   }
 }

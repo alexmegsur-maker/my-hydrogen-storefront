@@ -180,6 +180,7 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
             <JudgemePreviewBadge key={currentProduct.id} id={currentProduct.id} template="" />
           </div>
         )}
+        <div className="sr-only" suppressHydrationWarning dangerouslySetInnerHTML={{__html:currentProduct.description}}/>
       </div>
 
       {showRating && currentProduct?.id && (

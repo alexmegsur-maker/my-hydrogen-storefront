@@ -486,7 +486,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
               <button
                 type="button"
                 key={card.id}
-                disabled={!card.available || Boolean(loadingHandle)}
+                // disabled={!card.available || Boolean(loadingHandle)}
                 onClick={() => selectProduct(card.handle)}
                 data-producto={card.handle}
                 data-active={active}
@@ -497,7 +497,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
                   background: cBgColor,
                   border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
                   borderRadius: cRadius,
-                  cursor: card.available ? "pointer" : "not-allowed",
+                  cursor: "pointer" ,
                   opacity: card.available ? 1 : 0.35,
                   transition: "all 0.3s ease",
                   // justifyContent:"center",

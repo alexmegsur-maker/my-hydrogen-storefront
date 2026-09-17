@@ -380,7 +380,7 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
               <button
                 type="button"
                 key={card.id}
-                disabled={!card.available || Boolean(loadingHandle)}
+                // disabled={!card.available || Boolean(loadingHandle)}
                 onClick={() => selectProduct(card.handle)}
                 data-material={card.handle}
                 data-active={active}
@@ -390,7 +390,7 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                   width:"110px",
                   border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
                   background:cBgColor,
-                  cursor: card.available ? "pointer" : "not-allowed",
+                  cursor:"pointer" ,
                   opacity: card.available ? 1 : 0.35,
                   transition: "all 0.3s ease",
                   position:"relative",
