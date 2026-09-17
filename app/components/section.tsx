@@ -1,17 +1,19 @@
-import type {
-  HydrogenComponentProps,
-  InspectorGroup,
+import {
+  useThemeSettings,
+  type HydrogenComponentProps,
+  type InspectorGroup,
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type React from "react";
-import { useEffect, useState, type CSSProperties, type HTMLAttributes } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type HTMLAttributes } from "react";
 import { cn } from "~/utils/cn";
 import type { BackgroundImageProps } from "./background-image";
 import { backgroundInputs } from "./background-image";
 import type { OverlayProps } from "./overlay";
 import { overlayInputs } from "./overlay";
 import { OverlayAndBackground } from "./overlay-and-background";
+import { observe } from "./scroll-reveal";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useDeviceSize } from "~/hooks/devices-size";
@@ -47,7 +49,7 @@ export interface SectionProps<T = any>
   marginSelect?:string;
   marginText?:string;
   showSmoke?:boolean;
-  
+  animate?: boolean;
 }
 
 const variants = cva("relative", {
@@ -154,9 +156,34 @@ export function Section(props: SectionProps) {
     canvasOpacity,
     zIndex,
     backgroundGrayscale,
+    animate = true,
 
     ...rest
   } = props;
+
+  let { revealElementsOnScroll } = useThemeSettings();
+  let [isVisible, setIsVisible] = useState(false);
+  let internalRef = useRef<HTMLElement>(null);
+
+  let setRefs = (node: HTMLElement | null) => {
+    (internalRef as React.RefObject<HTMLElement | null>).current = node;
+    if (typeof ref === "function") {
+      ref(node);
+    } else if (ref && "current" in ref) {
+      (ref as React.RefObject<HTMLElement | null>).current = node;
+    }
+  };
+
+  useEffect(() => {
+    if (!animate || !revealElementsOnScroll || !internalRef.current) {
+      return;
+    }
+    return observe(internalRef.current, (isIntersecting) => {
+      if (isIntersecting) {
+        setIsVisible(true);
+      }
+    });
+  }, [animate, revealElementsOnScroll]);
 
   style = {
     ...style,
@@ -217,7 +244,7 @@ export function Section(props: SectionProps) {
   const Tag = mounted ? Component :"section"
   return (
     <Tag
-      ref={ref}
+      ref={setRefs}
       {...rest}
       style={estilo}
       suppressHydrationWarning
@@ -226,7 +253,12 @@ export function Section(props: SectionProps) {
         hasBackground &&
           !isBgForContent &&
           "rounded-(--section-radius) bg-(--section-bg-color)",
-          clName && clName
+          clName && clName,
+        animate &&
+          revealElementsOnScroll && [
+            "transition-all duration-700",
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0",
+          ],
       )}
     >
       {showSmoke && <ForgeCanvas {...forgeProps}/>}
