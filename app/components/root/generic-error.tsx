@@ -1,18 +1,19 @@
 import Link from "~/components/link";
 import { Section } from "~/components/section";
 
-export function GenericError({
-  error,
-}: {
-  error?: { message: string; stack?: string };
-}) {
+export function GenericError({ error }: { error?: unknown }) {
   const heading = "Something’s wrong here.";
   let description = "We found an error while loading this page.";
 
+  const errorInfo =
+    error && typeof error === "object" && "message" in error
+      ? (error as { message: string; stack?: string })
+      : undefined;
+
   // TODO hide error in prod?
-  if (error) {
-    description += `\n${error.message}`;
-    console.error(error);
+  if (errorInfo) {
+    description += `\n${errorInfo.message}`;
+    console.error(errorInfo);
   }
 
   return (
@@ -23,7 +24,7 @@ export function GenericError({
     >
       <h4 className="font-medium">{heading}</h4>
       <p>{description}</p>
-      {error?.stack && (
+      {errorInfo?.stack && (
         <pre
           style={{
             padding: "2rem",
@@ -34,7 +35,7 @@ export function GenericError({
           }}
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: addLinksToStackTrace(error.stack),
+            __html: addLinksToStackTrace(errorInfo.stack),
           }}
         />
       )}
