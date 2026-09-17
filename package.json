@@ -1,6 +1,6 @@
 {
   "name": "@weaverse/pilot",
-  "version": "7.2.0",
+  "version": "8.0.0",
   "description": "A production-ready Shopify storefront built with Hydrogen and Weaverse",
   "keywords": [
     "shopify",
@@ -89,7 +89,7 @@
     "react-dom": "19.2.0",
     "react-intersection-observer": "10.0.0",
     "react-player": "2.16.0",
-    "react-router": "7.9.4",
+    "react-router": "7.12.0",
     "react-router-dom": "^7.9.2",
     "react-share": "5.2.2",
     "react-use": "17.6.0",
@@ -104,7 +104,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.6",
     "@playwright/test": "1.56.1",
-    "@react-router/dev": "7.9.4",
+    "@react-router/dev": "7.12.0",
     "@react-router/fs-routes": "^7.9.2",
     "@shopify/cli": "^3.93.2",
     "@shopify/hydrogen-codegen": "0.3.3",

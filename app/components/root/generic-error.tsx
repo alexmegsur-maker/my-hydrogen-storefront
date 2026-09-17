@@ -1,19 +1,18 @@
 import Link from "~/components/link";
 import { Section } from "~/components/section";
 
-export function GenericError({ error }: { error?: unknown }) {
-  const heading = "Something’s wrong here.";
+export function GenericError({
+  error,
+}: {
+  error: { message: string; stack?: string } | unknown;
+}) {
+  const heading = "Something's wrong here.";
   let description = "We found an error while loading this page.";
 
-  const errorInfo =
-    error && typeof error === "object" && "message" in error
-      ? (error as { message: string; stack?: string })
-      : undefined;
-
   // TODO hide error in prod?
-  if (errorInfo) {
-    description += `\n${errorInfo.message}`;
-    console.error(errorInfo);
+  if (error && typeof error === "object" && "message" in error) {
+    description += `\n${(error as { message: string }).message}`;
+    console.error(error);
   }
 
   return (
@@ -24,21 +23,24 @@ export function GenericError({ error }: { error?: unknown }) {
     >
       <h4 className="font-medium">{heading}</h4>
       <p>{description}</p>
-      {errorInfo?.stack && (
-        <pre
-          style={{
-            padding: "2rem",
-            background: "hsla(10, 50%, 50%, 0.1)",
-            color: "red",
-            overflow: "auto",
-            maxWidth: "100%",
-          }}
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: addLinksToStackTrace(errorInfo.stack),
-          }}
-        />
-      )}
+      {error &&
+        typeof error === "object" &&
+        "stack" in error &&
+        typeof (error as { stack?: string }).stack === "string" && (
+          <pre
+            style={{
+              padding: "2rem",
+              background: "hsla(10, 50%, 50%, 0.1)",
+              color: "red",
+              overflow: "auto",
+              maxWidth: "100%",
+            }}
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{
+              __html: addLinksToStackTrace((error as { stack: string }).stack),
+            }}
+          />
+        )}
       <Link variant="outline" to="/" className="w-fit">
         Take me to the home page
       </Link>

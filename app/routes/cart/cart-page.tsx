@@ -74,15 +74,15 @@ export async function action({ request, context }: ActionFunctionArgs) {
       result = await cart.updateDiscountCodes(discountCodes);
       break;
     }
+    case CartForm.ACTIONS.GiftCardCodesAdd: {
+      const giftCardCodes = (inputs.giftCardCodes as string[]) || [];
+      result = await cart.addGiftCardCodes(giftCardCodes);
+      break;
+    }
     case CartForm.ACTIONS.GiftCardCodesUpdate: {
-      const formGiftCardCode = inputs.giftCardCode;
-      // User inputted gift card code
-      const giftCardCodes = (
-        formGiftCardCode ? [formGiftCardCode] : []
-      ) as string[];
-      // Combine gift card codes already applied on cart
-      giftCardCodes.push(...inputs.giftCardCodes);
-      result = await cart.updateGiftCardCodes(giftCardCodes);
+      // Just keep this for backward compatibility, same as add gift card codes
+      const giftCardCodes = (inputs.giftCardCodes as string[]) || [];
+      result = await cart.addGiftCardCodes(giftCardCodes);
       break;
     }
     case CartForm.ACTIONS.GiftCardCodesRemove: {
@@ -96,6 +96,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
       });
       break;
     default:
+      console.error("Unknown cart action:", cartFormAction);
+      console.error("Available actions:", Object.keys(CartForm.ACTIONS));
       invariant(false, `${cartFormAction} cart action is not defined`);
   }
 
