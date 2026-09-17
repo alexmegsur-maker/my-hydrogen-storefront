@@ -12,6 +12,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState, type CSSProperties } from "react";
 import { Image } from "~/components/image";
 import Link, { type LinkProps, linkContentInputs } from "~/components/link";
+import { ScrollReveal } from "~/components/scroll-reveal";
 import type { ImageAspectRatio } from "~/types/others";
 import { selectorPaddingMargin } from "~/utils/general";
 import { calculateAspectRatio } from "~/utils/image";
@@ -176,10 +177,10 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
 
 
   return (
-    <div
+    <ScrollReveal
+      animation="slide-in"
       ref={container}
       {...rest}
-      data-motion="slide-in"
       onMouseEnter={()=>setIsHover(true)}
       onMouseLeave={()=>setIsHover(false)}
       className={variants({ size, hideOnMobile })}
@@ -274,7 +275,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
           </Link>
         )}
       </div>
-    </div>
+    </ScrollReveal>
   );
 }
 

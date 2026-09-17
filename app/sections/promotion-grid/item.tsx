@@ -11,7 +11,9 @@ import { useNavigate } from "react-router";
 import { BackgroundImage } from "~/components/background-image";
 import type { OverlayProps } from "~/components/overlay";
 import { Overlay, overlayInputs } from "~/components/overlay";
+import { ScrollReveal } from "~/components/scroll-reveal";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { cn } from "~/utils/cn";
 
 const variants = cva(
   [
@@ -107,11 +109,11 @@ function PromotionGridItem(props: PromotionItemProps) {
   }
  
   return (
-    <div
+    <ScrollReveal
+      animation="slide-in"
       ref={ref}
       {...rest}
-      data-motion="slide-in"
-      className={variants({ contentPosition, borderRadius })+" cursor-pointer"}
+      className={cn(variants({ contentPosition, borderRadius }), "cursor-pointer")}
       onMouseEnter={()=>setIsHover(true)}
       onMouseLeave={()=>setIsHover(false)}
       onClick={showLink}
@@ -157,7 +159,7 @@ function PromotionGridItem(props: PromotionItemProps) {
           }}
         />
       }
-    </div>
+    </ScrollReveal>
   );
 }
 

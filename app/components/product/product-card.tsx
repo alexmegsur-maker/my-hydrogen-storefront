@@ -16,6 +16,7 @@ import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { isCombinedListing } from "~/utils/combined-listings";
 import { calculateAspectRatio } from "~/utils/image";
 import {
+  type BadgeStyleSettings,
   BestSellerBadge,
   BundleBadge,
   NewBadge,
@@ -55,7 +56,29 @@ export function ProductCard({
     pcardShowBestSellerBadge,
     pcardShowNewBadge,
     pcardShowOutOfStockBadge,
+    colorText,
+    colorTextInverse,
+    badgeBorderRadius,
+    badgeTextTransform,
+    newBadgeText,
+    newBadgeColor,
+    newBadgeDaysOld,
+    bestSellerBadgeText,
+    bestSellerBadgeColor,
+    soldOutBadgeText,
+    soldOutBadgeColor,
+    bundleBadgeText,
+    bundleBadgeColor,
+    saleBadgeText,
+    saleBadgeColor,
   } = useThemeSettings();
+
+  const badgeStyle: BadgeStyleSettings = {
+    colorText,
+    colorTextInverse,
+    badgeBorderRadius,
+    badgeTextTransform,
+  };
 
   const [selectedVariant, setSelectedVariant] =
     useState<ProductVariantFragment | null>(null);
@@ -140,18 +163,45 @@ export function ProductCard({
           </Link>
         )}
         <div className="absolute top-2.5 right-2.5 flex gap-1">
-          {isBundle && pcardShowBundleBadge && <BundleBadge />}
+          {isBundle && pcardShowBundleBadge && (
+            <BundleBadge
+              badgeStyle={badgeStyle}
+              bundleBadgeText={bundleBadgeText}
+              bundleBadgeColor={bundleBadgeColor}
+            />
+          )}
           {pcardShowSaleBadge && (
             <SaleBadge
               price={minVariantPrice as MoneyV2}
               compareAtPrice={maxVariantPrice as MoneyV2}
+              badgeStyle={badgeStyle}
+              saleBadgeText={saleBadgeText}
+              saleBadgeColor={saleBadgeColor}
             />
           )}
           {pcardShowBestSellerBadge && isBestSellerProduct && (
-            <BestSellerBadge />
+            <BestSellerBadge
+              badgeStyle={badgeStyle}
+              bestSellerBadgeText={bestSellerBadgeText}
+              bestSellerBadgeColor={bestSellerBadgeColor}
+            />
           )}
-          {pcardShowNewBadge && <NewBadge publishedAt={product.publishedAt} />}
-          {pcardShowOutOfStockBadge && <SoldOutBadge />}
+          {pcardShowNewBadge && (
+            <NewBadge
+              publishedAt={product.publishedAt}
+              badgeStyle={badgeStyle}
+              newBadgeText={newBadgeText}
+              newBadgeColor={newBadgeColor}
+              newBadgeDaysOld={newBadgeDaysOld}
+            />
+          )}
+          {pcardShowOutOfStockBadge && (
+            <SoldOutBadge
+              badgeStyle={badgeStyle}
+              soldOutBadgeText={soldOutBadgeText}
+              soldOutBadgeColor={soldOutBadgeColor}
+            />
+          )}
         </div>
         {pcardEnableQuickShop && (
           <QuickShopTrigger
