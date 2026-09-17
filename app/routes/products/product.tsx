@@ -10,16 +10,9 @@ import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import type { ProductQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
-import {
-  redirectIfCombinedListing,
-  redirectIfHandleIsLocalized,
-} from "~/.server/redirect";
+import { redirectIfHandleIsLocalized } from "~/.server/redirect";
 import { seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
-import {
-  COMBINED_LISTINGS_CONFIGS,
-  isCombinedListing,
-} from "~/utils/combined-listings";
 import { applyWeaverseSeo } from "~/.server/seo";
 import { WeaverseContent } from "~/weaverse";
 import { useGA4ProductView } from "~/hooks/use-ga4-product-view";
@@ -53,10 +46,6 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     throw new Response("product", { status: 404 });
   }
   redirectIfHandleIsLocalized(request, { handle, data: product });
-
-  if (COMBINED_LISTINGS_CONFIGS.redirectToFirstVariant) {
-    redirectIfCombinedListing(request, product);
-  }
 
   const recommended = getRecommendedProducts(storefront, product.id);
 
@@ -95,7 +84,6 @@ export const meta = ({ matches }: MetaArgs<typeof loader>) => {
 
 export default function Product() {
   const { product } = useLoaderData<typeof loader>();
-  const combinedListing = isCombinedListing(product);
   useGA4ProductView();
 
   const selectedVariant = useOptimisticVariant(
@@ -126,7 +114,7 @@ export default function Product() {
   }, [selectedVariant?.id]);
 
   useEffect(() => {
-    if (!selectedVariant?.selectedOptions || combinedListing) return;
+    if (!selectedVariant?.selectedOptions) return;
 
     const currentParams = new URLSearchParams(window.location.search);
     let needsUpdate = false;
@@ -153,7 +141,7 @@ export default function Product() {
         window.history.replaceState({}, "", `${location.pathname}?${newSearch}`);
       }
     }
-  }, [selectedVariant?.selectedOptions, combinedListing]);
+  }, [selectedVariant?.selectedOptions]);
 
   // El JSON-LD de Producto (incl. aggregateRating) se genera una sola vez,
   // en seoPayload.product() -> productJsonLd() (app/.server/seo.ts), y se

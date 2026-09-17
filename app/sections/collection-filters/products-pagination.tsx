@@ -17,10 +17,6 @@ import Link from "~/components/link";
 import { ProductCard } from "~/components/product/product-card";
 import type { AppliedFilter } from "~/types/others";
 import { translations } from "~/utils/translations";
-import {
-  COMBINED_LISTINGS_CONFIGS,
-  isCombinedListing,
-} from "~/utils/combined-listings";
 import { getAppliedFilterLink } from "./filter-utils";
 import ProductCardSecret from "~/components/product-secret/product-card-secret";
 
@@ -291,13 +287,6 @@ function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
       }}
     >
       {nodes
-        .filter(
-          (product: ProductCardFragment) =>
-            !(
-              COMBINED_LISTINGS_CONFIGS.hideCombinedListingsFromProductList &&
-              isCombinedListing(product)
-            ),
-        )
         .map((product: ProductCardFragment) => (
           // <ProductCard key={product.id} product={product} />
           <ProductCardSecret key={product.id} product={product} cardStyles={cardStyles} />

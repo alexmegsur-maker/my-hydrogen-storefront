@@ -5,7 +5,6 @@ import { type ProductMediaProps} from "~/components/product/product-media";
 import ProductMediaSecret from "~/components/product-secret/product-media-secret";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import type { loader as productRouteLoader } from "~/routes/products/product";
-import { isCombinedListing } from "~/utils/combined-listings";
 import "./secret-main-product.css"
 import Dialog from "~/components/dialog";
 import { useInfoSecret } from "~/stores/infoSecretStore";
@@ -54,7 +53,6 @@ export default function SecretProductInformation(
   } = props;
   const { product } = useLoaderData<typeof productRouteLoader>();
   const [currentProduct,setCurrentProduct] = useState(null)
-  const combinedListing = isCombinedListing(currentProduct);
   const [extraMedia,setExtraMedia] = useState([])
   const [logo,setLogo]=useState(null)
   const [page,setPage]=useState(null)
@@ -171,19 +169,7 @@ export default function SecretProductInformation(
       <div className="lg:flex grid grid-cols-1 ">
         <ProductMediaSecret
           key = { currentProduct?.handle }
-          media = {
-            combinedListing && currentProduct?.featuredImage? [
-              {
-                __typename:"MediaImage",
-                id:currentProduct.featuredImage.id,
-                mediaContentType:"IMAGE",
-                alt:currentProduct.featuredImage.altText,
-                previewImage:currentProduct.featuredImage,
-                image:currentProduct.featuredImage,
-              },
-              ...(currentProduct?.media?.nodes || []),
-            ]: currentProduct?.media?.nodes || []
-          }
+          media = {currentProduct?.media?.nodes || []}
           view360={extraMedia}
           logo={logo}
           mediaVideos={videos}
