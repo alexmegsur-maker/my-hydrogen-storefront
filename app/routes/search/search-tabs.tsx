@@ -1,4 +1,6 @@
+import { useLanguage } from "~/hooks/useLanguage";
 import { cn } from "~/utils/cn";
+import { translations } from "~/utils/translations";
 import type { SearchCounts, SearchType } from "./types";
 
 interface SearchTabsProps {
@@ -7,18 +9,21 @@ interface SearchTabsProps {
   onTabChange: (type: SearchType) => void;
 }
 
-const tabs: { type: SearchType; label: string }[] = [
-  { type: "products", label: "Products" },
-  { type: "articles", label: "Articles" },
-  { type: "pages", label: "Pages" },
-  { type: "collections", label: "Collections" },
-];
-
 export function SearchTabs({
   counts,
   activeTab,
   onTabChange,
 }: SearchTabsProps) {
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations.ES;
+
+  const tabs: { type: SearchType; label: string }[] = [
+    { type: "products", label: t.search_tabProducts },
+    { type: "articles", label: t.search_tabArticles },
+    { type: "pages", label: t.search_tabPages },
+    { type: "collections", label: t.search_tabCollections },
+  ];
+
   return (
     <div className="border-b border-line-subtle">
       <div className="flex gap-8">

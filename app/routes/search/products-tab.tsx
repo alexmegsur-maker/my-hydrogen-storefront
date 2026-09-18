@@ -3,6 +3,8 @@ import { useInView } from "react-intersection-observer";
 import type { SearchPageQuery } from "storefront-api.generated";
 import { Button } from "~/components/button";
 import { ProductsLoadedOnScroll } from "~/components/product-grid/products-loaded-on-scroll";
+import { useLanguage } from "~/hooks/useLanguage";
+import { translations } from "~/utils/translations";
 import { TabNoResults } from "./tab-no-results";
 
 interface ProductsTabProps {
@@ -17,6 +19,8 @@ export function ProductsTab({
   searchTerm,
 }: ProductsTabProps) {
   const { ref: inViewRef, inView } = useInView();
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations.ES;
 
   if (productsCount === 0) {
     return <TabNoResults type="products" searchTerm={searchTerm} />;
@@ -37,7 +41,7 @@ export function ProductsTab({
           {hasPreviousPage && (
             <PreviousLink className="flex justify-center mb-8">
               <Button variant="outline">
-                {isLoading ? "Loading..." : "↑ Load previous"}
+                {isLoading ? t.loadingText : t.loadPrev}
               </Button>
             </PreviousLink>
           )}
@@ -53,9 +57,7 @@ export function ProductsTab({
           />
           {hasNextPage && (
             <div ref={inViewRef} className="flex justify-center mt-8">
-              <Button variant="outline">
-                {isLoading ? "Loading..." : "Loading..."}
-              </Button>
+              <Button variant="outline">{t.loadingText}</Button>
             </div>
           )}
         </>

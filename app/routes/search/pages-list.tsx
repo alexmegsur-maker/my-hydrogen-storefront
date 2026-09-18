@@ -2,7 +2,9 @@ import { IMAGES_PLACEHOLDERS } from "@weaverse/hydrogen";
 import { Image } from "~/components/image";
 import { Link } from "~/components/link";
 import { RevealUnderline } from "~/components/reveal-underline";
+import { useLanguage } from "~/hooks/useLanguage";
 import { calculateAspectRatio } from "~/utils/image";
+import { translations } from "~/utils/translations";
 import type { PageSearchResult } from "./types";
 
 const PLACEHOLDER_IMAGE = {
@@ -44,6 +46,9 @@ interface PagesListProps {
 }
 
 export function PagesList({ pages }: PagesListProps) {
+  const lang = useLanguage();
+  const t = translations[lang] ?? translations.ES;
+
   return (
     <div className="grid grid-cols-1 gap-x-4 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
       {pages.map((page) => (
@@ -69,7 +74,7 @@ export function PagesList({ pages }: PagesListProps) {
             )}
             <div>
               <Link to={`/pages/${page.handle}`} variant="underline">
-                View page →
+                {t.search_viewPage}
               </Link>
             </div>
           </div>
