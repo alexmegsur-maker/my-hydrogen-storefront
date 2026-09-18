@@ -18,13 +18,14 @@ import Link from "~/components/link";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
 import { ProductBadges } from "~/components/product/badges";
 import { BundledVariants } from "~/components/product/bundled-variants";
-import { ProductMedia } from "~/components/product/product-media";
+import { ProductMedia } from "~/components/product-media";
 import { Quantity } from "~/components/product/quantity";
 import { VariantPrices } from "~/components/product/variant-prices";
 import { VariantSelector } from "~/components/product/variant-selector";
 import { ScrollReveal } from "~/components/scroll-reveal";
 import { layoutInputs, Section } from "~/components/section";
 import { PRODUCT_QUERY } from "~/graphql/queries";
+import { cn } from "~/utils/cn";
 import JudgemeStarsRating from "../main-product/judgeme-stars-rating";
 
 interface SingleProductData {
@@ -130,6 +131,12 @@ export default function SingleProduct(props: SingleProductProps) {
     <Section ref={ref} {...rest}>
       <div>
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2 lg:gap-12">
+          <div
+            className={cn(
+              "relative min-w-0",
+              showThumbnails && "[--thumbs-width:7rem]",
+            )}
+          >
           <ProductMedia
             mediaLayout="slider"
             imageAspectRatio="adapt"
@@ -140,6 +147,7 @@ export default function SingleProduct(props: SingleProductProps) {
             groupByOption={groupByOption}
             product={product}
           />
+          </div>
           <ScrollReveal
             animation="slide-in"
             className="flex flex-col justify-start space-y-5"
