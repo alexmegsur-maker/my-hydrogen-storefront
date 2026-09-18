@@ -25,6 +25,8 @@ export const schema = createSchema({
   limit: 1,
   childTypes: [
     "mp--breadcrumb",
+    "mp--promo-text",
+    "mp--availability",
     "mp--vendor",
     "mp--title",
     "mp--prices",
@@ -34,6 +36,8 @@ export const schema = createSchema({
     "mp--variant-selector",
     "mp--quantity-selector",
     "mp--atc-buttons",
+    "mp--estimated-delivery",
+    "mp--highlights",
     "mp--collapsible-details",
   ],
   enabledOn: {

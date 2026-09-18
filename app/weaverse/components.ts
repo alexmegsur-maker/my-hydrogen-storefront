@@ -45,11 +45,16 @@ import * as JudgemeReviewSummary from "~/sections/judgeme-reviews/review-summary
 import * as MainProduct from "~/sections/main-product";
 import * as JudgemeStarsRating from "~/sections/main-product/judgeme-stars-rating";
 import * as ProductATCButtons from "~/sections/main-product/product-atc-buttons";
+import * as ProductAvailability from "~/sections/main-product/product-availability";
 import * as ProductBadges from "~/sections/main-product/product-badges";
 import * as ProductBreadcrumb from "~/sections/main-product/product-breadcrumb";
 import * as ProductBundledVariants from "~/sections/main-product/product-bundled-variants";
 import * as ProductCollapsibleDetails from "~/sections/main-product/product-collapsible-details";
+import * as ProductEstimatedDelivery from "~/sections/main-product/product-estimated-delivery";
+import * as ProductHighlightItem from "~/sections/main-product/product-highlight-item";
+import * as ProductHighlights from "~/sections/main-product/product-highlights";
 import * as ProductInfo from "~/sections/main-product/product-info";
+import * as ProductPromoText from "~/sections/main-product/product-promo-text";
 import * as ProductMediaSection from "~/sections/main-product/product-media";
 import * as ProductPrices from "~/sections/main-product/product-prices";
 import * as ProductQuantitySelector from "~/sections/main-product/product-quantity-selector";
@@ -276,6 +281,11 @@ export const components: HydrogenComponent[] = [
   ProductQuantitySelector,
   ProductATCButtons,
   ProductCollapsibleDetails,
+  ProductAvailability,
+  ProductEstimatedDelivery,
+  ProductHighlights,
+  ProductHighlightItem,
+  ProductPromoText,
   RelatedProducts,
   RelatedArticles,
   CollectionFilters,
