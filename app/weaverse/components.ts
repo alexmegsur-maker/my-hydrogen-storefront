@@ -6,9 +6,18 @@ import * as SmokeAsh from "~/components/smoke-ash";
 import * as GroupButtons from "~/components/group-buttons";
 import * as SubHeading from "~/components/subheading";
 import * as AllProducts from "~/sections/all-products";
+import * as AllProductsV2 from "~/sections/all-products-v2";
+import * as AllProductsV2ProductGrid from "~/sections/all-products-v2/product-grid";
+import * as AllProductsV2Toolbar from "~/sections/all-products-v2/toolbar";
 import * as BlogPost from "~/sections/blog-post";
 import * as Blogs from "~/sections/blogs";
 import * as CollectionFilters from "~/sections/collection-filters";
+import * as MainCollection from "~/sections/main-collection";
+import * as MainCollectionHeader from "~/sections/main-collection/collection-header";
+import * as MainCollectionContent from "~/sections/main-collection/content";
+import * as MainCollectionFilters from "~/sections/main-collection/filters";
+import * as MainCollectionProductGrid from "~/sections/main-collection/product-grid";
+import * as MainCollectionToolbar from "~/sections/main-collection/toolbar";
 import * as CollectionList from "~/sections/collection-list";
 import * as CollectionListItems from "~/sections/collection-list/collections-items";
 import * as ColumnsWithImages from "~/sections/columns-with-images";
@@ -206,6 +215,15 @@ export const components: HydrogenComponent[] = [
   Paragraph,
   Link,
   AllProducts,
+  AllProductsV2,
+  AllProductsV2Toolbar,
+  AllProductsV2ProductGrid,
+  MainCollection,
+  MainCollectionHeader,
+  MainCollectionContent,
+  MainCollectionFilters,
+  MainCollectionProductGrid,
+  MainCollectionToolbar,
   FeaturedCollections,
   FeaturedCollectionItems,
   BlogPost,
