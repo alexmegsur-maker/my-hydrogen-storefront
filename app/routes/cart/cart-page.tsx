@@ -2,6 +2,7 @@ import {
   Analytics,
   CartForm,
   type CartQueryDataReturn,
+  useOptimisticCart,
 } from "@shopify/hydrogen";
 import type {
   CartBuyerIdentityInput,
@@ -138,7 +139,9 @@ export async function loader({ context }: LoaderFunctionArgs) {
 }
 
 export default function CartRoute() {
-  const { cart, featuredProducts } = useLoaderData<typeof loader>();
+  const { cart: originalCart, featuredProducts } =
+    useLoaderData<typeof loader>();
+  const cart = useOptimisticCart(originalCart);
 
   return (
     <>

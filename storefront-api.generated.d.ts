@@ -1676,6 +1676,23 @@ export type SitemapCatalogQuery = {
   };
 };
 
+export type CollectionCountQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+  handle: StorefrontAPI.Scalars['String']['input'];
+  first: StorefrontAPI.Scalars['Int']['input'];
+  after?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
+}>;
+
+export type CollectionCountQuery = {
+  collection?: StorefrontAPI.Maybe<{
+    products: {
+      nodes: Array<Pick<StorefrontAPI.Product, 'id'>>;
+      pageInfo: Pick<StorefrontAPI.PageInfo, 'hasNextPage' | 'endCursor'>;
+    };
+  }>;
+};
+
 export type CustomerCreateMutationVariables = StorefrontAPI.Exact<{
   input: StorefrontAPI.CustomerCreateInput;
 }>;
@@ -4302,6 +4319,10 @@ interface GeneratedQueryTypes {
   '#graphql\n      query SitemapCatalog {\n        products(first: 250) {\n          nodes {\n            handle\n            updatedAt\n          }\n        }\n        collections(first: 250) {\n          nodes {\n            handle\n            updatedAt\n          }\n        }\n      }\n    ': {
     return: SitemapCatalogQuery;
     variables: SitemapCatalogQueryVariables;
+  };
+  '#graphql\n  query collectionCount(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $first: Int!\n    $after: String\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      products(first: $first, after: $after) {\n        nodes {\n          id\n        }\n        pageInfo {\n          hasNextPage\n          endCursor\n        }\n      }\n    }\n  }\n': {
+    return: CollectionCountQuery;
+    variables: CollectionCountQueryVariables;
   };
   '#graphql\n  query LiveActivity($first: Int!) {\n    metaobjects(type: "live_system", first: $first, reverse:true) {\n      nodes {\n        id\n        fields {\n          key\n          value\n        }\n      }\n    }\n  }\n': {
     return: LiveActivityQuery;

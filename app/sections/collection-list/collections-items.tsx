@@ -15,7 +15,9 @@ interface CollectionsItemsProps extends OverlayProps {
   prevButtonText: string;
   nextButtonText: string;
   imageAspectRatio: ImageAspectRatio;
+  contentPosition: "over" | "below";
   collectionNameColor: string;
+  showProductCount: boolean;
   ref?: React.Ref<HTMLDivElement>;
   pgnBg: string;
   pgnColor: string;
@@ -37,7 +39,9 @@ function CollectionsItems(props: CollectionsItemsProps) {
     prevButtonText,
     nextButtonText,
     imageAspectRatio,
+    contentPosition,
     collectionNameColor,
+    showProductCount,
     enableOverlay,
     overlayColor,
     overlayColorHover,
@@ -110,7 +114,9 @@ function CollectionsItems(props: CollectionsItemsProps) {
                   key={collection.id}
                   collection={collection as Collection}
                   imageAspectRatio={imageAspectRatio}
+                  contentPosition={contentPosition}
                   collectionNameColor={collectionNameColor}
+                  showProductCount={showProductCount}
                   loading={getImageLoadingPriority(i, 2)}
                   enableOverlay={enableOverlay}
                   overlayColor={overlayColor}
@@ -276,6 +282,24 @@ export const schema = createSchema({
           },
           helpText:
             'Learn more about image <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio" target="_blank" rel="noopener noreferrer">aspect ratio</a> property.',
+        },
+        {
+          type: "select",
+          name: "contentPosition",
+          label: "Content position",
+          defaultValue: "below",
+          configs: {
+            options: [
+              { value: "over", label: "On top of image" },
+              { value: "below", label: "Below image" },
+            ],
+          },
+        },
+        {
+          type: "switch",
+          name: "showProductCount",
+          label: "Show product count",
+          defaultValue: true,
         },
         {
           type: "color",

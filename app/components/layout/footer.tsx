@@ -59,6 +59,7 @@ export function Footer() {
     newsletterDescription,
     newsletterPlaceholder,
     newsletterButtonText,
+    newsletterInputWidth,
 
     footerBorderColor,
     footerBorderCopyColor,
@@ -202,7 +203,7 @@ export function Footer() {
                     method="POST"
                     encType="multipart/form-data"
                   >
-                    <div className="flex">
+                    <div className="flex" style={{ maxWidth: newsletterInputWidth }}>
                       <input
                         name="email"
                         type="email"

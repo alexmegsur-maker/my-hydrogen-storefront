@@ -1334,6 +1334,19 @@ export const themeSchema: HydrogenThemeSchema = {
           condition:(theme)=>theme.showNewsletter ==true
         },
         {
+          type: "range",
+          name: "newsletterInputWidth",
+          label: "Input width",
+          configs: {
+            min: 200,
+            max: 480,
+            step: 10,
+            unit: "px",
+          },
+          defaultValue: 450,
+          condition:(theme)=>theme.showNewsletter ==true
+        },
+        {
           type:'heading',
           label:'footer menus'
         },
