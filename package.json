@@ -1,6 +1,6 @@
 {
   "name": "@weaverse/pilot",
-  "version": "2026.8.17",
+  "version": "2026.9.7",
   "description": "A production-ready Shopify storefront built with Hydrogen and Weaverse",
   "keywords": [
     "shopify",
@@ -53,7 +53,7 @@
     "@fontsource/manufacturing-consent": "^5.2.2",
     "@fontsource/montserrat": "^5.2.8",
     "@fontsource/outfit": "^5.2.8",
-    "@graphql-codegen/cli": "7.2.0",
+    "@graphql-codegen/cli": "7.4.0",
     "@gsap/react": "^2.1.2",
     "@judgeme/shopify-hydrogen": "^2.0.0",
     "@paypal/react-paypal-js": "^8.9.2",
@@ -76,7 +76,7 @@
     "@weaverse/hydrogen": "^5.20.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
-    "colord": "2.9.3",
+    "colord": "2.10.0",
     "graphql": "16.14.2",
     "graphql-config": "^5.0.3",
     "graphql-tag": "2.12.6",
@@ -113,7 +113,7 @@
     "@total-typescript/ts-reset": "0.6.1",
     "@types/node": "^26.1.1",
     "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
+    "@types/react-dom": "19.2.7",
     "@weaverse/biome": "5.8.0",
     "baseline-browser-mapping": "^2.9.17",
     "cross-env": "10.1.0",
@@ -126,6 +126,12 @@
   },
   "optionalDependencies": {
     "@esbuild/linux-x64": "0.28.0"
+  },
+  "overrides": {
+    "undici": "^7.29.0",
+    "ws": "^8.21.3",
+    "qs": "^6.16.0",
+    "lodash": "^4.18.1"
   },
   "engines": {
     "node": ">=20"
