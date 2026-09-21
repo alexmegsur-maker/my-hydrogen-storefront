@@ -5,6 +5,7 @@ import {
   CartForm,
   Money,
   type OptimisticCart,
+  OptimisticInput,
   useOptimisticData,
 } from "@shopify/hydrogen";
 import type { CartApiQueryFragment } from "storefront-api.generated";
@@ -19,6 +20,7 @@ import { useCartDrawerStore } from "./store";
 type CartLine = OptimisticCart<CartApiQueryFragment>["lines"]["nodes"][0];
 
 export type CartLineOptimisticData = {
+  action?: string;
   quantity?: number;
 };
 
@@ -34,9 +36,10 @@ export function CartLineItem({
   if (!line?.id) return null;
 
   const { id, quantity, merchandise, isOptimistic: lineOptimistic } = line;
-  // Workaround: line.isOptimistic is only set for newly added lines (Hydrogen limitation),
-  // so fall back to checking whether useOptimisticData has pending data (e.g. quantity change).
-  const isOptimistic = lineOptimistic ?? Object.keys(optimisticData).length > 0;
+  const isOptimistic =
+    lineOptimistic === undefined
+      ? JSON.stringify(optimisticData) !== "{}"
+      : lineOptimistic;
 
   if (typeof quantity === "undefined" || !merchandise?.product) return null;
 
@@ -59,7 +62,12 @@ export function CartLineItem({
     .join(" - ");
 
   return (
-    <li className="flex gap-4 border-b border-white/[0.06] py-4 first:pt-0 last:border-b-0">
+    <li
+      className="flex gap-4 border-b border-white/[0.06] py-4 first:pt-0 last:border-b-0"
+      style={{
+        display: optimisticData?.action === "remove" ? "none" : "flex",
+      }}
+    >
       {/* Imagen */}
       <div className="relative shrink-0">
         {image ? (
@@ -128,6 +136,7 @@ function ItemRemoveButton({ lineId }: { lineId: CartLine["id"] }) {
       >
         <XIcon aria-hidden="true" className="size-3" />
       </button>
+      <OptimisticInput id={lineId} data={{ action: "remove" }} />
     </CartForm>
   );
 }

@@ -1,5 +1,7 @@
+import type { MappedProductOptions } from "@shopify/hydrogen";
+
 export function hasOnlyDefaultVariant(
-  productOptions: { name: string; optionValues: { name: string }[] }[] = [],
+  productOptions: MappedProductOptions[] = [],
 ) {
   if (productOptions.length === 1) {
     const option = productOptions[0];
