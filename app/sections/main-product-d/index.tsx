@@ -116,7 +116,11 @@ export default function ProductInformationD(
     setCurrentProduct(auxProd);
     setConfiguratorProduct(auxProd?.id ?? null);
     syncedRouteProductId.current = product?.id;
-  }, [product]);
+    // Solo el id: tras añadir al carrito el loader revalida y devuelve un
+    // objeto nuevo con el producto de la URL original, lo que pisaba la
+    // silla elegida en cliente (los selectores cambian la URL con
+    // window.history, sin navegar).
+  }, [product?.id]);
 
   useEffect(() => {
     setCurrentProduct(productStore);
