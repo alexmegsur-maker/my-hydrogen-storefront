@@ -6,4 +6,8 @@ export default {
   appDirectory: "app",
   buildDirectory: "dist",
   ssr: true,
+  future: {
+    v8_passThroughRequests: false,
+    v8_trailingSlashAwareDataRequests: false,
+  },
 } satisfies Config;
