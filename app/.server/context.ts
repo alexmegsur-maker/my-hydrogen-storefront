@@ -45,7 +45,20 @@ export async function createHydrogenRouterContext(
       waitUntil,
       session,
       i18n: getLocaleFromRequest(request),
-      cart: { queryFragment: CART_QUERY_FRAGMENT },
+      cart: {
+        queryFragment: CART_QUERY_FRAGMENT,
+        // Weaverse Studio embeds the storefront in a cross-site iframe, where a
+        // SameSite=Lax cookie is never stored, so the cart was lost on every add.
+        // Partitioned (CHIPS) keeps it working even with third-party cookies blocked.
+        setId: (cartId: string) => {
+          const headers = new Headers();
+          headers.append(
+            "Set-Cookie",
+            `cart=${cartId.split("/").pop() || ""}; Path=/; SameSite=None; Secure; Partitioned`,
+          );
+          return headers;
+        },
+      },
     },
     additionalContext,
   );
