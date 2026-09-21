@@ -3,7 +3,6 @@ import { hydrogen } from "@shopify/hydrogen/vite";
 import { oxygen } from "@shopify/mini-oxygen/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { createLogger, defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 // @judgeme/shopify-hydrogen publica sus builds con "//# sourceMappingURL"
 // apuntando a los .ts fuente originales, que no vienen incluidos en el
@@ -31,11 +30,13 @@ const fontDisplayOptional = {
 };
 
 export default defineConfig(({ isSsrBuild }) => ({
+  resolve: {
+    tsconfigPaths: true,
+  },
   plugins: [
     hydrogen(),
     oxygen(),
     reactRouter(),
-    tsconfigPaths(),
     tailwindcss(),
     fontDisplayOptional,
   ],
@@ -80,19 +81,6 @@ export default defineConfig(({ isSsrBuild }) => ({
         "jsonp",
         "classnames",
         "react-share",
-        "typographic-trademark",
-        "typographic-single-spaces",
-        "typographic-registered-trademark",
-        "typographic-math-symbols",
-        "typographic-en-dashes",
-        "typographic-em-dashes",
-        "typographic-ellipses",
-        "typographic-currency",
-        "typographic-copyright",
-        "typographic-apostrophes-for-possessive-plurals",
-        "typographic-quotes",
-        "typographic-apostrophes",
-        "textr",
       ],
     },
   },
