@@ -5,7 +5,6 @@ import invariant from "tiny-invariant";
 import { seoPayload } from "~/.server/seo";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import { routeHeaders } from "~/utils/cache";
-import { maybeFilterOutCombinedListingsQuery } from "~/utils/combined-listings";
 import { WeaverseContent } from "~/weaverse";
 
 export const headers = routeHeaders;
@@ -21,7 +20,6 @@ export async function loader({
         ...getPaginationVariables(request, { pageBy: 16 }),
         country: storefront.i18n.country,
         language: storefront.i18n.language,
-        query: maybeFilterOutCombinedListingsQuery,
       },
     }),
     weaverse.loadPage({ type: "ALL_PRODUCTS" }),

@@ -2,6 +2,7 @@ import { CircleNotchIcon } from "@phosphor-icons/react";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type { HTMLAttributes } from "react";
+import { ScrollReveal } from "~/components/scroll-reveal";
 import { cn } from "~/utils/cn";
 
 export const variants = cva(
@@ -131,7 +132,19 @@ export function Button(props: ButtonProps) {
   }
 
   if (animate) {
-    rest["data-motion"] = "fade-up";
+    return (
+      <ScrollReveal
+        as="button"
+        ref={ref}
+        style={style}
+        type={type}
+        {...rest}
+        className={cn(variants({ variant, className }))}
+      >
+        {loading && <Spinner />}
+        {content}
+      </ScrollReveal>
+    );
   }
 
   return (

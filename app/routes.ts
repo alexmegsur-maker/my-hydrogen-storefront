@@ -39,6 +39,10 @@ export default hydrogenRoutes([
       route("predictive-search", "routes/api/predictive-search.ts"),
       route("extension-garantia", "routes/api/extension-garantia.ts"),
       route("products", "routes/api/products.ts"),
+      route(
+        "collection/:handle/product-count",
+        "routes/api/collection-product-count.ts",
+      ),
       route("product-secret", "routes/api/product-secret.ts"),
       route("product-software", "routes/api/product-software.ts"),
       route(":version/graphql.json", "routes/api/graphql.json.ts"),

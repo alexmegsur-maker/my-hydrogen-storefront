@@ -17,6 +17,7 @@ import { Dots } from "./dots";
 import { Bar } from "./bar";
 import type { Swiper as SwiperType } from "swiper";
 import { useRef, useState } from "react";
+import { ScrollReveal } from "~/components/scroll-reveal";
 import { cn } from "~/utils/cn";
 
 const variants = cva("group [&_.swiper]:h-full", {
@@ -125,7 +126,8 @@ export default function Slideshow(
   const { enableTransparentHeader } = useThemeSettings();
 
   return (
-    <section
+    <ScrollReveal
+      as="section"
       key={Object.values(rest)
         .filter((v) => typeof v !== "object")
         .join("-")}
@@ -205,7 +207,7 @@ export default function Slideshow(
             />
         }
       </Swiper>
-    </section>
+    </ScrollReveal>
   );
 }
 

@@ -13,6 +13,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Image } from "~/components/image";
+import { ScrollReveal } from "~/components/scroll-reveal";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import type { ImageAspectRatio } from "~/types/others";
 import { cn } from "~/utils/cn";
@@ -149,14 +150,14 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
         position:enableBar?"relative":"unset"
       }as CSSProperties}
     >
-      <Image
-        data={imageData}
-        data-motion="slide-in"
-        sizes="auto"
-        aspectRatio={aspRt}
-        className={cn("h-full w-full flex", variants({ objectFit, borderRadius }))}
-      
-      />
+      <ScrollReveal animation="slide-in">
+        <Image
+          data={imageData}
+          sizes="auto"
+          aspectRatio={aspRt}
+          className={cn("h-full w-full flex", variants({ objectFit, borderRadius }))}
+        />
+      </ScrollReveal>
       {enableBar &&
         <span
           ref={bar}

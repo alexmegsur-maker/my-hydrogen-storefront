@@ -4,7 +4,10 @@ import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { redirect } from "react-router";
 import { applyWeaverseSeo } from "~/.server/seo";
 import { COUNTRIES } from "~/utils/const";
+import { routeHeaders } from "~/utils/cache";
 import { validateWeaverseData, WeaverseContent } from "~/weaverse";
+
+export let headers = routeHeaders;
 
 const LOCALE_PREFIXES = Object.keys(COUNTRIES).filter((k) => k !== "default");
 

@@ -3,7 +3,6 @@ import { hydrogen } from "@shopify/hydrogen/vite";
 import { oxygen } from "@shopify/mini-oxygen/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { createLogger, defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 // @judgeme/shopify-hydrogen publica sus builds con "//# sourceMappingURL"
 // apuntando a los .ts fuente originales, que no vienen incluidos en el
@@ -30,12 +29,14 @@ const fontDisplayOptional = {
   },
 };
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
+  resolve: {
+    tsconfigPaths: true,
+  },
   plugins: [
     hydrogen(),
     oxygen(),
     reactRouter(),
-    tsconfigPaths(),
     tailwindcss(),
     fontDisplayOptional,
   ],
@@ -43,6 +44,19 @@ export default defineConfig({
     // Allow a strict Content-Security-Policy
     // without inlining assets as base64:
     assetsInlineLimit: 0,
+    ...(!isSsrBuild && {
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (id.includes("react-player")) return "vendor-media";
+            if (id.includes("swiper")) return "vendor-media";
+            if (id.includes("react-share")) return "vendor-social";
+            if (id.includes("@phosphor-icons")) return "vendor-icons";
+            if (id.includes("@radix-ui")) return "vendor-radix";
+          },
+        },
+      },
+    }),
   },
   customLogger: judgemeSourcemapFilteredLogger,
   server: {
@@ -66,20 +80,8 @@ export default defineConfig({
         "@radix-ui/react-primitive",
         "jsonp",
         "classnames",
-        "typographic-trademark",
-        "typographic-single-spaces",
-        "typographic-registered-trademark",
-        "typographic-math-symbols",
-        "typographic-en-dashes",
-        "typographic-em-dashes",
-        "typographic-ellipses",
-        "typographic-currency",
-        "typographic-copyright",
-        "typographic-apostrophes-for-possessive-plurals",
-        "typographic-quotes",
-        "typographic-apostrophes",
-        "textr",
+        "react-share",
       ],
     },
   },
-});
+}));

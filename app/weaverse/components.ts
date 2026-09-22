@@ -6,9 +6,18 @@ import * as SmokeAsh from "~/components/smoke-ash";
 import * as GroupButtons from "~/components/group-buttons";
 import * as SubHeading from "~/components/subheading";
 import * as AllProducts from "~/sections/all-products";
+import * as AllProductsV2 from "~/sections/all-products-v2";
+import * as AllProductsV2ProductGrid from "~/sections/all-products-v2/product-grid";
+import * as AllProductsV2Toolbar from "~/sections/all-products-v2/toolbar";
 import * as BlogPost from "~/sections/blog-post";
 import * as Blogs from "~/sections/blogs";
 import * as CollectionFilters from "~/sections/collection-filters";
+import * as MainCollection from "~/sections/main-collection";
+import * as MainCollectionHeader from "~/sections/main-collection/collection-header";
+import * as MainCollectionContent from "~/sections/main-collection/content";
+import * as MainCollectionFilters from "~/sections/main-collection/filters";
+import * as MainCollectionProductGrid from "~/sections/main-collection/product-grid";
+import * as MainCollectionToolbar from "~/sections/main-collection/toolbar";
 import * as CollectionList from "~/sections/collection-list";
 import * as CollectionListItems from "~/sections/collection-list/collections-items";
 import * as ColumnsWithImages from "~/sections/columns-with-images";
@@ -36,10 +45,17 @@ import * as JudgemeReviewSummary from "~/sections/judgeme-reviews/review-summary
 import * as MainProduct from "~/sections/main-product";
 import * as JudgemeStarsRating from "~/sections/main-product/judgeme-stars-rating";
 import * as ProductATCButtons from "~/sections/main-product/product-atc-buttons";
+import * as ProductAvailability from "~/sections/main-product/product-availability";
 import * as ProductBadges from "~/sections/main-product/product-badges";
 import * as ProductBreadcrumb from "~/sections/main-product/product-breadcrumb";
 import * as ProductBundledVariants from "~/sections/main-product/product-bundled-variants";
 import * as ProductCollapsibleDetails from "~/sections/main-product/product-collapsible-details";
+import * as ProductEstimatedDelivery from "~/sections/main-product/product-estimated-delivery";
+import * as ProductHighlightItem from "~/sections/main-product/product-highlight-item";
+import * as ProductHighlights from "~/sections/main-product/product-highlights";
+import * as ProductInfo from "~/sections/main-product/product-info";
+import * as ProductPromoText from "~/sections/main-product/product-promo-text";
+import * as ProductMediaSection from "~/sections/main-product/product-media";
 import * as ProductPrices from "~/sections/main-product/product-prices";
 import * as ProductQuantitySelector from "~/sections/main-product/product-quantity-selector";
 import * as ProductSummary from "~/sections/main-product/product-summary";
@@ -204,6 +220,15 @@ export const components: HydrogenComponent[] = [
   Paragraph,
   Link,
   AllProducts,
+  AllProductsV2,
+  AllProductsV2Toolbar,
+  AllProductsV2ProductGrid,
+  MainCollection,
+  MainCollectionHeader,
+  MainCollectionContent,
+  MainCollectionFilters,
+  MainCollectionProductGrid,
+  MainCollectionToolbar,
   FeaturedCollections,
   FeaturedCollectionItems,
   BlogPost,
@@ -243,6 +268,8 @@ export const components: HydrogenComponent[] = [
   ImageGalleryItems,
   ImageGalleryItem,
   MainProduct,
+  ProductInfo,
+  ProductMediaSection,
   ProductBreadcrumb,
   ProductBadges,
   ProductVendor,
@@ -254,6 +281,11 @@ export const components: HydrogenComponent[] = [
   ProductQuantitySelector,
   ProductATCButtons,
   ProductCollapsibleDetails,
+  ProductAvailability,
+  ProductEstimatedDelivery,
+  ProductHighlights,
+  ProductHighlightItem,
+  ProductPromoText,
   RelatedProducts,
   RelatedArticles,
   CollectionFilters,

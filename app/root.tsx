@@ -99,6 +99,10 @@ export const links: LinksFunction = () => {
       rel: "preconnect",
       href: "https://shop.app",
     },
+    {
+      rel: "preconnect",
+      href: "https://www.googletagmanager.com",
+    },
     { rel: "icon", type: "image/svg+xml", href: "https://cdn.shopify.com/s/files/1/0777/6370/7216/files/favicon.png?v=1694621278" },
   ];
 };
@@ -174,7 +178,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
   );
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export const Layout = withWeaverse(function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
@@ -332,6 +336,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
     </IsMobileContext.Provider>
   );
-}
+});
 
-export default withWeaverse(App);
+export default App;

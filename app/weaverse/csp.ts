@@ -90,6 +90,7 @@ export function getWeaverseCsp(
     ],
     connectSrc: [
       "vimeo.com",
+      "*.shopifysvc.com",
       "*.google-analytics.com",
       "*.analytics.google.com",
       "*.googletagmanager.com",

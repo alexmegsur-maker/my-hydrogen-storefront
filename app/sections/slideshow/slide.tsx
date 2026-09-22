@@ -11,7 +11,6 @@ import { overlayInputs } from "~/components/overlay";
 import type { OverlayAndBackgroundProps } from "~/components/overlay-and-background";
 import { OverlayAndBackground } from "~/components/overlay-and-background";
 import { layoutInputs } from "~/components/section";
-import { useAnimation } from "~/hooks/use-animation";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 
 const variants = cva("flex h-full w-full flex-col [&_.paragraph]:mx-[unset]", {
@@ -103,8 +102,7 @@ export default function Slide(props: SlideProps) {
     ...rest
   } = props;
 
-  const  innerRef = useRef(null)
-  const [scope] = useAnimation(innerRef);
+  const innerRef = useRef(null)
   const isMobile = useIsMobile(600);
   
   return (

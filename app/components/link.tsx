@@ -11,6 +11,7 @@ import {
   type LinkProps as RemixLinkProps,
   useRouteLoaderData,
 } from "react-router";
+import { ScrollReveal } from "~/components/scroll-reveal";
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
@@ -93,6 +94,7 @@ export interface LinkProps
     Partial<Omit<HydrogenComponentProps, "children">>,
     LinkData {
   ref?: React.Ref<HTMLAnchorElement>;
+  animate?: boolean;
 }
 
 function checkExternal(to: LinkProps["to"]) {
@@ -169,6 +171,7 @@ export function Link(props: LinkProps) {
     alignment,
     children,
     target,
+    animate = true,
     ...rest
   } = props;
   const { enableViewTransition } = useThemeSettings();
@@ -201,25 +204,32 @@ export function Link(props: LinkProps) {
   }
 
   const isExternal = checkExternal(href);
+  const linkProps = {
+    viewTransition: enableViewTransition,
+    to: href,
+    onMouseEnter: () => setIsHover(true),
+    onMouseLeave: () => setIsHover(false),
+    style: {
+      ...style,
+      transform: isHover ? "translateY(-10%)" : "unset",
+      ...selectorPaddingMargin("padding", paddingSelect, paddingText),
+      transition: "all 0.4s ease",
+    },
+    className: cn(variants({ variant }), className),
+    target: target !== undefined ? target : isExternal ? "_blank" : undefined,
+    ...rest,
+  };
+
+  if (animate) {
+    return (
+      <ScrollReveal as={RemixLink} ref={ref} {...linkProps}>
+        {children || text}
+      </ScrollReveal>
+    );
+  }
 
   return (
-    <RemixLink
-      ref={ref}
-      viewTransition={enableViewTransition}
-      to={href}
-      onMouseEnter = {()=>setIsHover(true)}
-      onMouseLeave = {()=>setIsHover(false)}
-      style={{
-        ...style,
-        transform:isHover ? "translateY(-10%)":"unset",
-        ...selectorPaddingMargin("padding",paddingSelect,paddingText),
-        transition:"all 0.4s ease",
-      }}
-      className={cn(variants({ variant }), className)}
-      target={target !== undefined ? target : isExternal ? "_blank" : undefined}
-      {...rest}
-      
-    >
+    <RemixLink ref={ref} {...linkProps}>
       {children || text}
     </RemixLink>
   );

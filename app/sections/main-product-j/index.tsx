@@ -87,7 +87,8 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
       setProduct(auxProd)
     }
     setCurrentProduct(auxProd)
-  },[product])
+    // Solo el id: ver main-product-d (revalidación tras añadir al carrito).
+  },[product?.id])
 
   
   useEffect(()=>{

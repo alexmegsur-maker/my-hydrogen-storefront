@@ -18,6 +18,7 @@ import { useLanguage } from "~/hooks/useLanguage";
 import { cn } from "~/utils/cn";
 import { translations } from "~/utils/translations";
 import { CountrySelector } from "./country-selector";
+import { PaymentMethods } from "./footer-payment-methods";
 import { FooterMenu } from "./menu/footer-menu";
 import { useEffect, useState } from "react";
 import { JudgemeMedals } from "@judgeme/shopify-hydrogen";
@@ -58,6 +59,7 @@ export function Footer() {
     newsletterDescription,
     newsletterPlaceholder,
     newsletterButtonText,
+    newsletterInputWidth,
 
     footerBorderColor,
     footerBorderCopyColor,
@@ -72,6 +74,19 @@ export function Footer() {
     footerCopySize,
     showMedal,
 
+    showPaymentMethods,
+    showAmazonPay,
+    showPayPal,
+    showKlarna,
+    showGooglePay,
+    showApplePay,
+    showJCB,
+    showAmericanExpress,
+    showVisa,
+    showMastercard,
+    showDiners,
+    showDiscover,
+    showAlipay,
   } = useThemeSettings();
   const fetcher = useFetcher<{ ok: boolean; error: string }>();
   const lang = useLanguage();
@@ -188,7 +203,7 @@ export function Footer() {
                     method="POST"
                     encType="multipart/form-data"
                   >
-                    <div className="flex">
+                    <div className="flex" style={{ maxWidth: newsletterInputWidth }}>
                       <input
                         name="email"
                         type="email"
@@ -247,6 +262,21 @@ export function Footer() {
             <Link to={privacidad} className={`text-[${footerCopyColor}] hover:text-white`}>{t.footer_privacyLink}</Link>
             <Link to={cookies} className={`text-[${footerCopyColor}] hover:text-white`}>{t.footer_cookiesLink}</Link>
           </div>
+          <PaymentMethods
+            showPaymentMethods={showPaymentMethods}
+            showAmazonPay={showAmazonPay}
+            showPayPal={showPayPal}
+            showKlarna={showKlarna}
+            showGooglePay={showGooglePay}
+            showApplePay={showApplePay}
+            showJCB={showJCB}
+            showAmericanExpress={showAmericanExpress}
+            showVisa={showVisa}
+            showMastercard={showMastercard}
+            showDiners={showDiners}
+            showDiscover={showDiscover}
+            showAlipay={showAlipay}
+          />
         </div>
       </div>
     </footer>

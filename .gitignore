@@ -23,3 +23,6 @@ scripts/*
 !scripts/sync-tracking.cts
 specs/
 templates/
+
+# Carpeta temporal de comparacion Pilot (referencia, no forma parte del proyecto)
+.pilot-compare/
