@@ -157,6 +157,7 @@ interface UniverseSelectorProps extends HydrogenComponentProps {
   cBgColorImg:string;
   cBorderColor: string;
   cActiveBorderColor: string;
+  cShadow: string;
   cRadius: string;
   swatchRatio: string;
   cTextPadding: string;
@@ -322,6 +323,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
     descPaddingText,
     descMarginSelect,
     descMarginText,
+    cShadow,
     ...rest
   } = props;
 
@@ -498,12 +500,13 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
                   border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
                   borderRadius: cRadius,
                   cursor: "pointer" ,
-                  opacity: card.available ? 1 : 0.35,
+                  opacity: 1,
                   transition: "all 0.3s ease",
                   // justifyContent:"center",
                   alignItems:"center",
                   position:"relative",
-                  minHeight:"137px"
+                  minHeight:"137px",
+                  boxShadow:active?`0 0 20px ${cShadow}50`:"unset"
                 }}
               >
                 <div
@@ -518,6 +521,24 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
                     overflow:"hidden"
                   }}
                 >
+                  {active && (
+                    <span
+                      className="material-check absolute z-10 flex items-center justify-center"
+                      style={{
+                        top: "0.3rem",
+                        right: "0.3rem",
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                        background: cActiveBorderColor,
+                        fontSize: "10px",
+                        lineHeight: 1,
+                        boxShadow:`0 0 10px ${cActiveBorderColor}`
+                      }}
+                    >
+                      
+                    </span>
+                  )}
                   {card.image && (
                     <img src={card.image} alt={card.label} className="h-full w-full object-contain" style={{transform:"scale(1.4)",background:cBgColorImg,marginTop:"calc(5% * 2)" }} />
                   )}
@@ -746,6 +767,7 @@ export const schema = createSchema({
         { type: "color", label: "Background", name: "cBgColor", defaultValue: "#0A0A0A" },
         { type: "color", label: "Borde", name: "cBorderColor", defaultValue: "#ffffff14" },
         { type: "color", label: "Borde activo", name: "cActiveBorderColor", defaultValue: "#C9A227" },
+        { type: "color", label: "BoxShadow", name: "cShadow", defaultValue: "#ffffff" },
         { type: "text", label: "Border radius", name: "cRadius", defaultValue: "6px" },
         { type: "text", label: "Aspect ratio de la imagen", name: "swatchRatio", defaultValue: "4/3" },
         { type: "text", label: "Padding del texto", name: "cTextPadding", defaultValue: "0.8rem" },

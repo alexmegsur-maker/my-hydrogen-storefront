@@ -47,6 +47,7 @@ interface MaterialFinishSelectorProps extends HydrogenComponentProps {
   cBgColor: string;
   cBorderColor: string;
   cActiveBorderColor: string;
+  cShadow: string;
   cRadius: string;
   cTextGap: string;
   overlayColor: string;
@@ -65,7 +66,6 @@ interface MaterialFinishSelectorProps extends HydrogenComponentProps {
   nWeight: string;
   // check
   checkBgColor: string;
-  checkColor: string;
   // etiqueta de modelo (custom.model_tag), superpuesta en la esquina de la imagen
   mdlColor: string;
   mdlSize: string;
@@ -194,6 +194,7 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
     cBgColor,
     cBorderColor,
     cActiveBorderColor,
+    cShadow,
     cRadius,
     cTextGap,
     overlayColor,
@@ -209,7 +210,6 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
     nFamily,
     nWeight,
     checkBgColor,
-    checkColor,
     mdlColor,
     mdlSize,
     mdlLetter,
@@ -391,11 +391,12 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                   border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
                   background:cBgColor,
                   cursor:"pointer" ,
-                  opacity: card.available ? 1 : 0.35,
+                  opacity: 1,
                   transition: "all 0.3s ease",
                   position:"relative",
                   alignItems:"center",
-                  minHeight:"137px"
+                  minHeight:"137px",
+                  boxShadow:active ?`0 0 20px ${cShadow}50`:"unset"
 
                 }}
               >
@@ -453,18 +454,18 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
                     <span
                       className="material-check absolute z-10 flex items-center justify-center"
                       style={{
-                        top: "0.5rem",
-                        right: "0.5rem",
-                        width: "18px",
-                        height: "18px",
+                        top: "0.3rem",
+                        right: "0.3rem",
+                        width: "10px",
+                        height: "10px",
                         borderRadius: "50%",
                         background: checkBgColor,
-                        color: checkColor,
                         fontSize: "10px",
                         lineHeight: 1,
+                        boxShadow:`0 0 10px ${checkBgColor}`
                       }}
                     >
-                      ✓
+                      
                     </span>
                   )}
 
@@ -649,6 +650,7 @@ export const schema = createSchema({
         { type: "color", label: "Background (sin imagen)", name: "cBgColor", defaultValue: "#0A0A0A" },
         { type: "color", label: "Borde", name: "cBorderColor", defaultValue: "#ffffff2a" },
         { type: "color", label: "Borde activo", name: "cActiveBorderColor", defaultValue: "#C9A227" },
+        { type: "color", label: "Box shadow", name: "cShadow", defaultValue: "#ffffff" },
         { type: "text", label: "Border radius", name: "cRadius", defaultValue: "10px" },
         { type: "text", label: "Aspect ratio del swatch", name: "swatchRatio", defaultValue: "3/4" },
         {
@@ -664,8 +666,7 @@ export const schema = createSchema({
           name: "cTextGap",
           defaultValue: "1.5rem 0.7rem 0.7rem",
         },
-        { type: "color", label: "Fondo del check", name: "checkBgColor", defaultValue: "#0A0A0A" },
-        { type: "color", label: "Color del check", name: "checkColor", defaultValue: "#FFFFFF" },
+        { type: "color", label: "Fondo del check", name: "checkBgColor", defaultValue: "#ffffff" },
       ],
     },
     {

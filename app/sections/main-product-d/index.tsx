@@ -234,6 +234,7 @@ export const schema = createSchema({
     "heading",
     "subheading",
     "paragraph",
+    "reserva-bar",
   ],
   settings: [
     {
