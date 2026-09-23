@@ -517,7 +517,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
                     transition: "filter 0.3s ease",
                     width:"90%",
                     height:"70%",
-                    marginTop:"5%",
+                    marginTop:"5%", 
                     overflow:"hidden"
                   }}
                 >

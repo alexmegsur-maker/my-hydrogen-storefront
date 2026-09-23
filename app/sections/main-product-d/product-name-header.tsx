@@ -139,7 +139,17 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
     .join(" " + (separator || "·") + " ");
 
   return (
-    <Section {...rest}>
+    // animate=false: el scroll-reveal de Section aplica un `transform` (incluso
+    // en reposo, translate-y-0), lo que crea un containing block para el
+    // `LateralCollection` de reseñas (position: fixed) anidado más abajo — el
+    // panel de reseñas quedaba anclado a esta Section pequeña en vez de a la
+    // ventana. Sin transform, el fixed vuelve a cubrir toda la pantalla.
+    <Section
+      {...rest}
+      animate={false}
+      className="static overflow-visible"
+      containerClassName="static overflow-visible"
+    >
       <div
         className="spec-header flex w-full items-start justify-between gap-4"
         style={{
