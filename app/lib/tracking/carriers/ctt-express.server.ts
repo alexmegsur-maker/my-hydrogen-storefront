@@ -1,34 +1,26 @@
-// CTT Express "Servicios Web" — adaptador de tracking.
+// CTT Express "Get Shipping Tracking API" — adaptador de tracking.
 //
-// Credenciales ya configuradas (ver .env): CTT_EXPRESS_CLIENT_CODE,
-// CTT_EXPRESS_CLIENT_ID, CTT_EXPRESS_CLIENT_SECRET, CTT_EXPRESS_USERNAME,
-// CTT_EXPRESS_PASSWORD — exactamente los mismos 5 campos que pide el propio
-// plugin oficial de CTT Express para Shopify en su pantalla "Cuenta"
-// (ID Cliente / Clave secreta cliente / Nombre de usuario / Contraseña /
-// Código central cliente — ver guía "Guia_Shopify_CttExpress").
+// CONFIRMADO con una petición real que el usuario probó y funciona
+// (2026-09-24):
+//   GET https://api.cttexpress.com/integrations/trf/item-history-api/history/{code}?view=APITRACK&showItems=false
+//   Header: Authorization: Bearer <token>
+// Sin parámetro de "Client Center Code" — la ruta es la del ejemplo curl de
+// la doc (sin "-info"; la sección "Connection URLs" de la doc lo daba con
+// "-info" pero esa variante NO es la que funciona).
 //
-// ⚠️ PENDIENTE — igual que con Correos Express (ver correos-express.server.ts):
-// esa guía documenta la pantalla de configuración del PLUGIN de Shopify, no
-// el contrato técnico (protocolo/URL/operación) del API de "Servicios Web"
-// al que ese plugin se conecta por detrás. La guía SÍ confirma, en la sección
-// 8 "Códigos de error" (códigos numéricos 1001-1099, mensajes con marcadores
-// "%nombre del parámetro%"), que es un webservice de estilo SOAP/WSDL legacy
-// — de ahí que TOKEN_URL/TRACKING_URL de abajo sigan sin confirmar.
+// El Bearer token es un access token de Cognito (decodificado: iss
+// = cognito-idp.eu-central-1.amazonaws.com/eu-central-1_IyoNKUCFs, claim
+// client_id = CTT_EXPRESS_CLIENT_ID ya presente en .env, expira a las 24h
+// exactas de emitido). Esto sugiere que se puede pedir automáticamente vía
+// OAuth2 client_credentials contra el dominio Cognito de CTT, usando
+// CTT_EXPRESS_CLIENT_ID + CTT_EXPRESS_CLIENT_SECRET — pero no tenemos
+// confirmado el dominio del token endpoint (el "iss" es el emisor para
+// validar el JWT, no la URL de token). Mientras tanto, el token se pega a
+// mano en CTT_EXPRESS_API_TOKEN y hay que renovarlo cada 24h.
 //
-// Para terminar la integración hace falta, del equipo técnico/comercial de
-// CTT Express (91 660 22 00 / https://www.cttexpress.com/hazte-cliente/):
-//   1. URL del WSDL (o base REST, si ya migraron) del servicio de consulta
-//      de expediciones/tracking — no el de creación de envíos del plugin.
-//   2. Nombre de la operación/método para consultar el estado de UN envío
-//      por número de expedición (awb/tracking number).
-//   3. Cómo se usan exactamente client_id/client_secret/usuario/contraseña
-//      en esa llamada (¿token previo tipo OAuth2? ¿Basic Auth directo?
-//      ¿los 4 van en cada petición?).
-//
-// En cuanto CTT confirme esto, solo hace falta rellenar TOKEN_URL y
-// TRACKING_URL (o eliminar getAccessToken() si no hace falta token previo) —
-// el resto del adaptador (credenciales, mapeo de estados, mapeo de errores)
-// ya está listo.
+// Credenciales en .env (ver .env.example):
+//   CTT_EXPRESS_API_TOKEN — el Bearer token vigente (dura 24h).
+//   CTT_EXPRESS_ENV       — "test" | "production" (por defecto "production").
 
 import type {
   NormalizedTracking,
@@ -37,181 +29,205 @@ import type {
 } from '../types';
 import { STATUS_LABELS } from '../types';
 
-// TODO: confirmar con CTT Express — ver bloque de comentarios de arriba.
-const TOKEN_URL = 'https://TODO-confirmar-url-token.cttexpress.com';
-const TRACKING_URL = 'https://TODO-confirmar-url-tracking.cttexpress.com';
+const TEST_BASE = 'https://api-test.cttexpress.com';
+const PROD_BASE = 'https://api.cttexpress.com';
+const TRACKING_PATH = '/integrations/trf/item-history-api/history/';
 
 export interface CttExpressCredentials {
-  clientCode?: string;
-  clientId?: string;
-  clientSecret?: string;
-  username?: string;
-  password?: string;
+  apiToken?: string;
+  env?: string; // "test" | "production"
 }
 
-// Tabla de errores oficial — guía "Guia_Shopify_CttExpress", sección 8.
-// Los códigos son de estilo SOAP/WSDL legacy; se dejan listos para cuando el
-// API de tracking real empiece a devolverlos.
-const CTT_ERROR_MESSAGES: Record<string, string> = {
-  '1001': 'Usuario inválido o contraseña incorrecta',
-  '1002': 'Permiso denegado sobre el método solicitado',
-  '1003': 'Parámetros inválidos',
-  '1004': 'Información solicitada no encontrada',
-  '1005': 'Se ha encontrado más de un resultado con los parámetros informados',
-  '1006': 'No tiene permisos sobre la información solicitada',
-  '1007': 'No se ha documentado un campo obligatorio',
-  '1008': 'No se ha podido determinar el destino/origen del servicio',
-  '1009': 'El envío no se puede anular',
-  '1010': 'El tipo de servicio no es válido',
-  '1011': 'Servicio no autorizado',
-  '1012': 'Ha ocurrido un error al insertar',
-  '1020': 'El tipo de servicio solicitado no admite los kg indicados',
-  '1021': 'Tipo de servicio solicitado no admitido para delegación y país',
-  '1098': 'El método es obsoleto',
-  '1099': 'Ha ocurrido un error al ejecutar el método',
+// Tabla de errores oficial — doc "Get Shipping Tracking API v2.0", sección
+// "Error Responses". Son códigos de estado HTTP, no cuerpos de error con
+// código propio (a diferencia del webservice legacy que asumía la versión
+// anterior de este adaptador).
+const CTT_HTTP_ERROR_MESSAGES: Record<number, string> = {
+  400: 'Argumentos incorrectos',
+  401: 'No autenticado o sin autorización para esta acción',
+  403: 'Acción prohibida',
+  404: 'No se encontró información para ese número de envío',
+  405: 'Método no permitido',
+  406: 'Not Acceptable',
+  409: 'Conflicto con un envío existente',
+  412: 'Precondición fallida',
+  415: 'Tipo de contenido no soportado',
+  500: 'Error del servicio de CTT Express, reintenta más tarde',
+  502: 'Bad Gateway',
+  504: 'Gateway Timeout',
 };
 
-function cttErrorMessage(code: string, fallback: string): string {
-  return CTT_ERROR_MESSAGES[code] ? `CTT Express (${code}): ${CTT_ERROR_MESSAGES[code]}` : fallback;
+function cttHttpErrorMessage(status: number): string {
+  const known = CTT_HTTP_ERROR_MESSAGES[status];
+  return known ? `CTT Express (HTTP ${status}): ${known}` : `CTT Express API HTTP ${status}`;
 }
 
-// Estados según se ven en el panel del plugin (guía, capturas de "Estado del
-// envío" y "Seguimiento"): Preparado, Manifestado, Recogida Fallida, Envío en
-// curso, Pendiente De Depositar En Punto Ctt, Entregado, Entregado/Devolución,
-// Envío Anulado, Pedido cancelado, En reparto. El API real de tracking podría
-// usar otro vocabulario — ajustar aquí en cuanto se vean respuestas reales.
-const DELIVERED_KW = ['entregado'];
-const OUT_FOR_DELIVERY_KW = ['en reparto', 'reparto'];
-const FAILED_KW = ['anulado', 'cancelado', 'recogida fallida'];
-const PRE_TRANSIT_KW = ['preparado', 'manifestado', 'pendiente de depositar', 'recogida'];
-const IN_TRANSIT_KW = ['en curso', 'tránsito', 'transito'];
+// Mapeo de eventos a nuestro TrackingStatus a partir del `code` numérico,
+// con las descripciones (`description`) como respaldo por palabras clave.
+// El ejemplo de la doc PDF viene en inglés, pero las respuestas reales de
+// producción (confirmado 2026-09-24 con un envío real) llegan en ESPAÑOL —
+// de ahí que las palabras clave cubran ambos idiomas. Códigos confirmados
+// con datos reales: 0000, 0900, 1000, 1200, 1500, 2100; 1600 solo visto en
+// el ejemplo de la doc. La tabla completa de códigos vive en un fichero
+// descargable aparte ("Download STATUS, INCIDENTS, and MANAGEMENTS codes")
+// no incluido en la doc que tenemos — si aparece un código nuevo sin
+// clasificar, ampliar KNOWN_CODES abajo.
+const KNOWN_CODES: Record<string, TrackingStatus> = {
+  '0000': 'pre_transit', // Manifested / Manifestado
+  '0900': 'in_transit', // In Transit / En Tránsito
+  '1000': 'in_transit', // Delegación de tránsito (confirmado con envío real)
+  '1200': 'in_transit', // Destination Branch / Delegación destino
+  '1500': 'out_for_delivery', // Out for Delivery / En reparto
+  '1600': 'failed', // Failed Delivery (solo visto en el ejemplo de la doc)
+  '2100': 'delivered', // Delivered / Entregado
+};
 
-function mapCttStatus(desc: string): TrackingStatus {
-  const d = desc.toLowerCase();
-  if (FAILED_KW.some((k) => d.includes(k))) return 'failed';
+const DELIVERED_KW = ['delivered', 'entregado'];
+const OUT_FOR_DELIVERY_KW = ['out for delivery', 'en reparto', 'reparto'];
+const FAILED_KW = ['failed delivery', 'undelivered', 'cancel', 'anulado', 'fallid'];
+const IN_TRANSIT_KW = [
+  'in transit',
+  'destination branch',
+  'transit',
+  'tránsito',
+  'transito',
+  'delegación',
+  'delegacion',
+];
+const PRE_TRANSIT_KW = ['manifested', 'collected', 'pick up', 'pickup', 'manifestado', 'recogid'];
+
+function mapCttStatus(code: string, description: string, eventType: string): TrackingStatus {
+  if (KNOWN_CODES[code]) return KNOWN_CODES[code];
+
+  const d = description.toLowerCase();
   if (DELIVERED_KW.some((k) => d.includes(k))) return 'delivered';
+  if (FAILED_KW.some((k) => d.includes(k))) return 'failed';
   if (OUT_FOR_DELIVERY_KW.some((k) => d.includes(k))) return 'out_for_delivery';
   if (IN_TRANSIT_KW.some((k) => d.includes(k))) return 'in_transit';
   if (PRE_TRANSIT_KW.some((k) => d.includes(k))) return 'pre_transit';
+
+  // Un evento de tipo INCT (incidencia) sin descripción reconocida se marca
+  // como excepción en vez de "unknown" — es información real, solo que no
+  // se pudo clasificar en un estado más específico.
+  if (eventType === 'INCT') return 'exception';
+
   return 'unknown';
 }
 
-// Forma de respuesta ASUMIDA (no confirmada) para cuando TRACKING_URL esté
-// listo — ajustar en cuanto se vea una respuesta real del API.
-interface CttTrackingEventRaw {
-  fecha?: string;         // asunción: "DD/MM/YYYY HH:mm:ss" o ISO
-  descripcion?: string;
-  localidad?: string;
+// Forma de la respuesta — tomada literalmente del cuerpo de ejemplo de la
+// doc "Get Shipping Tracking API v2.0".
+interface CttEventDetail {
+  event_longitude_gps?: string;
+  event_latitude_gps?: string;
+  event_courier_code?: string;
+  origin_province_name?: string;
+  destin_province_name?: string;
+  signee_name?: string;
+  delivery_comments?: string;
+  incident_type_name?: string;
+  incident_type_code?: string;
+  incident_type_desc?: string;
+  allow_managements?: string;
+  management_type?: string;
 }
+
+interface CttEventRaw {
+  code?: string;
+  description?: string;
+  type?: string; // STATUS | INCT | INAT (Annex 1) — la tabla de campos dice "STATUS, MANAGEMENTS"
+  event_date?: string;
+  detail?: CttEventDetail;
+}
+
+interface CttTrackingData {
+  shipping_code?: string;
+  shipping_history?: { events?: CttEventRaw[] };
+  committed_delivery_datetime?: string;
+  delivery_date?: string;
+  origin_name?: string;
+  destin_name?: string;
+}
+
 interface CttTrackingResponse {
-  expedicion?: string;
-  estado?: string;
-  eventos?: CttTrackingEventRaw[];
-  error?: { codigo: string; descripcion?: string };
-}
-
-async function getAccessToken(creds: Required<Pick<CttExpressCredentials, 'clientId' | 'clientSecret' | 'username' | 'password'>>): Promise<string> {
-  const res = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'password',
-      client_id: creds.clientId,
-      client_secret: creds.clientSecret,
-      username: creds.username,
-      password: creds.password,
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`No se pudo obtener token de CTT Express (HTTP ${res.status})`);
-  }
-
-  const json = (await res.json()) as { access_token?: string };
-  if (!json.access_token) {
-    throw new Error('Respuesta de token de CTT Express sin access_token');
-  }
-  return json.access_token;
-}
-
-function parseDate(raw?: string): string {
-  if (!raw) return new Date(0).toISOString();
-  // admite "DD/MM/YYYY HH:mm:ss" o cualquier formato que Date entienda directamente
-  const slashMatch = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T]?(\d{2}:\d{2}:\d{2})?/);
-  if (slashMatch) {
-    const [, d, m, y, time] = slashMatch;
-    const iso = `${y}-${m}-${d}T${time ?? '00:00:00'}`;
-    const parsed = new Date(iso);
-    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
-  }
-  const parsed = new Date(raw);
-  return Number.isNaN(parsed.getTime()) ? new Date(0).toISOString() : parsed.toISOString();
+  data?: CttTrackingData;
+  error?: string | null;
 }
 
 export async function fetchCttExpress(
   trackingNumber: string,
   creds: CttExpressCredentials,
 ): Promise<NormalizedTracking> {
-  const { clientCode, clientId, clientSecret, username, password } = creds;
+  const { apiToken, env } = creds;
 
-  if (!clientCode || !clientId || !clientSecret || !username || !password) {
+  if (!apiToken) {
     return makeError(
       trackingNumber,
-      'CTT Express: faltan credenciales en las variables de entorno (CTT_EXPRESS_CLIENT_CODE / CLIENT_ID / CLIENT_SECRET / USERNAME / PASSWORD)',
+      'CTT Express: falta CTT_EXPRESS_API_TOKEN en las variables de entorno (el Bearer token de la Get Shipping Tracking API, distinto del client secret del plugin)',
     );
   }
 
-  if (TOKEN_URL.includes('TODO-confirmar') || TRACKING_URL.includes('TODO-confirmar')) {
-    return makeError(
-      trackingNumber,
-      'CTT Express: credenciales configuradas, pero falta confirmar con CTT la URL/protocolo del API de tracking (ver TODO en ctt-express.server.ts)',
-    );
-  }
+  const base = env === 'test' ? TEST_BASE : PROD_BASE;
+  const url = new URL(base + TRACKING_PATH + encodeURIComponent(trackingNumber));
+  url.searchParams.set('view', 'APITRACK');
+  url.searchParams.set('showItems', 'false');
 
   try {
-    const token = await getAccessToken({ clientId, clientSecret, username, password });
-
-    const url = new URL(TRACKING_URL);
-    url.searchParams.set('codigoCliente', clientCode);
-    url.searchParams.set('expedicion', trackingNumber);
-
     const res = await fetch(url.toString(), {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${apiToken}`,
         Accept: 'application/json',
       },
     });
 
     const text = await res.text();
 
-    let data: CttTrackingResponse;
+    let parsed: CttTrackingResponse;
     try {
-      data = JSON.parse(text) as CttTrackingResponse;
+      parsed = text ? (JSON.parse(text) as CttTrackingResponse) : {};
     } catch {
       return makeError(trackingNumber, 'CTT Express devolvió una respuesta no-JSON');
     }
 
-    if (!res.ok || data.error) {
-      const code = data.error?.codigo ?? String(res.status);
-      return makeError(trackingNumber, cttErrorMessage(code, data.error?.descripcion ?? `CTT Express API HTTP ${res.status}`));
+    // La doc dice que un éxito es 201 Created, no 200 — se acepta cualquier 2xx.
+    if (!res.ok) {
+      return makeError(trackingNumber, cttHttpErrorMessage(res.status));
+    }
+    if (parsed.error) {
+      return makeError(trackingNumber, `CTT Express: ${parsed.error}`);
     }
 
-    const events: TrackingEvent[] = (data.eventos ?? [])
-      .map((ev): TrackingEvent => ({
-        timestamp: parseDate(ev.fecha),
-        description: ev.descripcion ?? 'Sin descripción',
-        location: ev.localidad,
-        status: mapCttStatus(ev.descripcion ?? ''),
-      }))
+    const data = parsed.data;
+    if (!data) {
+      return makeError(trackingNumber, 'CTT Express: respuesta sin datos de envío');
+    }
+
+    const events: TrackingEvent[] = (data.shipping_history?.events ?? [])
+      .map((ev): TrackingEvent => {
+        const status = mapCttStatus(ev.code ?? '', ev.description ?? '', ev.type ?? '');
+        const detail = ev.detail;
+        // Prioriza la descripción de la incidencia sobre la genérica del
+        // evento cuando la hay — es más informativa para el cliente.
+        const description = detail?.incident_type_desc || ev.description || 'Sin descripción';
+        const location = detail?.destin_province_name || detail?.origin_province_name;
+        return {
+          timestamp: parseDate(ev.event_date),
+          description,
+          location,
+          status,
+        };
+      })
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    const currentStatus: TrackingStatus = events[0]?.status ?? mapCttStatus(data.estado ?? '');
+    const currentStatus: TrackingStatus = events[0]?.status ?? 'unknown';
 
     return {
       carrier: 'CTT Express',
-      trackingNumber,
+      trackingNumber: data.shipping_code || trackingNumber,
       currentStatus,
       statusLabel: STATUS_LABELS[currentStatus],
+      estimatedDelivery: parseDateOrUndefined(
+        data.delivery_date || data.committed_delivery_datetime,
+      ),
       events,
       rawCarrierUrl: `https://www.cttexpress.com/localizador-de-envios/?sc=${encodeURIComponent(trackingNumber)}`,
     };
@@ -219,6 +235,18 @@ export async function fetchCttExpress(
     const msg = e instanceof Error ? e.message : String(e);
     return makeError(trackingNumber, `CTT Express: ${msg}`);
   }
+}
+
+function parseDate(raw?: string): string {
+  if (!raw) return new Date(0).toISOString();
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? new Date(0).toISOString() : parsed.toISOString();
+}
+
+function parseDateOrUndefined(raw?: string): string | undefined {
+  if (!raw) return undefined;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
 function makeError(trackingNumber: string, error: string): NormalizedTracking {

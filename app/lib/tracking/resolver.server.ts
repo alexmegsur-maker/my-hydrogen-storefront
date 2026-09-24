@@ -99,11 +99,8 @@ export async function resolveTracking(
 
       case 'ctt':
         return await fetchCttExpress(trackingNumber!, {
-          clientCode: env.CTT_EXPRESS_CLIENT_CODE,
-          clientId: env.CTT_EXPRESS_CLIENT_ID,
-          clientSecret: env.CTT_EXPRESS_CLIENT_SECRET,
-          username: env.CTT_EXPRESS_USERNAME,
-          password: env.CTT_EXPRESS_PASSWORD,
+          apiToken: env.CTT_EXPRESS_API_TOKEN,
+          env: env.CTT_EXPRESS_ENV,
         });
 
       case 'fulfilio':
