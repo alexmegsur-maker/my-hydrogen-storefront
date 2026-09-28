@@ -18,10 +18,12 @@ interface LateralCollectionProps extends Partial<Omit<HydrogenComponentProps, "c
   style?:CSSProperties;
   estilos?:CSSProperties;
   buttonText?:string;
+  /** Sobrescribe el z-index por defecto (20) del panel. */
+  zIndex?:number;
 }
 
 export default function  LateralCollection (props:LateralCollectionProps){
-  const {title,children,style,confirmBtn,show,close,sendProduct,estilos,buttonText} = props
+  const {title,children,style,confirmBtn,show,close,sendProduct,estilos,buttonText,zIndex} = props
   const container =useRef(null)
   const open =useRef(null)
   const isMobile = useIsMobile(600);
@@ -63,6 +65,7 @@ export default function  LateralCollection (props:LateralCollectionProps){
       id="universe-drawer"
       style={{
         ...style,
+        ...(zIndex !== undefined && { zIndex }),
         transition:"transform 0.6s cubic-bezier (0.19,1,0.22,1) "
       }}
     >

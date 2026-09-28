@@ -99,11 +99,8 @@ function getGradient(seed: string): string {
 }
 
 function maskName(name: string): string {
-  const p = name.trim().split(/\s+/)
-  if (p.length === 1) return name                                   // "Alex"
-  if (p.length === 2) return `${p[0]} ${p[1][0]}.`                 // "Alex G."
-  if (p.length === 3) return `${p[0]} ${p[1][0]}. ${p[2][0]}.`         // "Juan Francisco S."
-  return `${p[0]} ${p[1][0]}. ${p[2][0]}.`                         // "Juan F. S."
+  const [first, second] = name.trim().split(/\s+/)
+  return second ? `${first} ${second[0]}.` : first                 // "Alex G." / "Alex"
 }
 
 function relativeTime(ms: number): string {

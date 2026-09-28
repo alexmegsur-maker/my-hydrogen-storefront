@@ -151,7 +151,12 @@ export default function ProductInformationD(
     minLoadingTimePassed && Boolean(productStore) && syncedRouteProductId.current === product?.id;
 
   return (
-    <Section ref={ref} {...rest} className="md:h-[100dvh]" style={{ background: color }}>
+    // animate=false: el scroll-reveal de Section aplica `translate` (aunque sea
+    // 0px), lo que crea un contexto de apilamiento y un containing block para
+    // los `position: fixed` de dentro (panel de reseñas): el panel quedaba
+    // atrapado por debajo de la barra de compra fija, que va en un portal en
+    // body. Sin él, el z-index del panel compite con el de la barra.
+    <Section ref={ref} {...rest} animate={false} className="md:h-[100dvh]" style={{ background: color }}>
       <div className="lg:flex grid grid-cols-1 md:h-[100vh] relative">
         <div className="relative flex-none w-full md:w-[65vw]">
           {isCurrentProductReady ? (

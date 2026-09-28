@@ -199,6 +199,10 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
           show={showReviews}
           close={() => setShowReviews(false)}
           style={{ background: lcBgColor }}
+          // Por encima de la barra de compra fija (portal en body, z-index 40
+          // por defecto y configurable hasta 100 en su schema) para que las
+          // reseñas también la tapen.
+          zIndex={60}
           estilos={
             {
               "--brColor": lcBrColor,
