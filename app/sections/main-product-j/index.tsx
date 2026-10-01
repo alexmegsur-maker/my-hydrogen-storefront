@@ -205,6 +205,9 @@ export const schema = createSchema({
     "product-software-download"
   ],
   limit:1,
+  enabledOn: {
+    pages: ["PRODUCT"],
+  },
   settings:[
     {
       group:"General",

@@ -58,7 +58,7 @@ variants: {
 })
 
 interface SlideProps extends VariantProps<typeof variants>,
-  HydrogenComponentProps,OverlayAndBackgroundProps{
+  HydrogenComponentProps,Omit<OverlayAndBackgroundProps, "width">{
     titleBar:string;
     tag:string;
     contWidth:number;
@@ -126,7 +126,7 @@ function SlideVideoV2(props:SlideProps){
   }, [])
 
   return (
-    <div className="h-full  relative overflow-hidden">
+    <div className="h-auto  relative overflow-hidden">
       {showMedia=="image"?
       <OverlayAndBackground
         backgroundImage={ isMobile ? backgroundImagemb:backgroundImage}
@@ -166,6 +166,7 @@ function SlideVideoV2(props:SlideProps){
         </div>
       }
       <div
+        
         className={`${variants({contentPosition,width,gap,verticalPadding})} slide-cont-width`}
         style={{ "--slide-cont-width": `${contWidth}%` } as CSSProperties}
         >

@@ -2,7 +2,11 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { XIcon } from "@phosphor-icons/react";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import { selectorPaddingMargin } from "~/utils/general";
+
+/** A partir de este ancho se considera "desktop" (coincide con el resto de main-product-d). */
+const DESKTOP_BREAKPOINT = 1023;
 
 interface VersionSelectorPopupProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
@@ -15,6 +19,10 @@ interface VersionSelectorPopupProps extends HydrogenComponentProps {
   // popup — tamaño
   width: string;
   maxHeight: string;
+  /** Si se deja vacío, usa el ancho automático (todo el viewport menos el margen) en vez de `width`. */
+  widthMobile: string;
+  /** Si se deja vacío, usa el mismo valor que `maxHeight`. */
+  maxHeightMobile: string;
   // popup — color
   bgColor: string;
   borderColor: string;
@@ -54,6 +62,8 @@ export default function VersionSelectorPopup(props: VersionSelectorPopupProps) {
     trWeight,
     width,
     maxHeight,
+    widthMobile,
+    maxHeightMobile,
     bgColor,
     borderColor,
     textColor,
@@ -70,6 +80,14 @@ export default function VersionSelectorPopup(props: VersionSelectorPopupProps) {
     children,
     ...rest
   } = props;
+
+  const isMobile = useIsMobile(DESKTOP_BREAKPOINT);
+  // En móvil, si no se configuró un ancho propio, se deja sin "width" inline
+  // para que mande la clase de Tailwind `w-[calc(100vw-2rem)]` del Content —
+  // así un ancho pensado para desktop (ej. "40rem") nunca desborda la
+  // pantalla por defecto.
+  const resolvedWidth = isMobile ? widthMobile || undefined : width;
+  const resolvedMaxHeight = isMobile ? maxHeightMobile || maxHeight : maxHeight;
 
   return (
     <div ref={ref} {...rest}>
@@ -99,8 +117,8 @@ export default function VersionSelectorPopup(props: VersionSelectorPopupProps) {
           <Dialog.Content
             className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 data-[state=open]:animate-scale-in max-h-[85vh] w-[calc(100vw-2rem)] overflow-y-auto"
             style={{
-              width,
-              maxHeight,
+              width: resolvedWidth,
+              maxHeight: resolvedMaxHeight,
               background: bgColor,
               border: borderColor ? `1px solid ${borderColor}` : undefined,
               borderRadius: radius,
@@ -211,8 +229,21 @@ export const schema = createSchema({
     {
       group: "Popup · tamaño y forma",
       inputs: [
-        { type: "text", label: "Ancho", name: "width", defaultValue: "32rem" },
-        { type: "text", label: "Alto máximo", name: "maxHeight", defaultValue: "85vh" },
+        { type: "text", label: "Ancho (desktop)", name: "width", defaultValue: "32rem" },
+        {
+          type: "text",
+          label: "Ancho (móvil)",
+          name: "widthMobile",
+          helpText:
+            "Si se deja vacío, usa un ancho automático (todo el viewport menos el margen) para que el ancho de desktop no desborde en pantallas pequeñas.",
+        },
+        { type: "text", label: "Alto máximo (desktop)", name: "maxHeight", defaultValue: "85vh" },
+        {
+          type: "text",
+          label: "Alto máximo (móvil)",
+          name: "maxHeightMobile",
+          helpText: "Si se deja vacío, usa el mismo valor que en desktop.",
+        },
         { type: "text", label: "Border radius", name: "radius", defaultValue: "8px" },
         {
           type: "select",

@@ -303,8 +303,73 @@ export const schema= createSchema({
           defaultValue:'12px',
         },
 
-        
+
       ]
     }
-  ]
+  ],
+  presets: {
+    children: [
+      {
+        type: "slideVideoV2",
+        titleBar: "Video",
+        showMedia: "image",
+        backgroundImage: IMAGES_PLACEHOLDERS.banner_1,
+        backgroundFit: "cover",
+        contentPosition: "bottom left",
+        enableOverlay: true,
+        overlayOpacity: 50,
+        children: [
+          {
+            type: "heading",
+            content: "Slide title",
+            color: "#fff",
+            size: "scale",
+            minSize: 16,
+            maxSize: 56,
+          },
+          {
+            type: "paragraph",
+            content: "Add a short description for this slide.",
+            color: "#fff",
+          },
+          {
+            type: "button",
+            text: "Shop now",
+            variant: "custom",
+            backgroundColor: "#00000000",
+            textColor: "#fff",
+            borderColor: "#fff",
+            backgroundColorHover: "#fff",
+            textColorHover: "#000",
+            borderColorHover: "#fff",
+          },
+        ],
+      },
+      {
+        type: "slideVideoV2",
+        titleBar: "Video",
+        showMedia: "image",
+        backgroundImage: IMAGES_PLACEHOLDERS.banner_2,
+        backgroundFit: "cover",
+        contentPosition: "bottom left",
+        enableOverlay: true,
+        overlayOpacity: 50,
+        children: [
+          {
+            type: "heading",
+            content: "Second slide title",
+            color: "#fff",
+            size: "scale",
+            minSize: 16,
+            maxSize: 56,
+          },
+          {
+            type: "paragraph",
+            content: "Add a short description for this slide.",
+            color: "#fff",
+          },
+        ],
+      },
+    ],
+  },
 })
