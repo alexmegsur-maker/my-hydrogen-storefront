@@ -3,14 +3,21 @@ import { useMemo, useState } from "react";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useProductConfiguratorD } from "./store";
-import { equals, resolveVariantForVersionValue } from "./utils";
+import { equals, resolveVariantForOption } from "./utils";
 
 interface VersionSelectorItemProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLButtonElement>;
   label: string;
+  /** Nombre exacto de la opción en Shopify (ej. "version"). */
+  optionName: string;
+  /** Valor exacto de esa opción (ej. "version 2"), sin distinguir mayúsculas. */
   value: string;
-  /** Si está activo, esta opción representa las variantes SIN custom.version relleno — `value` se ignora. */
-  matchEmpty: boolean;
+  /**
+   * Márcalo en la opción "por defecto" (ej. "Estándar"): los productos que no
+   * tengan la opción `optionName` en absoluto (no llevan la variante extra)
+   * se mostrarán también cuando este valor esté seleccionado como filtro.
+   */
+  isDefault: boolean;
   description: string;
   // tarjeta
   cBgColor: string;
@@ -34,9 +41,12 @@ interface VersionSelectorItemProps extends HydrogenComponentProps {
 
 /**
  * Una opción del selector de versión: componente independiente y repetible
- * (childTypes de `version-selector-d`) — cada instancia declara su propio
- * `value` (el `custom.version` a comparar) o, con `matchEmpty`, agrupa las
- * variantes que NO tienen ese metacampo relleno.
+ * (childTypes de `version-selector-d`) — cada instancia declara el nombre de
+ * la opción de Shopify a comparar (`optionName`, ej. "version") y el valor
+ * exacto (`value`, ej. "version 2"). "version" es una opción REAL de
+ * variante (como "Talla"), no un metacampo: por eso se reutilizan los mismos
+ * helpers que `size-selector-d` (`resolveVariantForOption`,
+ * `getSelectedOptionValue`).
  *
  * Al pulsar: (1) resuelve la variante del producto activo que cumple su
  * criterio y la selecciona (`useCurrentProduct.setVariant`), y (2) marca
@@ -51,8 +61,9 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
   const {
     ref,
     label,
+    optionName,
     value,
-    matchEmpty,
+    isDefault,
     description,
     cBgColor,
     cBorderColor,
@@ -76,15 +87,18 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
   const setVariant = useCurrentProduct((state) => state.setVariant);
   const selectVersionFilter = useProductConfiguratorD((state) => state.selectVersionFilter);
   const filterActive = useProductConfiguratorD((state) => state.versionFilterActive);
+  const filterOptionName = useProductConfiguratorD((state) => state.versionFilterOptionName);
   const filterValue = useProductConfiguratorD((state) => state.versionFilterValue);
-  const filterMatchEmpty = useProductConfiguratorD((state) => state.versionFilterMatchEmpty);
   const [hovered, setHovered] = useState(false);
 
+  const resolvedOptionName = optionName || "version";
+
   const variant = useMemo(
-    () => resolveVariantForVersionValue(currentProduct, value, matchEmpty),
-    [currentProduct, value, matchEmpty],
+    () => resolveVariantForOption(currentProduct, resolvedOptionName, value),
+    [currentProduct, resolvedOptionName, value],
   );
-  const active = filterActive && filterMatchEmpty === matchEmpty && (matchEmpty || equals(filterValue, value));
+  const active =
+    filterActive && equals(filterOptionName, resolvedOptionName) && equals(filterValue, value);
 
   // Siempre se puede pulsar, aunque el producto actual no tenga una variante
   // con este criterio: el filtro manda sobre qué productos se listan en
@@ -94,7 +108,7 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
   // listas). Si sí hay una variante que encaja, además se selecciona.
   function handleClick() {
     if (variant) setVariant(variant);
-    selectVersionFilter(value, matchEmpty);
+    selectVersionFilter(resolvedOptionName, value, Boolean(isDefault));
   }
 
   return (
@@ -105,7 +119,7 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
       onClick={handleClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      data-version-option={matchEmpty ? "" : value.toLowerCase()}
+      data-version-option={value.toLowerCase()}
       data-active={active}
       className="version-card flex flex-col items-start gap-1 text-left"
       style={{
@@ -146,21 +160,28 @@ export const schema = createSchema({
     {
       group: "General",
       inputs: [
-        { type: "text", label: "Etiqueta", name: "label", defaultValue: "Versión 2.0" },
+        { type: "text", label: "Etiqueta", name: "label", defaultValue: "Versión 2" },
         {
-          type: "switch",
-          label: "Sin custom.version relleno",
-          name: "matchEmpty",
-          defaultValue: false,
-          helpText: "Activa esto para que esta opción agrupe las variantes que NO tienen custom.version relleno, en vez de comparar un valor concreto.",
+          type: "text",
+          label: "Nombre de la opción",
+          name: "optionName",
+          defaultValue: "version",
+          helpText: "Nombre exacto de la opción en Shopify (ej. \"version\").",
         },
         {
           type: "text",
-          label: "Valor (custom.version)",
+          label: "Valor",
           name: "value",
-          defaultValue: "v2",
-          helpText: "Valor exacto tal y como está en Shopify (sin distinguir mayúsculas).",
-          condition: (data: VersionSelectorItemProps) => !data.matchEmpty,
+          defaultValue: "version 2",
+          helpText: "Valor exacto de esa opción tal y como está en Shopify (ej. \"version 2\"), sin distinguir mayúsculas.",
+        },
+        {
+          type: "switch",
+          label: "Es el valor por defecto",
+          name: "isDefault",
+          defaultValue: false,
+          helpText:
+            "Actívalo en la opción que representa los productos SIN la variante extra (ej. \"Estándar\"): se mostrarán también los productos que no tengan esta opción en absoluto.",
         },
         { type: "text", label: "Descripción", name: "description" },
       ],
@@ -224,7 +245,8 @@ export const schema = createSchema({
     },
   ],
   presets: {
-    label: "Versión 2.0",
-    value: "v2",
+    label: "Versión 2",
+    optionName: "version",
+    value: "version 2",
   },
 });

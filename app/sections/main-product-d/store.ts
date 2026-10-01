@@ -36,13 +36,19 @@ export const useProductConfiguratorD = create<ProductConfiguratorDStore>((set) =
   setActiveMediaIndex: (index: number) => set(() => ({ activeMediaIndex: index })),
   versionFilterEnabled: false,
   versionFilterActive: false,
+  versionFilterOptionName: "version",
   versionFilterValue: "",
-  versionFilterMatchEmpty: false,
+  versionFilterIncludeMissing: false,
   // No se resetea al cambiar de producto (a diferencia de accessories/media):
   // el filtro por versión es quien manda sobre qué productos se muestran en
   // universe-selector/material-finish-selector, así que debe sobrevivir a la
   // navegación entre ediciones/acabados en vez de seguirlas.
   setVersionFilterEnabled: (enabled: boolean) => set({ versionFilterEnabled: enabled }),
-  selectVersionFilter: (value: string, matchEmpty: boolean) =>
-    set({ versionFilterActive: true, versionFilterValue: value, versionFilterMatchEmpty: matchEmpty }),
+  selectVersionFilter: (optionName: string, value: string, includeMissing: boolean) =>
+    set({
+      versionFilterActive: true,
+      versionFilterOptionName: optionName,
+      versionFilterValue: value,
+      versionFilterIncludeMissing: includeMissing,
+    }),
 }));

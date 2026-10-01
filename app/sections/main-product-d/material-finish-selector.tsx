@@ -21,7 +21,7 @@ import {
   OPTION_METAOBJECTS_QUERY,
   parseKeyValueLines,
   resolveVariantOnProductSwitch,
-  variantsMatchVersionFilter,
+  variantsMatchOption,
   type OptionMetaobjectsResult,
 } from "./utils";
 
@@ -254,15 +254,16 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
   const setVariant = useCurrentProduct((state) => state.setVariant);
   const getApiUrl = usePrefixPathWithLocale("api/product-secret");
 
-  // Filtro por versión (custom.version, ver version-selector-d): es EL
-  // filtro que decide qué acabados se muestran — solo se aplica si ese
+  // Filtro por versión (opción de variante "version", ver version-selector-d):
+  // es EL filtro que decide qué acabados se muestran — solo se aplica si ese
   // componente está en uso Y el usuario ya eligió un valor en él. Se lee del
   // store (no de la variante actual) para que un cambio de talla no lo
   // altere: el filtro manda, no al revés.
   const versionFilterEnabled = useProductConfiguratorD((state) => state.versionFilterEnabled);
   const versionFilterActive = useProductConfiguratorD((state) => state.versionFilterActive);
+  const versionFilterOptionName = useProductConfiguratorD((state) => state.versionFilterOptionName);
   const versionFilterValue = useProductConfiguratorD((state) => state.versionFilterValue);
-  const versionFilterMatchEmpty = useProductConfiguratorD((state) => state.versionFilterMatchEmpty);
+  const versionFilterIncludeMissing = useProductConfiguratorD((state) => state.versionFilterIncludeMissing);
   const versionFilterApplies = versionFilterEnabled && versionFilterActive;
 
   const [loadingHandle, setLoadingHandle] = useState<string | null>(null);
@@ -289,10 +290,11 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
       .filter(
         (product) =>
           !versionFilterApplies ||
-          variantsMatchVersionFilter(
+          variantsMatchOption(
             (product as any).variants?.nodes,
+            versionFilterOptionName,
             versionFilterValue,
-            versionFilterMatchEmpty,
+            versionFilterIncludeMissing,
           ),
       )
       .map((product) => {
@@ -340,8 +342,9 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
     selectedTalla,
     preservedOptionName,
     versionFilterApplies,
+    versionFilterOptionName,
     versionFilterValue,
-    versionFilterMatchEmpty,
+    versionFilterIncludeMissing,
   ]);
 
   /**
@@ -379,8 +382,8 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
 
           const match = resolveVariantOnProductSwitch(prod.variants?.nodes ?? [], optionName, previousValue, {
             active: versionFilterApplies,
+            optionName: versionFilterOptionName,
             value: versionFilterValue,
-            matchEmpty: versionFilterMatchEmpty,
           });
           if (match) setVariant(match);
         }
@@ -398,8 +401,8 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
       setProduct,
       setVariant,
       versionFilterApplies,
+      versionFilterOptionName,
       versionFilterValue,
-      versionFilterMatchEmpty,
     ],
   );
 

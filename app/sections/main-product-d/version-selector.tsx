@@ -1,8 +1,11 @@
-import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
-import { useEffect } from "react";
+import { createSchema, useChildInstances, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import { Children, useEffect } from "react";
 import { Section } from "~/components/section";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useProductConfiguratorD } from "./store";
+
+/** Hijos que se pintan junto al título en vez de en el grid de opciones. */
+const HEADER_CHILD_TYPES = ["version-selector-popup"];
 
 interface VersionSelectorProps extends HydrogenComponentProps {
   title: string;
@@ -58,6 +61,18 @@ export default function VersionSelector(props: VersionSelectorProps) {
     return () => setVersionFilterEnabled(false);
   }, [setVersionFilterEnabled]);
 
+  // Reparte los hijos entre el grid de opciones y la cabecera: el popup (ej.
+  // "Más información") se pinta junto al título, igual que el enlace de la
+  // calculadora en size-selector-d, en vez de colarse entre las tarjetas.
+  const childInstances = useChildInstances();
+  const headerChildIds = childInstances
+    .filter((instance: any) => HEADER_CHILD_TYPES.includes(instance?.data?.type))
+    .map((instance: any) => instance.data.id);
+  const isHeaderChild = (child: any) => headerChildIds.includes(child?.props?.id);
+  const childArray = Children.toArray(children);
+  const headerChildren = childArray.filter(isHeaderChild);
+  const gridChildren = childArray.filter((child) => !isHeaderChild(child));
+
   return (
     <Section {...rest}>
       <div
@@ -67,27 +82,30 @@ export default function VersionSelector(props: VersionSelectorProps) {
           ...selectorPaddingMargin("margin", marginSelect, marginText),
         }}
       >
-        {title && (
-          <div
-            className="config-label mb-[1rem]"
-            style={{
-              color: tColor,
-              fontFamily: tFamily,
-              fontSize: tSize,
-              fontWeight: tWeight,
-              textTransform: tUpper ? "uppercase" : "unset",
-              letterSpacing: tLetter > 0 ? `${tLetter}px` : "normal",
-            }}
-          >
-            {title}
-          </div>
-        )}
+        <div className="section-header flex justify-between items-baseline mb-[1rem]">
+          {title && (
+            <div
+              className="config-label"
+              style={{
+                color: tColor,
+                fontFamily: tFamily,
+                fontSize: tSize,
+                fontWeight: tWeight,
+                textTransform: tUpper ? "uppercase" : "unset",
+                letterSpacing: tLetter > 0 ? `${tLetter}px` : "normal",
+              }}
+            >
+              {title}
+            </div>
+          )}
+          {headerChildren}
+        </div>
 
         <div
           className="version-grid grid gap-3"
           style={{ gridTemplateColumns: `repeat(${columns || 2}, minmax(0, 1fr))` }}
         >
-          {children}
+          {gridChildren}
         </div>
       </div>
     </Section>
@@ -97,7 +115,7 @@ export default function VersionSelector(props: VersionSelectorProps) {
 export const schema = createSchema({
   type: "version-selector-d",
   title: "Version selector",
-  childTypes: ["version-selector-item"],
+  childTypes: ["version-selector-item", "version-selector-popup"],
   settings: [
     {
       group: "General",
@@ -178,8 +196,14 @@ export const schema = createSchema({
     title: "VERSIÓN",
     columns: 2,
     children: [
-      { type: "version-selector-item", label: "Versión 2.0", value: "v2" },
-      { type: "version-selector-item", label: "Estándar", matchEmpty: true },
+      {
+        type: "version-selector-item",
+        label: "Estándar",
+        optionName: "version",
+        value: "estandar",
+        isDefault: true,
+      },
+      { type: "version-selector-item", label: "Versión 2", optionName: "version", value: "version 2" },
     ],
   },
 });

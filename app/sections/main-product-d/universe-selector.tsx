@@ -16,7 +16,7 @@ import {
   buildOptionTitleMap,
   OPTION_METAOBJECTS_QUERY,
   resolveVariantOnProductSwitch,
-  variantsMatchVersionFilter,
+  variantsMatchOption,
   type OptionMetaobjectsResult,
 } from "./utils";
 
@@ -359,15 +359,16 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
     ?.value?.trim()
     .toLowerCase();
 
-  // Filtro por versión (custom.version, ver version-selector-d): es EL
-  // filtro que decide qué universos/ediciones se muestran — solo se aplica
-  // si ese componente está en uso Y el usuario ya eligió un valor en él. Se
-  // lee del store (no de la variante actual) para que un cambio de talla no
-  // lo altere: el filtro manda, no al revés.
+  // Filtro por versión (opción de variante "version", ver version-selector-d):
+  // es EL filtro que decide qué universos/ediciones se muestran — solo se
+  // aplica si ese componente está en uso Y el usuario ya eligió un valor en
+  // él. Se lee del store (no de la variante actual) para que un cambio de
+  // talla no lo altere: el filtro manda, no al revés.
   const versionFilterEnabled = useProductConfiguratorD((state) => state.versionFilterEnabled);
   const versionFilterActive = useProductConfiguratorD((state) => state.versionFilterActive);
+  const versionFilterOptionName = useProductConfiguratorD((state) => state.versionFilterOptionName);
   const versionFilterValue = useProductConfiguratorD((state) => state.versionFilterValue);
-  const versionFilterMatchEmpty = useProductConfiguratorD((state) => state.versionFilterMatchEmpty);
+  const versionFilterIncludeMissing = useProductConfiguratorD((state) => state.versionFilterIncludeMissing);
   const versionFilterApplies = versionFilterEnabled && versionFilterActive;
 
   const collections = useMemo<UniverseCollection[]>(() => {
@@ -382,7 +383,12 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
         .filter(
           ({ node }) =>
             !versionFilterApplies ||
-            variantsMatchVersionFilter(node.variants?.nodes, versionFilterValue, versionFilterMatchEmpty),
+            variantsMatchOption(
+              node.variants?.nodes,
+              versionFilterOptionName,
+              versionFilterValue,
+              versionFilterIncludeMissing,
+            ),
         )
         .map(({ node }) => {
         const materialValue = node.material?.value ?? "";
@@ -418,8 +424,9 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
     selectedTalla,
     preservedOptionName,
     versionFilterApplies,
+    versionFilterOptionName,
     versionFilterValue,
-    versionFilterMatchEmpty,
+    versionFilterIncludeMissing,
   ]);
 
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
@@ -463,7 +470,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
             prod.variants?.nodes ?? [],
             optionName,
             previousValue ?? null,
-            { active: versionFilterApplies, value: versionFilterValue, matchEmpty: versionFilterMatchEmpty },
+            { active: versionFilterApplies, optionName: versionFilterOptionName, value: versionFilterValue },
           );
           if (match) setVariant(match);
         }
@@ -481,8 +488,8 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
       setProduct,
       setVariant,
       versionFilterApplies,
+      versionFilterOptionName,
       versionFilterValue,
-      versionFilterMatchEmpty,
     ],
   );
 

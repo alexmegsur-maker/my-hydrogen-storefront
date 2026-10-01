@@ -145,10 +145,16 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
   const cartLines = useMemo<CartLineInput[]>(() => {
     const result: CartLineInput[] = [];
     if (variant?.id) {
+      const attributes: { key: string; value: string }[] = [];
+      if (isReserva) attributes.push({ key: "Tipo", value: "Reserva" });
+      // custom.version es un metacampo de VARIANTE: si la variante que se
+      // añade lo tiene relleno (ej. "v2"), se refleja en la línea del
+      // carrito con su valor real, no un texto fijo.
+      if (variant.version?.value) attributes.push({ key: "Version", value: variant.version.value });
       result.push({
         merchandiseId: variant.id,
         quantity: 1,
-        ...(isReserva ? { attributes: [{ key: "Tipo", value: "Reserva" }] } : {}),
+        ...(attributes.length ? { attributes } : {}),
       });
     }
     for (const accessory of accessories) {

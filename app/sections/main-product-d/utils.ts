@@ -98,55 +98,34 @@ export function buildResolvedOptionValues(
 }
 
 /**
- * Variante del producto actual cuyo `custom.version` coincide con `value` —
- * o, si `matchEmpty` es true, la primera variante SIN `custom.version`
- * relleno (ignora `value`). Cada ítem del selector de versión declara su
- * propio criterio (un valor fijo, o "vacío"), así que no hace falta
- * enumerar los valores presentes como con `buildResolvedOptionValues`.
- * Si hay más de una variante candidata (poco habitual — normalmente el
- * merchant solo rellena `custom.version` en una), se prioriza la que además
- * coincide con el resto de opciones ya elegidas (ej. la talla actual),
- * igual que se preserva la talla al cambiar de universo/material.
- */
-export function resolveVariantForVersionValue(
-  product: CurrentProduct | null | undefined,
-  value: string,
-  matchEmpty: boolean,
-): Variants | null {
-  const variants = product?.variants?.nodes ?? [];
-  const candidates = variants.filter((variant) => {
-    const raw = variant.version?.value?.trim();
-    return matchEmpty ? !raw : equals(raw, value);
-  });
-  if (!candidates.length) return null;
-  if (candidates.length === 1) return candidates[0];
-
-  const current = product?.selectedVariant;
-  const matchingOthers = candidates.find((variant) =>
-    (current?.selectedOptions ?? []).every((other) =>
-      variant.selectedOptions?.some((elm) => equals(elm.name, other.name) && equals(elm.value, other.value)),
-    ),
-  );
-  return matchingOthers ?? candidates[0];
-}
-
-/**
- * true si ALGUNA de las variantes dadas cumple el criterio del filtro de
- * versión (mismo `value`/`matchEmpty` que `version-selector-item`) — lo usan
- * universe-selector.tsx y material-finish-selector.tsx para decidir si un
- * producto candidato se muestra o se oculta cuando el filtro está activo.
+ * true si ALGUNA de las variantes dadas tiene `optionName`=`value` entre sus
+ * `selectedOptions` — lo usan universe-selector.tsx y
+ * material-finish-selector.tsx para decidir si un producto candidato se
+ * muestra o se oculta cuando el filtro de version-selector-d está activo.
  * Las variantes vienen crudas de GraphQL (no del store `CurrentProduct`), de
- * ahí el tipo laxo: solo hace falta el metafield `version`.
+ * ahí el tipo laxo: solo hace falta `selectedOptions`.
+ *
+ * No todos los productos tienen la opción `optionName` (solo los que llevan
+ * la variante extra, ej. "version"): si `matchWhenMissing` es true y NINGUNA
+ * variante del producto tiene esa opción en absoluto, se considera que
+ * coincide igualmente — es el caso de pulsar el valor por defecto (ej.
+ * "Estándar"), que debe incluir también a los productos sin esa opción.
  */
-export function variantsMatchVersionFilter(
-  variantNodes: { version?: { value?: string | null } | null }[] | undefined,
+export function variantsMatchOption(
+  variantNodes: { selectedOptions?: { name: string; value: string }[] }[] | undefined,
+  optionName: string,
   value: string,
-  matchEmpty: boolean,
+  matchWhenMissing = false,
 ): boolean {
-  return (variantNodes ?? []).some((variant) => {
-    const raw = variant.version?.value?.trim();
-    return matchEmpty ? !raw : equals(raw, value);
-  });
+  const variants = variantNodes ?? [];
+  const hasOption = variants.some((variant) =>
+    variant.selectedOptions?.some((option) => equals(option.name, optionName)),
+  );
+  if (!hasOption) return matchWhenMissing;
+
+  return variants.some((variant) =>
+    variant.selectedOptions?.some((option) => equals(option.name, optionName) && equals(option.value, value)),
+  );
 }
 
 /**
@@ -161,15 +140,15 @@ export function variantsMatchVersionFilter(
  */
 export function resolveVariantOnProductSwitch(
   variants: Variants[],
-  optionName: string,
+  tallaOptionName: string,
   preservedTallaValue: string | null,
-  versionFilter: { active: boolean; value: string; matchEmpty: boolean },
+  versionFilter: { active: boolean; optionName: string; value: string },
 ): Variants | null {
   const matchesTalla = (variant: Variants) =>
     !preservedTallaValue ||
     Boolean(
       variant.selectedOptions?.some(
-        (option) => equals(option.name, optionName) && equals(option.value, preservedTallaValue),
+        (option) => equals(option.name, tallaOptionName) && equals(option.value, preservedTallaValue),
       ),
     );
 
@@ -177,10 +156,12 @@ export function resolveVariantOnProductSwitch(
     return preservedTallaValue ? (variants.find(matchesTalla) ?? null) : null;
   }
 
-  const matchesVersion = (variant: Variants) => {
-    const raw = variant.version?.value?.trim();
-    return versionFilter.matchEmpty ? !raw : equals(raw, versionFilter.value);
-  };
+  const matchesVersion = (variant: Variants) =>
+    Boolean(
+      variant.selectedOptions?.some(
+        (option) => equals(option.name, versionFilter.optionName) && equals(option.value, versionFilter.value),
+      ),
+    );
 
   return (
     variants.find((variant) => matchesVersion(variant) && matchesTalla(variant)) ??

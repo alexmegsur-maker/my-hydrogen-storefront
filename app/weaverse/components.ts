@@ -128,6 +128,7 @@ import * as ProductNameHeaderD from "~/sections/main-product-d/product-name-head
 import * as SizeSelectorD from "~/sections/main-product-d/size-selector"
 import * as VersionSelectorD from "~/sections/main-product-d/version-selector"
 import * as VersionSelectorItemD from "~/sections/main-product-d/version-selector-item"
+import * as VersionSelectorPopupD from "~/sections/main-product-d/version-selector-popup"
 import * as MaterialFinishSelectorD from "~/sections/main-product-d/material-finish-selector"
 import * as AccessoriesSelectorD from "~/sections/main-product-d/accessories-selector"
 import * as AddToCartSectionD from "~/sections/main-product-d/add-to-cart-section"
@@ -349,6 +350,7 @@ export const components: HydrogenComponent[] = [
   SizeSelectorD,
   VersionSelectorD,
   VersionSelectorItemD,
+  VersionSelectorPopupD,
   MaterialFinishSelectorD,
   AccessoriesSelectorD,
   AddToCartSectionD,

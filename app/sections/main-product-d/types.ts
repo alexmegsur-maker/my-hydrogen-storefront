@@ -34,9 +34,10 @@ export interface ProductConfiguratorDStore {
   setActiveMediaIndex: (index: number) => void;
   /**
    * true mientras haya al menos un `version-selector-d` montado en la
-   * página — el filtro por `custom.version` en universe-selector/
-   * material-finish-selector solo se aplica si este componente está en uso
-   * (si no, esos selectores no deben verse afectados por nada).
+   * página — el filtro por la opción de variante "version" en
+   * universe-selector/material-finish-selector solo se aplica si este
+   * componente está en uso (si no, esos selectores no deben verse afectados
+   * por nada).
    */
   versionFilterEnabled: boolean;
   /**
@@ -46,13 +47,25 @@ export interface ProductConfiguratorDStore {
    * la variante seleccionada ahora mismo: así no lo pisa un clic en talla u
    * otro selector, y el resaltado del botón activo usa este MISMO estado que
    * filtra las listas, así que nunca pueden desincronizarse entre sí.
+   *
+   * "version" es una opción REAL de Shopify (como "Talla"), no un metacampo
+   * — por eso se guarda también `versionFilterOptionName` (el nombre exacto
+   * de esa opción en Shopify, configurable por si se renombra).
+   *
+   * No todos los productos tienen la opción "version" (solo los que llevan
+   * la variante extra, ej. Monarch Remaster): esos productos "sin opción" se
+   * consideran implícitamente el valor por defecto (ej. "Estándar"). Qué
+   * valor es ese lo marca el propio `version-selector-item` con su prop
+   * `isDefault`, y se guarda aquí en `versionFilterIncludeMissing` para que
+   * universe-selector/material-finish-selector sepan si deben incluir
+   * también los productos sin la opción al filtrar.
    */
   versionFilterActive: boolean;
+  versionFilterOptionName: string;
   versionFilterValue: string;
-  /** si está activo, el filtro es "sin custom.version relleno" y `versionFilterValue` se ignora. */
-  versionFilterMatchEmpty: boolean;
+  versionFilterIncludeMissing: boolean;
   setVersionFilterEnabled: (enabled: boolean) => void;
-  selectVersionFilter: (value: string, matchEmpty: boolean) => void;
+  selectVersionFilter: (optionName: string, value: string, includeMissing: boolean) => void;
 }
 
 /**
