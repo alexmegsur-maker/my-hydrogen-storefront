@@ -1,4 +1,4 @@
-import { createSchema, useChildInstances, useThemeSettings, type HydrogenComponentProps } from "@weaverse/hydrogen"
+import { createSchema, IMAGES_PLACEHOLDERS, useChildInstances, useThemeSettings, type HydrogenComponentProps } from "@weaverse/hydrogen"
 import { useEffect, useState } from "react";
 import type{ Swiper as SwiperType } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -155,7 +155,7 @@ function VideoSliderV2( props:VideoSliderV2Props){
 export default VideoSliderV2
 
 export const schema= createSchema({
-  type:"videoSliderV2",
+  type:"videoSliderV1",
   title:"Slider video/imagen",
   childTypes: ["slideVideoV2"],
   settings:[ 

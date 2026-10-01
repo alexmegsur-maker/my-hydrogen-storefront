@@ -7,6 +7,7 @@ import { SwiperSlide } from "swiper/react"
 import { backgroundInputs } from "~/components/background-image"
 import { OverlayAndBackground, type OverlayAndBackgroundProps } from "~/components/overlay-and-background"
 import { layoutInputs } from "~/components/section"
+import { useIsMobile } from "~/hooks/use-is-mobile"
 
 const variants = cva("flex h-full w-full flex-col [&_.paragraph]:mx-[unset]",{
 variants: {
@@ -63,6 +64,7 @@ interface SlideProps extends VariantProps<typeof variants>,
     contWidth:number;
     showMedia:"image"|"video"
     backgroundImage?: WeaverseImage | string;
+    backgroundImagemb?: WeaverseImage | string;
     video:WeaverseVideo;
     poster:WeaverseImage;
     loop:boolean;
@@ -73,7 +75,7 @@ interface SlideProps extends VariantProps<typeof variants>,
 function SlideVideoV2(props:SlideProps){
   const {contWidth,contentPosition,width,gap,verticalPadding,backgroundImage,
     backgroundFit,backgroundPosition,enableOverlay,overlayOpacity,overlayColor,
-    overlayColorHover,showMedia,video, poster ,children ,loop, isHero}=props
+    overlayColorHover,showMedia,video, poster ,children ,loop, isHero, backgroundImagemb}=props
 
   // Preload the mobile poster image for the hero slide during render (React 19 API)
   if (isHero && showMedia === 'video' && poster?.url) {
@@ -86,7 +88,7 @@ function SlideVideoV2(props:SlideProps){
       imageSizes: '100vw',
     })
   }
-
+  const isMobile = useIsMobile(700)
   // Preload the hero slide's actual video file too — antes solo se
   // precargaba el poster de móvil, así que en desktop el vídeo del hero
   // arrancaba en frío (0 bytes descargados) hasta que el IntersectionObserver
@@ -127,7 +129,7 @@ function SlideVideoV2(props:SlideProps){
     <div className="h-full  relative overflow-hidden">
       {showMedia=="image"?
       <OverlayAndBackground
-        backgroundImage={backgroundImage}
+        backgroundImage={ isMobile ? backgroundImagemb:backgroundImage}
         backgroundFit={backgroundFit}
         backgroundPosition={backgroundPosition}
         enableOverlay={enableOverlay}
@@ -260,6 +262,12 @@ export const schema = createSchema({
           type: "image",
           name: "backgroundImage",
           label: "Background image",
+          condition:(data:SlideProps )=> data.showMedia =="image"
+        },
+        {
+          type: "image",
+          name: "backgroundImagemb",
+          label: "Background image mobile",
           condition:(data:SlideProps )=> data.showMedia =="image"
         },
         {
