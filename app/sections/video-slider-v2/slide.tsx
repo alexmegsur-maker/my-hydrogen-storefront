@@ -126,7 +126,7 @@ function SlideVideoV2(props:SlideProps){
   }, [])
 
   return (
-    <div className="h-auto  relative overflow-hidden">
+    <div className="h-full  relative overflow-hidden">
       {showMedia=="image"?
       <OverlayAndBackground
         backgroundImage={ isMobile ? backgroundImagemb:backgroundImage}
