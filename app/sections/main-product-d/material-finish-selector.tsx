@@ -13,12 +13,15 @@ import { createCurProVar } from "~/routes/collections/utils";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
 import { ModelTag } from "./model-tag";
+import { useProductConfiguratorD } from "./store";
 import {
   buildOptionTitleMap,
   getSelectedOptionValue,
   lookupLine,
   OPTION_METAOBJECTS_QUERY,
   parseKeyValueLines,
+  resolveVariantOnProductSwitch,
+  variantsMatchVersionFilter,
   type OptionMetaobjectsResult,
 } from "./utils";
 
@@ -66,7 +69,7 @@ interface MaterialFinishSelectorProps extends HydrogenComponentProps {
   nWeight: string;
   // check
   checkBgColor: string;
-  // etiqueta de modelo (custom.model_tag), superpuesta en la esquina de la imagen
+  // etiqueta de modelo (custom.version, metacampo de variante), superpuesta en la esquina de la imagen
   mdlColor: string;
   mdlSize: string;
   mdlLetter: number;
@@ -251,6 +254,17 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
   const setVariant = useCurrentProduct((state) => state.setVariant);
   const getApiUrl = usePrefixPathWithLocale("api/product-secret");
 
+  // Filtro por versión (custom.version, ver version-selector-d): es EL
+  // filtro que decide qué acabados se muestran — solo se aplica si ese
+  // componente está en uso Y el usuario ya eligió un valor en él. Se lee del
+  // store (no de la variante actual) para que un cambio de talla no lo
+  // altere: el filtro manda, no al revés.
+  const versionFilterEnabled = useProductConfiguratorD((state) => state.versionFilterEnabled);
+  const versionFilterActive = useProductConfiguratorD((state) => state.versionFilterActive);
+  const versionFilterValue = useProductConfiguratorD((state) => state.versionFilterValue);
+  const versionFilterMatchEmpty = useProductConfiguratorD((state) => state.versionFilterMatchEmpty);
+  const versionFilterApplies = versionFilterEnabled && versionFilterActive;
+
   const [loadingHandle, setLoadingHandle] = useState<string | null>(null);
 
   const familyMap = useMemo(() => parseKeyValueLines(families), [families]);
@@ -259,8 +273,29 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
   // valor de custom.material (ej. "cuero") -> title del metaobjeto option (ej. "Prime Hybrid™")
   const optionTitleMap = useMemo(() => buildOptionTitleMap(loaderData?.options), [loaderData]);
 
+  // Talla actualmente seleccionada (misma opción que se preserva al cambiar
+  // de producto en `selectProduct` más abajo) — la etiqueta de modelo solo
+  // debe verse cuando la variante que tiene custom.version es justo la que
+  // quedaría seleccionada con esta talla, no con cualquier otra.
+  const preservedOptionName = (preserveOptionName || "Talla").trim().toLowerCase();
+  const selectedTalla = currentProduct?.selectedVariant?.selectedOptions
+    ?.find((option) => option.name.trim().toLowerCase() === preservedOptionName)
+    ?.value?.trim()
+    .toLowerCase();
+
   const cards = useMemo<MaterialCard[]>(() => {
-    return products.filter(Boolean).map((product) => {
+    return products
+      .filter(Boolean)
+      .filter(
+        (product) =>
+          !versionFilterApplies ||
+          variantsMatchVersionFilter(
+            (product as any).variants?.nodes,
+            versionFilterValue,
+            versionFilterMatchEmpty,
+          ),
+      )
+      .map((product) => {
       const anyProduct = product as any;
       const materialValue = anyProduct.material?.value as string | undefined;
       return {
@@ -279,7 +314,17 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
           "",
         label:
           lookupLine(labelMap, product.handle) || anyProduct.nombre?.value || product.title,
-        modelo: anyProduct.modelTag?.value || "",
+        // Solo se muestra si la variante con esa talla es justo la que tiene
+        // custom.version informado (no basta con que exista en cualquiera).
+        modelo: selectedTalla
+          ? anyProduct.variants?.nodes?.find((v: { selectedOptions?: { name: string; value: string }[] }) =>
+              v.selectedOptions?.some(
+                (option) =>
+                  option.name?.trim().toLowerCase() === preservedOptionName &&
+                  option.value?.trim().toLowerCase() === selectedTalla,
+              ),
+            )?.version?.value || ""
+          : "",
         modelDescription: anyProduct.modelDescription?.value || "",
         // Prioriza el metafield custom.img_principal (pensado para el swatch)
         // y cae a la imagen destacada del producto si no está informado.
@@ -287,7 +332,17 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
         available: product.variants?.nodes?.some((variant) => variant.availableForSale) ?? false,
       } satisfies MaterialCard;
     });
-  }, [products, familyMap, labelMap, optionTitleMap]);
+  }, [
+    products,
+    familyMap,
+    labelMap,
+    optionTitleMap,
+    selectedTalla,
+    preservedOptionName,
+    versionFilterApplies,
+    versionFilterValue,
+    versionFilterMatchEmpty,
+  ]);
 
   /**
    * Cambia el producto actual y, si es posible, conserva la talla elegida
@@ -322,16 +377,12 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
           const prod = createCurProVar(data.result);
           setProduct(prod);
 
-          if (previousValue) {
-            const match = prod.variants?.nodes?.find((variant: any) =>
-              variant.selectedOptions?.some(
-                (option: any) =>
-                  option.name?.trim().toLowerCase() === optionName.trim().toLowerCase() &&
-                  option.value?.trim().toLowerCase() === previousValue.trim().toLowerCase(),
-              ),
-            );
-            if (match) setVariant(match);
-          }
+          const match = resolveVariantOnProductSwitch(prod.variants?.nodes ?? [], optionName, previousValue, {
+            active: versionFilterApplies,
+            value: versionFilterValue,
+            matchEmpty: versionFilterMatchEmpty,
+          });
+          if (match) setVariant(match);
         }
       } catch (error) {
         console.error("Error cargando el material:", error);
@@ -339,7 +390,17 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
         setLoadingHandle(null);
       }
     },
-    [currentProduct, loadingHandle, preserveOptionName, getApiUrl, setProduct, setVariant],
+    [
+      currentProduct,
+      loadingHandle,
+      preserveOptionName,
+      getApiUrl,
+      setProduct,
+      setVariant,
+      versionFilterApplies,
+      versionFilterValue,
+      versionFilterMatchEmpty,
+    ],
   );
 
   if (!cards.length) return null;
@@ -720,7 +781,7 @@ export const schema = createSchema({
       ],
     },
     {
-      group: "Etiqueta de modelo (custom.model_tag)",
+      group: "Etiqueta de modelo (custom.version, metacampo de variante)",
       inputs: [
         { type: "color", label: "Color", name: "mdlColor", defaultValue: "#FFFFFF" },
         { type: "text", label: "Font size", name: "mdlSize", defaultValue: "0.6rem" },

@@ -57,7 +57,12 @@ export function createCurProVar(prod){
   let firstVar = prod.selectedOrFirstAvailableVariant;
   let firstSelect = null
   if(prod.variants?.nodes){
-    firstSelect = prod.variants.nodes[0]
+    // Debe ser la variante que Shopify resolvió como seleccionada según la
+    // URL (firstVar), no siempre la primera de la lista: variants.nodes[0]
+    // no tiene por qué ser esa (el orden de Shopify no sigue "talla más
+    // pequeña primero"). Si no se encuentra (debería ser raro), se cae al
+    // comportamiento anterior como red de seguridad.
+    firstSelect = prod.variants.nodes.find((v: any) => v.id === firstVar?.id) ?? prod.variants.nodes[0]
 
   }else{
     firstSelect = prod.variants.edges[0].node
@@ -113,6 +118,7 @@ export function createCurProVar(prod){
       fechaReserva:firstSelect.fechaReserva,
       totalReserva:firstSelect.totalReserva,
       pedidosReserva:firstSelect.pedidosReserva,
+      version:firstSelect.version,
     },
     tags:prod.tags? prod.tags : [],
     nombre:prod.nombre?.value||null,

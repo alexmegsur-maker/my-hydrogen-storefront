@@ -38,7 +38,10 @@ interface ReservaBarProps extends HydrogenComponentProps{
   qMarginSelect:string;
   qMarginText:string;
   qWeight:string;
-   
+  /** Texto cuando pedidosReserva == totalReserva (cupo completo). */
+  soldOutText:string;
+  /** Sufijo tras el porcentaje cuando quedan cupos, ej. "72% Reservado". */
+  reservedText:string;
 }
 
 export default function ReservaBar(props:ReservaBarProps){
@@ -76,6 +79,8 @@ export default function ReservaBar(props:ReservaBarProps){
     qMarginSelect,
     qMarginText,
     qWeight,
+    soldOutText,
+    reservedText,
     ...rest
   } = props
 
@@ -141,7 +146,7 @@ export default function ReservaBar(props:ReservaBarProps){
                   ...styleQty
                 }}
                 >
-                Agotado
+                {soldOutText || "Agotado"}
               </span>
             </div>
             <div 
@@ -176,7 +181,7 @@ export default function ReservaBar(props:ReservaBarProps){
                   ...styleQty
                 }}
                 >
-                {calcularPorcentaje}% Reservado
+                {calcularPorcentaje}% {reservedText || "Reservado"}
               </span>
             </div>
             <div 
@@ -434,6 +439,20 @@ export const schema = createSchema({
     {
       group:"quantity",
       inputs:[
+        {
+          type:'text',
+          label:'Texto "reservado" (tras el %)',
+          name:'reservedText',
+          defaultValue:'Reservado',
+          helpText:'Se muestra como "{porcentaje}% {este texto}", ej. "72% Reservado".',
+        },
+        {
+          type:'text',
+          label:'Texto cupo agotado',
+          name:'soldOutText',
+          defaultValue:'Agotado',
+          helpText:'Se muestra cuando ya se reservaron todas las unidades de esta fase (preventa_pedidos = preventa_total).',
+        },
         {
           type:'color',
           label:'color',

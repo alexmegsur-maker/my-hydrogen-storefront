@@ -232,6 +232,7 @@ export const schema = createSchema({
     "product-name-header-d",
     "universe-selector-d",
     "size-selector-d",
+    "version-selector-d",
     "material-finish-d",
     "accessories-selector-d",
     "spec-sheet-d",

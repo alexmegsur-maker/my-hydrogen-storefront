@@ -54,6 +54,10 @@ interface AddToCartSectionProps extends HydrogenComponentProps {
   acBgColor: string;
   acDisabledBg: string;
   acDisabledColor: string;
+  // CTA · estilo alternativo para reserva (variante sin stock pero vendible)
+  reservaLabel: string;
+  acReservaColor: string;
+  acReservaBgColor: string;
   acSize: string;
   acLetter: number;
   acFamily: string;
@@ -102,6 +106,9 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
     acBgColor,
     acDisabledBg,
     acDisabledColor,
+    reservaLabel,
+    acReservaColor,
+    acReservaBgColor,
     acSize,
     acLetter,
     acFamily,
@@ -265,6 +272,10 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
     ...selectorPaddingMargin("padding", paddingSelect, paddingText),
   };
 
+  const ctaLabel = !isAvailable ? soldOutLabel : isReserva ? reservaLabel || label : label;
+  const ctaColor = !isAvailable ? acDisabledColor : isReserva ? acReservaColor : acColor;
+  const ctaBg = !isAvailable ? acDisabledBg : isReserva ? acReservaBgColor : acBgColor;
+
   const ctaButton = (floating = false) => (
     <AddToCartButton
       disabled={!isAvailable}
@@ -273,13 +284,14 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
       onClick={() => {
         if (isAvailable) pushAddToCart(analyticsItems, total);
       }}
+      data-reserva={isReserva}
       className={cn(
         "flex items-center justify-center w-full border-none cursor-pointer",
         !floating && "e2e-button-confirm-selection",
       )}
       style={{
-        color: isAvailable ? acColor : acDisabledColor,
-        background: isAvailable ? acBgColor : acDisabledBg,
+        color: ctaColor,
+        background: ctaBg,
         fontFamily: acFamily,
         fontSize: acSize,
         fontWeight: acWeight,
@@ -290,7 +302,7 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
       }}
     >
       <span data-context="pdp-addtocart">
-        {isAvailable ? label : soldOutLabel}
+        {ctaLabel}
         {isAvailable && showTotal && total > 0 ? ` — ${formatAmount(total)} €` : ""}
       </span>
     </AddToCartButton>
@@ -525,6 +537,16 @@ export const schema = createSchema({
         { type: "color", label: "Background", name: "acBgColor", defaultValue: "#FFFFFF" },
         { type: "color", label: "Background deshabilitado", name: "acDisabledBg", defaultValue: "#27272A" },
         { type: "color", label: "Color deshabilitado", name: "acDisabledColor", defaultValue: "#71717A" },
+        {
+          type: "text",
+          label: "Texto en reserva",
+          name: "reservaLabel",
+          defaultValue: "Reservar ahora",
+          helpText:
+            "Se usa cuando la variante está sin stock pero se puede seguir vendiendo (quantityAvailable ≤ 0, availableForSale true) — el botón sigue activo, solo cambia el texto y el color.",
+        },
+        { type: "color", label: "Color en reserva", name: "acReservaColor", defaultValue: "#050505" },
+        { type: "color", label: "Background en reserva", name: "acReservaBgColor", defaultValue: "#C9A227" },
         { type: "text", label: "Font size", name: "acSize", defaultValue: "0.8rem" },
         {
           type: "range",

@@ -11,9 +11,12 @@ import { createCurProVar } from "~/routes/collections/utils";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
 import { ModelTag } from "./model-tag";
+import { useProductConfiguratorD } from "./store";
 import {
   buildOptionTitleMap,
   OPTION_METAOBJECTS_QUERY,
+  resolveVariantOnProductSwitch,
+  variantsMatchVersionFilter,
   type OptionMetaobjectsResult,
 } from "./utils";
 
@@ -59,15 +62,19 @@ const UNIVERSE_COLLECTIONS_QUERY = `#graphql
               nombre: metafield(namespace: "custom", key: "name_style_secret") {
                 value
               }
-              modelTag: metafield(namespace: "custom", key: "model_tag") {
-                value
-              }
               modelDescription: metafield(namespace: "custom", key: "model_description") {
                 value
               }
-              variants(first: 1) {
+              variants(first: 10) {
                 nodes {
                   availableForSale
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  version: metafield(namespace: "custom", key: "version") {
+                    value
+                  }
                 }
               }
             }
@@ -86,9 +93,14 @@ interface UniverseProductNode {
   principalImg: { reference: { previewImage: { url: string; altText: string | null } | null } | null } | null;
   material: { value: string } | null;
   nombre: { value: string } | null;
-  modelTag: { value: string } | null;
   modelDescription: { value: string } | null;
-  variants: { nodes: { availableForSale: boolean }[] };
+  variants: {
+    nodes: {
+      availableForSale: boolean;
+      selectedOptions: { name: string; value: string }[];
+      version: { value: string } | null;
+    }[];
+  };
 }
 
 interface UniverseCollectionNode {
@@ -172,7 +184,7 @@ interface UniverseSelectorProps extends HydrogenComponentProps {
   nSize: string;
   nFamily: string;
   nWeight: string;
-  // etiqueta de modelo (custom.model_tag), superpuesta en la esquina de la imagen
+  // etiqueta de modelo (custom.version, metacampo de variante), superpuesta en la esquina de la imagen
   mdlColor: string;
   mdlSize: string;
   mdlLetter: number;
@@ -337,6 +349,27 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
   // valor de custom.material (ej. "cuero") -> title del metaobjeto option (ej. "Prime Hybrid™")
   const optionTitleMap = useMemo(() => buildOptionTitleMap(loaderData?.options), [loaderData]);
 
+  // Talla actualmente seleccionada (misma opción que se preserva al cambiar
+  // de universo en `selectProduct` más abajo) — la etiqueta de modelo solo
+  // debe verse cuando la variante que tiene custom.version es justo la que
+  // quedaría seleccionada con esta talla, no con cualquier otra.
+  const preservedOptionName = (preserveOptionName || "Talla").trim().toLowerCase();
+  const selectedTalla = currentProduct?.selectedVariant?.selectedOptions
+    ?.find((option) => option.name.trim().toLowerCase() === preservedOptionName)
+    ?.value?.trim()
+    .toLowerCase();
+
+  // Filtro por versión (custom.version, ver version-selector-d): es EL
+  // filtro que decide qué universos/ediciones se muestran — solo se aplica
+  // si ese componente está en uso Y el usuario ya eligió un valor en él. Se
+  // lee del store (no de la variante actual) para que un cambio de talla no
+  // lo altere: el filtro manda, no al revés.
+  const versionFilterEnabled = useProductConfiguratorD((state) => state.versionFilterEnabled);
+  const versionFilterActive = useProductConfiguratorD((state) => state.versionFilterActive);
+  const versionFilterValue = useProductConfiguratorD((state) => state.versionFilterValue);
+  const versionFilterMatchEmpty = useProductConfiguratorD((state) => state.versionFilterMatchEmpty);
+  const versionFilterApplies = versionFilterEnabled && versionFilterActive;
+
   const collections = useMemo<UniverseCollection[]>(() => {
     const raw = (loaderData?.collections ?? []) as UniverseCollectionNode[];
     return raw.map((collection) => ({
@@ -345,7 +378,13 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
       // "The lord of the Rings"); si no está informado se usa el título de
       // la colección en Shopify.
       title: collection.name?.value || collection.title,
-      products: collection.products.edges.map(({ node }) => {
+      products: collection.products.edges
+        .filter(
+          ({ node }) =>
+            !versionFilterApplies ||
+            variantsMatchVersionFilter(node.variants?.nodes, versionFilterValue, versionFilterMatchEmpty),
+        )
+        .map(({ node }) => {
         const materialValue = node.material?.value ?? "";
         return {
           id: node.id,
@@ -356,14 +395,32 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
           // coincide con ese valor y se usa su `title` como familia.
           family: optionTitleMap[materialValue.trim().toLowerCase()] || materialValue,
           label: node.nombre?.value || node.title,
-          modelo: node.modelTag?.value || "",
+          // Solo se muestra si la variante con esa talla es justo la que tiene
+          // custom.version informado (no basta con que exista en cualquiera).
+          modelo: selectedTalla
+            ? node.variants?.nodes?.find((v) =>
+                v.selectedOptions?.some(
+                  (option) =>
+                    option.name?.trim().toLowerCase() === preservedOptionName &&
+                    option.value?.trim().toLowerCase() === selectedTalla,
+                ),
+              )?.version?.value || ""
+            : "",
           modelDescription: node.modelDescription?.value || "",
           image: node.principalImg?.reference?.previewImage?.url ?? node.featuredImage?.url ?? null,
           available: node.variants?.nodes?.some((variant) => variant.availableForSale) ?? false,
         };
       }),
     }));
-  }, [loaderData, optionTitleMap]);
+  }, [
+    loaderData,
+    optionTitleMap,
+    selectedTalla,
+    preservedOptionName,
+    versionFilterApplies,
+    versionFilterValue,
+    versionFilterMatchEmpty,
+  ]);
 
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
   const activeCollection = collections.find((elm) => elm.id === activeCollectionId) ?? collections[0] ?? null;
@@ -402,16 +459,13 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
           const prod = createCurProVar(responseData.result);
           setProduct(prod);
 
-          if (previousValue) {
-            const match = prod.variants?.nodes?.find((variant: any) =>
-              variant.selectedOptions?.some(
-                (option: any) =>
-                  option.name?.trim().toLowerCase() === optionName.trim().toLowerCase() &&
-                  option.value?.trim().toLowerCase() === previousValue.trim().toLowerCase(),
-              ),
-            );
-            if (match) setVariant(match);
-          }
+          const match = resolveVariantOnProductSwitch(
+            prod.variants?.nodes ?? [],
+            optionName,
+            previousValue ?? null,
+            { active: versionFilterApplies, value: versionFilterValue, matchEmpty: versionFilterMatchEmpty },
+          );
+          if (match) setVariant(match);
         }
       } catch (error) {
         console.error("Error cargando el producto del universo:", error);
@@ -419,7 +473,17 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
         setLoadingHandle(null);
       }
     },
-    [currentProduct, loadingHandle, preserveOptionName, getApiUrl, setProduct, setVariant],
+    [
+      currentProduct,
+      loadingHandle,
+      preserveOptionName,
+      getApiUrl,
+      setProduct,
+      setVariant,
+      versionFilterApplies,
+      versionFilterValue,
+      versionFilterMatchEmpty,
+    ],
   );
 
   if (!collections.length) return null;
@@ -823,7 +887,7 @@ export const schema = createSchema({
       ],
     },
     {
-      group: "Etiqueta de modelo (custom.model_tag)",
+      group: "Etiqueta de modelo (custom.version, metacampo de variante)",
       inputs: [
         { type: "color", label: "Color", name: "mdlColor", defaultValue: "#FFFFFF" },
         { type: "text", label: "Font size", name: "mdlSize", defaultValue: "0.6rem" },

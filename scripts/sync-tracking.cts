@@ -8,6 +8,10 @@
  *   R3 – Verificación de panel: si displayStatus no coincide con el estado real, fuerza la sincronización
  */
 
+import { detectCarrierByTrackingNumber } from '../app/lib/tracking/resolver.server.ts';
+import { fetchCttExpress } from '../app/lib/tracking/carriers/ctt-express.server.ts';
+import { fetchCorreosExpress } from '../app/lib/tracking/carriers/correos-express.server.ts';
+
 // ── Configuración ─────────────────────────────────────────────────────────────
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN ?? process.env.PUBLIC_STORE_DOMAIN ?? '';
@@ -15,6 +19,16 @@ const SHOPIFY_TOKEN  = process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN ?? '';
 const DHL_API_KEY    = process.env.DHL_PARCEL_ES_API_KEY ?? '';
 const API_VERSION    = process.env.SHOPIFY_API_VERSION ?? '2026-01';
 const DRY_RUN        = process.argv.includes('--dry-run');
+
+// CTT Express / Correos Express: mismos adaptadores que usa el tracking en
+// vivo de la web (app/lib/tracking/carriers/*.server.ts) — no duplicar su
+// lógica aquí. Ninguno de esos ficheros depende de nada específico de
+// Oxygen/Vite (solo fetch/URL/btoa), así que tsx los puede importar directo.
+const CTT_EXPRESS_API_TOKEN     = process.env.CTT_EXPRESS_API_TOKEN ?? '';
+const CTT_EXPRESS_ENV           = process.env.CTT_EXPRESS_ENV;
+const CORREOS_EXPRESS_USERNAME  = process.env.CORREOS_EXPRESS_USERNAME;
+const CORREOS_EXPRESS_PASSWORD  = process.env.CORREOS_EXPRESS_PASSWORD;
+const CORREOS_EXPRESS_CLIENT_CODE = process.env.CORREOS_EXPRESS_CLIENT_CODE;
 
 const MF_NAMESPACE = 'custom';
 const MF_KEY       = 'tracking_data';
@@ -245,10 +259,43 @@ async function fetchDHL(trackingNumber: string): Promise<TrackingStatus> {
 }
 
 async function queryCarrier(carrier: string, trackingNumber: string): Promise<TrackingStatus> {
-  if (carrier.toLowerCase().includes('dhl')) {
+  // El prefijo del número de seguimiento es más fiable que el nombre que
+  // guarda Shopify (puede venir mal autodetectado) — mismo criterio que usa
+  // el tracking en vivo de la web (ver resolver.server.ts).
+  const c = carrier.toLowerCase();
+  const detected = detectCarrierByTrackingNumber(trackingNumber);
+  const effective =
+    detected ??
+    (c.includes('dhl') ? 'dhl' : c.includes('ctt') ? 'ctt' : c.includes('correos') ? 'correos_express' : null);
+
+  if (effective === 'dhl') {
     if (!DHL_API_KEY) { console.warn('    ⚠️  DHL_PARCEL_ES_API_KEY no configurada'); return 'unknown'; }
     return fetchDHL(trackingNumber);
   }
+
+  if (effective === 'ctt') {
+    if (!CTT_EXPRESS_API_TOKEN) { console.warn('    ⚠️  CTT_EXPRESS_API_TOKEN no configurada'); return 'unknown'; }
+    const result = await fetchCttExpress(trackingNumber, { apiToken: CTT_EXPRESS_API_TOKEN, env: CTT_EXPRESS_ENV });
+    if (result.error) { console.warn(`    [CTT] ${result.error}`); return 'unknown'; }
+    console.log(`    [CTT] status: ${result.currentStatus}`);
+    return result.currentStatus;
+  }
+
+  if (effective === 'correos_express') {
+    if (!CORREOS_EXPRESS_USERNAME || !CORREOS_EXPRESS_PASSWORD || !CORREOS_EXPRESS_CLIENT_CODE) {
+      console.warn('    ⚠️  CORREOS_EXPRESS_USERNAME/PASSWORD/CLIENT_CODE no configuradas');
+      return 'unknown';
+    }
+    const result = await fetchCorreosExpress(trackingNumber, {
+      username: CORREOS_EXPRESS_USERNAME,
+      password: CORREOS_EXPRESS_PASSWORD,
+      clientCode: CORREOS_EXPRESS_CLIENT_CODE,
+    });
+    if (result.error) { console.warn(`    [Correos Express] ${result.error}`); return 'unknown'; }
+    console.log(`    [Correos Express] status: ${result.currentStatus}`);
+    return result.currentStatus;
+  }
+
   console.warn(`    ⚠️  Carrier "${carrier}" no integrado`);
   return 'unknown';
 }
@@ -282,6 +329,10 @@ async function main() {
     throw new Error('Faltan SHOPIFY_STORE_DOMAIN o SHOPIFY_ADMIN_API_ACCESS_TOKEN');
   }
   if (!DHL_API_KEY) console.warn('⚠️  DHL_PARCEL_ES_API_KEY no configurada — pedidos DHL se saltarán\n');
+  if (!CTT_EXPRESS_API_TOKEN) console.warn('⚠️  CTT_EXPRESS_API_TOKEN no configurada — pedidos CTT se saltarán\n');
+  if (!CORREOS_EXPRESS_USERNAME || !CORREOS_EXPRESS_PASSWORD || !CORREOS_EXPRESS_CLIENT_CODE) {
+    console.warn('⚠️  Credenciales de Correos Express incompletas — esos pedidos se saltarán\n');
+  }
 
   const since = pastISODate(DAYS_WINDOW);
   const cutoff = cutoffDate();

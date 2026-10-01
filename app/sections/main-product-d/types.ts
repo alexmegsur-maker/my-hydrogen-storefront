@@ -32,6 +32,27 @@ export interface ProductConfiguratorDStore {
   toggleAccessory: (accessory: AccessoryLine) => void;
   clearAccessories: () => void;
   setActiveMediaIndex: (index: number) => void;
+  /**
+   * true mientras haya al menos un `version-selector-d` montado en la
+   * página — el filtro por `custom.version` en universe-selector/
+   * material-finish-selector solo se aplica si este componente está en uso
+   * (si no, esos selectores no deben verse afectados por nada).
+   */
+  versionFilterEnabled: boolean;
+  /**
+   * El filtro de versión es el que MANDA sobre qué productos se muestran en
+   * universe-selector/material-finish-selector — por eso es un estado propio
+   * (se fija solo al pulsar un `version-selector-item`), no algo derivado de
+   * la variante seleccionada ahora mismo: así no lo pisa un clic en talla u
+   * otro selector, y el resaltado del botón activo usa este MISMO estado que
+   * filtra las listas, así que nunca pueden desincronizarse entre sí.
+   */
+  versionFilterActive: boolean;
+  versionFilterValue: string;
+  /** si está activo, el filtro es "sin custom.version relleno" y `versionFilterValue` se ignora. */
+  versionFilterMatchEmpty: boolean;
+  setVersionFilterEnabled: (enabled: boolean) => void;
+  selectVersionFilter: (value: string, matchEmpty: boolean) => void;
 }
 
 /**

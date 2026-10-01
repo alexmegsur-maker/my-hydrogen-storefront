@@ -33,7 +33,7 @@ export interface ModelTooltipStyle {
 const VIEWPORT_MARGIN = 12;
 
 /**
- * Etiqueta "de modelo" (custom.model_tag) superpuesta en la esquina de la
+ * Etiqueta "de modelo" (custom.version, metacampo de variante) superpuesta en la esquina de la
  * imagen. Al hacer clic NO debe seleccionar el producto de la tarjeta (que es
  * un <button> que envuelve toda la tarjeta): se para la propagación y, en su
  * lugar, se abre un tooltip con custom.model_description.

@@ -112,8 +112,12 @@ export async function resolveTracking(
       case 'correos_express':
         return await fetchCorreosExpress(
           trackingNumber!,
-          env.CORREOS_EXPRESS_CLIENT_ID,
-          env.CORREOS_EXPRESS_CLIENT_SECRET,
+          {
+            username: env.CORREOS_EXPRESS_USERNAME,
+            password: env.CORREOS_EXPRESS_PASSWORD,
+            clientCode: env.CORREOS_EXPRESS_CLIENT_CODE,
+          },
+          language,
         );
 
       default:

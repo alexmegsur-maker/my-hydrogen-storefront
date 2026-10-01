@@ -89,6 +89,7 @@ export interface Variants {
   fechaReserva?:Metafield;
   totalReserva?:Metafield;
   pedidosReserva?:Metafield;
+  version?:Metafield;
 }
 
 export interface CurrentProduct{

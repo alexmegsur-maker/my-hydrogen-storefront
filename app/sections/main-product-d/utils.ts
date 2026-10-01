@@ -2,7 +2,7 @@ import type { CurrentProduct, Variants } from "~/types/currentProduct";
 import type { ResolvedOptionValue } from "./types";
 
 /** Compara nombres de opción/valor sin distinguir mayúsculas ni espacios. */
-function equals(a: string | undefined | null, b: string | undefined | null): boolean {
+export function equals(a: string | undefined | null, b: string | undefined | null): boolean {
   return (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
 }
 
@@ -95,6 +95,98 @@ export function buildResolvedOptionValues(
   const base = prices.length ? Math.min(...prices) : 0;
 
   return resolved.map((elm) => ({ ...elm, priceDelta: elm.price - base }));
+}
+
+/**
+ * Variante del producto actual cuyo `custom.version` coincide con `value` —
+ * o, si `matchEmpty` es true, la primera variante SIN `custom.version`
+ * relleno (ignora `value`). Cada ítem del selector de versión declara su
+ * propio criterio (un valor fijo, o "vacío"), así que no hace falta
+ * enumerar los valores presentes como con `buildResolvedOptionValues`.
+ * Si hay más de una variante candidata (poco habitual — normalmente el
+ * merchant solo rellena `custom.version` en una), se prioriza la que además
+ * coincide con el resto de opciones ya elegidas (ej. la talla actual),
+ * igual que se preserva la talla al cambiar de universo/material.
+ */
+export function resolveVariantForVersionValue(
+  product: CurrentProduct | null | undefined,
+  value: string,
+  matchEmpty: boolean,
+): Variants | null {
+  const variants = product?.variants?.nodes ?? [];
+  const candidates = variants.filter((variant) => {
+    const raw = variant.version?.value?.trim();
+    return matchEmpty ? !raw : equals(raw, value);
+  });
+  if (!candidates.length) return null;
+  if (candidates.length === 1) return candidates[0];
+
+  const current = product?.selectedVariant;
+  const matchingOthers = candidates.find((variant) =>
+    (current?.selectedOptions ?? []).every((other) =>
+      variant.selectedOptions?.some((elm) => equals(elm.name, other.name) && equals(elm.value, other.value)),
+    ),
+  );
+  return matchingOthers ?? candidates[0];
+}
+
+/**
+ * true si ALGUNA de las variantes dadas cumple el criterio del filtro de
+ * versión (mismo `value`/`matchEmpty` que `version-selector-item`) — lo usan
+ * universe-selector.tsx y material-finish-selector.tsx para decidir si un
+ * producto candidato se muestra o se oculta cuando el filtro está activo.
+ * Las variantes vienen crudas de GraphQL (no del store `CurrentProduct`), de
+ * ahí el tipo laxo: solo hace falta el metafield `version`.
+ */
+export function variantsMatchVersionFilter(
+  variantNodes: { version?: { value?: string | null } | null }[] | undefined,
+  value: string,
+  matchEmpty: boolean,
+): boolean {
+  return (variantNodes ?? []).some((variant) => {
+    const raw = variant.version?.value?.trim();
+    return matchEmpty ? !raw : equals(raw, value);
+  });
+}
+
+/**
+ * Variante a activar al cambiar de producto (universo/acabado). El filtro de
+ * versión MANDA sobre qué productos se listan, así que también debe mandar
+ * sobre qué variante se elige al entrar en uno nuevo: se prioriza una
+ * variante que cumpla TANTO la talla preservada COMO el filtro; si esa
+ * combinación no existe en el nuevo producto, se prioriza cumplir el filtro
+ * de versión (sobre la talla); si tampoco hay ninguna (no debería pasar, el
+ * producto ya se filtró antes de listarse), se cae a solo la talla. Sin
+ * filtro de versión activo, es el comportamiento de siempre: solo talla.
+ */
+export function resolveVariantOnProductSwitch(
+  variants: Variants[],
+  optionName: string,
+  preservedTallaValue: string | null,
+  versionFilter: { active: boolean; value: string; matchEmpty: boolean },
+): Variants | null {
+  const matchesTalla = (variant: Variants) =>
+    !preservedTallaValue ||
+    Boolean(
+      variant.selectedOptions?.some(
+        (option) => equals(option.name, optionName) && equals(option.value, preservedTallaValue),
+      ),
+    );
+
+  if (!versionFilter.active) {
+    return preservedTallaValue ? (variants.find(matchesTalla) ?? null) : null;
+  }
+
+  const matchesVersion = (variant: Variants) => {
+    const raw = variant.version?.value?.trim();
+    return versionFilter.matchEmpty ? !raw : equals(raw, versionFilter.value);
+  };
+
+  return (
+    variants.find((variant) => matchesVersion(variant) && matchesTalla(variant)) ??
+    variants.find(matchesVersion) ??
+    (preservedTallaValue ? (variants.find(matchesTalla) ?? null) : null)
+  );
 }
 
 /**
