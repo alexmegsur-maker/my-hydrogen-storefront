@@ -101,7 +101,6 @@ export default function ProductViewer(props: ProductViewerProps) {
               data={activeImage}
               className="h-full w-full object-contain"
               sizes="(min-width: 1024px) 65vw, 100vw"
-              width={1400}
             />
           ) : (
             <Skeleton className="h-[50vh] w-[60%] rounded-none bg-white/5" />

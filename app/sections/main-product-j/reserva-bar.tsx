@@ -109,7 +109,7 @@ export default function ReservaBar(props:ReservaBarProps){
 
 
   if(currentProduct?.selectedVariant.fechaReserva?.value && currentProduct?.selectedVariant.totalReserva?.value && currentProduct?.selectedVariant.pedidosReserva?.value ){
-    const calcularPorcentaje = (parseInt(selectedVar.pedidosReserva.value)/parseInt(selectedVar.totalReserva.value))*100
+    const calcularPorcentaje = Math.floor((parseInt(selectedVar.pedidosReserva.value)/parseInt(selectedVar.totalReserva.value))*100)
     
     return(
       <Section 
