@@ -129,14 +129,14 @@ export function variantsMatchOption(
 }
 
 /**
- * Variante a activar al cambiar de producto (universo/acabado). El filtro de
- * versión MANDA sobre qué productos se listan, así que también debe mandar
- * sobre qué variante se elige al entrar en uno nuevo: se prioriza una
- * variante que cumpla TANTO la talla preservada COMO el filtro; si esa
- * combinación no existe en el nuevo producto, se prioriza cumplir el filtro
- * de versión (sobre la talla); si tampoco hay ninguna (no debería pasar, el
- * producto ya se filtró antes de listarse), se cae a solo la talla. Sin
- * filtro de versión activo, es el comportamiento de siempre: solo talla.
+ * Variante a activar al cambiar de producto (universo/acabado). Prioridad:
+ * 1. la primera variante VENDIBLE que cumpla la talla preservada y el filtro
+ *    de versión (si está activo);
+ * 2. la primera vendible que cumpla el filtro de versión, sea cual sea la talla;
+ * 3. si no hay ninguna vendible, el comportamiento anterior: talla preservada
+ *    y/o filtro de versión, sin mirar disponibilidad.
+ * Un producto que no tiene la opción de versión (exclusivas) no bloquea por
+ * versión: sus variantes cuentan como coincidentes.
  */
 export function resolveVariantOnProductSwitch(
   variants: Variants[],
@@ -152,16 +152,28 @@ export function resolveVariantOnProductSwitch(
       ),
     );
 
-  if (!versionFilter.active) {
-    return preservedTallaValue ? (variants.find(matchesTalla) ?? null) : null;
-  }
-
+  const hasVersionOption = variants.some((variant) =>
+    variant.selectedOptions?.some((option) => equals(option.name, versionFilter.optionName)),
+  );
   const matchesVersion = (variant: Variants) =>
+    !versionFilter.active ||
+    !hasVersionOption ||
     Boolean(
       variant.selectedOptions?.some(
         (option) => equals(option.name, versionFilter.optionName) && equals(option.value, versionFilter.value),
       ),
     );
+
+  const sellable = (variant: Variants) => Boolean(variant.availableForSale);
+
+  const sellableMatch =
+    variants.find((variant) => sellable(variant) && matchesVersion(variant) && matchesTalla(variant)) ??
+    variants.find((variant) => sellable(variant) && matchesVersion(variant));
+  if (sellableMatch) return sellableMatch;
+
+  if (!versionFilter.active) {
+    return preservedTallaValue ? (variants.find(matchesTalla) ?? null) : null;
+  }
 
   return (
     variants.find((variant) => matchesVersion(variant) && matchesTalla(variant)) ??
