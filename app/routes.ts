@@ -55,6 +55,7 @@ export default hydrogenRoutes([
       route("desistimiento", "routes/api/desistimiento.ts"),
       route("order-lookup", "routes/api/order-data.ts"),
       route("tracking", "routes/api/tracking.ts"),
+      route("tracking-status", "routes/api/tracking-status.ts"),
     ]),
     ...prefix("blogs", [
       route(":blogHandle", "routes/blogs/blog.tsx"),
