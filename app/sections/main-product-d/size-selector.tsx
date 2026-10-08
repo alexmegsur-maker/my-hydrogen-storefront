@@ -140,8 +140,9 @@ export default function SizeSelector(props: SizeSelectorProps) {
   const targetOptionFor = useCallback(
     (nextHeight: number, nextWeight: number) => {
       if (values.length < 2) return values[0] ?? null;
+
       const isLarge = nextHeight > (heightBreakpoint ?? 179) || nextWeight > (weightBreakpoint ?? 99);
-      return isLarge ? values[values.length - 1] : values[0];
+      return isLarge ? values[0] : values[values.length - 1];
     },
     [values, heightBreakpoint, weightBreakpoint],
   );
@@ -161,6 +162,17 @@ export default function SizeSelector(props: SizeSelectorProps) {
   const changeVariant = (variant: Variants | null) => {
     if (!variant) return;
     setVariant(variant);
+  };
+
+  const changeSize = (variant: Variants | null) => {
+    if (!variant) return;
+    if (variant.selectedOptions.find((elm)=>elm.value=="Regular")){
+      setWeight(75)
+      setHeight(175)
+    } else if(variant.selectedOptions.find((elm)=>elm.value=="Xl")){
+      setWeight(100)
+      setHeight(180)
+    }
   };
 
   /**
@@ -235,7 +247,7 @@ export default function SizeSelector(props: SizeSelectorProps) {
                 type="button"
                 key={option.value}
                 disabled={!option.variant}
-                onClick={() => changeVariant(option.variant)}
+                onClick={() => {changeSize(option.variant);changeVariant(option.variant)}}
                 onMouseEnter={() => setHovered(option.value)}
                 onMouseLeave={() => setHovered(null)}
                 data-variante={optionName || "talla"}
