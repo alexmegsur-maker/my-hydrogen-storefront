@@ -2,6 +2,7 @@ import { useThemeSettings } from '@weaverse/hydrogen';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import {COUNTRIES} from '~/utils/const';
+import {localizePath, toBasePath} from '~/utils/localized-paths';
 
 export function LanguageSelector() {
   const {pathname, search} = useLocation();
@@ -22,11 +23,14 @@ export function LanguageSelector() {
     // Guardar preferencia para que el geo-redirect no sobreescriba la elección
     document.cookie = `locale_pref=${encodeURIComponent(newPrefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
 
-    const pathWithoutLocale = COUNTRIES[currentPathPart]
-      ? pathname.replace(currentPathPart, '')
+    const currentPrefix = COUNTRIES[currentPathPart] ? currentPathPart : '';
+    const pathWithoutLocale = currentPrefix
+      ? pathname.replace(currentPrefix, '')
       : pathname;
+    // Las páginas con slug traducido (p. ej. /de/technologie) pasan por su ruta base
+    const basePath = toBasePath(pathWithoutLocale, currentPrefix);
 
-    window.location.href = `${newPrefix}${pathWithoutLocale || '/'}${search}`;
+    window.location.href = `${newPrefix}${localizePath(basePath, newPrefix) || '/'}${search}`;
   };
 
   useEffect(()=>{

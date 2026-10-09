@@ -5,7 +5,19 @@
  */
 const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
   "/tecnologia": { "/de": "/technologie" },
-};
+  "/garantia-base": { "/de": "/basisgarantie" },
+  "/extension-de-garantia": { "/de": "/garantieverlaengerung" },
+  "/chair-validation": { "/de": "/stuhl-validierung" },
+  "/licencias": { "/de": "/lizenzen" },
+  "/desistimiento": { "/de": "/widerruf" },
+  "/instrucciones": { "/de": "/anleitungenanleitungen" },
+  "/legado": { "/de": "/vermaechtnis" },
+  "/devolucion": { "/de": "/ruecksendung" },
+  "/contact": { "/de": "/kontakt" },
+  "/privacidad": { "/de": "/datenschutz" },
+  "/aviso-legal": { "/de": "/rechtlicher-hinweis" },
+
+}; 
 
 /** Ruta base → ruta que le corresponde en el locale indicado (sin prefijo). */
 export function localizePath(basePath: string, prefix: string): string {
