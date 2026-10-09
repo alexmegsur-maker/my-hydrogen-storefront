@@ -8,18 +8,18 @@
 // la doc (sin "-info"; la sección "Connection URLs" de la doc lo daba con
 // "-info" pero esa variante NO es la que funciona).
 //
-// El Bearer token es un access token de Cognito (decodificado: iss
-// = cognito-idp.eu-central-1.amazonaws.com/eu-central-1_IyoNKUCFs, claim
-// client_id = CTT_EXPRESS_CLIENT_ID ya presente en .env, expira a las 24h
-// exactas de emitido). Esto sugiere que se puede pedir automáticamente vía
-// OAuth2 client_credentials contra el dominio Cognito de CTT, usando
-// CTT_EXPRESS_CLIENT_ID + CTT_EXPRESS_CLIENT_SECRET — pero no tenemos
-// confirmado el dominio del token endpoint (el "iss" es el emisor para
-// validar el JWT, no la URL de token). Mientras tanto, el token se pega a
-// mano en CTT_EXPRESS_API_TOKEN y hay que renovarlo cada 24h.
+// El Bearer token es un access token de Cognito que caduca a las 24h. Se pide
+// automáticamente por OAuth2 client_credentials (CONFIRMADO con una petición
+// real, 2026-10-09):
+//   POST https://api.cttexpress.com/integrations/oauth2/token
+//   Body (form): grant_type=client_credentials, client_id, client_secret, scope
+//   Respuesta: { access_token, token_type: "Bearer", expires_in: 85800 }
+// El token se guarda en memoria hasta poco antes de caducar.
 //
 // Credenciales en .env (ver .env.example):
-//   CTT_EXPRESS_API_TOKEN — el Bearer token vigente (dura 24h).
+//   CTT_EXPRESS_CLIENT_ID / CTT_EXPRESS_CLIENT_SECRET — para pedir el token.
+//   CTT_EXPRESS_API_TOKEN — opcional: token pegado a mano, solo se usa si
+//                           faltan las dos anteriores (caduca a las 24h).
 //   CTT_EXPRESS_ENV       — "test" | "production" (por defecto "production").
 
 import type {
@@ -32,10 +32,52 @@ import { STATUS_LABELS } from '../types';
 const TEST_BASE = 'https://api-test.cttexpress.com';
 const PROD_BASE = 'https://api.cttexpress.com';
 const TRACKING_PATH = '/integrations/trf/item-history-api/history/';
+const TOKEN_PATH = '/integrations/oauth2/token';
+const TOKEN_SCOPE = 'urn:com:ctt-express:integration-clients:scopes:common/ALL';
+// Margen para no usar un token a punto de caducar.
+const TOKEN_EXPIRY_MARGIN_MS = 5 * 60 * 1000;
 
 export interface CttExpressCredentials {
+  clientId?: string;
+  clientSecret?: string;
   apiToken?: string;
   env?: string; // "test" | "production"
+}
+
+// Caché en memoria del isolate, por entorno + client id.
+const tokenCache = new Map<string, { token: string; expiresAt: number }>();
+
+async function requestAccessToken(
+  base: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<string> {
+  const cacheKey = `${base}|${clientId}`;
+  const cached = tokenCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return cached.token;
+
+  const res = await fetch(base + TOKEN_PATH, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: TOKEN_SCOPE,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`no se pudo obtener el token de acceso (HTTP ${res.status})`);
+  }
+  const json = (await res.json()) as { access_token?: string; expires_in?: number };
+  if (!json.access_token) {
+    throw new Error('la respuesta del token no incluye access_token');
+  }
+  tokenCache.set(cacheKey, {
+    token: json.access_token,
+    expiresAt: Date.now() + (json.expires_in ?? 0) * 1000 - TOKEN_EXPIRY_MARGIN_MS,
+  });
+  return json.access_token;
 }
 
 // Tabla de errores oficial — doc "Get Shipping Tracking API v2.0", sección
@@ -157,12 +199,13 @@ export async function fetchCttExpress(
   trackingNumber: string,
   creds: CttExpressCredentials,
 ): Promise<NormalizedTracking> {
-  const { apiToken, env } = creds;
+  const { clientId, clientSecret, apiToken, env } = creds;
+  const canRequestToken = Boolean(clientId && clientSecret);
 
-  if (!apiToken) {
+  if (!canRequestToken && !apiToken) {
     return makeError(
       trackingNumber,
-      'CTT Express: falta CTT_EXPRESS_API_TOKEN en las variables de entorno (el Bearer token de la Get Shipping Tracking API, distinto del client secret del plugin)',
+      'CTT Express: faltan CTT_EXPRESS_CLIENT_ID y CTT_EXPRESS_CLIENT_SECRET en las variables de entorno',
     );
   }
 
@@ -172,12 +215,24 @@ export async function fetchCttExpress(
   url.searchParams.set('showItems', 'false');
 
   try {
-    const res = await fetch(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        Accept: 'application/json',
-      },
-    });
+    const fetchTracking = async (): Promise<Response> => {
+      const token = canRequestToken
+        ? await requestAccessToken(base, clientId!, clientSecret!)
+        : apiToken;
+      return fetch(url.toString(), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+    };
+
+    let res = await fetchTracking();
+    // Token en caché revocado antes de tiempo: se descarta y se pide otro.
+    if (res.status === 401 && canRequestToken) {
+      tokenCache.delete(`${base}|${clientId}`);
+      res = await fetchTracking();
+    }
 
     const text = await res.text();
 

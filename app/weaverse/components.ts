@@ -216,7 +216,6 @@ import * as CardUniverses from "~/sections/card-universes"
 import * as CardUniverse from "~/components/card-universe"
 
 export const components: HydrogenComponent[] = [
-  // He movido HeroImage aquí arriba para asegurar que se registre primero
   HeroImage, 
   SubHeading,
   Heading,
@@ -257,11 +256,6 @@ export const components: HydrogenComponent[] = [
   NewsLetter,
   NewsLetterForm,
   NewsletterPopup,
-  /* DUPLICADOS ELIMINADOS AQUÍ:
-     - Blogs (Ya estaba arriba)
-     - BlogPost (Ya estaba arriba)
-     - AllProducts (Ya estaba arriba)
-  */
   FeaturedProducts,
   FeaturedProductItems,
   Testimonial,

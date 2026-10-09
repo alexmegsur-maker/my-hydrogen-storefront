@@ -5,6 +5,7 @@ import { redirect } from "react-router";
 import { applyWeaverseSeo } from "~/.server/seo";
 import { COUNTRIES } from "~/utils/const";
 import { routeHeaders } from "~/utils/cache";
+import { localizePath } from "~/utils/localized-paths";
 import { validateWeaverseData, WeaverseContent } from "~/weaverse";
 
 export let headers = routeHeaders;
@@ -25,8 +26,14 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       const locale = `/${segments[0]}`;
 
       if (segments.length >= 2 && LOCALE_PREFIXES.includes(locale)) {
-        const handle = segments.slice(1).join("/");
-        throw redirect(`/${handle}`, 301);
+        const handle = `/${segments.slice(1).join("/")}`;
+        // Si la página tiene slug traducido en este locale, va a su copia
+        // localizada (/de/tecnologia → /de/technologie) en vez de al español.
+        const localized = localizePath(handle, locale);
+        if (localized !== handle) {
+          throw redirect(`${locale}${localized}`, 301);
+        }
+        throw redirect(handle, 301);
       }
     }
     throw e;

@@ -14,6 +14,7 @@ import {
 import { ScrollReveal } from "~/components/scroll-reveal";
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
+import { localizePath } from "~/utils/localized-paths";
 import { selectorPaddingMargin } from "~/utils/general";
 
 export const variants = cva(["inline-flex transition-colors"], {
@@ -126,7 +127,7 @@ function useHrefWithLocale(href: LinkProps["to"]) {
     selectedLocale?.pathPrefix &&
     !LOCALE_PREFIXES.some((p) => toWithLocale.toLowerCase().startsWith(p))
   ) {
-    toWithLocale = `${selectedLocale.pathPrefix}${href}`;
+    toWithLocale = `${selectedLocale.pathPrefix}${localizePath(toWithLocale, selectedLocale.pathPrefix)}`;
   }
 
   return toWithLocale;

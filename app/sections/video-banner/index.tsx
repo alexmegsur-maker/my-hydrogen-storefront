@@ -88,8 +88,8 @@ function  VideoBanner(props:VideoBanner){
 export default VideoBanner
 
 export const schema = createSchema({
-  type:"video-banner",
-  title:"Video Banner",
+  type: "video-banner",
+  title: "Video Banner",
   settings:[
     {
       group:"General",

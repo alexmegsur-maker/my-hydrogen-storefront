@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { COUNTRIES } from "~/utils/const";
+import { localizePath } from "~/utils/localized-paths";
 
 const SITE_ORIGIN = "https://phoenixchairs.eu";
 
@@ -32,7 +33,7 @@ const STATIC_ROUTES: SitemapUrl[] = [
   { path: "/devolucion", localize: false },
   { path: "/legado", localize: false },
   { path: "/garantia-base", localize: false },
-  { path: "/tecnologia", localize: false },
+  { path: "/tecnologia", localize: true },
   { path: "/privacidad", localize: false },
   { path: "/extension-de-garantia", localize: false },
   { path: "/aviso-legal", localize: false },
@@ -120,7 +121,7 @@ function localizedHref(prefix: string, path: string): string {
   if (path === "/") {
     return prefix ? `${SITE_ORIGIN}${prefix}` : `${SITE_ORIGIN}/`;
   }
-  return `${SITE_ORIGIN}${prefix}${path}`;
+  return `${SITE_ORIGIN}${prefix}${localizePath(path, prefix)}`;
 }
 
 /**

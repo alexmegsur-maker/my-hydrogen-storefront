@@ -14,6 +14,7 @@ import {
 import type { RootLoader } from "~/root";
 import type { Localizations } from "~/types/others";
 import { DEFAULT_LOCALE } from "~/utils/const";
+import { localizePath, toBasePath } from "~/utils/localized-paths";
 
 export function CountrySelector() {
   const fetcher = useFetcher();
@@ -21,10 +22,11 @@ export function CountrySelector() {
   const rootData = useRouteLoaderData<RootLoader>("root");
   const selectedLocale = rootData?.selectedLocale ?? DEFAULT_LOCALE;
   const { pathname, search } = useLocation();
-  const pathWithoutLocale = `${pathname.replace(
+  // Ruta base (español): los slugs traducidos se resuelven al cambiar de locale
+  const basePath = toBasePath(
+    pathname.replace(selectedLocale.pathPrefix, ""),
     selectedLocale.pathPrefix,
-    "",
-  )}${search}`;
+  );
 
   const countries = (fetcher.data ?? {}) as Localizations;
 
@@ -106,7 +108,7 @@ export function CountrySelector() {
                         // Guardar la elección manual en cookie para que el geo-redirect la respete
                         document.cookie = `locale_pref=${encodeURIComponent(localePrefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
                         handleLocaleChange({
-                          redirectTo: `${localePrefix}${pathWithoutLocale}`,
+                          redirectTo: `${localePrefix}${localizePath(basePath, localePrefix)}${search}`,
                           buyerIdentity: {
                             countryCode: countryLocale.country,
                           },

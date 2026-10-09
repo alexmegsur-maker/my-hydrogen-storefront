@@ -37,6 +37,7 @@ import {
 import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
 import { COUNTRIES, DEFAULT_LOCALE } from "./utils/const";
+import { localizePath, toBasePath } from "./utils/localized-paths";
 import { GlobalStyle } from "./weaverse/style";
 import { useJudgemeWithNonce } from "./hooks/use-judgeme-with-nonce";
 import { GoogleTagManager } from "./components/google-tag-manager";
@@ -52,16 +53,19 @@ const SITE_ORIGIN = "https://phoenixchairs.eu";
  * El sitio no tenía ninguna etiqueta hreflang (auditoría SEO, punto 2).
  */
 function buildHreflangLinks(pathname: string, currentPrefix: string) {
-  const basePath =
+  const pathWithoutLocale =
     currentPrefix && pathname.startsWith(currentPrefix)
       ? pathname.slice(currentPrefix.length) || "/"
       : pathname;
+  // Las páginas con slug traducido (p. ej. /de/technologie) comparten clúster
+  // con su ruta base en español.
+  const basePath = toBasePath(pathWithoutLocale, currentPrefix);
 
   const prefixes = ["", ...Object.keys(COUNTRIES).filter((key) => key !== "default")];
 
   const links = prefixes.map((prefix) => {
     const locale = COUNTRIES[prefix || "default"];
-    const href = `${SITE_ORIGIN}${prefix}${basePath === "/" ? (prefix ? "" : "/") : basePath}`;
+    const href = `${SITE_ORIGIN}${prefix}${basePath === "/" ? (prefix ? "" : "/") : localizePath(basePath, prefix)}`;
     return { hreflang: locale.language.toLowerCase(), href };
   });
 
