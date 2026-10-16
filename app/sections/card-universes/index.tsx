@@ -117,6 +117,9 @@ export default function CardUniverses( props: CardUniversesProps & HydrogenCompo
 export const schema = createSchema({
   type:"card-universes",
   title:"Cards Universe",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes:[
     "subheading",
     "heading",

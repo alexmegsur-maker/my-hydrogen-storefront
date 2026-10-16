@@ -269,6 +269,9 @@ export default ContactFormSection;
 export const schema = createSchema({
   type: "garantia-form-section",
   title: "Garantia Form",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Layout",

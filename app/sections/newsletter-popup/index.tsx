@@ -301,6 +301,9 @@ export default function NewsletterPopup(
 export const schema = createSchema({
   type: "newsletter-popup",
   title: "Newsletter Popup",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group:"General",

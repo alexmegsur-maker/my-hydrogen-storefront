@@ -342,6 +342,9 @@ export default OrderTrackingSection;
 export const schema = createSchema({
   type: "order-tracking",
   title: "Order Tracking",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "class",

@@ -123,6 +123,9 @@ export default function Instrucction(props:InstrucctionProps){
 export const  schema = createSchema({
   type:"instruction",
   title:"Instrucctions",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes:["instruction-step"],
   settings:[
     {

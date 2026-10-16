@@ -100,6 +100,9 @@ const COMMUNITY_GRID_METAOBJECT_QUERY = `#graphql
 export const schema = createSchema({
   type: "community-grid-metaobject",
   title: "Comunity grid (metaobjeto)",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["subheading", "heading", "community-grid-metaobject--items"],
   settings: [
     {

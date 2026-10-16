@@ -17,6 +17,9 @@ export default function SimpleProductGrid( props:SimpleProductGridProps){
 export const schema = createSchema({
   type:"simple-product-grid",
   title:"Simple product  grid",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes:["subheading","heading","columns-with-products--items"],
   settings:sectionSettings,
   presets:{

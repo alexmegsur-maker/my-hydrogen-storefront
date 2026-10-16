@@ -281,6 +281,9 @@ export const schema = createSchema({
   type: "comparison-wrapper",
   title: "Comparison Wrapper",
   childTypes: ["comparison-col"],
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group:"class",

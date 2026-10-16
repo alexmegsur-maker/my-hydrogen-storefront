@@ -56,6 +56,9 @@ export default AliReviewSection;
 export const schema = createSchema({
   type: "ali-reviews",
   title: "Ali Reviews box",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Integration",

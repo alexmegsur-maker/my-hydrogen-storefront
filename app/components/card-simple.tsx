@@ -17,6 +17,7 @@ import { Link } from "react-router";
 interface CardSimpleProps {
   image: WeaverseImage;
   imageAspectRatio: ImageAspectRatio;
+  backgroundColor:string;
   paddingSelect:string;
   paddingText:string;
   subheading: string;
@@ -66,6 +67,7 @@ interface CardSimpleProps {
   lPaddingText: string;
   lMarginSelect: string;
   lMarginText: string;
+  showBorder:boolean;
 }
 
 export default function CardSimple(
@@ -74,6 +76,8 @@ export default function CardSimple(
   const {
     image,
     imageAspectRatio,
+    backgroundColor,
+    showBorder,
     paddingSelect,
     paddingText,
     subheading,
@@ -145,8 +149,8 @@ export default function CardSimple(
       containerClassName="flex flex-col h-full"
       className="relative overflow-hidden cursor-pointer "
       style={{
-        background: "#ffffff03",
-        borderRight: "1px solid #ffffff0d",
+        background: backgroundColor,
+        borderRight: showBorder ? "1px solid #ffffff0d":"unset",
         transition: "filter 0.5s ease",
       }}
       onClick={linkAllCard}
@@ -157,7 +161,6 @@ export default function CardSimple(
           aspectRatio: calculateAspectRatio(image, imageAspectRatio) ?? (imageAspectRatio && imageAspectRatio !== "adapt" ? imageAspectRatio : "3/4"),
           width: "100%",
           filter:isMobile || isHover ? "grayscale(0%) brightness(1)":"grayscale(100%) brightness(0.6)",
-          transform:isHover?"scale(1.08)":"unset",
           transition: "all 0.8s ease",
           overflow: "hidden",
         }}
@@ -173,6 +176,12 @@ export default function CardSimple(
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           width={600}
           onLoad={() => setImageLoaded(true)}
+          // El zoom va en la imagen, no en su marco: así se queda dentro del
+          // recuadro (overflow hidden) y la card no crece al pasar el ratón.
+          containerStyle={{
+            transform: isHover ? "scale(1.08)" : "unset",
+            transition: "transform 0.8s ease",
+          }}
         />
       </div>
       <div
@@ -275,6 +284,19 @@ export const schema = createSchema({
     {
       group: "general",
       inputs: [
+        {
+          type:'switch',
+          label:'show border',
+          name:'showBorder',
+          defaultValue:true,
+        },
+
+        {
+          type:'color',
+          label:'Background Color',
+          name:'backgroundColor',
+          defaultValue:'#ffffff03',
+        },
         {
           type: "select",
           label: "Padding type",

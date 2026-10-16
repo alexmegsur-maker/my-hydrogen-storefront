@@ -73,7 +73,6 @@ export default ImageWithTextContent;
 export const schema = createSchema({
   type: "image-with-text--content",
   title: "Content",
-  limit: 1,
   settings: [
     {
       group: "Content",
@@ -110,7 +109,7 @@ export const schema = createSchema({
     },
     ...sectionSettings
   ],
-  childTypes: ["subheading", "heading", "paragraph", "button","group-elements"],
+  childTypes: ["subheading", "heading", "paragraph", "button","group-elements","group-buttons"],
   presets: {
     alignment: "center",
     children: [

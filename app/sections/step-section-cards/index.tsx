@@ -58,6 +58,9 @@ export default StepsSection;
 export const schema = createSchema({
   type: "steps-section",
   title: "Steps Section",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Layout",

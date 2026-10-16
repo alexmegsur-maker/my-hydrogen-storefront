@@ -8,8 +8,10 @@ interface CookieTableCellProps extends Partial<HydrogenComponentProps> {
   fontWeight?: string;
   fontFamily?: string;
   alignment?: "left" | "center" | "right" | "justify";
+  verticalAlignment?: "top" | "middle" | "bottom";
   padding?: string;
   lineH?: number;
+  letter: number;
   colSpan?: number;
 }
 
@@ -42,9 +44,11 @@ function CookieTableCell(props: CookieTableCellProps) {
     fontWeight,
     fontFamily,
     alignment,
+    verticalAlignment,
     padding,
     lineH,
     colSpan,
+    letter,
     ...rest
   } = props
 
@@ -56,8 +60,10 @@ function CookieTableCell(props: CookieTableCellProps) {
     ...(fontWeight && { fontWeight }),
     ...(fontFamily && { fontFamily }),
     ...(alignment  && { textAlign: alignment }),
+    ...(verticalAlignment && { verticalAlign: verticalAlignment }),
     ...(padding    && { padding }),
     ...(lineH && lineH > 0 && { lineHeight: lineH }),
+    ...(letter && letter > 0 && { letterSpacing: letter }),
   }
 
   const finalStyles: React.CSSProperties = { ...baseStyles, ...overrides }
@@ -153,6 +159,18 @@ export const schema = createSchema({
           defaultValue: "400",
         },
         {
+          type: "range",
+          label: "Letter spacing",
+          name: "letter",
+          defaultValue: 1,
+          configs: {
+            min: 0,
+            max: 50,
+            step: 1,
+            unit: "px",
+          },
+        },
+        {
           type: "text",
           name: "fontFamily",
           label: "Font family",
@@ -171,6 +189,20 @@ export const schema = createSchema({
             ],
           },
           defaultValue: "left",
+        },
+        {
+          type: "toggle-group",
+          name: "verticalAlignment",
+          label: "Vertical alignment",
+          configs: {
+            options: [
+              { value: "top",    label: "Top" },
+              { value: "middle", label: "Middle" },
+              { value: "bottom", label: "Bottom" },
+            ],
+          },
+          // middle = comportamiento por defecto de th/td en el navegador
+          defaultValue: "middle",
         },
         {
           type: "range",

@@ -22,6 +22,9 @@ export const schema = createSchema({
   title: "Image gallery",
   childTypes: ["subheading", "heading", "paragraph", "image-gallery--items"],
   settings: sectionSettings,
+  enabledOn: {
+    groups: ['*'],
+  },
   presets: {
     children: [
       {

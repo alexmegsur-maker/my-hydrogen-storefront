@@ -17,6 +17,9 @@ export default function CommunityGrid(props:CommunityGridProps){
 export const schema = createSchema({
   type:"community-grid",
   title:"comunity-grid",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes:["subheading","heading","columns-with-posts--items"],
   settings:sectionSettings
 })

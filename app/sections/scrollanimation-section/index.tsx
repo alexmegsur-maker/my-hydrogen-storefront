@@ -10,5 +10,8 @@ export default function GtaSection(props: GtaSectionProps) {
 export const schema = createSchema({
   title: "Gta section",
   type: "gta-section",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["scroll-chair"],
 });

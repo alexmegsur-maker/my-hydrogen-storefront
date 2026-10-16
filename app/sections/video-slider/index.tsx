@@ -494,6 +494,9 @@ export default VideoSlider;
 export const schema = createSchema({
   type: "video-slider",
   title: "Video Slider",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "General",

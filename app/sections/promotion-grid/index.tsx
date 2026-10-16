@@ -145,6 +145,9 @@ export default PromotionGrid;
 export const schema = createSchema({
   type: "promotion-grid",
   title: "Promotion grid",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Grid",

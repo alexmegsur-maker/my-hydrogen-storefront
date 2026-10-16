@@ -16,6 +16,9 @@ export default FormReturn
 export const schema = createSchema({
   title: "Return section",
   type: "return-section",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "General",

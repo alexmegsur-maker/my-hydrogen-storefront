@@ -133,6 +133,9 @@ export default GridImages
 export const schema =createSchema({
   type:"gridImages",
   title:"Grid Images",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings:[
     {
       group:"General",

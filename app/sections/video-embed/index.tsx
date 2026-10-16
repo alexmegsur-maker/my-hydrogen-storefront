@@ -20,6 +20,9 @@ export default VideoEmbed;
 export const schema = createSchema({
   type: "video-embed",
   title: "Video embed",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: sectionSettings,
   childTypes: ["heading", "paragraph", "video-embed--item"],
   presets: {

@@ -219,6 +219,9 @@ export default DiscountCountBar;
 export const schema = createSchema({
   type:"discountCountBar",
   title:"DiscountCountBar",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings:[
     {
       group:"info",

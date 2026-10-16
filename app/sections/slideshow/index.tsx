@@ -214,6 +214,9 @@ export default function Slideshow(
 export const schema = createSchema({
   title: "Slideshow",
   type: "slideshow",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["slideshow-slide"],
   settings: [
     {

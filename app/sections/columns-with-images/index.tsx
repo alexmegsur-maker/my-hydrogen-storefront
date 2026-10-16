@@ -27,6 +27,9 @@ export const schema = createSchema({
     "heading",
     "paragraph",
   ],
+  enabledOn: {
+    groups: ['*'],
+  },
   presets: {
     gap: 48,
     children: [

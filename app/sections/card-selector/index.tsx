@@ -117,6 +117,9 @@ export default function CardSelector( props: CardSelectorProps & HydrogenCompone
 export const schema = createSchema({
   type:"card-selector",
   title:"Card selector",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes:[
     "subheading",
     "heading",

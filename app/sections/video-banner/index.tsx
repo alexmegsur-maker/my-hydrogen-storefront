@@ -90,6 +90,9 @@ export default VideoBanner
 export const schema = createSchema({
   type: "video-banner",
   title: "Video Banner",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings:[
     {
       group:"General",

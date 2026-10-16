@@ -196,6 +196,9 @@ export default function SliderElements(props:SliderElementsProps){
 export const schema = createSchema({
   type:"slider-elements",
   title:"Slider elements",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes:["slide-elements"],
   settings:[
     {

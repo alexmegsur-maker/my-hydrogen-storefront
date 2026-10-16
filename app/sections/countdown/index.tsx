@@ -34,6 +34,9 @@ export default Countdown;
 export const schema = createSchema({
   type: "countdown",
   title: "Countdown",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Layout",

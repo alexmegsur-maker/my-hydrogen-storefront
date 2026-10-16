@@ -43,6 +43,7 @@ interface ColumnWithImageItemProps
   imageAspectRatio: ImageAspectRatio;
   imageBorderRadius: number;
   iconSize: number;
+  iconSizeRem: number;
   heading: string;
   content: string;
   ref?: React.Ref<HTMLDivElement>;
@@ -89,6 +90,7 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
     imageAspectRatio,
     imageBorderRadius,
     iconSize,
+    iconSizeRem,
     heading,
     content,
     text,
@@ -225,11 +227,11 @@ function ColumnWithImageItem(props: ColumnWithImageItemProps) {
               dangerouslySetInnerHTML={{__html:textSvg}}
               style={{
                 marginInline:centerSvgImg?"auto":"unset",
-                height:`${iconSize}%`,
-                width:`${iconSize}%`
+                // Con heading, contenido y texto: % (iconSize). Si falta alguno: rem (iconSizeRem).
+                height: heading && content && text ? `${iconSize}%` : `${iconSizeRem ?? iconSize}rem`,
+                width: heading && content && text ? `${iconSize}%` : `${iconSizeRem ?? iconSize}rem`
               }}
             >
-              
             </div>
         }
       </div>
@@ -284,6 +286,9 @@ export default ColumnWithImageItem;
 export const schema = createSchema({
   type: "column-with-image--item",
   title: "Column",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Column",
@@ -458,12 +463,28 @@ export const schema = createSchema({
           label:'icon Size',
           name:'iconSize',
           defaultValue:12,
+          // configs no acepta funciones (solo condition): por eso hay dos sliders,
+          // uno en % y otro en rem, y se muestra el que corresponde.
           configs:{
-            min:10,
+            min:1,
             max:100,
             step:1,
             unit:'%',
           },
+          condition:(data: ColumnWithImageItemProps)=> data.heading && data.text && data.content,
+        },
+        {
+          type:'range',
+          label:'icon Size',
+          name:'iconSizeRem',
+          defaultValue:3,
+          configs:{
+            min:0.1,
+            max:20,
+            step:0.1,
+            unit:'rem',
+          },
+          condition:(data: ColumnWithImageItemProps)=>!data.heading && !data.text && !data.content,
         },
         {
           type:'switch',

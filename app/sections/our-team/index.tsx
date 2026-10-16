@@ -74,6 +74,9 @@ const OUR_TEAM_QUERY = `#graphql
 export const schema = createSchema({
   type: "our-team",
   title: "Our team",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["heading", "paragraph", "our-team-members"],
   settings: [
     {

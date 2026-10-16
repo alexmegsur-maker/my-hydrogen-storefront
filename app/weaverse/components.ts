@@ -214,6 +214,17 @@ import * as Product3DFaqItem from "~/sections/product-3d-viewer/product3d-faq-it
 import * as Product3DCarouselChild from "~/sections/product-3d-viewer/product3d-carousel"
 import * as CardUniverses from "~/sections/card-universes"
 import * as CardUniverse from "~/components/card-universe"
+import * as SetupsReviews from "~/sections/setups-reviews"
+import * as SetupsReviewsSlide from "~/sections/setups-reviews/slide"
+import * as ComparadorLinear from "~/sections/comparador-linear"
+import * as ComparadorLinearSpec from "~/sections/comparador-linear/spec"
+import * as ComparadorLinearGroup from "~/sections/comparador-linear/group"
+import * as SizeRecommender from "~/components/size-recommender"
+import * as CollectorEditions from "~/sections/collector-editions"
+import * as CollectorLicenses from "~/sections/collector-editions/licenses"
+import * as CollectorLicense from "~/sections/collector-editions/license"
+import * as CollectorEditionsGrid from "~/sections/collector-editions/editions"
+import * as CollectorEditionCard from "~/sections/collector-editions/edition-card"
 
 export const components: HydrogenComponent[] = [
   HeroImage, 
@@ -429,5 +440,16 @@ export const components: HydrogenComponent[] = [
   Product3DFaqItem,
   Product3DCarouselChild,
   CardUniverses,
-  CardUniverse
+  CardUniverse,
+  SetupsReviews,
+  SetupsReviewsSlide,
+  ComparadorLinear,
+  ComparadorLinearSpec,
+  ComparadorLinearGroup,
+  SizeRecommender,
+  CollectorEditions,
+  CollectorLicenses,
+  CollectorLicense,
+  CollectorEditionsGrid,
+  CollectorEditionCard,
 ];

@@ -91,6 +91,9 @@ export const schema= createSchema({
   type:"legacy",
   title:"TimeLapse",
   childTypes:["timeLine-item"],
+  enabledOn: {
+    groups: ['*'],
+  },
   settings:[
     {
       group:"general",

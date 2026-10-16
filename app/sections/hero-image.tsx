@@ -143,6 +143,9 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
 export const schema = createSchema({
   type: "hero-imagev2",
   title: "Hero image",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Layout",

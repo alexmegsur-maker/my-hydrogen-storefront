@@ -544,6 +544,9 @@ export default CollectionSlider;
 export const schema = createSchema({
   type:"colections-slider",
   title:"Collections Slider",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings:[
     {
       group:"class",

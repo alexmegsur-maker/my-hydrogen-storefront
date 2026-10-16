@@ -89,6 +89,9 @@ export default DeploymentHero;
 export const schema = createSchema({
   type: "table",
   title: "table",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     { 
       group:"general",

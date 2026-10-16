@@ -125,6 +125,9 @@ export const roadmapLayoutInputs: InspectorGroup["inputs"] = [
 export const schema = createSchema({
   type: "roadmap-timeline",
   title: "Roadmap Timeline",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["timeline-card","heading","subheading","paragraph"],
   settings: [
     {

@@ -799,6 +799,9 @@ export default DesistimientoForm;
 export const schema = createSchema({
   type: "desistimiento-form",
   title: "Formulario de Desistimiento",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     { group: "Layout",  inputs: layoutInputs },
     { group: "Fondo",   inputs: backgroundInputs },

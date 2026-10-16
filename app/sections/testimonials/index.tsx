@@ -21,6 +21,9 @@ export default Testimonials;
 export const schema = createSchema({
   type: "testimonials",
   title: "Testimonials",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["subheading", "heading", "paragraph", "testimonials-items"],
   settings: sectionSettings,
   presets: {

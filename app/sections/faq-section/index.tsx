@@ -88,6 +88,9 @@ export const faqSectionInputs: InspectorGroup["inputs"] = [
 export const schema = createSchema({
   type: "faq-section",
   title: "tab section",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["faq-item","heading","subheading","paragraph"],
   settings: [
     {

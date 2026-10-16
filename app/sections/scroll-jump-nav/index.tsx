@@ -98,6 +98,9 @@ export const schema = createSchema({
   title: "Botón de salto (scroll simulado)",
   limit: 1,
   childTypes: ["scroll-jump-stop"],
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "General",

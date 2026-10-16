@@ -32,6 +32,9 @@ export default CookieTable
 export const schema = createSchema({
   type: "simple-table",
   title: "Simple Table",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["cookie-table-row"],
   settings: [
     {

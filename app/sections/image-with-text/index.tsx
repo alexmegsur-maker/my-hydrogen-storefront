@@ -88,6 +88,9 @@ export default ImageWithText;
 export const schema = createSchema({
   type: "image-with-text", 
   title: "Image with text",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Layout",
@@ -194,7 +197,7 @@ export const schema = createSchema({
     
     ...auroraSettings,
   ],
-  childTypes: ["image-with-text--content", "image-with-text--image"],
+  childTypes: ["image-with-text--content", "image-with-text--image","columns-with-posts--items"],
   presets: {
     verticalPadding: "none",
     backgroundColor: "#00000000",

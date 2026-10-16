@@ -85,6 +85,9 @@ export default Hotspots;
 export const schema = createSchema({
   type: "hotspots",
   title: "Hotspots",
+  enabledOn: {
+    groups: ['*'],
+  },
   childTypes: ["hotspots--item"],
   settings: [
     {

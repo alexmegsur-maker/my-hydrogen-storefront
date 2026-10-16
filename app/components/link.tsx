@@ -68,6 +68,7 @@ export const variants = cva(["inline-flex transition-colors"], {
 
 export interface LinkStyles {
   backgroundColor: string;
+  underlineCustom:boolean;
   textColor: string;
   borderColor: string;
   backgroundColorHover: string;
@@ -125,7 +126,8 @@ function useHrefWithLocale(href: LinkProps["to"]) {
   if (
     typeof toWithLocale === "string" &&
     selectedLocale?.pathPrefix &&
-    !LOCALE_PREFIXES.some((p) => toWithLocale.toLowerCase().startsWith(p))
+    // href (no toWithLocale): TS no conserva el tipo string de un `let` dentro del callback
+    !LOCALE_PREFIXES.some((p) => (href as string).toLowerCase().startsWith(p))
   ) {
     toWithLocale = `${selectedLocale.pathPrefix}${localizePath(toWithLocale, selectedLocale.pathPrefix)}`;
   }
@@ -157,6 +159,7 @@ export function Link(props: LinkProps) {
     className = "button-link",
     style,
     textColor,
+    underlineCustom,
     backgroundColor,
     borderColor,
     textColorHover,
@@ -196,7 +199,16 @@ export function Link(props: LinkProps) {
       "--btn-border-hover": borderColorHover,  
       marginInline:"auto",
       zIndex:3,
-      textAlign:"center"
+      textAlign:"center",
+      // Subrayado: solo se ve el borde inferior (con el color de borde elegido)
+      ...(underlineCustom
+        ? {
+            height:"fit-content",
+            borderTopColor: "transparent !important",
+            borderLeftColor: "transparent !important",
+            borderRightColor: "transparent !important",
+          }
+        : {}),
     } as React.CSSProperties;
   }
 
@@ -270,6 +282,13 @@ export const linkContentInputs: InspectorGroup["inputs"] = [
   },
 ];
 export const linkStylesInputs: InspectorGroup["inputs"] = [
+  {
+    type:'switch',
+    label:'underline',
+    name:'underlineCustom',
+    defaultValue:false,
+    condition: (data: LinkData) => data.variant === "custom",
+  },
   {
     type: "color",
     label: "Background color",

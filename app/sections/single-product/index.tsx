@@ -256,6 +256,9 @@ export const loader = async (args: ComponentLoaderArgs<SingleProductData>) => {
 export const schema = createSchema({
   type: "single-product",
   title: "Single product",
+  enabledOn: {
+    groups: ['*'],
+  },
   settings: [
     {
       group: "Layout",
