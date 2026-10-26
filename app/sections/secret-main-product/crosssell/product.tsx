@@ -36,14 +36,16 @@ function CrossellProduct(props:CrossProductProps) {
   const [descStyle,setDescStyle]=useState(null)
   const [productStyle,setProductStyle]=useState(null)
 
-  const publised= product.publishedAt.split("T")[0]
+  // product es null si el producto elegido en Weaverse ya no está publicado en
+  // el canal de la tienda (o se borró): sin el "?." se rompía toda la página.
+  const publised= product?.publishedAt?.split("T")[0] ?? ""
   const publisedDate= publised.split("-")
   const checkYear =  parseInt(publisedDate[0]) < date.getFullYear() ? true : false 
   const checkDate= checkYear ? false :((date.getMonth()+1)-parseInt(publisedDate[1]))< 6&& true
   
   
   useEffect(()=>{
-    if(container.current){
+    if(container.current && product){
       const crossId = container.current.parentElement.id
       const media = product.media.nodes.map((elm)=>{return{url:elm.previewImage.url,alt:elm.previewImage.altText}})
       const producto = {

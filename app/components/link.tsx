@@ -111,7 +111,7 @@ function checkExternal(to: LinkProps["to"]) {
   return false;
 }
 
-const LOCALE_PREFIXES = ["/en", "/de", "/fr", "/it"];
+const LOCALE_PREFIXES = ["/en", "/de", "/fr", "/it", "/pl", "/nl"];
 
 function useHrefWithLocale(href: LinkProps["to"]) {
   const rootData = useRouteLoaderData<RootLoader>("root");

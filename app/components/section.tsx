@@ -110,6 +110,8 @@ export function Section(props: SectionProps) {
     verticalPadding,
     borderRadius,
     backgroundColor,
+    enableLinear,
+    backgroundLinear,
     backgroundFor,
     backgroundImage,
     backgroundFit,
@@ -185,11 +187,13 @@ export function Section(props: SectionProps) {
     });
   }, [animate, revealElementsOnScroll]);
 
-  style = {
-    ...style,
-    "--section-bg-color": backgroundColor,
-    "--section-radius": `${borderRadius || 0}px`,
-  } as React.CSSProperties;
+ style = {
+  ...style,
+  "--section-radius": `${borderRadius || 0}px`,
+  ...(enableLinear ? { background: backgroundLinear } : {}),
+  "--section-bg-color": enableLinear ? undefined : backgroundColor,
+} as React.CSSProperties;
+
   const forgeProps: ForgeCanvasProps = {
     showSmoke:showSmoke,
     smokeCount: smokeCount!,

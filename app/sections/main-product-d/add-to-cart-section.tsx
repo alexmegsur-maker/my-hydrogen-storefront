@@ -121,7 +121,7 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
 
   const { pathname } = useLocation();
   const pathPrefix = pathname.split("/")[1];
-  const cartRoute = ["en", "de", "fr", "it"].includes(pathPrefix)
+  const cartRoute = ["en", "de", "fr", "it", "pl", "nl"].includes(pathPrefix)
     ? `/${pathPrefix}/cart`
     : "/cart";
 

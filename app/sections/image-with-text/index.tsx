@@ -197,7 +197,7 @@ export const schema = createSchema({
     
     ...auroraSettings,
   ],
-  childTypes: ["image-with-text--content", "image-with-text--image","columns-with-posts--items"],
+  childTypes: ["image-with-text--content", "image-with-text--image", "image-with-text--slider","columns-with-posts--items"],
   presets: {
     verticalPadding: "none",
     backgroundColor: "#00000000",

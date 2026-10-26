@@ -80,7 +80,7 @@ const STEP_INDEX: Record<TrackingStatus, number> = {
 };
 
 const LOCALE_MAP: Record<string, string> = {
-  ES: 'es-ES', EN: 'en-GB', DE: 'de-DE', FR: 'fr-FR', IT: 'it-IT',
+  ES: 'es-ES', EN: 'en-GB', DE: 'de-DE', FR: 'fr-FR', IT: 'it-IT', PL: 'pl-PL', NL: 'nl-NL',
 };
 
 function fmtTs(iso: string, locale: string): string {

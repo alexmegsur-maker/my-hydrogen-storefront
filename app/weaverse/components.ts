@@ -39,6 +39,8 @@ import * as ImageGalleryItems from "~/sections/image-gallery/items";
 import * as ImageWithText from "~/sections/image-with-text";
 import * as ImageWithTextContent from "~/sections/image-with-text/content";
 import * as ImageWithTextImage from "~/sections/image-with-text/image";
+import * as ImageWithTextSlider from "~/sections/image-with-text/slider";
+import * as ImageWithTextSlide from "~/sections/image-with-text/slide";
 import * as JudgemeReview from "~/sections/judgeme-reviews";
 import * as JudgemeReviewList from "~/sections/judgeme-reviews/review-list";
 import * as JudgemeReviewSummary from "~/sections/judgeme-reviews/review-summary";
@@ -219,6 +221,14 @@ import * as SetupsReviewsSlide from "~/sections/setups-reviews/slide"
 import * as ComparadorLinear from "~/sections/comparador-linear"
 import * as ComparadorLinearSpec from "~/sections/comparador-linear/spec"
 import * as ComparadorLinearGroup from "~/sections/comparador-linear/group"
+import * as VersionComparator from "~/sections/version-comparator";
+import * as VersionComparatorSelector from "~/sections/version-comparator/selector";
+import * as VersionComparatorCard from "~/sections/version-comparator/card";
+import * as VersionComparatorChanges from "~/sections/version-comparator/changes";
+import * as VersionComparatorFoamCard from "~/sections/version-comparator/foam-card";
+import * as VersionComparatorLayer from "~/sections/version-comparator/layer";
+import * as VersionComparatorFeatures from "~/sections/version-comparator/features";
+import * as VersionComparatorFeature from "~/sections/version-comparator/feature";
 import * as SizeRecommender from "~/components/size-recommender"
 import * as CollectorEditions from "~/sections/collector-editions"
 import * as CollectorLicenses from "~/sections/collector-editions/licenses"
@@ -252,6 +262,8 @@ export const components: HydrogenComponent[] = [
   ImageWithText,
   ImageWithTextContent,
   ImageWithTextImage,
+  ImageWithTextSlider,
+  ImageWithTextSlide,
   ColumnsWithImages,
   ColumnsWithImagesItems,
   ColumnWithImageItem,
@@ -446,6 +458,14 @@ export const components: HydrogenComponent[] = [
   ComparadorLinear,
   ComparadorLinearSpec,
   ComparadorLinearGroup,
+  VersionComparator,
+  VersionComparatorSelector,
+  VersionComparatorCard,
+  VersionComparatorChanges,
+  VersionComparatorFoamCard,
+  VersionComparatorLayer,
+  VersionComparatorFeatures,
+  VersionComparatorFeature,
   SizeRecommender,
   CollectorEditions,
   CollectorLicenses,

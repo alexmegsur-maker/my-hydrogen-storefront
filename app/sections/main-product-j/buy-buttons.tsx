@@ -155,7 +155,7 @@ export default function BuyButtonsProductJ(props: BuyButtonsProductJProps) {
   const t = translations[language] ?? translations["ES"];
   const { pathname } = useLocation();
   const pathPrefix = pathname.split("/")[1];
-  const cartRoute = ["en", "de", "fr", "it"].includes(pathPrefix)
+  const cartRoute = ["en", "de", "fr", "it", "pl", "nl"].includes(pathPrefix)
     ? `/${pathPrefix}/cart`
     : "/cart";
   const currentProd = useCurrentProduct((state) => state.currentProduct);

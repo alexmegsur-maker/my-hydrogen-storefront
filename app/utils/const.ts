@@ -68,12 +68,18 @@ export const COUNTRIES: Localizations = {
   //   currency: "JPY",
   // },
 
-  // "/en-nl": {
-  //   label: "Netherlands (EUR €)",
-  //   language: "EN",
-  //   country: "NL",
-  //   currency: "EUR",
-  // },
+  "/pl": {
+    label: "Polski",
+    language: "PL",
+    country: "PL",
+    currency: "EUR",
+  },
+  "/nl": {
+    label: "Nederlands",
+    language: "NL",
+    country: "NL",
+    currency: "EUR",
+  },
   // "/en-vn": {
   //   label: "Vietnam (VND ₫)",
   //   language: "EN",

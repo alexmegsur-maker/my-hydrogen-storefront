@@ -462,10 +462,10 @@ export default function ChairSection(props: ChairSectionProps) {
   const parentInstance  = useParentInstance()
   const selfInstance = useItemInstance()
   useEffect(()=>{
-    console.log("parentInstance",parentInstance)
-    console.log("parentInstance.data",parentInstance.data)
-    console.log("selfInstance",selfInstance)
-    console.log("selfInstance.data",selfInstance.data)
+    // console.log("parentInstance",parentInstance)
+    // console.log("parentInstance.data",parentInstance.data)
+    // console.log("selfInstance",selfInstance)
+    // console.log("selfInstance.data",selfInstance.data)
     parentInstance.data.children.map((child,index)=>{
       if(child.id ==selfInstance.data.id){
         let totalChildren =parentInstance.data.children.length - 1

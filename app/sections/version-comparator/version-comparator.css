@@ -1,0 +1,300 @@
+/* Comparador de versiones. Los colores salen de las variables --vc-* que
+   define la sección (index.tsx), así cualquier hijo se adapta a la paleta. */
+
+.vc-section {
+  --vc-accent-soft: color-mix(in srgb, var(--vc-accent) 12%, transparent);
+  --vc-accent-glow: color-mix(in srgb, var(--vc-accent) 35%, transparent);
+  --vc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: var(--vc-bg);
+  color: var(--vc-text);
+}
+
+.vc-section strong {
+  color: var(--vc-text);
+  font-weight: 600;
+}
+
+/* ---------- Animación de entrada ---------- */
+.vc-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s var(--vc-ease),
+    transform 0.8s var(--vc-ease);
+}
+.vc-reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Tarjetas de versión ---------- */
+.vc-card {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  background: var(--vc-surface);
+  border: 1px solid var(--vc-line);
+  transition:
+    transform 0.4s var(--vc-ease),
+    border-color 0.3s,
+    box-shadow 0.4s;
+}
+.vc-card:hover {
+  transform: translateY(-4px);
+}
+.vc-card[aria-pressed="true"] {
+  border-color: var(--vc-accent);
+  box-shadow:
+    0 0 0 1px var(--vc-accent),
+    0 20px 60px -20px var(--vc-accent-glow);
+}
+.vc-card.is-highlight {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--vc-accent) 10%, transparent),
+    var(--vc-surface) 55%
+  );
+}
+.vc-badge {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  padding: 7px 10px;
+  border-radius: 99px;
+  font: 600 11px/1 Inter, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--vc-accent);
+  color: var(--vc-bg);
+}
+
+/* ---------- Espuma ---------- */
+.vc-foam-card {
+  background: var(--vc-surface);
+  border: 1px solid var(--vc-line);
+}
+.vc-bar {
+  height: 10px;
+  border-radius: 99px;
+  background: var(--vc-surface-2);
+  overflow: hidden;
+}
+.vc-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--vc-bar-color, #59616a);
+  transition: width 1.4s var(--vc-ease);
+}
+.vc-foam-card.is-highlight .vc-bar i {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--vc-accent) 60%, #000),
+    var(--vc-accent)
+  );
+}
+.vc-dots span {
+  width: 22px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--vc-surface-2);
+}
+.vc-dots span.is-on {
+  background: var(--vc-text);
+}
+.vc-foam-card.is-highlight .vc-dots span.is-on {
+  background: var(--vc-accent);
+}
+
+/* ---------- Barra de herramientas ---------- */
+.vc-toolbar {
+  background: color-mix(in srgb, var(--vc-bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--vc-line);
+}
+.vc-seg {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 99px;
+  background: var(--vc-surface);
+  border: 1px solid var(--vc-line);
+}
+.vc-seg button {
+  border: 0;
+  background: none;
+  color: var(--vc-muted);
+  padding: 9px 16px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition:
+    background 0.25s,
+    color 0.25s;
+}
+.vc-seg button[aria-pressed="true"] {
+  background: var(--vc-text);
+  color: var(--vc-bg);
+}
+.vc-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--vc-muted);
+  user-select: none;
+}
+.vc-switch input {
+  position: absolute;
+  opacity: 0;
+}
+.vc-switch .vc-track {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 99px;
+  background: var(--vc-surface-2);
+  border: 1px solid var(--vc-line);
+  transition: background 0.25s;
+}
+.vc-switch .vc-track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--vc-muted);
+  transition:
+    transform 0.3s var(--vc-ease),
+    background 0.25s;
+}
+.vc-switch input:checked + .vc-track {
+  background: var(--vc-accent-soft);
+  border-color: var(--vc-accent);
+}
+.vc-switch input:checked + .vc-track::after {
+  transform: translateX(18px);
+  background: var(--vc-accent);
+}
+.vc-switch input:focus-visible + .vc-track {
+  outline: 2px solid var(--vc-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Filas de características ---------- */
+.vc-grid {
+  display: grid;
+  grid-template-columns: var(--vc-label-col, 220px) 1fr 1fr;
+  gap: 0 28px;
+}
+.vc-row {
+  background: var(--vc-surface);
+  border: 1px solid var(--vc-line);
+  align-items: center;
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s var(--vc-ease),
+    transform 0.6s var(--vc-ease),
+    border-color 0.3s,
+    background 0.3s;
+}
+.vc-row.is-in {
+  opacity: 1;
+  transform: none;
+}
+.vc-row:hover {
+  border-color: color-mix(in srgb, var(--vc-line) 70%, var(--vc-text));
+  background: var(--vc-surface-2);
+}
+.vc-cell {
+  transition: opacity 0.3s;
+}
+/* El Paragraph trae display:flex + column en línea; en las celdas parte el
+   texto (cada <strong> acaba en su propia línea). Aquí se fuerza bloque. */
+.vc-cell .paragraphComp {
+  display: block !important;
+}
+.vc-cell-b strong {
+  color: var(--vc-accent);
+}
+.vc-both {
+  grid-column: 2 / 4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.vc-pill {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: var(--vc-accent-soft);
+  color: var(--vc-accent);
+}
+.vc-both .vc-pill {
+  margin: 0;
+  flex-shrink: 0;
+  background: var(--vc-surface-2);
+  color: var(--vc-muted);
+}
+.vc-mlabel {
+  display: none;
+}
+
+/* Foco en una versión: atenúa la otra columna */
+.vc-rows[data-focus="a"] .vc-cell-b,
+.vc-rows[data-focus="b"] .vc-cell-a {
+  opacity: 0.25;
+}
+
+@media (max-width: 760px) {
+  .vc-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .vc-thead {
+    display: none;
+  }
+  .vc-both {
+    grid-column: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .vc-mlabel {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--vc-muted);
+  }
+  .vc-rows[data-focus="a"] .vc-cell-b,
+  .vc-rows[data-focus="b"] .vc-cell-a {
+    display: none;
+    opacity: 1;
+  }
+  .vc-toolbar {
+    justify-content: center;
+  }
+  .vc-seg button {
+    padding: 8px 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vc-section *,
+  .vc-section *::before,
+  .vc-section *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .vc-row,
+  .vc-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

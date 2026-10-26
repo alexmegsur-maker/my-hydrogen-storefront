@@ -33,6 +33,8 @@ extends VariantProps<typeof variants>{
   weight:string;
   content: string;
   color?: string;
+  enableLinear:boolean;
+  colorLinear:string;
   backgroundColor?: string;
   alignment:"left"|"center"|"right";
   minSize?: number;
@@ -64,7 +66,9 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     size,
     mobileSize,
     desktopSize,
+    enableLinear,
     color,
+    colorLinear,
     backgroundColor,
     weight,
     letterSpacing,
@@ -101,7 +105,7 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
   
 
   
-  let style: CSSProperties = { color, backgroundColor };
+  let style: CSSProperties = { color:enableLinear?"transparent":color, backgroundColor };
   if (size === "scale") {
     style = {
       ...style,
@@ -131,6 +135,12 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
         justifyContent: alignment === "center" ? "center" : alignment === "right" ? "flex-end" : "flex-start",
         ...selectorPaddingMargin("padding",paddingSelect,paddingText),
         ...selectorPaddingMargin("margin",marginSelect,marginText),
+      ...(enableLinear&&{
+        backgroundImage:colorLinear,
+        backgroundClip:"text",
+        WebkitBackgroundClip:"text"
+
+      })
       }}
       className={cn(
         variants({ size, className }), 
@@ -245,9 +255,25 @@ export const headingInputs: InspectorGroup["inputs"] = [
     defaultValue: "h4",
   },
   {
+    type:'switch',
+    label:'color linear gradient',
+    name:'enableLinear',
+    defaultValue:false,
+  },
+  {
     type: "color",
     name: "color",
     label: "Text color",
+    condition:(data:HeadingProps)=>data.enableLinear == false
+  },
+  {
+    type:'textarea',
+    label:'color linear gradient',
+    name:'colorLinear',
+    defaultValue:'linear-gradient(141deg, #f8f8f8, #108474)',
+    placeholder:'linear-gradient(141deg, #f8f8f8, #108474)',
+    condition:(data:HeadingProps)=>data.enableLinear == true
+    
   },
   {
     type: "select",

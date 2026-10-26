@@ -32,6 +32,8 @@ const variants = cva("absolute inset-0 z-[-1] h-full w-full", {
 export type BackgroundImageProps = VariantProps<typeof variants> & {
   backgroundImage?: WeaverseImage | string;
   style?:CSSProperties;
+  backgroundLinear?:string;
+  enableLinear:boolean
   backgroundGrayscale?:number;
   loading?: "lazy" | "eager";
   fetchPriority?: "high" | "low" | "auto";
@@ -91,10 +93,27 @@ export const backgroundInputs: InspectorGroup["inputs"] = [
     defaultValue: "section",
   },
   {
+    type:'switch',
+    label:'enable background linear',
+    name:'enableLinear',
+    defaultValue:false,
+
+  },
+  {
+    type:'textarea',
+    label:'color linear gradient',
+    name:'backgroundLinear',
+    defaultValue:'linear-gradient(141deg, #f8f8f8, #108474)',
+    placeholder:'linear-gradient(141deg, #f8f8f8, #108474)',    
+    condition: (data: BackgroundImageProps) => Boolean(data.enableLinear),
+  },
+  {
     type: "color",
     name: "backgroundColor",
     label: "Background color",
     defaultValue: "",
+    condition: (data: BackgroundImageProps) => !Boolean(data.enableLinear),
+
   },
   {
     type: "image",

@@ -124,7 +124,7 @@ export function ProductsPagination({
   const { ref, inView } = useInView();
 
   const langPrefix = pathname.split('/')[1]
-  const langKey = ['en', 'de', 'fr', 'it'].includes(langPrefix) ? langPrefix.toUpperCase() : 'ES'
+  const langKey = ['en', 'de', 'fr', 'it', 'pl', 'nl'].includes(langPrefix) ? langPrefix.toUpperCase() : 'ES'
   const t = translations[langKey] ?? translations['ES']
   const prevLabel = loadPrevText || t.loadPrev
   const moreLabel = loadMoreText || t.loadMore
