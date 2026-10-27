@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useProductConfiguratorD } from "./store";
-import { equals, resolveVariantForOption } from "./utils";
+import { equals, getSelectedOptionValue, resolveVariantForOption } from "./utils";
 
 interface VersionSelectorItemProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLButtonElement>;
@@ -49,13 +49,10 @@ interface VersionSelectorItemProps extends HydrogenComponentProps {
  * `getSelectedOptionValue`).
  *
  * Al pulsar: (1) resuelve la variante del producto activo que cumple su
- * criterio y la selecciona (`useCurrentProduct.setVariant`), y (2) marca
- * este criterio como EL filtro (`useProductConfiguratorD.selectVersionFilter`)
- * que manda sobre qué productos se muestran en universe-selector/
- * material-finish-selector. Ese filtro es estado propio, no algo derivado de
- * la variante seleccionada — así un clic en talla (u otro selector) no lo
- * pisa, y el resaltado "activo" de este botón lee ese MISMO estado, así que
- * nunca puede desincronizarse de lo que de verdad se está filtrando.
+ * criterio y la selecciona (`useCurrentProduct.setVariant`), y (2) la guarda
+ * como versión preferida (`useProductConfiguratorD.selectVersionFilter`) para
+ * conservarla al cambiar de producto. El resaltado "activo" y el bloqueo se
+ * leen de la variante seleccionada, como en size-selector.
  */
 export default function VersionSelectorItem(props: VersionSelectorItemProps) {
   const {
@@ -86,9 +83,6 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
   const currentProduct = useCurrentProduct((state) => state.currentProduct);
   const setVariant = useCurrentProduct((state) => state.setVariant);
   const selectVersionFilter = useProductConfiguratorD((state) => state.selectVersionFilter);
-  const filterActive = useProductConfiguratorD((state) => state.versionFilterActive);
-  const filterOptionName = useProductConfiguratorD((state) => state.versionFilterOptionName);
-  const filterValue = useProductConfiguratorD((state) => state.versionFilterValue);
   const [hovered, setHovered] = useState(false);
 
   const resolvedOptionName = optionName || "version";
@@ -97,16 +91,23 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
     () => resolveVariantForOption(currentProduct, resolvedOptionName, value),
     [currentProduct, resolvedOptionName, value],
   );
-  const active =
-    filterActive && equals(filterOptionName, resolvedOptionName) && equals(filterValue, value);
 
-  // Siempre se puede pulsar, aunque el producto actual no tenga una variante
-  // con este criterio: el filtro manda sobre qué productos se listan en
-  // universe-selector/material-finish-selector, así que hace falta poder
-  // activarlo para DESCUBRIR esos otros productos aunque el que se esté
-  // viendo ahora mismo no encaje (y por eso vaya a desaparecer de esas
-  // listas). Si sí hay una variante que encaja, además se selecciona.
+  // Igual que size-selector: el estado sale de la variante seleccionada, así
+  // que al cambiar de producto (universo/acabado) se actualiza solo.
+  // Un producto sin la opción de versión (exclusivas) cuenta como el valor
+  // por defecto ("Estándar").
+  const productHasOption = (currentProduct?.variants?.nodes ?? []).some((elm) =>
+    elm.selectedOptions?.some((option) => equals(option.name, resolvedOptionName)),
+  );
+  const selectedValue = getSelectedOptionValue(currentProduct?.selectedVariant, resolvedOptionName);
+  const active = productHasOption ? equals(selectedValue, value) : Boolean(isDefault);
+  const available = Boolean(variant) || (!productHasOption && Boolean(isDefault));
+
+  // Solo se puede pulsar si el producto actual tiene esta versión. Además de
+  // seleccionar la variante, se guarda como versión preferida para que
+  // universe-selector/material-finish-selector la mantengan al cambiar de producto.
   function handleClick() {
+    if (!available) return;
     if (variant) setVariant(variant);
     selectVersionFilter(resolvedOptionName, value, Boolean(isDefault));
   }
@@ -116,6 +117,7 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
       ref={ref}
       {...rest}
       type="button"
+      disabled={!available}
       onClick={handleClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -126,11 +128,9 @@ export default function VersionSelectorItem(props: VersionSelectorItemProps) {
         background: active ? cActiveBgColor : cBgColor,
         border: `1px solid ${active ? cActiveBorderColor : cBorderColor}`,
         borderRadius: cRadius,
-        cursor: "pointer",
-        // Atenuado (no deshabilitado) si el producto actual no tiene esta
-        // versión: es una pista, no un bloqueo — sigue pudiéndose pulsar
-        // para filtrar y descubrir los productos que sí la tienen.
-        opacity: active || hovered ? 1 : variant ? 0.7 : 0.5,
+        // Mismo criterio visual que size-selector.
+        cursor: available ? "pointer" : "not-allowed",
+        opacity: available ? (active || hovered ? 1 : 0.7) : 0.35,
         transition: "all 0.3s ease",
         ...selectorPaddingMargin("padding", cPaddingSelect, cPaddingText),
       }}

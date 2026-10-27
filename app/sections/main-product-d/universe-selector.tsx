@@ -368,7 +368,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
   const versionFilterActive = useProductConfiguratorD((state) => state.versionFilterActive);
   const versionFilterOptionName = useProductConfiguratorD((state) => state.versionFilterOptionName);
   const versionFilterValue = useProductConfiguratorD((state) => state.versionFilterValue);
-  const versionFilterIncludeMissing = useProductConfiguratorD((state) => state.versionFilterIncludeMissing);
+  const selectVersionFilter = useProductConfiguratorD((state) => state.selectVersionFilter);
   const versionFilterApplies = versionFilterEnabled && versionFilterActive;
 
   const collections = useMemo<UniverseCollection[]>(() => {
@@ -379,18 +379,9 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
       // "The lord of the Rings"); si no está informado se usa el título de
       // la colección en Shopify.
       title: collection.name?.value || collection.title,
-      products: collection.products.edges
-        .filter(
-          ({ node }) =>
-            !versionFilterApplies ||
-            variantsMatchOption(
-              node.variants?.nodes,
-              versionFilterOptionName,
-              versionFilterValue,
-              versionFilterIncludeMissing,
-            ),
-        )
-        .map(({ node }) => {
+      // Se muestran todos los productos, tengan o no la versión filtrada: al
+      // elegir uno que no la tenga, selectProduct pasa a una variante disponible.
+      products: collection.products.edges.map(({ node }) => {
         const materialValue = node.material?.value ?? "";
         return {
           id: node.id,
@@ -418,16 +409,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
         };
       }),
     }));
-  }, [
-    loaderData,
-    optionTitleMap,
-    selectedTalla,
-    preservedOptionName,
-    versionFilterApplies,
-    versionFilterOptionName,
-    versionFilterValue,
-    versionFilterIncludeMissing,
-  ]);
+  }, [loaderData, optionTitleMap, selectedTalla, preservedOptionName]);
 
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
   const activeCollection = collections.find((elm) => elm.id === activeCollectionId) ?? collections[0] ?? null;
@@ -466,13 +448,33 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
           const prod = createCurProVar(responseData.result);
           setProduct(prod);
 
-          const match = resolveVariantOnProductSwitch(
-            prod.variants?.nodes ?? [],
-            optionName,
-            previousValue ?? null,
-            { active: versionFilterApplies, optionName: versionFilterOptionName, value: versionFilterValue },
-          );
+          const variants = prod.variants?.nodes ?? [];
+          // ¿Tiene el producto la versión elegida? (sin la opción de versión, sí)
+          const fitsVersionFilter =
+            !versionFilterApplies ||
+            variantsMatchOption(variants, versionFilterOptionName, versionFilterValue, true);
+
+          // Si no la tiene, se ignora el filtro y se toma una variante disponible
+          // (conservando la talla si se puede); si ninguna lo está, la primera.
+          const match =
+            resolveVariantOnProductSwitch(variants, optionName, previousValue ?? null, {
+              active: versionFilterApplies && fitsVersionFilter,
+              optionName: versionFilterOptionName,
+              value: versionFilterValue,
+            }) ??
+            variants.find((variant) => variant.availableForSale) ??
+            variants[0] ??
+            null;
           if (match) setVariant(match);
+
+          // El selector de versión debe marcar la versión que ha quedado puesta.
+          if (!fitsVersionFilter && match) {
+            const matchVersion = match.selectedOptions?.find(
+              (option) =>
+                option.name.trim().toLowerCase() === versionFilterOptionName.trim().toLowerCase(),
+            )?.value;
+            if (matchVersion) selectVersionFilter(versionFilterOptionName, matchVersion, false);
+          }
         }
       } catch (error) {
         console.error("Error cargando el producto del universo:", error);
@@ -487,6 +489,7 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
       getApiUrl,
       setProduct,
       setVariant,
+      selectVersionFilter,
       versionFilterApplies,
       versionFilterOptionName,
       versionFilterValue,
