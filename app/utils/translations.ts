@@ -112,7 +112,7 @@ export const translations: Record<string, Record<string, string>> = {
     tracking_status_failed: "Fallo en la entrega",
     tracking_status_exception: "Incidencia",
     tracking_status_unknown: "Sin información",
-    tracking_section_title: "Realice el seguimiento de su pedido",
+    tracking_section_title: "Realiza el seguimiento de tu pedido",
     tracking_tab_order: "Número de pedido",
     tracking_tab_tracking: "Número de seguimiento",
     tracking_order_placeholder: "Ej: 1001",
