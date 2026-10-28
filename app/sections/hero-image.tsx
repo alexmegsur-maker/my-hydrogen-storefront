@@ -117,7 +117,7 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
 
       )}
       containerStyle={{
-        width:`${widthCont}%`,
+        width: isMobile ?"100%":`${widthCont}%`,
         position:enableOverlay || activeNetwork ?  "static":"relative",
         
       }}
@@ -157,7 +157,7 @@ export const schema = createSchema({
           defaultValue:false,
         },
         {
-          type:'color',
+          type:'color', 
           label:'color Border',
           name:'colorBorder',
           defaultValue:'#ffffff0d',
