@@ -1,7 +1,7 @@
 import { cn } from "~/utils/cn";
 import { useLanguage } from "~/hooks/useLanguage";
 import { interpolate, translations } from "~/utils/translations";
-import { BackButton, BARPROGRESS, MailIcon, PinIcon, ProgressBar, useOrder, UserIcon } from "./DesistimientoForm";
+import { BackButton, BARPROGRESS, getManagementFee, MailIcon, PinIcon, ProgressBar, useOrder, UserIcon } from "./DesistimientoForm";
 import { Image } from "../image";
 
 export function StepDetail({ onBack }: { onBack: () => void }) {
@@ -29,7 +29,7 @@ export function StepDetail({ onBack }: { onBack: () => void }) {
     ? parseFloat(selectedLine.discountedUnitPriceAfterAllDiscountsSet.shopMoney.amount)
     : 0
   const grossRefund = unitPrice * (selectedLine?.quantity ?? 0)
-  const managementFee = existingRequest?.motivo === "Producto defectuoso" ? 0 : 45
+  const managementFee = getManagementFee(selectedLine, existingRequest?.motivo)
   const finalRefund = Math.max(0, grossRefund - managementFee).toFixed(2)
   const currencyCode = selectedLine?.discountedUnitPriceAfterAllDiscountsSet.shopMoney.currencyCode ?? "EUR"
   const currencySymbol = currencyCode === "EUR" ? "€" : currencyCode

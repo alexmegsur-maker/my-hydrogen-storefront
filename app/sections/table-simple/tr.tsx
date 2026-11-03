@@ -5,10 +5,12 @@ interface CookieTableRowProps extends HydrogenComponentProps {
   showBorderBottom: boolean;
   borderColor: string;
   bgColor?: string;
+  enableGrid:boolean;
+  numColumns:number;
 }
 
 function CookieTableRow(props: CookieTableRowProps) {
-  const { rowType, showBorderBottom, borderColor, bgColor, children, ...rest } = props
+  const { rowType, showBorderBottom, borderColor, bgColor, enableGrid, numColumns, children, ...rest } = props
 
   const content = (
     <tr
@@ -16,6 +18,11 @@ function CookieTableRow(props: CookieTableRowProps) {
       style={{
         borderBottom: showBorderBottom ? `1px solid ${borderColor}` : "unset",
         background: bgColor ?? "transparent",
+        ...(enableGrid && {
+          display:"grid",
+          gridTemplateColumns:`repeat(${numColumns},1fr)`
+        })
+        
       }}
     >
       {children}
@@ -70,8 +77,34 @@ export const schema = createSchema({
           name: "bgColor",
           defaultValue: "transparent",
         },
+        
       ],
     },
+    {
+      group:"custom grid",
+      inputs:[
+        {
+          type:'switch',
+          label:'enable custom grid',
+          name:'enableGrid',
+          defaultValue:false,
+        },
+        {
+          type:'range',
+          label:'number of columns',
+          name:'numColumns',
+          defaultValue:10,
+          configs:{
+            min:0,
+            max:20,
+            step:1,
+            unit:'colum',
+          },
+          condition:(data:CookieTableRowProps)=> Boolean(data.enableGrid)
+        },
+        
+      ]
+    }
   ],
   presets: {
     rowType: "body",

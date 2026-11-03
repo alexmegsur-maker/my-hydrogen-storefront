@@ -64,6 +64,8 @@ function CookieTableCell(props: CookieTableCellProps) {
     ...(padding    && { padding }),
     ...(lineH && lineH > 0 && { lineHeight: lineH }),
     ...(letter && letter > 0 && { letterSpacing: letter }),
+    ...(colSpan && { gridColumn:`span ${colSpan}` })
+    ,
   }
 
   const finalStyles: React.CSSProperties = { ...baseStyles, ...overrides }

@@ -35,6 +35,8 @@ export interface OrderQuery {
         discountedUnitPriceAfterAllDiscountsSet: {
           shopMoney: { amount: string; currencyCode: string };
         };
+        /** El producto está en la colección de accesorios (lo calcula /api/order-data). */
+        isAccessory?: boolean;
       };
     }[];
   };
@@ -68,6 +70,22 @@ export const useOrder = create<OrderStore>()((set) => ({
     set(() => ({ productDetail: newOrderDetail }))
   }
 }))
+
+// ── Gastos de gestión ──────────────────────────────────────
+
+export const MANAGEMENT_FEE = 45
+
+/**
+ * Gastos de gestión de una devolución: no se cobran si el producto es
+ * defectuoso ni si pertenece a la colección de accesorios.
+ */
+export function getManagementFee(
+  line: { isAccessory?: boolean } | null | undefined,
+  motivo: string | undefined,
+) {
+  if (motivo === "Producto defectuoso" || line?.isAccessory) return 0
+  return MANAGEMENT_FEE
+}
 
 // ── Mock data ──────────────────────────────────────────────
 
@@ -199,7 +217,7 @@ export default function DesistimientoForm() {
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1.5px, transparent 1.5px)',
-          backgroundSize: '18px 18px',
+          backgroundSize: '18px 18px', 
         }}
       />
       <div className="relative z-10">

@@ -235,6 +235,7 @@ import * as CollectorLicenses from "~/sections/collector-editions/licenses"
 import * as CollectorLicense from "~/sections/collector-editions/license"
 import * as CollectorEditionsGrid from "~/sections/collector-editions/editions"
 import * as CollectorEditionCard from "~/sections/collector-editions/edition-card"
+import * as Medidas from "~/sections/medidas"
 
 export const components: HydrogenComponent[] = [
   HeroImage, 
@@ -472,4 +473,5 @@ export const components: HydrogenComponent[] = [
   CollectorLicense,
   CollectorEditionsGrid,
   CollectorEditionCard,
+  Medidas,
 ];

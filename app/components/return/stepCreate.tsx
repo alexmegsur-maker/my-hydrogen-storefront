@@ -4,7 +4,7 @@ import { cn } from "~/utils/cn"
 import { useLanguage } from "~/hooks/useLanguage"
 import { interpolate, translations } from "~/utils/translations"
 import { Image } from "../image"
-import { BackButton, CheckIcon, InfoIcon, useOrder } from "./DesistimientoForm"
+import { BackButton, CheckIcon, getManagementFee, InfoIcon, useOrder } from "./DesistimientoForm"
 
 export function StepCreate({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const lang = useLanguage()
@@ -150,7 +150,7 @@ export function StepCreate({ onBack, onNext }: { onBack: () => void; onNext: () 
             <option value="Producto defectuoso">{t.rma_reasonDefective}</option>
             <option value="Error de envío">{t.rma_reasonWrongShipping}</option>
           </select>
-          {motivo && motivo !== "Producto defectuoso" && (
+          {motivo && getManagementFee(selectedLine, motivo) > 0 && (
             <p className="mt-2 text-[0.8rem] text-amber-400/80 leading-relaxed">
               {t.rma_feeWarning}
             </p>

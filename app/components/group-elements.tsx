@@ -1,6 +1,8 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { Section, sectionSettings, type SectionProps } from "./section";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useEffect, useRef, useState } from "react";
+import { useLenis } from "lenis/react";
 
 interface GroupElementsProps extends SectionProps{
   direction:string;
@@ -18,11 +20,94 @@ interface GroupElementsProps extends SectionProps{
   showBorderLeft:boolean;
   showBorderRight:boolean;
   colorBorder:string;
+  enableMaxHeight:boolean;
+  maxHeight:string;
 }
 
 export default function GroupElements (props:GroupElementsProps & HydrogenComponentProps){
-  const {direction,gapCont,mbDirection,displayDiv,mbDisplayDiv,columnsGrid,mbColumnsGrid,mbGapCont,showBorder,showBorderBottom,showBorderLeft,showBorderRight,colorBorder,alignContent,mbAlignContent,children,...rest}=props
-  
+  const {ref:weaverseRef,direction,gapCont,mbDirection,displayDiv,mbDisplayDiv,columnsGrid,mbColumnsGrid,mbGapCont,showBorder,showBorderBottom,showBorderLeft,showBorderRight,colorBorder,
+    enableMaxHeight,maxHeight,alignContent,mbAlignContent,children,...rest}=props
+
+  const ref= useRef<HTMLElement>(null)
+  const lenis=useLenis()
+  // Weaverse pasa su propio ref en props: hay que rellenar los dos
+  // (el suyo lo necesita el editor para seleccionar el componente)
+  const setRefs = (node: HTMLElement | null) => {
+    ref.current = node;
+    if (typeof weaverseRef === "function") {
+      weaverseRef(node);
+    } else if (weaverseRef) {
+      weaverseRef.current = node;
+    }
+  };
+  const [atTop,setAtTop]= useState(false)
+
+  useEffect(() => {
+    const section = ref.current;
+
+    if (!enableMaxHeight || !section) {
+      setAtTop(false);
+      return;
+    }
+
+    const sentinel = document.createElement("div");
+    sentinel.setAttribute("aria-hidden", "true");
+    sentinel.setAttribute("style", `
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 10vh;
+      transform: translateY(-100%);
+      pointer-events: none;
+      `
+    );
+    section.prepend(sentinel);
+    console.log("entra aqui ", sentinel)
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setAtTop(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+    });
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+      sentinel.remove();
+    };
+  }, [enableMaxHeight]);
+
+  useEffect(() => {
+    const inner = ref.current?.lastElementChild as HTMLElement | null; // contenedor con overflow del Section
+    if (!atTop || !lenis || !inner) return;
+    // lenis.scrollTo(section, { immediate: true });
+    inner.setAttribute("data-lenis-prevent", "");
+    lenis.stop();
+    let locked = true;
+
+    // Escucha la rueda en toda la ventana (no solo encima del componente) y
+    // la redirige al scroll interno mientras la página está bloqueada
+    const onWheel = (e: WheelEvent) => {
+      if (!locked) return;
+      const atEnd = inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 1;
+      const atStart = inner.scrollTop <= 0;
+      if ((e.deltaY > 0 && atEnd) || (e.deltaY < 0 && atStart)) {
+        locked = false;
+        lenis.start();
+        return;
+      }
+      e.preventDefault();
+      // deltaMode 1 = líneas (Firefox): se pasa a píxeles
+      inner.scrollTop += e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      lenis.start();
+    };
+  }, [atTop, lenis]);
+
+
   const isMobile = useIsMobile(600);
   // Los grupos creados antes de añadir "display" no tienen el valor guardado:
   // sin el fallback quedaban con display undefined (bloque) en vez de flex.
@@ -30,12 +115,13 @@ export default function GroupElements (props:GroupElementsProps & HydrogenCompon
   const columns = (isMobile ? mbColumnsGrid : columnsGrid) ?? 2;
 
   return(
-    <Section  {...rest}
+    <Section {...rest} ref={setRefs}
+
       // La separación la gestiona gapCont (CSS gap). El "Items spacing" de Section
       // usa space-y-*, que pone margin-bottom a todos los hijos menos el último:
       // en fila, el primer elemento quedaba más bajo que el resto.
       gap={0}
-      className="flex overflow-visible"
+      className="flex overflow-visible groupElements"
       style={{
         borderTop:showBorder?`1px solid ${colorBorder}`:"unset",
         borderBottom:showBorderBottom?`1px solid ${colorBorder}`:"unset",
@@ -56,8 +142,12 @@ export default function GroupElements (props:GroupElementsProps & HydrogenCompon
         ...(display =="grid" && {
             gridTemplateColumns:`repeat(${columns},minmax(0,1fr))`
           }
-        )
-
+        ),
+        ...(enableMaxHeight && {
+          maxHeight:maxHeight,
+          overflowY:"scroll",
+          height:"fit-content"
+        })
       }}
     >
       {children}
@@ -79,7 +169,7 @@ export const schema =createSchema({
     "image-with-text--content",
     "copybutton",
     "discountCountBar",
-    "principal-card",
+    "principal-card", 
     "group-buttons",
     "card-simple",
     "size-recommender",
@@ -122,7 +212,19 @@ export const schema =createSchema({
           defaultValue:'#ffffff0d',
           condition:(data)=>data.showBorder==true
         },
-
+        {
+          type:'switch',
+          label:'enable maxHeight',
+          name:'enableMaxHeight',
+          defaultValue:false,
+        },
+        {
+          type:'text',
+          label:'max height',
+          name:'maxHeight',
+          defaultValue:'10rem',
+          condition:(data)=>Boolean(data.enableMaxHeight)
+        },
         {
           type:'select',
           label:'display',

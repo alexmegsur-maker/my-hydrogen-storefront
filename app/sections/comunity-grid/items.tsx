@@ -81,7 +81,7 @@ function ColumnsWithPostsItems(props: ColumnsWithPostsItemsProps) {
       {...rest}
       className="flex flex-col sm:grid sm:grid-cols-12"
       style={{ 
-        width:!isMobile ? `${widthContainer}%`:"90%",
+        width:!isMobile ? `${widthContainer}%`:"100%",
         justifySelf:"center",
         gap: !isMobile ? `${gap}px`:`${mbGap}px`,
         gridTemplateColumns:`repeat(${maxColumns}, minmax(0,1fr))`

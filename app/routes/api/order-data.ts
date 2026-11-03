@@ -1,5 +1,8 @@
 import type { LoaderFunctionArgs } from "@shopify/remix-oxygen";
 
+/** Handle de la colección "Accesorios" en Shopify: sus productos no pagan gastos de gestión. */
+const ACCESSORIES_COLLECTION_HANDLE = "accesorios";
+
 const EXISTING_REQUEST_QUERY = `
   query GetSolicitudesDevolucion($type: String!) {
     metaobjects(type: $type, first: 250) {
@@ -40,6 +43,11 @@ const ORDER_QUERY = `
               node {
                 product {
                   id
+                  collections(first: 50) {
+                    nodes {
+                      handle
+                    }
+                  }
                 }
                 title
                 quantity
@@ -126,6 +134,15 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
         { error: "No se encontró ningún pedido con esos datos" },
         { status: 404 }
       );
+    }
+
+    // Marca los productos de la colección de accesorios (no pagan gastos de
+    // gestión al devolverlos) y quita la lista de colecciones de la respuesta.
+    for (const { node } of order.lineItems?.edges ?? []) {
+      const handles: string[] =
+        node.product?.collections?.nodes?.map((c: { handle: string }) => c.handle) ?? [];
+      node.isAccessory = handles.includes(ACCESSORIES_COLLECTION_HANDLE);
+      if (node.product) delete node.product.collections;
     }
 
     // Look for an existing return request in solicitud_de_devolucion metaobject
