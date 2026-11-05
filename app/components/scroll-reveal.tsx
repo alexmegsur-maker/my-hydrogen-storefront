@@ -31,7 +31,10 @@ function getSharedObserver(): IntersectionObserver {
           }
         }
       },
-      { threshold: 0.1 },
+      // threshold 0 + rootMargin instead of threshold 0.1: an element taller than
+      // ~10 viewports (e.g. long legal text on mobile) never reaches 10% visible
+      // and would stay at opacity 0 forever
+      { threshold: 0, rootMargin: "0px 0px -10% 0px" },
     );
   }
   return sharedObserver;

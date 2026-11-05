@@ -72,8 +72,10 @@ export default function SectionLegalWrapper(props:SectionLegalWrapperProps){
         observer.disconnect();
       },
       {
+        // threshold 0: con 0.1, una sección más alta que ~10 pantallas (habitual en
+        // móvil con texto legal largo) nunca alcanza el 10% visible y se queda en opacity 0
         rootMargin: "0px 0px -15% 0px",
-        threshold: 0.1,
+        threshold: 0,
       }
     );
 
