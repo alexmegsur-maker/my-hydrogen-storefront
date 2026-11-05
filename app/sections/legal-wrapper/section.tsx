@@ -84,7 +84,10 @@ export default function SectionLegalWrapper(props:SectionLegalWrapperProps){
   }, []);
 
   return (
-  <Section id={identificacion} ref={itemRef} {...rest} 
+  // animate=false: el reveal compartido de Section (threshold 0.1) no se dispara
+  // en secciones más altas que ~10 pantallas; la animación la hace el observer
+  // propio de arriba, independiente del resto de secciones
+  <Section id={identificacion} ref={itemRef} {...rest} animate={false}
     style={{
       borderBottom:showSecBorder ? `1px solid ${colorSecBorder}`:"unset"
     }}

@@ -31,10 +31,12 @@ function getSharedObserver(): IntersectionObserver {
           }
         }
       },
-      // threshold 0 + rootMargin instead of threshold 0.1: an element taller than
-      // ~10 viewports (e.g. long legal text on mobile) never reaches 10% visible
-      // and would stay at opacity 0 forever
-      { threshold: 0, rootMargin: "0px 0px -10% 0px" },
+      // threshold 0.1 compartido por todas las secciones. Las secciones muy altas
+      // (texto legal en móvil) no lo alcanzarían nunca: legal-wrapper desactiva
+      // este reveal (animate=false) y usa su propio observer con threshold 0.
+      // Un rootMargin inferior negativo aquí dejaba en opacity 0 las secciones
+      // cortas pegadas al final de la página (botón de compra de main-product-d).
+      { threshold: 0.1 },
     );
   }
   return sharedObserver;
