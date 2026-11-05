@@ -9,6 +9,7 @@ import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import type { CollectionQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { getResourceHreflang } from "~/.server/hreflang";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
 import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import type { SortParam } from "~/types/others";
@@ -105,6 +106,8 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
   });
 
   const seo = applyWeaverseSeo(seoPayload.collection({ collection, url: request.url }), weaverseData);
+  // Clúster hreflang con el handle traducido de cada idioma (ver root.tsx)
+  const hreflang = await getResourceHreflang(storefront, "collections", collection.id);
   const allFilterValues = collection.products.filters.flatMap(
     (filter) => filter.values,
   );
@@ -150,6 +153,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     appliedFilters,
     collections: flattenConnection(collections),
     seo,
+    hreflang,
     weaverseData,
   };
 }

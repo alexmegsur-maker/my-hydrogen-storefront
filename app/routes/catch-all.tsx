@@ -2,7 +2,7 @@ import type { SeoConfig } from "@shopify/hydrogen";
 import { getSeoMeta } from "@shopify/hydrogen";
 import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { redirect } from "react-router";
-import { applyWeaverseSeo } from "~/.server/seo";
+import { applyWeaverseSeo, toCanonicalUrl } from "~/.server/seo";
 import { COUNTRIES } from "~/utils/const";
 import { routeHeaders } from "~/utils/cache";
 import { localizePath } from "~/utils/localized-paths";
@@ -44,7 +44,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       title: "",
       description: "",
       titleTemplate: "%s | PhoenixChairs",
-      url: request.url,
+      // Canonical normalizado: debe coincidir con su entrada hreflang
+      url: toCanonicalUrl(request.url),
       robots: { noIndex: false, noFollow: false },
     },
     weaverseData,

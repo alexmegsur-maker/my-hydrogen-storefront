@@ -1,3 +1,8 @@
+import type { Storefront } from "@shopify/hydrogen";
+import type {
+  CountryCode,
+  LanguageCode,
+} from "@shopify/hydrogen/storefront-api-types";
 import type { LoaderFunctionArgs } from "react-router";
 import { COUNTRIES } from "~/utils/const";
 import { localizePath } from "~/utils/localized-paths";
@@ -23,6 +28,12 @@ interface SitemapUrl {
    * porque no hay confirmación de que exista traducción de esa página.
    */
   localize: boolean;
+  /**
+   * Ruta (sin prefijo) de cada locale cuando no es la misma en todos: productos
+   * y colecciones tienen el handle traducido. Si existe, sustituye a `path` +
+   * localizePath, y solo se publican los locales que aparecen aquí.
+   */
+  localizedPaths?: Record<string, string>;
 }
 
 // Rutas estáticas confirmadas en español. No se replican por idioma porque
@@ -48,7 +59,7 @@ const SITEMAP_HEADERS = {
 
 export async function loader({ context }: LoaderFunctionArgs) {
   try {
-    const shopifyUrls = await getShopifySitemaps(context);
+    const shopifyUrls = await getShopifySitemaps(context.storefront);
     const sitemapXml = generateSitemapXml([...STATIC_ROUTES, ...shopifyUrls]);
     return new Response(sitemapXml, { headers: SITEMAP_HEADERS });
   } catch (error) {
@@ -58,63 +69,141 @@ export async function loader({ context }: LoaderFunctionArgs) {
   }
 }
 
-/**
- * FUNCIÓN 1: Consulta la Storefront API de Shopify para extraer Productos y Colecciones dinámicas.
- * Los handles son los mismos en todos los locales (Shopify no genera slugs distintos por idioma),
- * así que basta con una consulta y luego se reutiliza el path bajo cada prefijo de idioma.
- */
-async function getShopifySitemaps(context: any): Promise<SitemapUrl[]> {
-  const urls: SitemapUrl[] = [];
-
-  // Si no hay contexto de storefront (error de configuración), devolvemos array vacío para evitar que rompa la app
-  if (!context?.storefront) {
-    console.error("Storefront context not found in sitemap loader");
-    return urls;
-  }
-
-  try {
-    // Ejecutamos la consulta GraphQL pidiendo los primeros 250 productos y colecciones [cite: 226, 228]
-    const data: any = await context.storefront.query(`#graphql
-      query SitemapCatalog {
-        products(first: 250) {
-          nodes {
-            handle
-            updatedAt
-          }
-        }
-        collections(first: 250) {
-          nodes {
-            handle
-            updatedAt
-          }
-        }
+const SITEMAP_PRODUCTS_QUERY = `#graphql
+  query SitemapProducts($country: CountryCode, $language: LanguageCode, $after: String)
+  @inContext(country: $country, language: $language) {
+    products(first: 250, after: $after) {
+      nodes {
+        id
+        handle
+        updatedAt
       }
-    `);
-
-    if (data?.products?.nodes) {
-      data.products.nodes.forEach((product: any) => {
-        urls.push({
-          path: `/products/${product.handle}`,
-          lastMod: product.updatedAt ? product.updatedAt.split('T')[0] : undefined,
-          localize: true,
-        });
-      });
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
+  }
+` as const;
 
-    if (data?.collections?.nodes) {
-      data.collections.nodes.forEach((collection: any) => {
-        urls.push({
-          path: `/collections/${collection.handle}`,
-          lastMod: collection.updatedAt ? collection.updatedAt.split('T')[0] : undefined,
-          localize: true,
-        });
-      });
+const SITEMAP_COLLECTIONS_QUERY = `#graphql
+  query SitemapCollections($country: CountryCode, $language: LanguageCode, $after: String)
+  @inContext(country: $country, language: $language) {
+    collections(first: 250, after: $after) {
+      nodes {
+        id
+        handle
+        updatedAt
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
-  } catch (error) {
-    console.error("Error fetching Shopify catalog for sitemap:", error);
+  }
+` as const;
+
+type CatalogNode = { id: string; handle: string; updatedAt?: string };
+type CatalogType = "products" | "collections";
+
+// Tope de seguridad: 40 páginas × 250 = 10.000 elementos por idioma
+const MAX_PAGES = 40;
+
+/** Todos los productos o colecciones de un idioma, recorriendo la paginación. */
+async function fetchAllNodes(
+  storefront: Storefront,
+  type: CatalogType,
+  country: CountryCode,
+  language: LanguageCode,
+): Promise<CatalogNode[]> {
+  const nodes: CatalogNode[] = [];
+  let after: string | null = null;
+
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const variables = { country, language, after };
+    const options = { variables, cache: storefront.CacheLong() };
+    const connection =
+      type === "products"
+        ? (await storefront.query(SITEMAP_PRODUCTS_QUERY, options)).products
+        : (await storefront.query(SITEMAP_COLLECTIONS_QUERY, options)).collections;
+
+    nodes.push(...connection.nodes);
+    if (!connection.pageInfo.hasNextPage) {
+      break;
+    }
+    after = connection.pageInfo.endCursor ?? null;
+  }
+  return nodes;
+}
+
+/**
+ * Consulta un tipo de recurso en cada idioma (una consulta por idioma con
+ * @inContext, en paralelo) y empareja los resultados por id. En Shopify el
+ * handle está traducido, así que cada locale necesita el suyo: replicar el
+ * handle español bajo /de, /fr... daría URLs que redirigen con 301.
+ */
+async function getLocalizedCatalog(
+  storefront: Storefront,
+  type: CatalogType,
+): Promise<SitemapUrl[]> {
+  const perLocale = await Promise.all(
+    LOCALE_PREFIXES.map(async (prefix) => {
+      const locale = COUNTRIES[prefix || "default"];
+      const language = locale.language as LanguageCode;
+      // Sin país, Shopify usa el mercado principal y en fr/it/pl/nl devuelve
+      // el handle español
+      const country = locale.country as CountryCode;
+      try {
+        return { prefix, nodes: await fetchAllNodes(storefront, type, country, language) };
+      } catch (error) {
+        console.error(`Sitemap: fallo al consultar ${type} en ${language}:`, error);
+        return { prefix, nodes: [] as CatalogNode[] };
+      }
+    }),
+  );
+
+  // id → handle de cada locale. El español manda: define qué recursos existen.
+  const byId = new Map<string, { updatedAt?: string; paths: Record<string, string> }>();
+  for (const node of perLocale.find((l) => l.prefix === "")?.nodes ?? []) {
+    byId.set(node.id, {
+      updatedAt: node.updatedAt,
+      paths: { "": `/${type}/${node.handle}` },
+    });
+  }
+  for (const { prefix, nodes } of perLocale) {
+    if (!prefix) continue;
+    for (const node of nodes) {
+      const entry = byId.get(node.id);
+      if (entry) {
+        entry.paths[prefix] = `/${type}/${node.handle}`;
+      }
+    }
   }
 
-  return urls;
+  return [...byId.values()].map(({ updatedAt, paths }) => ({
+    path: paths[""],
+    lastMod: updatedAt ? updatedAt.split('T')[0] : undefined,
+    localize: true,
+    localizedPaths: paths,
+  }));
+}
+
+/**
+ * FUNCIÓN 1: Consulta la Storefront API de Shopify para extraer Productos y
+ * Colecciones dinámicas, con el handle traducido de cada idioma.
+ */
+async function getShopifySitemaps(storefront: Storefront | undefined): Promise<SitemapUrl[]> {
+  // Si no hay contexto de storefront (error de configuración), devolvemos array vacío para evitar que rompa la app
+  if (!storefront) {
+    console.error("Storefront context not found in sitemap loader");
+    return [];
+  }
+
+  const [products, collections] = await Promise.all([
+    getLocalizedCatalog(storefront, "products"),
+    getLocalizedCatalog(storefront, "collections"),
+  ]);
+  return [...products, ...collections];
 }
 
 function localizedHref(prefix: string, path: string): string {
@@ -124,11 +213,19 @@ function localizedHref(prefix: string, path: string): string {
   return `${SITE_ORIGIN}${prefix}${localizePath(path, prefix)}`;
 }
 
+/** URL absoluta de un item en un locale (usa su handle traducido si lo tiene). */
+function itemHref(item: SitemapUrl, prefix: string): string {
+  const localizedPath = item.localizedPaths?.[prefix];
+  return localizedPath
+    ? `${SITE_ORIGIN}${prefix}${localizedPath}`
+    : localizedHref(prefix, item.path);
+}
+
 /**
  * FUNCIÓN 2: Construye el XML del sitemap, replicando cada URL bajo todos los
  * locales soportados (home, productos, colecciones) y enlazándolos entre sí
- * con <xhtml:link hreflang> — así el sitemap deja de ser "solo español" y
- * además refuerza la señal de hreflang que falta en el <head>.
+ * con <xhtml:link hreflang>. Productos y colecciones solo se publican en los
+ * locales en los que se obtuvo su handle.
  */
 function generateSitemapXml(items: SitemapUrl[]): string {
   const today = new Date().toISOString().split('T')[0];
@@ -138,24 +235,28 @@ function generateSitemapXml(items: SitemapUrl[]): string {
       if (!item.localize) {
         // Solo existe en español: una única entrada, sin alternates de idioma.
         return `  <url>
-    <loc>${localizedHref("", item.path)}</loc>
+    <loc>${escapeXml(localizedHref("", item.path))}</loc>
     <lastmod>${item.lastMod || today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>${item.path === '/' ? '1.0' : '0.7'}</priority>
   </url>`;
       }
 
-      const alternates = LOCALE_PREFIXES.map((prefix) => {
+      const prefixes = item.localizedPaths
+        ? LOCALE_PREFIXES.filter((prefix) => item.localizedPaths?.[prefix])
+        : LOCALE_PREFIXES;
+
+      const alternates = prefixes.map((prefix) => {
         const hreflang = COUNTRIES[prefix || "default"]?.language?.toLowerCase() ?? "es";
-        return `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${localizedHref(prefix, item.path)}" />`;
+        return `    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${escapeXml(itemHref(item, prefix))}" />`;
       });
       alternates.push(
-        `    <xhtml:link rel="alternate" hreflang="x-default" href="${localizedHref("", item.path)}" />`,
+        `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(itemHref(item, ""))}" />`,
       );
 
-      return LOCALE_PREFIXES.map((prefix) => {
+      return prefixes.map((prefix) => {
         return `  <url>
-    <loc>${localizedHref(prefix, item.path)}</loc>
+    <loc>${escapeXml(itemHref(item, prefix))}</loc>
     <lastmod>${item.lastMod || today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>${item.path === '/' ? '1.0' : '0.7'}</priority>
@@ -169,4 +270,12 @@ ${alternates.join('\n')}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${xmlEntries}
 </urlset>`;
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }

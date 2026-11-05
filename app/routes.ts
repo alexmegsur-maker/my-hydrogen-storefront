@@ -13,7 +13,6 @@ export default hydrogenRoutes([
   route("robots.txt", "routes/seo/robots.ts"),
   route("feed.xml", "routes/[feed.xml].tsx"),
   route("sitemap.xml", "routes/[sitemap.xml].tsx"),
-  route("sitemap/:type/:page.xml", "routes/seo/sitemap-page.ts"),
 
   ...prefix(":locale?", [
     index("routes/home.tsx"),

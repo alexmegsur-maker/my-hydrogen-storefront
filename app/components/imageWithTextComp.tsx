@@ -86,7 +86,7 @@ export default ImageWithTextComp;
 
 export const schema = createSchema({
   type: "image-with-text-comp", 
-  title: "Image with text",
+  title: "Image with text old",
   enabledOn:{
     groups:['*']
   },

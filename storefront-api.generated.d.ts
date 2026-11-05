@@ -3,6 +3,26 @@
 /* eslint-disable */
 import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 
+export type LocalizedProductHandleQueryVariables = StorefrontAPI.Exact<{
+  id: StorefrontAPI.Scalars['ID']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type LocalizedProductHandleQuery = {
+  product?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Product, 'handle'>>;
+};
+
+export type LocalizedCollectionHandleQueryVariables = StorefrontAPI.Exact<{
+  id: StorefrontAPI.Scalars['ID']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type LocalizedCollectionHandleQuery = {
+  collection?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Collection, 'handle'>>;
+};
+
 export type LayoutQueryVariables = StorefrontAPI.Exact<{
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   headerMenuHandle: StorefrontAPI.Scalars['String']['input'];
@@ -1665,14 +1685,29 @@ export type GoogleShoppingFeedQuery = {
   };
 };
 
-export type SitemapCatalogQueryVariables = StorefrontAPI.Exact<{
-  [key: string]: never;
+export type SitemapProductsQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+  after?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
 }>;
 
-export type SitemapCatalogQuery = {
-  products: {nodes: Array<Pick<StorefrontAPI.Product, 'handle' | 'updatedAt'>>};
+export type SitemapProductsQuery = {
+  products: {
+    nodes: Array<Pick<StorefrontAPI.Product, 'id' | 'handle' | 'updatedAt'>>;
+    pageInfo: Pick<StorefrontAPI.PageInfo, 'hasNextPage' | 'endCursor'>;
+  };
+};
+
+export type SitemapCollectionsQueryVariables = StorefrontAPI.Exact<{
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+  after?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
+}>;
+
+export type SitemapCollectionsQuery = {
   collections: {
-    nodes: Array<Pick<StorefrontAPI.Collection, 'handle' | 'updatedAt'>>;
+    nodes: Array<Pick<StorefrontAPI.Collection, 'id' | 'handle' | 'updatedAt'>>;
+    pageInfo: Pick<StorefrontAPI.PageInfo, 'hasNextPage' | 'endCursor'>;
   };
 };
 
@@ -4272,6 +4307,14 @@ export type FeaturedProductsQuery = {
 };
 
 interface GeneratedQueryTypes {
+  '#graphql\n  query LocalizedProductHandle($id: ID!, $country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    product(id: $id) {\n      handle\n    }\n  }\n': {
+    return: LocalizedProductHandleQuery;
+    variables: LocalizedProductHandleQueryVariables;
+  };
+  '#graphql\n  query LocalizedCollectionHandle($id: ID!, $country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    collection(id: $id) {\n      handle\n    }\n  }\n': {
+    return: LocalizedCollectionHandleQuery;
+    variables: LocalizedCollectionHandleQueryVariables;
+  };
   '#graphql\n  query layout(\n    $language: LanguageCode\n    $headerMenuHandle: String!\n    $footerMenuHandle: String!\n  ) @inContext(language: $language) {\n    shop {\n      ...Shop\n    }\n    headerMenu: menu(handle: $headerMenuHandle) {\n      ...Menu\n    }\n    footerMenu: menu(handle: $footerMenuHandle) {\n      ...Menu\n    }\n  }\n  fragment Shop on Shop {\n    id\n    name\n    description\n    primaryDomain {\n      url\n    }\n    brand {\n      logo {\n        image {\n          url\n        }\n      }\n    }\n  }\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    resource {\n      ... on Collection {\n        image {\n          altText\n          height\n          id\n          url\n          width\n        }\n      }\n      ... on Product {\n        image: featuredImage {\n          altText\n          height\n          id\n          url\n          width\n        }\n      }\n    }\n    tags\n    title\n    type\n    url\n  }\n\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem2 on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ParentMenuItem2\n    }\n  }\n  fragment Menu on Menu {\n    id\n    items {\n      ...ParentMenuItem\n    }\n  }\n': {
     return: LayoutQuery;
     variables: LayoutQueryVariables;
@@ -4320,9 +4363,13 @@ interface GeneratedQueryTypes {
     return: GoogleShoppingFeedQuery;
     variables: GoogleShoppingFeedQueryVariables;
   };
-  '#graphql\n      query SitemapCatalog {\n        products(first: 250) {\n          nodes {\n            handle\n            updatedAt\n          }\n        }\n        collections(first: 250) {\n          nodes {\n            handle\n            updatedAt\n          }\n        }\n      }\n    ': {
-    return: SitemapCatalogQuery;
-    variables: SitemapCatalogQueryVariables;
+  '#graphql\n  query SitemapProducts($country: CountryCode, $language: LanguageCode, $after: String)\n  @inContext(country: $country, language: $language) {\n    products(first: 250, after: $after) {\n      nodes {\n        id\n        handle\n        updatedAt\n      }\n      pageInfo {\n        hasNextPage\n        endCursor\n      }\n    }\n  }\n': {
+    return: SitemapProductsQuery;
+    variables: SitemapProductsQueryVariables;
+  };
+  '#graphql\n  query SitemapCollections($country: CountryCode, $language: LanguageCode, $after: String)\n  @inContext(country: $country, language: $language) {\n    collections(first: 250, after: $after) {\n      nodes {\n        id\n        handle\n        updatedAt\n      }\n      pageInfo {\n        hasNextPage\n        endCursor\n      }\n    }\n  }\n': {
+    return: SitemapCollectionsQuery;
+    variables: SitemapCollectionsQueryVariables;
   };
   '#graphql\n  query collectionCount(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $first: Int!\n    $after: String\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      products(first: $first, after: $after) {\n        nodes {\n          id\n        }\n        pageInfo {\n          hasNextPage\n          endCursor\n        }\n      }\n    }\n  }\n': {
     return: CollectionCountQuery;

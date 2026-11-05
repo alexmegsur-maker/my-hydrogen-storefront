@@ -12,12 +12,37 @@ import type {
   ProductQuery,
   ShopFragment,
 } from "storefront-api.generated";
+import { COUNTRIES } from "~/utils/const";
 
-function toCanonicalUrl(url: string): string {
-  // El canonical debe auto-referenciar cada locale (/en, /de, /fr, /it incluidos).
-  // Antes esta función quitaba el prefijo de idioma, lo que hacía que todas las
-  // versiones traducidas canonicalizaran a la home en español.
-  return url;
+export const SITE_ORIGIN = "https://phoenixchairs.eu";
+
+/**
+ * Normaliza una URL a su forma canónica: https, host phoenixchairs.eu, sin
+ * query (?Color=Rojo...), sin hash, sin sufijo .data y sin barra final salvo
+ * en la raíz. Conserva el prefijo de idioma: cada locale (/en, /de, /fr...)
+ * se auto-referencia. Los href de hreflang pasan por aquí también, para que
+ * el canonical de cada página coincida exactamente con su entrada hreflang.
+ */
+export function toCanonicalUrl(url: string): string {
+  let pathname = "/";
+  try {
+    pathname = new URL(url, SITE_ORIGIN).pathname;
+  } catch (e) {
+    console.error("SEO: URL no válida para canonical:", url, e);
+  }
+  // Peticiones de datos de React Router: "/_root.data" (home) o "/ruta.data"
+  pathname = pathname.replace(/^\/_root\.data$/, "/").replace(/\.data$/, "");
+  if (pathname.length > 1) {
+    pathname = pathname.replace(/\/+$/, "") || "/";
+  }
+  return `${SITE_ORIGIN}${pathname}`;
+}
+
+/** Prefijo de locale ("/de", "/fr"... o "" para español) de una URL canónica. */
+function localePrefixOf(canonicalUrl: string): string {
+  const firstSegment = new URL(canonicalUrl).pathname.split("/")[1];
+  const prefix = `/${firstSegment}`;
+  return firstSegment && prefix in COUNTRIES ? prefix : "";
 }
 
 function root({
@@ -27,18 +52,7 @@ function root({
   shop: ShopFragment;
   url: Request["url"];
 }): SeoConfig {
-
-  let canonicalUrl = url;
-  try {
-    if (url) {
-      const urlObj = new URL(url);
-      urlObj.host = 'phoenixchairs.eu';
-      urlObj.protocol = 'https:';
-      canonicalUrl = toCanonicalUrl(urlObj.toString());
-    }
-  } catch (e) {
-    console.error("Mini-Oxygen SEO URL Warning:", e);
-  }
+  const canonicalUrl = toCanonicalUrl(url);
 
   const brandLogoUrl = shop?.brand?.logo?.image?.url;
   return {
@@ -139,7 +153,9 @@ function productJsonLd({
   url: Request["url"];
   reviews?: { rating: number; count: number };
 }): SeoConfig["jsonLd"] {
+  // url ya llega canónico (sin query); solo las Offer añaden sus parámetros de variante
   const origin = new URL(url).origin;
+  const prefix = localePrefixOf(url);
   const description = truncate(
     productData?.seo?.description ?? productData?.description,
   );
@@ -198,7 +214,7 @@ function productJsonLd({
           "@type": "ListItem",
           position: 1,
           name: "Products",
-          item: `${origin}/products`,
+          item: `${origin}${prefix}/products`,
         },
         {
           "@type": "ListItem",
@@ -286,12 +302,14 @@ function collectionJsonLd({
   collection: CollectionRequiredFields;
 }): SeoConfig["jsonLd"] {
   const siteUrl = new URL(url);
+  const prefix = localePrefixOf(url);
+  // Los handles de la consulta ya vienen en el idioma del locale activo
   const itemListElement: CollectionPage["mainEntity"] =
     collectionData.products.nodes.map((prod, index) => {
       return {
         "@type": "ListItem",
         position: index + 1,
-        url: `/products/${prod.handle}`,
+        url: `${siteUrl.origin}${prefix}/products/${prod.handle}`,
       };
     });
 
@@ -304,7 +322,7 @@ function collectionJsonLd({
           "@type": "ListItem",
           position: 1,
           name: "Collections",
-          item: `${siteUrl.origin}/collections`,
+          item: `${siteUrl.origin}${prefix}/collections`,
         },
         {
           "@type": "ListItem",
@@ -321,7 +339,7 @@ function collectionJsonLd({
         collectionData?.seo?.description ?? collectionData?.description ?? "",
       ),
       image: collectionData?.image?.url,
-      url: `/collections/${collectionData.handle}`,
+      url,
       mainEntity: {
         "@type": "ItemList",
         itemListElement,
@@ -370,12 +388,14 @@ function collectionsJsonLd({
   url: Request["url"];
   collections: CollectionListRequiredFields;
 }): SeoConfig["jsonLd"] {
+  const origin = new URL(url).origin;
+  const prefix = localePrefixOf(url);
   const itemListElement: CollectionPage["mainEntity"] = collections.nodes.map(
     (col, index) => {
       return {
         "@type": "ListItem",
         position: index + 1,
-        url: `/collections/${col.handle}`,
+        url: `${origin}${prefix}/collections/${col.handle}`,
       };
     },
   );
@@ -400,12 +420,13 @@ function listCollections({
   collections: CollectionListRequiredFields;
   url: Request["url"];
 }): SeoConfig {
+  const canonicalUrl = toCanonicalUrl(url);
   return {
     title: "Collections",
     titleTemplate: "%s — PhoenixChairs",
     description: "All hydrogen collections",
-    url,
-    jsonLd: collectionsJsonLd({ collections, url }),
+    url: canonicalUrl,
+    jsonLd: collectionsJsonLd({ collections, url: canonicalUrl }),
   };
 }
 
@@ -424,11 +445,12 @@ function article({
   };
   url: Request["url"];
 }): SeoConfig {
+  const canonicalUrl = toCanonicalUrl(url);
   return {
     title: articleData?.seo?.title ?? articleData?.title,
     description: truncate(articleData?.seo?.description ?? ""),
     titleTemplate: "%s — PhoenixChairs",
-    url,
+    url: canonicalUrl,
     media: {
       type: "image",
       url: articleData?.image?.url,
@@ -447,7 +469,7 @@ function article({
       ),
       headline: articleData?.seo?.title || "",
       image: articleData?.image?.url,
-      url,
+      url: canonicalUrl,
     },
   };
 }
@@ -459,17 +481,18 @@ function blog({
   blog: Pick<Blog, "seo" | "title">;
   url: Request["url"];
 }): SeoConfig {
+  const canonicalUrl = toCanonicalUrl(url);
   return {
     title: blogData?.seo?.title,
     description: truncate(blogData?.seo?.description || ""),
     titleTemplate: "%s — PhoenixChairs",
-    url,
+    url: canonicalUrl,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Blog",
       name: blogData?.seo?.title || blogData?.title || "",
       description: blogData?.seo?.description || "",
-      url,
+      url: canonicalUrl,
     },
   };
 }
@@ -481,15 +504,17 @@ function page({
   page: Pick<Page, "title" | "seo">;
   url: Request["url"];
 }): SeoConfig {
+  const canonicalUrl = toCanonicalUrl(url);
   return {
     description: truncate(pageData?.seo?.description || ""),
     title: pageData?.seo?.title ?? pageData?.title,
     titleTemplate: "%s — PhoenixChairs",
-    url,
+    url: canonicalUrl,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebPage",
       name: pageData.title,
+      url: canonicalUrl,
     },
   };
 }
@@ -505,7 +530,7 @@ function policy({
     description: truncate(policyData?.body ?? ""),
     title: policyData?.title,
     titleTemplate: "%s — PhoenixChairs",
-    url,
+    url: toCanonicalUrl(url),
   };
 }
 
@@ -516,7 +541,9 @@ function policies({
   policies: Pick<ShopPolicy, "title" | "handle">[];
   url: Request["url"];
 }): SeoConfig {
-  const origin = new URL(url).origin;
+  const canonicalUrl = toCanonicalUrl(url);
+  const origin = new URL(canonicalUrl).origin;
+  const prefix = localePrefixOf(canonicalUrl);
   const itemListElement: BreadcrumbList["itemListElement"] = policiesData
     .filter(Boolean)
     .map((pol, index) => {
@@ -524,13 +551,14 @@ function policies({
         "@type": "ListItem",
         position: index + 1,
         name: pol.title,
-        item: `${origin}/policies/${pol.handle}`,
+        item: `${origin}${prefix}/policies/${pol.handle}`,
       };
     });
   return {
     title: "Policies",
     titleTemplate: "%s — PhoenixChairs",
     description: "phoenixchairs store policies",
+    url: canonicalUrl,
     jsonLd: [
       {
         "@context": "https://schema.org",
@@ -542,7 +570,7 @@ function policies({
         "@type": "WebPage",
         description: "Phoenixchairs store policies",
         name: "Policies",
-        url,
+        url: canonicalUrl,
       },
     ],
   };

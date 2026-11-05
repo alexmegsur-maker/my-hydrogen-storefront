@@ -19,6 +19,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useMatches,
   useRouteError,
   useRouteLoaderData,
 } from "react-router";
@@ -47,12 +48,17 @@ import { IsMobileContext } from "./hooks/is-mobile-context";
 const MOBILE_UA_REGEX = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i;
 const SITE_ORIGIN = "https://phoenixchairs.eu";
 
+type HreflangLink = { hreflang: string; href: string };
+
+// Secciones no indexables: no emiten hreflang (ruta sin prefijo de locale)
+const NON_INDEXABLE_PREFIXES = ["/cart", "/account", "/search"];
+
 /**
  * Construye el clúster hreflang (todas las versiones de idioma de la página
  * actual, más x-default) a partir del pathname y el prefijo de locale activo.
  * El sitio no tenía ninguna etiqueta hreflang (auditoría SEO, punto 2).
  */
-function buildHreflangLinks(pathname: string, currentPrefix: string) {
+function buildHreflangLinks(pathname: string, currentPrefix: string): HreflangLink[] {
   const pathWithoutLocale =
     currentPrefix && pathname.startsWith(currentPrefix)
       ? pathname.slice(currentPrefix.length) || "/"
@@ -75,6 +81,47 @@ function buildHreflangLinks(pathname: string, currentPrefix: string) {
   });
 
   return links;
+}
+
+/**
+ * Decide qué clúster hreflang emitir. Productos y colecciones aportan el suyo
+ * desde el loader (`hreflang`, con el handle traducido de cada idioma); el
+ * resto de páginas usa buildHreflangLinks. En 404/errores, carrito, cuenta y
+ * búsqueda no se emite nada: no son indexables.
+ */
+function getHreflangLinks({
+  pathname,
+  currentPrefix,
+  matches,
+  hasError,
+}: {
+  pathname: string;
+  currentPrefix: string;
+  matches: ReturnType<typeof useMatches>;
+  hasError: boolean;
+}): HreflangLink[] {
+  if (hasError) {
+    return [];
+  }
+  const pathWithoutLocale =
+    currentPrefix && pathname.startsWith(currentPrefix)
+      ? pathname.slice(currentPrefix.length) || "/"
+      : pathname;
+  const isNonIndexable = NON_INDEXABLE_PREFIXES.some(
+    (prefix) =>
+      pathWithoutLocale === prefix || pathWithoutLocale.startsWith(`${prefix}/`),
+  );
+  if (isNonIndexable) {
+    return [];
+  }
+  for (const match of matches) {
+    const routeHreflang = (match.data as { hreflang?: HreflangLink[] } | undefined)
+      ?.hreflang;
+    if (Array.isArray(routeHreflang)) {
+      return routeHreflang;
+    }
+  }
+  return buildHreflangLinks(pathname, currentPrefix);
 }
 
 export type RootLoader = typeof loader;
@@ -187,7 +234,14 @@ export const Layout = withWeaverse(function Layout({ children }: { children: Rea
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
-  const hreflangLinks = buildHreflangLinks(location.pathname, locale.pathPrefix ?? "");
+  const matches = useMatches();
+  const routeError = useRouteError();
+  const hreflangLinks = getHreflangLinks({
+    pathname: location.pathname,
+    currentPrefix: locale.pathPrefix ?? "",
+    matches,
+    hasError: Boolean(routeError),
+  });
   const ogLocale = `${locale.language.toLowerCase()}_${locale.country.toUpperCase()}`;
   const { topbarHeight, topbarText } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();

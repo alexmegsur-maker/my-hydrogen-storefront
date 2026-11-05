@@ -10,6 +10,7 @@ import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import type { ProductQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { getResourceHreflang } from "~/.server/hreflang";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
 import { seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
@@ -48,6 +49,9 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
   redirectIfHandleIsLocalized(request, { handle, data: product });
 
   const recommended = getRecommendedProducts(storefront, product.id);
+  // Clúster hreflang con el handle traducido de cada idioma (root.tsx lo
+  // prefiere al genérico, que reutilizaría el handle de esta URL)
+  const hreflang = await getResourceHreflang(storefront, "products", product.id);
 
   // Extraer datos de reseñas guardados por Judge.me en los metafields de Shopify
   const reviewsRating = product.metafields?.find((m: any) => m?.key === "reviews_average")?.value || "5.0";
@@ -63,6 +67,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
     weaverseData,
     storeDomain: shop.primaryDomain.url,
     seo: applyWeaverseSeo(seoPayload.product({ product, url: request.url, reviews }), weaverseData),
+    hreflang,
     recommended,
     selectedOptions,
     language: storefront.i18n.language,
