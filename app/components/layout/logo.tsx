@@ -8,7 +8,7 @@ type LogoProps = { className?: string };
 
 export function Logo({ className }: LogoProps) {
   const { shopName } = useShopMenu();
-  const { logoData, transparentLogoData, logoWidth } = useThemeSettings();
+  const { logoData, transparentLogoData,enableTransparentHeader, logoWidth } = useThemeSettings();
   return (
     <Link
       to="/"
@@ -32,11 +32,11 @@ export function Logo({ className }: LogoProps) {
               width={500}
               style={{ width: "auto" }}
             />
-            {transparentLogoData && (
+            {enableTransparentHeader && transparentLogoData && (
               <Image
                 data={transparentLogoData}
                 sizes="auto"
-                className={clsx(
+                className={clsx( "entra aqui",
                   "transparent-logo",
                   "absolute top-0 left-0 mx-auto h-full max-w-full object-contain",
                   "transition-opacity duration-300 ease-in group-hover/header:opacity-0",

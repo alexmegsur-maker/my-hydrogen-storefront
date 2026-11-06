@@ -189,11 +189,12 @@ export default function ProductInformationD(
           style={{ background: color }}
         >
           <div
-            className="fixed md:sticky top-0 left-0  w-full items-center"
+            className="top-0 left-0  w-full items-center"
             style={{
               padding: !isMobile ? ".5rem 1rem" : ".5rem .5rem",
               background: color,
               display:isMobile?"none":"flex",
+              position:isMobile?"static":"sticky",
               zIndex: 2,
             }}
           >
