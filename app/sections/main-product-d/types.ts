@@ -66,7 +66,18 @@ export interface ProductConfiguratorDStore {
   versionFilterIncludeMissing: boolean;
   setVersionFilterEnabled: (enabled: boolean) => void;
   selectVersionFilter: (optionName: string, value: string, includeMissing: boolean) => void;
+  /**
+   * Handles de productos cuyas reseñas se muestran juntas en la cabecera,
+   * publicados por los selectores montados en la sección: `material` (todos
+   * los productos del "Material & finish") y `universe` (los de la colección
+   * del "Universe selector" a la que pertenece el producto actual). `null` =
+   * ese selector no está en la página. Ver `useReviewHandles`.
+   */
+  reviewHandles: Record<ReviewHandlesSource, string[] | null>;
+  setReviewHandles: (source: ReviewHandlesSource, handles: string[] | null) => void;
 }
+
+export type ReviewHandlesSource = "material" | "universe";
 
 /**
  * Valor de una opción de producto (talla, material…) ya resuelto contra las

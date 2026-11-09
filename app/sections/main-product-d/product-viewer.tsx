@@ -1,10 +1,13 @@
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
+import * as Dialog from "@radix-ui/react-dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useEffect, useMemo, useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import { FreeMode, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Image } from "~/components/image";
 import { Skeleton } from "~/components/skeleton";
+import { useIsMobile } from "~/hooks/use-is-mobile";
 import type { Image as ImageType, MediaProduct } from "~/types/currentProduct";
 import { useProductConfiguratorD } from "./store";
 
@@ -21,8 +24,27 @@ export interface ProductViewerProps {
   thumbsPerView?: number;
   /** Flechas de navegación del slider de miniaturas. */
   showThumbsNavigation?: boolean;
+  /** En móvil, pulsar la imagen activa la abre a pantalla completa. */
+  lightboxEnabled?: boolean;
+  /** aspect-ratio CSS de la imagen ampliada ("auto" = ocupa todo el viewport). */
+  lightboxAspectRatio?: string;
+  lightboxFit?: "contain" | "cover";
+  lightboxPosition?: LightboxPosition;
+  lightboxBg?: string;
+  lightboxCloseColor?: string;
   className?: string;
 }
+
+export type LightboxPosition = "center" | "top" | "bottom";
+
+const LIGHTBOX_JUSTIFY: Record<LightboxPosition, string> = {
+  center: "center",
+  top: "flex-start",
+  bottom: "flex-end",
+};
+
+/** Debajo de este ancho se considera móvil (mismo corte `lg` que el menú del header). */
+const MOBILE_BREAKPOINT = 1023;
 
 /**
  * Visor del configurador: previsualización principal + slider de miniaturas.
@@ -41,8 +63,18 @@ export default function ProductViewer(props: ProductViewerProps) {
     showThumbnails = true,
     thumbsPerView = 5,
     showThumbsNavigation = true,
+    lightboxEnabled = true,
+    lightboxAspectRatio = "auto",
+    lightboxFit = "contain",
+    lightboxPosition = "center",
+    lightboxBg = "#050505",
+    lightboxCloseColor = "#FFFFFF",
     className = "",
   } = props;
+
+  const isMobile = useIsMobile(MOBILE_BREAKPOINT);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const canExpand = lightboxEnabled && isMobile;
 
   const activeMediaIndex = useProductConfiguratorD((state) => state.activeMediaIndex);
   const setActiveMediaIndex = useProductConfiguratorD((state) => state.setActiveMediaIndex);
@@ -97,11 +129,26 @@ export default function ProductViewer(props: ProductViewerProps) {
 
         <div className="viewer-stage flex flex-1 items-center justify-center">
           {activeImage?.url ? (
-            <Image
-              data={activeImage}
-              className="h-full w-full object-contain"
-              sizes="(min-width: 1024px) 65vw, 100vw"
-            />
+            canExpand ? (
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                aria-label="Ampliar imagen"
+                className="h-full w-full cursor-zoom-in"
+              >
+                <Image
+                  data={activeImage}
+                  className="h-full w-full object-contain"
+                  sizes="(min-width: 1024px) 65vw, 100vw"
+                />
+              </button>
+            ) : (
+              <Image
+                data={activeImage}
+                className="h-full w-full object-contain"
+                sizes="(min-width: 1024px) 65vw, 100vw"
+              />
+            )
           ) : (
             <Skeleton className="h-[50vh] w-[60%] rounded-none bg-white/5" />
           )}
@@ -192,6 +239,63 @@ export default function ProductViewer(props: ProductViewerProps) {
           </div>
         )}
       </div>
+
+      {canExpand && activeImage?.url && (
+        <Dialog.Root open={lightboxOpen} onOpenChange={setLightboxOpen}>
+          <Dialog.Portal>
+            <Dialog.Content
+              data-lenis-prevent
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              aria-describedby={undefined}
+              className="fixed inset-0 z-50 flex h-[100dvh] w-screen flex-col data-[state=open]:animate-fade-in"
+              style={{
+                background: lightboxBg,
+                justifyContent: LIGHTBOX_JUSTIFY[lightboxPosition] ?? "center",
+              }}
+            >
+              <VisuallyHidden.Root asChild>
+                <Dialog.Title>{activeImage.altText || "Imagen ampliada"}</Dialog.Title>
+              </VisuallyHidden.Root>
+              <div
+                className="w-full"
+                style={
+                  lightboxAspectRatio && lightboxAspectRatio !== "auto"
+                    ? { aspectRatio: lightboxAspectRatio, maxHeight: "100%" }
+                    : { height: "100%" }
+                }
+              >
+                <Image
+                  data={activeImage}
+                  className="h-full w-full"
+                  sizes="100vw"
+                  style={{
+                    objectFit: lightboxFit,
+                    objectPosition: lightboxPosition,
+                  }}
+                />
+              </div>
+              <Dialog.Close
+                aria-label="Cerrar"
+                className="absolute top-4 right-4 z-1 flex cursor-pointer items-center justify-center p-2"
+                style={{ color: lightboxCloseColor }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  className="h-6 w-6"
+                  aria-hidden
+                >
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      )}
     </div>
   );
 }

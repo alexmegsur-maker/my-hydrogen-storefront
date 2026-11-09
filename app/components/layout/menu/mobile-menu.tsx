@@ -8,6 +8,7 @@ import type { SingleMenuItem } from "~/types/menu";
 import { cn } from "~/utils/cn";
 import {Logo} from "~/components/layout/logo"
 import { useComponentStore } from "~/stores/headerDataStore";
+import { useMobileMenu } from "~/stores/mobileMenuStore";
 import { useEffect } from "react";
 import { TopTextHeader } from "~/components/header/top-text";
 import { ProductTopHeader } from "~/components/header/top-product";
@@ -16,13 +17,15 @@ import { BannerHeader } from "~/components/header/banner";
 import { ImageLinkHeader } from "~/components/header/image-link";
 export function MobileMenu() {
   const { headerMenu } = useShopMenu();
+  const open = useMobileMenu((state) => state.open);
+  const setOpen = useMobileMenu((state) => state.setOpen);
 
   if (!headerMenu) {
     return <MenuTrigger />;
   }
 
   return (
-    <Dialog.Root>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger
         asChild
         className="relative flex h-8 w-8 items-center justify-center focus-visible:outline-hidden lg:hidden"

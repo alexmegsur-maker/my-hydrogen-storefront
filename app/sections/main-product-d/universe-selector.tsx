@@ -4,7 +4,7 @@ import {
   type HydrogenComponentProps,
   type WeaverseCollection,
 } from "@weaverse/hydrogen";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Section } from "~/components/section";
 import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { createCurProVar } from "~/routes/collections/utils";
@@ -413,6 +413,19 @@ export default function UniverseSelector(props: UniverseSelectorProps) {
 
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
   const activeCollection = collections.find((elm) => elm.id === activeCollectionId) ?? collections[0] ?? null;
+
+  // Con este selector en la sección, la cabecera muestra las reseñas de la
+  // colección (universo) del producto actual; si no está en ninguna, las de
+  // la pestaña activa (ver useReviewHandles en store.ts).
+  const setReviewHandles = useProductConfiguratorD((state) => state.setReviewHandles);
+  const reviewCollection =
+    collections.find((elm) => elm.products.some((product) => product.handle === currentProduct?.handle)) ??
+    activeCollection;
+  const reviewHandlesKey = (reviewCollection?.products ?? []).map((product) => product.handle).join(",");
+  useEffect(() => {
+    setReviewHandles("universe", reviewHandlesKey ? reviewHandlesKey.split(",") : null);
+  }, [reviewHandlesKey, setReviewHandles]);
+  useEffect(() => () => setReviewHandles("universe", null), [setReviewHandles]);
 
   /**
    * Cambia el producto actual (mismo patrón que `material-finish-selector.tsx`)

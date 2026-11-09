@@ -10,7 +10,12 @@ import type { loader as productRouteLoader } from "~/routes/products/product";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import type { CurrentProduct, MediaProduct } from "~/types/currentProduct";
 import { translations } from "~/utils/translations";
-import ProductViewer from "./product-viewer";
+import {
+  DEFAULT_MENU_ICON_SVG,
+  type MenuButtonPosition,
+  MobileMenuButton,
+} from "./mobile-menu-button";
+import ProductViewer, { type LightboxPosition } from "./product-viewer";
 import { useProductConfiguratorD } from "./store";
 
 /** Hijos que se pintan superpuestos al visor en vez de en el panel derecho. */
@@ -29,6 +34,31 @@ interface ProductInformationData
   backLabel: string;
   /** Oculta el header/footer del tema mientras se ve esta sección. */
   hide: boolean;
+  // botón flotante del menú (móvil)
+  menuBtnShow: boolean;
+  menuBtnSvg: string;
+  menuBtnPosition: MenuButtonPosition;
+  menuBtnOffsetX: string;
+  menuBtnOffsetY: string;
+  menuBtnIconSize: string;
+  menuBtnIconColor: string;
+  menuBtnBgColor: string;
+  menuBtnBorderColor: string;
+  menuBtnBorderWidth: number;
+  menuBtnRadius: string;
+  menuBtnPaddingSelect: string;
+  menuBtnPaddingText: string;
+  menuBtnMarginSelect: string;
+  menuBtnMarginText: string;
+  menuBtnOpacity: number;
+  menuBtnZIndex: number;
+  // imagen ampliada del visor (móvil)
+  lightboxEnabled: boolean;
+  lightboxAspectRatio: string;
+  lightboxFit: "contain" | "cover";
+  lightboxPosition: LightboxPosition;
+  lightboxBg: string;
+  lightboxCloseColor: string;
 }
 
 export default function ProductInformationD(
@@ -51,6 +81,29 @@ export default function ProductInformationD(
     showThumbsNavigation,
     backLabel,
     hide,
+    menuBtnShow,
+    menuBtnSvg,
+    menuBtnPosition,
+    menuBtnOffsetX,
+    menuBtnOffsetY,
+    menuBtnIconSize,
+    menuBtnIconColor,
+    menuBtnBgColor,
+    menuBtnBorderColor,
+    menuBtnBorderWidth,
+    menuBtnRadius,
+    menuBtnPaddingSelect,
+    menuBtnPaddingText,
+    menuBtnMarginSelect,
+    menuBtnMarginText,
+    menuBtnOpacity,
+    menuBtnZIndex,
+    lightboxEnabled,
+    lightboxAspectRatio,
+    lightboxFit,
+    lightboxPosition,
+    lightboxBg,
+    lightboxCloseColor,
     ...rest
   } = props;
 
@@ -169,6 +222,12 @@ export default function ProductInformationD(
                 showThumbnails={showThumbnails}
                 thumbsPerView={thumbsPerView}
                 showThumbsNavigation={showThumbsNavigation}
+                lightboxEnabled={lightboxEnabled !== false}
+                lightboxAspectRatio={lightboxAspectRatio}
+                lightboxFit={lightboxFit}
+                lightboxPosition={lightboxPosition}
+                lightboxBg={lightboxBg}
+                lightboxCloseColor={lightboxCloseColor}
               />
               {viewerChildren.length > 0 && (
                 <div className="pointer-events-none absolute left-0 top-0  w-full [&_.drawer-panel]:pointer-events-auto [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.review-stars]:pointer-events-auto">
@@ -188,13 +247,12 @@ export default function ProductInformationD(
           className="container-info relative w-full overflow-y-auto"
           style={{ background: color }}
         >
+          {/* En móvil se sustituye por el botón flotante del menú (más abajo). */}
           <div
-            className="top-0 left-0  w-full items-center"
+            className="sticky top-0 left-0 hidden w-full items-center lg:flex"
             style={{
-              padding: !isMobile ? ".5rem 1rem" : ".5rem .5rem",
+              padding: ".5rem 1rem",
               background: color,
-              display:isMobile?"none":"flex",
-              position:isMobile?"static":"sticky",
               zIndex: 2,
             }}
           >
@@ -221,6 +279,27 @@ export default function ProductInformationD(
           </div>
         </div>
       </div>
+      {/* `!== false`: en secciones ya creadas antes de añadir el input el valor llega undefined */}
+      {menuBtnShow !== false && (
+        <MobileMenuButton
+          iconSvg={menuBtnSvg}
+          position={menuBtnPosition}
+          offsetX={menuBtnOffsetX}
+          offsetY={menuBtnOffsetY}
+          iconSize={menuBtnIconSize}
+          iconColor={menuBtnIconColor}
+          bgColor={menuBtnBgColor}
+          borderColor={menuBtnBorderColor}
+          borderWidth={menuBtnBorderWidth}
+          radius={menuBtnRadius}
+          paddingSelect={menuBtnPaddingSelect}
+          paddingText={menuBtnPaddingText}
+          marginSelect={menuBtnMarginSelect}
+          marginText={menuBtnMarginText}
+          opacity={menuBtnOpacity}
+          zIndex={menuBtnZIndex}
+        />
+      )}
     </Section>
   );
 }
@@ -305,6 +384,156 @@ export const schema = createSchema({
           label: "Flechas en las miniaturas",
           name: "showThumbsNavigation",
           defaultValue: true,
+        },
+      ],
+    },
+    {
+      group: "Imagen ampliada (móvil)",
+      inputs: [
+        {
+          type: "switch",
+          label: "Ampliar al pulsar la imagen",
+          name: "lightboxEnabled",
+          defaultValue: true,
+        },
+        {
+          type: "select",
+          label: "Aspect ratio",
+          name: "lightboxAspectRatio",
+          configs: {
+            options: [
+              { value: "auto", label: "Pantalla completa" },
+              { value: "1/1", label: "1:1" },
+              { value: "4/5", label: "4:5" },
+              { value: "3/4", label: "3:4" },
+              { value: "2/3", label: "2:3" },
+              { value: "9/16", label: "9:16" },
+              { value: "4/3", label: "4:3" },
+              { value: "16/9", label: "16:9" },
+            ],
+          },
+          defaultValue: "auto",
+        },
+        {
+          type: "select",
+          label: "Ajuste de la imagen",
+          name: "lightboxFit",
+          configs: {
+            options: [
+              { value: "contain", label: "Contener (imagen completa)" },
+              { value: "cover", label: "Cubrir (recorta)" },
+            ],
+          },
+          defaultValue: "contain",
+        },
+        {
+          type: "select",
+          label: "Posición",
+          name: "lightboxPosition",
+          configs: {
+            options: [
+              { value: "center", label: "Centro" },
+              { value: "top", label: "Arriba" },
+              { value: "bottom", label: "Abajo" },
+            ],
+          },
+          defaultValue: "center",
+        },
+        { type: "color", label: "Background", name: "lightboxBg", defaultValue: "#050505" },
+        { type: "color", label: "Color de la X", name: "lightboxCloseColor", defaultValue: "#FFFFFF" },
+      ],
+    },
+    {
+      group: "Botón de menú (móvil)",
+      inputs: [
+        {
+          type: "switch",
+          label: "Mostrar botón flotante",
+          name: "menuBtnShow",
+          defaultValue: true,
+          helpText:
+            "Sustituye en móvil al enlace de volver al inicio y abre el menú del header (se oculta mientras el menú está abierto).",
+        },
+        {
+          type: "textarea",
+          label: "Icono SVG",
+          name: "menuBtnSvg",
+          defaultValue: DEFAULT_MENU_ICON_SVG,
+          helpText: 'Usa stroke/fill="currentColor" para que tome el color del icono.',
+        },
+        {
+          type: "select",
+          label: "Posición",
+          name: "menuBtnPosition",
+          configs: {
+            options: [
+              { value: "top-left", label: "Arriba izquierda" },
+              { value: "top-right", label: "Arriba derecha" },
+              { value: "bottom-left", label: "Abajo izquierda" },
+              { value: "bottom-right", label: "Abajo derecha" },
+            ],
+          },
+          defaultValue: "top-left",
+        },
+        { type: "text", label: "Distancia horizontal", name: "menuBtnOffsetX", defaultValue: "1rem" },
+        { type: "text", label: "Distancia vertical", name: "menuBtnOffsetY", defaultValue: "1rem" },
+        { type: "text", label: "Tamaño del icono", name: "menuBtnIconSize", defaultValue: "1.25rem" },
+        { type: "color", label: "Color del icono", name: "menuBtnIconColor", defaultValue: "#FFFFFF" },
+        { type: "color", label: "Background", name: "menuBtnBgColor", defaultValue: "#050505b3" },
+        { type: "color", label: "Color del borde", name: "menuBtnBorderColor", defaultValue: "#ffffff1a" },
+        {
+          type: "range",
+          label: "Grosor del borde",
+          name: "menuBtnBorderWidth",
+          defaultValue: 1,
+          configs: { min: 0, max: 6, step: 1, unit: "px" },
+        },
+        { type: "text", label: "Border radius", name: "menuBtnRadius", defaultValue: "4px" },
+        {
+          type: "select",
+          label: "Padding type",
+          name: "menuBtnPaddingSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Padding value", name: "menuBtnPaddingText", defaultValue: "0.6rem" },
+        {
+          type: "select",
+          label: "Margin type",
+          name: "menuBtnMarginSelect",
+          configs: {
+            options: [
+              { value: "t", label: "Top" },
+              { value: "b", label: "Bottom" },
+              { value: "x", label: "Inline" },
+              { value: "y", label: "Block" },
+              { value: "a", label: "Custom" },
+            ],
+          },
+          defaultValue: "a",
+        },
+        { type: "text", label: "Margin value", name: "menuBtnMarginText" },
+        {
+          type: "range",
+          label: "Opacidad",
+          name: "menuBtnOpacity",
+          defaultValue: 100,
+          configs: { min: 0, max: 100, step: 5, unit: "%" },
+        },
+        {
+          type: "range",
+          label: "z-index",
+          name: "menuBtnZIndex",
+          defaultValue: 30,
+          configs: { min: 1, max: 100, step: 1 },
         },
       ],
     },

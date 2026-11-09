@@ -4,7 +4,7 @@ import {
   type HydrogenComponentProps,
   type WeaverseProduct,
 } from "@weaverse/hydrogen";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ProductQuery } from "storefront-api.generated";
 import { Section } from "~/components/section";
 import { PRODUCT_QUERY } from "~/graphql/queries";
@@ -267,6 +267,18 @@ export default function MaterialFinishSelector(props: MaterialFinishSelectorProp
   const versionFilterApplies = versionFilterEnabled && versionFilterActive;
 
   const [loadingHandle, setLoadingHandle] = useState<string | null>(null);
+
+  // Con este selector en la sección, la cabecera muestra las reseñas de todos
+  // sus productos juntas (ver useReviewHandles en store.ts).
+  const setReviewHandles = useProductConfiguratorD((state) => state.setReviewHandles);
+  const reviewHandlesKey = products
+    .map((product) => product?.handle)
+    .filter(Boolean)
+    .join(",");
+  useEffect(() => {
+    setReviewHandles("material", reviewHandlesKey ? reviewHandlesKey.split(",") : null);
+  }, [reviewHandlesKey, setReviewHandles]);
+  useEffect(() => () => setReviewHandles("material", null), [setReviewHandles]);
 
   const familyMap = useMemo(() => parseKeyValueLines(families), [families]);
   const labelMap = useMemo(() => parseKeyValueLines(labels), [labels]);

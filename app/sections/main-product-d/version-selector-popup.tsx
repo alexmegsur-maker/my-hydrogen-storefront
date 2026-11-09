@@ -2,6 +2,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { XIcon } from "@phosphor-icons/react";
+import { useLenis } from "lenis/react";
+import { useEffect, useRef } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { selectorPaddingMargin } from "~/utils/general";
 
@@ -82,6 +84,27 @@ export default function VersionSelectorPopup(props: VersionSelectorPopupProps) {
   } = props;
 
   const isMobile = useIsMobile(DESKTOP_BREAKPOINT);
+  const lenis = useLenis();
+
+  // El popup va en un portal en <body>, fuera del panel con data-lenis-prevent
+  // de main-product-d: Lenis se quedaba con la rueda del ratón (animando la
+  // página de detrás) y el contenido del popup no hacía scroll. Mientras está
+  // abierto se para Lenis y el Content lleva su propio data-lenis-prevent
+  // para que la rueda haga scroll nativo dentro.
+  const isOpenRef = useRef(false);
+  const handleOpenChange = (open: boolean) => {
+    isOpenRef.current = open;
+    if (open) lenis?.stop();
+    else lenis?.start();
+  };
+
+  // Si el componente se desmonta con el popup abierto (ej. navegación), Lenis
+  // no debe quedarse parado.
+  useEffect(() => {
+    return () => {
+      if (isOpenRef.current) lenis?.start();
+    };
+  }, [lenis]);
   // En móvil, si no se configuró un ancho propio, se deja sin "width" inline
   // para que mande la clase de Tailwind `w-[calc(100vw-2rem)]` del Content —
   // así un ancho pensado para desktop (ej. "40rem") nunca desborda la
@@ -91,7 +114,7 @@ export default function VersionSelectorPopup(props: VersionSelectorPopupProps) {
 
   return (
     <div ref={ref} {...rest}>
-      <Dialog.Root>
+      <Dialog.Root onOpenChange={handleOpenChange}>
         <Dialog.Trigger asChild>
           <span
             role="button"
@@ -115,6 +138,7 @@ export default function VersionSelectorPopup(props: VersionSelectorPopupProps) {
             style={{ background: overlayColor }}
           />
           <Dialog.Content
+            data-lenis-prevent
             className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 data-[state=open]:animate-scale-in max-h-[85vh] w-[calc(100vw-2rem)] overflow-y-auto"
             style={{
               width: resolvedWidth,

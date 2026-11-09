@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { AccessoryLine, ProductConfiguratorDStore } from "./types";
+import type { AccessoryLine, ProductConfiguratorDStore, ReviewHandlesSource } from "./types";
 
 /**
  * Store del configurador D. Sigue el patrón de `~/stores/*` y de
@@ -51,4 +51,26 @@ export const useProductConfiguratorD = create<ProductConfiguratorDStore>((set) =
       versionFilterValue: value,
       versionFilterIncludeMissing: includeMissing,
     }),
+  reviewHandles: { material: null, universe: null },
+  setReviewHandles: (source: ReviewHandlesSource, handles: string[] | null) =>
+    set((state) => {
+      const current = state.reviewHandles[source];
+      // Los selectores lo publican desde un efecto en cada render relevante:
+      // si la lista no cambia se devuelve el mismo estado para no re-renderizar.
+      if (current?.join(",") === handles?.join(",")) return state;
+      return { reviewHandles: { ...state.reviewHandles, [source]: handles } };
+    }),
 }));
+
+/**
+ * Productos cuyas reseñas se combinan en la cabecera:
+ * - "Material & finish" en la sección → todos sus productos.
+ * - si no, "Universe selector" → los de la colección del producto actual.
+ * - si no (o solo hay un producto) → `null`: reseñas del producto actual.
+ */
+export function useReviewHandles(): string[] | null {
+  return useProductConfiguratorD((state) => {
+    const handles = state.reviewHandles.material ?? state.reviewHandles.universe;
+    return handles && handles.length > 1 ? handles : null;
+  });
+}

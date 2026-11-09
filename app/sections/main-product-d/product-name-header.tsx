@@ -5,6 +5,8 @@ import LateralCollection from "~/components/product-j/lateral-collection";
 import { Section } from "~/components/section";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { selectorPaddingMargin } from "~/utils/general";
+import { CombinedRatingBadge, CombinedReviewList, useCombinedReviews } from "./combined-reviews";
+import { useReviewHandles } from "./store";
 
 interface ProductNameHeaderProps extends HydrogenComponentProps {
   prefix: string;
@@ -51,6 +53,13 @@ interface ProductNameHeaderProps extends HydrogenComponentProps {
   lcNtSize: string;
   lcNtFamily: string;
   lcNtWeight: string;
+  // reseñas combinadas (Material & finish / Universe selector)
+  crStarColor: string;
+  crTextColor: string;
+  crMutedColor: string;
+  crBorderColor: string;
+  crLoadMoreText: string;
+  crEmptyText: string;
 }
 
 /**
@@ -100,11 +109,30 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
     lcNtSize,
     lcNtFamily,
     lcNtWeight,
+    crStarColor,
+    crTextColor,
+    crMutedColor,
+    crBorderColor,
+    crLoadMoreText,
+    crEmptyText,
     ...rest
   } = props;
 
   const currentProduct = useCurrentProduct((state) => state.currentProduct);
   const [showReviews, setShowReviews] = useState(false);
+
+  // Con "Material & finish" o "Universe selector" en la sección se muestran
+  // las reseñas de varios productos juntas; si no, las del producto actual
+  // con los widgets de Judge.me de siempre.
+  const reviewHandles = useReviewHandles();
+  const combinedReviews = useCombinedReviews(showRating ? reviewHandles : null);
+  const isCombined = Boolean(reviewHandles);
+  const combinedStyle = {
+    starColor: crStarColor || "#D4D4D8",
+    textColor: crTextColor || "#D4D4D8",
+    mutedColor: crMutedColor || "#71717A",
+    borderColor: crBorderColor || "#ffffff1a",
+  };
 
   /**
    * `JudgemePreviewBadge` solo renderiza un `<div data-auto-install="false">`
@@ -187,7 +215,11 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
               ...selectorPaddingMargin("margin", rMarginSelect, rMarginText),
             }}
           >
-            <JudgemePreviewBadge key={currentProduct.id} id={currentProduct.id} template="" />
+            {isCombined ? (
+              <CombinedRatingBadge summary={combinedReviews.summary} style={combinedStyle} />
+            ) : (
+              <JudgemePreviewBadge key={currentProduct.id} id={currentProduct.id} template="" />
+            )}
           </div>
         )}
         <div className="sr-only" suppressHydrationWarning dangerouslySetInnerHTML={{__html:currentProduct.description}}/>
@@ -225,7 +257,16 @@ export default function ProductNameHeader(props: ProductNameHeaderProps) {
           }
         >
           <div className="mx-4 md:mx-6">
-            <JudgemeReviewWidget key={currentProduct.id} id={currentProduct.id} />
+            {isCombined ? (
+              <CombinedReviewList
+                {...combinedReviews}
+                style={combinedStyle}
+                loadMoreText={crLoadMoreText || "Ver más"}
+                emptyText={crEmptyText || "Todavía no hay reseñas."}
+              />
+            ) : (
+              <JudgemeReviewWidget key={currentProduct.id} id={currentProduct.id} />
+            )}
           </div>
         </LateralCollection>
       )}
@@ -467,6 +508,21 @@ export const schema = createSchema({
           },
           defaultValue: "400",
         },
+      ],
+    },
+    {
+      group: "Reseñas combinadas",
+      inputs: [
+        {
+          type: "heading",
+          label: "Se usan cuando la sección tiene \"Material & finish\" (reseñas de todos sus productos) o \"Universe selector\" (reseñas de la colección del producto actual).",
+        },
+        { type: "color", label: "Color estrellas", name: "crStarColor", defaultValue: "#D4D4D8" },
+        { type: "color", label: "Color texto", name: "crTextColor", defaultValue: "#D4D4D8" },
+        { type: "color", label: "Color secundario", name: "crMutedColor", defaultValue: "#71717A" },
+        { type: "color", label: "Color bordes", name: "crBorderColor", defaultValue: "#ffffff1a" },
+        { type: "text", label: "Texto 'ver más'", name: "crLoadMoreText", defaultValue: "Ver más" },
+        { type: "text", label: "Texto sin reseñas", name: "crEmptyText", defaultValue: "Todavía no hay reseñas." },
       ],
     },
   ],
