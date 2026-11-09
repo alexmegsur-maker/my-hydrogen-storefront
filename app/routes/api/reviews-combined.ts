@@ -68,7 +68,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const page = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10) || 1);
   const perPage = Math.min(50, Math.max(1, Number.parseInt(searchParams.get("per_page") || "10", 10) || 10));
 
-  const apiToken = env.JUDGEME_PRIVATE_API_TOKEN;
+  // En el .env el token se llama JUDGEME_PRIVATE_TOKEN (el nombre del tema,
+  // JUDGEME_PRIVATE_API_TOKEN, está comentado): se aceptan los dos, igual que
+  // en setups-reviews.
+  const apiToken =
+    env.JUDGEME_PRIVATE_API_TOKEN || (env as unknown as Record<string, string | undefined>).JUDGEME_PRIVATE_TOKEN;
   const shopDomain = env.JUDGEME_SHOP_DOMAIN || env.PUBLIC_STORE_DOMAIN;
   if (!(handles.length && apiToken && shopDomain)) {
     return data(EMPTY);
@@ -136,6 +140,5 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
           .map((picture) => picture.urls.compact),
       })),
     } satisfies CombinedReviewsData,
-    { headers: { "Cache-Control": "public, max-age=300" } },
   );
 }
