@@ -42,9 +42,15 @@ export function GlobalStyle() {
       navHeightDesktop,
       navHeightTablet,
       pageWidth,
+      customCss,
     } = settings;
 
+    // Se neutraliza un posible "</style" para que el texto no pueda cerrar la
+    // etiqueta y colar HTML en la página.
+    const safeCustomCss = typeof customCss === "string" ? customCss.replace(/<\/style/gi, "<\\/style") : "";
+
     return (
+      <>
       <style
         key="global-theme-style"
         suppressHydrationWarning
@@ -111,6 +117,17 @@ export function GlobalStyle() {
           `,
         }}
       />
+      {/* En su propia etiqueta y después de la del tema: si el CSS del
+          merchant tiene un error (ej. una llave sin cerrar) no se come las
+          variables del tema, y a igual especificidad gana sobre ellas. */}
+      {safeCustomCss.trim() && (
+        <style
+          key="global-custom-css"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: safeCustomCss }}
+        />
+      )}
+      </>
     );
   }
   return null;

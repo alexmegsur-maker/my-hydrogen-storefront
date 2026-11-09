@@ -1618,5 +1618,19 @@ export const themeSchema: HydrogenThemeSchema = {
         },
       ],
     },
+    {
+      group: "Custom CSS",
+      inputs: [
+        {
+          type: "textarea",
+          name: "customCss",
+          label: "CSS personalizado",
+          defaultValue: "",
+          placeholder: ".mi-clase {\n  color: #ffffff;\n}",
+          helpText:
+            "Se añade a todas las páginas después de los estilos del tema, así que puede sobrescribirlos. Escribe solo CSS (sin etiquetas &lt;style&gt;).",
+        },
+      ],
+    },
   ],
 };
