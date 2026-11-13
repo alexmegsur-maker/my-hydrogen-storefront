@@ -869,7 +869,7 @@ export type CartLineFragment = Pick<
   }>;
   merchandise: Pick<
     StorefrontAPI.ProductVariant,
-    'id' | 'availableForSale' | 'requiresShipping' | 'title'
+    'id' | 'sku' | 'availableForSale' | 'requiresShipping' | 'title'
   > & {
     compareAtPrice?: StorefrontAPI.Maybe<
       Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
@@ -906,6 +906,7 @@ export type CartLineComponentFragment = Pick<
   merchandise: Pick<
     StorefrontAPI.ProductVariant,
     | 'id'
+    | 'sku'
     | 'availableForSale'
     | 'requiresShipping'
     | 'title'
@@ -979,7 +980,7 @@ export type CartApiQueryFragment = Pick<
           }>;
           merchandise: Pick<
             StorefrontAPI.ProductVariant,
-            'id' | 'availableForSale' | 'requiresShipping' | 'title'
+            'id' | 'sku' | 'availableForSale' | 'requiresShipping' | 'title'
           > & {
             compareAtPrice?: StorefrontAPI.Maybe<
               Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
@@ -1022,6 +1023,7 @@ export type CartApiQueryFragment = Pick<
           merchandise: Pick<
             StorefrontAPI.ProductVariant,
             | 'id'
+            | 'sku'
             | 'availableForSale'
             | 'requiresShipping'
             | 'title'

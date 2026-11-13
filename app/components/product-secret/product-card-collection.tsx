@@ -2,7 +2,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router";
-import { pushViewItem } from "~/utils/dataLayer"
+
 import type { ProductNode, RequestVariant } from "~/sections/secret-main-product/variants-secret";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { cn } from "~/utils/cn";
@@ -68,15 +68,8 @@ function ProductCardCollection(props:ProductCardProps){
   },[product])
   
   const setProduct = useCallback(()=>{
+    // view_item lo envía la ficha de producto al cargar (routes/products/product.tsx)
     if (isSelected) return
-    pushViewItem({
-      id: product.id,
-      name: product.nombre?.value ?? product.title,
-      price: variante.price.amount,
-      currency: variante.price.currencyCode,
-      sku: variante.sku,
-      variant: variante.title,
-    })
     const basePath = window.location.pathname.split("products")[0] + "products/"
     navigate(basePath + product.handle)
   },[product, variante, isSelected, navigate])

@@ -7,14 +7,22 @@ declare global{
   }
 }
 
+/**
+ * Puente entre los eventos de Hydrogen y el dataLayer de GTM.
+ *
+ * add_to_cart se envía SOLO desde aquí (no desde los botones): Hydrogen
+ * publica `product_added_to_cart` una vez por línea añadida, sea cual sea
+ * el botón (ficha, "comprar ahora", accesorios, cross-sell…).
+ * item_id = SKU de la variante, igual que view_item y purchase.
+ */
 export function GoogleTagManager() {
   const { subscribe, register } = useAnalytics();
   const { ready } = register('GoogleTagManager');
 
   useEffect(() => {
-    
+
     window.dataLayer = window.dataLayer || []
-    
+
     // Page views
     subscribe('page_viewed', (data) => {
       window.dataLayer.push({
@@ -28,47 +36,29 @@ export function GoogleTagManager() {
     subscribe('product_added_to_cart', (data) => {
       const line = data.currentLine;
       if (!line) return; // guard: Hydrogen can return null for bulk updates
-      const rawId = line.merchandise?.product?.id ?? '';
-      const itemId = rawId.split('/').pop() ?? rawId;
+      const addedQty = line.quantity - (data.prevLine?.quantity ?? 0);
+      if (addedQty <= 0) return;
+      const merchandise = line.merchandise as typeof line.merchandise & { sku?: string | null };
+      const variantId = (merchandise?.id ?? '').split('/').pop() ?? '';
+      const price = parseFloat(line.cost?.amountPerQuantity?.amount ?? '0');
       window.dataLayer.push({ ecommerce: null });
       window.dataLayer.push({
         event: 'add_to_cart',
         ecommerce: {
           currency: line.cost?.totalAmount?.currencyCode ?? 'EUR',
-          value: parseFloat(line.cost?.totalAmount?.amount ?? '0'),
+          value: price * addedQty,
           items: [{
-            item_id: itemId,
-            item_name: line.merchandise?.product?.title,
-            item_variant: line.merchandise?.title,
-            item_brand: line.merchandise?.product?.vendor,
-            price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
-            quantity: line.quantity,
+            item_id: merchandise?.sku || variantId,
+            item_name: merchandise?.product?.title,
+            item_variant: merchandise?.title,
+            item_brand: merchandise?.product?.vendor,
+            price,
+            quantity: addedQty,
           }],
         },
       });
     });
 
-    // View cart
-    subscribe('cart_viewed', (data) => {
-      const currency = data.cart?.cost?.totalAmount?.currencyCode ?? 'EUR';
-      window.dataLayer.push({ ecommerce: null });
-      window.dataLayer.push({
-        event: 'view_cart',
-        ecommerce: {
-          currency,
-          value: parseFloat(data.cart?.cost?.totalAmount?.amount ?? '0'),
-          items: (data.cart?.lines?.nodes ?? []).map((line: any) => ({
-            item_id: (line.merchandise?.product?.id ?? '').split('/').pop(),
-            item_name: line.merchandise?.product?.title,
-            item_variant: line.merchandise?.title,
-            item_brand: line.merchandise?.product?.vendor,
-            price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
-            quantity: line.quantity,
-          })),
-        },
-      });
-    });
-    
     // Search
     subscribe('search_viewed', (data) => {
       window.dataLayer.push({

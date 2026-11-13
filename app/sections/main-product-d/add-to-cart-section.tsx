@@ -8,7 +8,6 @@ import { Section } from "~/components/section";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { useCurrentProduct } from "~/stores/currentProduct";
 import { cn } from "~/utils/cn";
-import { pushAddToCart } from "~/utils/dataLayer";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useProductConfiguratorD } from "./store";
 import { formatAmount } from "./utils";
@@ -163,32 +162,6 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
     return result;
   }, [variant, accessories, isReserva]);
 
-  const analyticsItems = useMemo(() => {
-    const items = [];
-    if (variant && currentProduct) {
-      items.push({
-        item_id: variant.id,
-        item_name: currentProduct.title,
-        item_variant:
-          variant.selectedOptions?.map((option) => option.value).join(" / ") || "",
-        price: Number.parseFloat(variant.price?.amount ?? "0"),
-        item_category: "Sillas Gaming Premium",
-        quantity: 1,
-      });
-    }
-    for (const accessory of accessories) {
-      items.push({
-        item_id: accessory.variantId,
-        item_name: accessory.title,
-        item_variant: accessory.title,
-        price: accessory.price,
-        item_category: "Accesorios",
-        quantity: accessory.quantity,
-      });
-    }
-    return items;
-  }, [variant, currentProduct, accessories]);
-
   const installments = financingInstallments > 0 ? financingInstallments : 3;
   const installmentAmount = total > 0 ? total / installments : 0;
 
@@ -287,9 +260,6 @@ export default function AddToCartSection(props: AddToCartSectionProps) {
       disabled={!isAvailable}
       route={cartRoute}
       lines={cartLines}
-      onClick={() => {
-        if (isAvailable) pushAddToCart(analyticsItems, total);
-      }}
       data-reserva={isReserva}
       className={cn(
         "flex items-center justify-center w-full border-none cursor-pointer",

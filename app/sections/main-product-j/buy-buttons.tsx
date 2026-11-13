@@ -15,7 +15,7 @@ import type { loader as productRouteLoader } from "~/routes/products/product";
 import { checkPrice } from "~/utils/product";
 import { selectorPaddingMargin } from "~/utils/general";
 import { interpolate, translations } from "~/utils/translations";
-import { pushAddToCart, pushBeginCheckout } from "~/utils/dataLayer";
+import { pushBeginCheckout } from "~/utils/dataLayer";
 import { Image } from "~/components/image";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 
@@ -341,11 +341,6 @@ export default function BuyButtonsProductJ(props: BuyButtonsProductJProps) {
             onMouseOver={() =>
               setHoverAddCart((state) => state == false && true)
             }
-            onClick={() => {
-              if (currentProd?.selectedVariant?.availableForSale) {
-                pushAddToCart(cartIdsSeo, totalPrice);
-              }
-            }}
             route={cartRoute}
             lines={cartIdsVariants}
             className="flex gap-2 items-center justify-center text-center p-5 uppercase text-cta-small font-bold w-full border-none e2e-button-confirm-selection cursor-pointer"
