@@ -65,6 +65,7 @@ interface ImageWithTextImageProps
   verticalAlign:'flex-start'|'center'|'flex-end',
   enableBar:boolean;
   barColor:string;
+  identification?:string;
 }
 
 function ImageWithTextImage(props: ImageWithTextImageProps) {
@@ -78,6 +79,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
     ref,
     enableBar,
     barColor,
+    identification,
     ...rest
   } = props;
 
@@ -142,6 +144,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
 
   return (
     <div 
+      
       ref={container} {...rest} 
       className={cn(variants({ width }),"z-2")  }
       style={{
@@ -149,6 +152,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
         alignSelf:verticalAlign,
         position:enableBar?"relative":"unset"
       }as CSSProperties}
+      id={identification || undefined}
     >
       <ScrollReveal animation="slide-in">
         <Image
@@ -188,6 +192,12 @@ export const schema = createSchema({
     {
       group: "Image",
       inputs: [
+        {
+          type:'text',
+          label:'id',
+          name:'identification',
+          helpText:"debe ser unico"
+        },
 
         {
           type: "image",

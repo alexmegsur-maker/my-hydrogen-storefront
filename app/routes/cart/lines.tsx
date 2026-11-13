@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { getAttributionAttributes } from "~/utils/attribution.server";
 
 /**
  * Automatically creates a new cart based on the URL and redirects straight to checkout.
@@ -44,6 +45,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
   const result = await cart.create({
     lines: linesMap,
     discountCodes: discountArray,
+    attributes: getAttributionAttributes(request),
   });
 
   const cartResult = result.cart;

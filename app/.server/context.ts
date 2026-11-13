@@ -47,6 +47,19 @@ export async function createHydrogenRouterContext(
       i18n: getLocaleFromRequest(request),
       cart: {
         queryFragment: CART_QUERY_FRAGMENT,
+        // Igual que el fragmento por defecto de Hydrogen + `attributes`, para
+        // que syncCartAttribution vea los atributos actuales tras cada mutación.
+        mutateFragment: `#graphql
+          fragment CartApiMutation on Cart {
+            id
+            totalQuantity
+            checkoutUrl
+            attributes {
+              key
+              value
+            }
+          }
+        `,
         // Weaverse Studio embeds the storefront in a cross-site iframe, where a
         // SameSite=Lax cookie is never stored, so the cart was lost on every add.
         // Partitioned (CHIPS) keeps it working even with third-party cookies blocked.

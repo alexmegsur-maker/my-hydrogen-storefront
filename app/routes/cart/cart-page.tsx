@@ -22,6 +22,7 @@ import { CartMain } from "~/components/cart/cart-main";
 import { ProductCard } from "~/components/product/product-card";
 import { Section } from "~/components/section";
 import { Swimlane } from "~/components/swimlane";
+import { syncCartAttribution } from "~/utils/attribution.server";
 import { getFeaturedProducts } from "~/utils/featured-products";
 
 export async function action({ request, context }: ActionFunctionArgs) {
@@ -100,6 +101,9 @@ export async function action({ request, context }: ActionFunctionArgs) {
       console.error("Available actions:", Object.keys(CartForm.ACTIONS));
       invariant(false, `${cartFormAction} cart action is not defined`);
   }
+
+  // Guarda el origen de la visita (UTM, gclid, _ga…) como atributos ocultos
+  result = await syncCartAttribution(cart, request, result);
 
   /**
    * The Cart ID may change after each mutation. We need to update it each time in the session.

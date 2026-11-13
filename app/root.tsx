@@ -42,6 +42,8 @@ import { localizePath, toBasePath } from "./utils/localized-paths";
 import { GlobalStyle } from "./weaverse/style";
 import { useJudgemeWithNonce } from "./hooks/use-judgeme-with-nonce";
 import { GoogleTagManager } from "./components/google-tag-manager";
+import { AttributionTracker } from "./components/attribution-tracker";
+import { ShopifyConsentSync } from "./components/shopify-consent-sync";
 import CookieConsentBanner from "./components/CookieConsent";
 import { IsMobileContext } from "./hooks/is-mobile-context";
 
@@ -360,6 +362,9 @@ export const Layout = withWeaverse(function Layout({ children }: { children: Rea
             {/* CONECTOR NATIVO: Envía de forma automática la navegación e interacciones SPA a la Web Pixels API de Shopify */}
             {/* <Analytics.Connector nonce={nonce} /> */}
             <GoogleTagManager/>
+            <AttributionTracker />
+            <ShopifyConsentSync />
+
             <TooltipProvider disableHoverableContent>
               <div
                 className="flex min-h-screen flex-col"
