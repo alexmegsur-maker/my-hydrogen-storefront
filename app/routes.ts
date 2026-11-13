@@ -50,7 +50,6 @@ export default hydrogenRoutes([
       route("reviews-combined", "routes/api/reviews-combined.ts"),
       route("live-activity", "routes/api/live-activity.ts"),
       route("nfc-auth", "routes/api/nfc-auth.ts"),
-      route("ga4-purchase", "routes/api/ga4-purchase.ts"),
       route("newsletter-popup", "routes/api/newsletter-popup.ts"),
       route("desistimiento", "routes/api/desistimiento.ts"),
       route("order-lookup", "routes/api/order-data.ts"),
