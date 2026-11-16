@@ -174,7 +174,9 @@ export const schema =createSchema({
     "card-simple",
     "size-recommender",
     "column-with-image--item",
-    "simple-table"
+    "simple-table",
+    "tab",
+    "tabs-menu"
   ],
   settings:[
     ...sectionSettings,

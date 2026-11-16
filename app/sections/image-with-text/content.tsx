@@ -109,7 +109,7 @@ export const schema = createSchema({
     },
     ...sectionSettings
   ],
-  childTypes: ["subheading", "heading", "paragraph", "button","group-elements","group-buttons"],
+  childTypes: ["subheading", "heading", "paragraph", "button","group-elements","group-buttons","tabs-menu"],
   presets: {
     alignment: "center",
     children: [

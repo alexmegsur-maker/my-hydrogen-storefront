@@ -58,7 +58,7 @@ export default function groupButtons(props:groupButtonsProps){
 export const schema = createSchema({
   type:"group-buttons",
   title:"group buttons",
-  childTypes:["button"],
+  childTypes:["button","image-swap-button"],
   settings:[
     {
       group:"Group buttons",

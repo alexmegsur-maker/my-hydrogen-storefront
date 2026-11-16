@@ -16,6 +16,7 @@ import { Image } from "~/components/image";
 import { ScrollReveal } from "~/components/scroll-reveal";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import type { ImageAspectRatio } from "~/types/others";
+import { useImageSwap } from "~/stores/imageSwapStore";
 import { cn } from "~/utils/cn";
 
 const variants = cva("h-auto w-full", {
@@ -89,8 +90,20 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
   const isMobile  = useIsMobile(600)
   const container = useRef(null)
   const bar = useRef(null)
+  // Imagen elegida desde un "Image swap button" que apunta a este id
+  const swapId = identification?.trim();
+  const swappedImage = useImageSwap((state) =>
+    swapId ? state.swaps[swapId] : undefined,
+  );
+  const clearSwap = useImageSwap((state) => state.clearSwap);
+  useEffect(() => {
+    if (!swapId) return;
+    return () => clearSwap(swapId);
+  }, [swapId, clearSwap]);
+
   const imageData: Partial<WeaverseImage> =
-    typeof image === "string" ? { url: image, altText: "Placeholder" } : image;
+    swappedImage ??
+    (typeof image === "string" ? { url: image, altText: "Placeholder" } : image);
   let aspRt: string | undefined;
   if (imageAspectRatio === "adapt") {
     if (imageData.width && imageData.height) {
@@ -156,6 +169,8 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
     >
       <ScrollReveal animation="slide-in">
         <Image
+          // key: al cambiar de imagen se remonta y vuelve a hacer el fade-in
+          key={imageData.url}
           data={imageData}
           sizes="auto"
           aspectRatio={aspRt}

@@ -4,7 +4,11 @@ import * as Link from "~/components/link";
 import * as Paragraph from "~/components/paragraph";
 import * as SmokeAsh from "~/components/smoke-ash";
 import * as GroupButtons from "~/components/group-buttons";
+import * as ImageSwapButton from "~/components/image-swap-button";
+import * as TabsMenu from "~/components/tabs-menu";
+import * as TabsMenuItem from "~/components/tabs-menu/item";
 import * as SubHeading from "~/components/subheading";
+import * as Tab from "~/components/tab";
 import * as AllProducts from "~/sections/all-products";
 import * as AllProductsV2 from "~/sections/all-products-v2";
 import * as AllProductsV2ProductGrid from "~/sections/all-products-v2/product-grid";
@@ -240,6 +244,7 @@ import * as Medidas from "~/sections/medidas"
 export const components: HydrogenComponent[] = [
   HeroImage, 
   SubHeading,
+  Tab,
   Heading,
   Paragraph,
   Link,
@@ -375,6 +380,9 @@ export const components: HydrogenComponent[] = [
   UniverseSelectorD,
   SpecSheetD,
   GroupButtons,
+  ImageSwapButton,
+  TabsMenu,
+  TabsMenuItem,
   CardSelector,
   CardSimple,
   SimpleProductGrid,
