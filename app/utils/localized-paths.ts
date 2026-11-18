@@ -25,7 +25,7 @@ const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
     "/en": "/extended-warranty",
     "/fr": "/extension-de-garantie",
     "/it": "/estensione-di-garanzia",
-    "/nl": "/garantie-uitbreiding",
+    "/nl": "/garantieverlenging",
     "/pl": "/przedluzenie-gwarancji"
   },
   "/chair-validation": {
@@ -33,8 +33,8 @@ const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
     "/en": "/chair-validation",
     "/fr": "/validation-chaise",
     "/it": "/validazione-sedia",
-    "/nl": "/stoel-validatie",
-    "/pl": "/weryfikacja-fotela"
+    "/nl": "/stoelvalidatie",
+    "/pl": "/walidacja-krzesla"
   },
   "/licencias": {
     "/de": "/lizenzen",
@@ -50,7 +50,7 @@ const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
     "/fr": "/retractation",
     "/it": "/recesso",
     "/nl": "/herroeping",
-    "/pl": "/odstapienie-od-umowy"
+    "/pl": "/odstapienie"
   },
   "/instrucciones": {
     "/de": "/anleitungen",
@@ -65,7 +65,7 @@ const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
     "/en": "/legacy",
     "/fr": "/heritage",
     "/it": "/eredita",
-    "/nl": "/erfgoed",
+    "/nl": "/erfenis",
     "/pl": "/dziedzictwo"
   },
   "/devolucion": {
@@ -73,8 +73,8 @@ const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
     "/en": "/returns",
     "/fr": "/retours",
     "/it": "/reso",
-    "/nl": "/retourneren",
-    "/pl": "/zwroty"
+    "/nl": "/retour",
+    "/pl": "/zwrot"
   },
   "/contact": {
     "/de": "/kontakt",
@@ -89,8 +89,8 @@ const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
     "/en": "/privacy-policy",
     "/fr": "/confidentialite",
     "/it": "/privacy",
-    "/nl": "/privacybeleid",
-    "/pl": "/polityka-prywatnosci"
+    "/nl": "/privacy",
+    "/pl": "/prywatnosci"
   },
   "/aviso-legal": {
     "/de": "/rechtlicher-hinweis",
@@ -105,8 +105,8 @@ const LOCALIZED_SLUGS: Record<string, Record<string, string>> = {
     "/en": "/order-tracking",
     "/fr": "/suivi-de-commande",
     "/it": "/tracciamento-ordine",
-    "/nl": "/bestelling-volgen",
-    "/pl": "/sledzenie-zamowienia"
+    "/nl": "/orderopvolging",
+    "/pl": "/sledzenie-zamowien"
   },
   "/comparativa": {
     "/de": "/vergleich",
