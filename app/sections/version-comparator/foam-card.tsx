@@ -88,6 +88,9 @@ export const schema = createSchema({
   type: "version-comparator--foam-card",
   title: "Tarjeta de comparación",
   childTypes: ["version-comparator--layer"],
+  enabledOn:{
+    groups:['*'],
+  },
   settings: [
     {
       group: "Contenido",
