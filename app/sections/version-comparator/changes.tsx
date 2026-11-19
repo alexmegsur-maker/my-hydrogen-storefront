@@ -48,6 +48,9 @@ export const schema = createSchema({
   type: "version-comparator--changes",
   title: "Cambios que vas a notar",
   childTypes: ["heading", "paragraph", CARD_TYPE],
+  enabledOn:{
+    groups:['*'],
+  },
   settings: [
     {
       group: "Layout",
