@@ -176,7 +176,8 @@ export const schema =createSchema({
     "column-with-image--item",
     "simple-table",
     "tab",
-    "tabs-menu"
+    "tabs-menu",
+    "version-comparator--changes"
   ],
   settings:[
     ...sectionSettings,
