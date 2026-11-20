@@ -4,7 +4,7 @@ import {
   useChildInstances,
   type WeaverseImage,
 } from "@weaverse/hydrogen";
-import { Children, isValidElement, useState } from "react";
+import { Children, type CSSProperties, isValidElement, useState } from "react";
 import { useImageSwap } from "~/stores/imageSwapStore";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
@@ -29,6 +29,16 @@ interface TabsMenuProps extends HydrogenComponentProps {
   lineColor: string;
   menuGap: string;
   menuPaddingBottom: string;
+  // Estilo "botones"
+  menuStyle?: "underline" | "buttons";
+  btnBg: string;
+  btnActiveBg: string;
+  btnHoverBg: string;
+  btnBorderColor: string;
+  btnActiveBorderColor: string;
+  btnBorderWidth: number;
+  btnRadius: number;
+  btnPadding: string;
   // Contenido
   contentPaddingSelect?: string;
   contentPaddingText?: string;
@@ -63,6 +73,15 @@ function TabsMenu(props: TabsMenuProps) {
     lineColor,
     menuGap,
     menuPaddingBottom,
+    menuStyle = "underline",
+    btnBg,
+    btnActiveBg,
+    btnHoverBg,
+    btnBorderColor,
+    btnActiveBorderColor,
+    btnBorderWidth,
+    btnRadius,
+    btnPadding,
     contentPaddingSelect,
     contentPaddingText,
     marginSelect,
@@ -81,6 +100,7 @@ function TabsMenu(props: TabsMenuProps) {
     ? selectedId
     : items[0]?.id;
 
+  const isButtons = menuStyle === "buttons";
   const setSwap = useImageSwap((state) => state.setSwap);
   const clearSwap = useImageSwap((state) => state.clearSwap);
 
@@ -106,27 +126,58 @@ function TabsMenu(props: TabsMenuProps) {
       <div
         role="tablist"
         className="flex overflow-x-auto"
-        style={{ gap: menuGap, borderBottom: `1px solid ${lineColor}` }}
+        style={{
+          gap: menuGap,
+          borderBottom: isButtons ? undefined : `1px solid ${lineColor}`,
+        }}
       >
         {items.map((item) => {
           const isActive = item.id === activeId;
+          const textStyle: CSSProperties = {
+            color: isActive ? activeTextColor : textColor,
+            fontSize,
+            fontWeight: isActive ? activeFontWeight : fontWeight,
+            fontFamily: fontFamily || undefined,
+          };
+          const common = {
+            id: `tabs-menu-tab-${item.id}`,
+            type: "button" as const,
+            role: "tab",
+            "aria-selected": isActive,
+            "aria-controls": `tabs-menu-panel-${item.id}`,
+            onClick: () => select(item),
+          };
+
+          if (isButtons) {
+            return (
+              <button
+                key={item.id}
+                {...common}
+                className="shrink-0 cursor-pointer whitespace-nowrap border-solid bg-(--tm-bg) transition-colors duration-300 hover:bg-(--tm-bg-hover)"
+                style={
+                  {
+                    ...textStyle,
+                    "--tm-bg": isActive ? btnActiveBg : btnBg,
+                    // la activa no cambia al pasar el ratón
+                    "--tm-bg-hover": isActive ? btnActiveBg : btnHoverBg || btnBg,
+                    borderWidth: `${btnBorderWidth ?? 1}px`,
+                    borderColor: isActive ? btnActiveBorderColor : btnBorderColor,
+                    borderRadius: `${btnRadius ?? 0}px`,
+                    padding: btnPadding,
+                  } as CSSProperties
+                }
+              >
+                {item.label}
+              </button>
+            );
+          }
+
           return (
             <button
               key={item.id}
-              id={`tabs-menu-tab-${item.id}`}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={`tabs-menu-panel-${item.id}`}
-              onClick={() => select(item)}
+              {...common}
               className="relative shrink-0 cursor-pointer whitespace-nowrap border-none bg-transparent px-0 transition-colors"
-              style={{
-                color: isActive ? activeTextColor : textColor,
-                fontSize,
-                fontWeight: isActive ? activeFontWeight : fontWeight,
-                fontFamily: fontFamily || undefined,
-                paddingBottom: menuPaddingBottom,
-              }}
+              style={{ ...textStyle, paddingBottom: menuPaddingBottom }}
             >
               {item.label}
               <span
@@ -178,7 +229,10 @@ const spacingOptions = [
   { value: "a", label: "Custom" },
 ];
 
-const weightOptions = ["300", "400", "500", "600", "700"].map((value) => ({
+const isButtonStyle = (data: TabsMenuProps) => data.menuStyle === "buttons";
+const isUnderline = (data: TabsMenuProps) => data.menuStyle !== "buttons";
+
+const weightOptions =["300", "400", "500", "600", "700"].map((value) => ({
   value,
   label: value,
 }));
@@ -204,6 +258,18 @@ export const schema = createSchema({
         {
           type: "heading",
           label: "Menu",
+        },
+        {
+          type: "select",
+          name: "menuStyle",
+          label: "Menu style",
+          configs: {
+            options: [
+              { value: "underline", label: "Underline" },
+              { value: "buttons", label: "Buttons" },
+            ],
+          },
+          defaultValue: "underline",
         },
         {
           type: "color",
@@ -248,6 +314,7 @@ export const schema = createSchema({
           name: "indicatorColor",
           label: "Active indicator color",
           defaultValue: "#1a1a1a",
+          condition: isUnderline,
         },
         {
           type: "range",
@@ -255,12 +322,14 @@ export const schema = createSchema({
           label: "Active indicator height",
           defaultValue: 2,
           configs: { min: 1, max: 6, step: 1, unit: "px" },
+          condition: isUnderline,
         },
         {
           type: "color",
           name: "lineColor",
           label: "Bottom line color",
           defaultValue: "#bdb8b0",
+          condition: isUnderline,
         },
         {
           type: "text",
@@ -273,6 +342,70 @@ export const schema = createSchema({
           name: "menuPaddingBottom",
           label: "Option bottom padding",
           defaultValue: "1.4rem",
+          condition: isUnderline,
+        },
+        {
+          type: "heading",
+          label: "Buttons",
+          condition: isButtonStyle,
+        },
+        {
+          type: "color",
+          name: "btnBg",
+          label: "Background",
+          defaultValue: "#00000000",
+          condition: isButtonStyle,
+        },
+        {
+          type: "color",
+          name: "btnHoverBg",
+          label: "Background (hover)",
+          defaultValue: "#0000000d",
+          condition: isButtonStyle,
+        },
+        {
+          type: "color",
+          name: "btnActiveBg",
+          label: "Background (active)",
+          defaultValue: "#1a1a1a",
+          condition: isButtonStyle,
+        },
+        {
+          type: "color",
+          name: "btnBorderColor",
+          label: "Border color",
+          defaultValue: "#bdb8b0",
+          condition: isButtonStyle,
+        },
+        {
+          type: "color",
+          name: "btnActiveBorderColor",
+          label: "Border color (active)",
+          defaultValue: "#1a1a1a",
+          condition: isButtonStyle,
+        },
+        {
+          type: "range",
+          name: "btnBorderWidth",
+          label: "Border width",
+          defaultValue: 1,
+          configs: { min: 0, max: 4, step: 1, unit: "px" },
+          condition: isButtonStyle,
+        },
+        {
+          type: "range",
+          name: "btnRadius",
+          label: "Border radius",
+          defaultValue: 0,
+          configs: { min: 0, max: 100, step: 1, unit: "px" },
+          condition: isButtonStyle,
+        },
+        {
+          type: "text",
+          name: "btnPadding",
+          label: "Button padding",
+          defaultValue: "10px 20px",
+          condition: isButtonStyle,
         },
       ],
     },

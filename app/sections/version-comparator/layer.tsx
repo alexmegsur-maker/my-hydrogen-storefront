@@ -1,4 +1,5 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import { TEXT_SIZE_CLASS } from "~/utils/text-style";
 import { useFoamCard } from "./foam-card";
 
 interface FoamLayerProps extends HydrogenComponentProps {
@@ -11,16 +12,18 @@ interface FoamLayerProps extends HydrogenComponentProps {
 
 function FoamLayer(props: FoamLayerProps) {
   const { label, value, percent, barColor, ref, ...rest } = props;
-  const { inView } = useFoamCard();
+  // Tipografía configurada en la tarjeta (Texto · Barras), común a todas sus barras
+  const { inView, layerLabelStyle, layerValueStyle } = useFoamCard();
 
   return (
     <div ref={ref} {...rest} className="mb-4">
-      <div
-        className="mb-[7px] flex justify-between gap-3 text-[13px]"
-        style={{ color: "var(--vc-muted)" }}
-      >
-        <span>{label}</span>
-        <span>{value}</span>
+      <div className="mb-[7px] flex items-baseline justify-between gap-3">
+        <span className={TEXT_SIZE_CLASS} style={layerLabelStyle}>
+          {label}
+        </span>
+        <span className={TEXT_SIZE_CLASS} style={layerValueStyle}>
+          {value}
+        </span>
       </div>
       <div className="vc-bar">
         <i

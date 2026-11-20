@@ -145,16 +145,21 @@ export function textStyleInputs(
   ];
 }
 
-/** Estilos inline del texto con ese prefijo. Usar junto a TEXT_SIZE_CLASS. */
+/**
+ * Estilos inline del texto con ese prefijo. Usar junto a TEXT_SIZE_CLASS.
+ * `fallback` rellena lo que esté vacío (p. ej. color "var(--vc-muted)" o el
+ * tamaño de diseño en bloques guardados antes de tener estos ajustes).
+ */
 export function getTextStyle(
   data: Record<string, unknown>,
   prefix: string,
+  fallback: CSSProperties = {},
 ): CSSProperties {
   const get = <K extends keyof TextStyle>(key: K) =>
     data[`${prefix}${key}`] as TextStyle[K] | undefined;
   const letterSpacing = get("LetterSpacing");
   const lineHeight = get("LineHeight");
-  return {
+  const style: Record<string, unknown> = {
     "--ts-m": get("MobileSize") || undefined,
     "--ts-d": get("DesktopSize") || undefined,
     color: get("Color") || undefined,
@@ -174,7 +179,11 @@ export function getTextStyle(
       get("MarginSelect") || "a",
       get("MarginText") || undefined,
     ),
-  } as CSSProperties;
+  };
+  for (const [key, value] of Object.entries(fallback)) {
+    if (style[key] === undefined) style[key] = value;
+  }
+  return style as CSSProperties;
 }
 
 const TEXT_STYLE_KEYS: (keyof TextStyle)[] = [

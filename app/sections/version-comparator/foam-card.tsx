@@ -1,10 +1,46 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
-import { createContext, useContext } from "react";
+import { createContext, type CSSProperties, useContext } from "react";
 import { cn } from "~/utils/cn";
+import {
+  getTextStyle,
+  MONO_FONT,
+  omitTextStyleProps,
+  TEXT_SIZE_CLASS,
+  textStyleInputs,
+} from "~/utils/text-style";
 import { useReveal } from "./context";
 
+// Un prefijo por cada texto de la tarjeta (ver ~/utils/text-style.ts).
+// Los de las barras (layer*) se configuran una vez en la tarjeta y llegan a
+// cada barra por contexto, para no repetirlos en cada una.
+const TEXT_PREFIXES = ["title", "valueText", "scaleLabel", "scaleText", "layerLabel", "layerValue"];
+
+const MUTED = "var(--vc-muted)";
+
+/**
+ * Valores de diseño originales: se usan cuando un ajuste está vacío (color
+ * vacío = el de la paleta de la sección) o en tarjetas guardadas antes de
+ * tener estos ajustes.
+ */
+const FALLBACKS: Record<string, CSSProperties> = {
+  title: { "--ts-m": "18px", "--ts-d": "18px", fontWeight: "600" } as CSSProperties,
+  valueText: { "--ts-m": "13px", "--ts-d": "13px", fontFamily: MONO_FONT, color: MUTED } as CSSProperties,
+  scaleLabel: { "--ts-m": "14px", "--ts-d": "14px" } as CSSProperties,
+  scaleText: { "--ts-m": "14px", "--ts-d": "14px", color: MUTED } as CSSProperties,
+  layerLabel: { "--ts-m": "13px", "--ts-d": "13px", color: MUTED } as CSSProperties,
+  layerValue: { "--ts-m": "13px", "--ts-d": "13px", color: MUTED } as CSSProperties,
+};
+
 /** Las capas solo rellenan su barra cuando la tarjeta entra en pantalla. */
-const FoamCardContext = createContext({ inView: true });
+const FoamCardContext = createContext<{
+  inView: boolean;
+  layerLabelStyle: CSSProperties;
+  layerValueStyle: CSSProperties;
+}>({
+  inView: true,
+  layerLabelStyle: FALLBACKS.layerLabel,
+  layerValueStyle: FALLBACKS.layerValue,
+});
 
 export function useFoamCard() {
   return useContext(FoamCardContext);
@@ -39,31 +75,45 @@ function FoamCard(props: FoamCardProps) {
     ...rest
   } = props;
   const { ref: revealRef, inView } = useReveal();
+  const textStyle = (prefix: string) =>
+    getTextStyle(props as unknown as Record<string, unknown>, prefix, FALLBACKS[prefix]);
 
   return (
-    <div ref={ref} {...rest}>
+    <div ref={ref} {...omitTextStyleProps(rest, TEXT_PREFIXES)}>
       <div
         ref={revealRef}
         className={cn("vc-foam-card h-full", highlight && "is-highlight")}
         style={{ borderRadius: `${radius}px`, padding: `${padding}px` }}
       >
         <div className="mb-[22px] flex items-baseline justify-between gap-3">
-          <h4 className="font-semibold text-lg">{title}</h4>
+          <h4 className={TEXT_SIZE_CLASS} style={textStyle("title")}>
+            {title}
+          </h4>
           {valueLabel && (
-            <span className="font-mono text-[13px]" style={{ color: "var(--vc-muted)" }}>
+            <span className={TEXT_SIZE_CLASS} style={textStyle("valueText")}>
               {valueLabel}
             </span>
           )}
         </div>
 
-        <FoamCardContext.Provider value={{ inView }}>{children}</FoamCardContext.Provider>
+        <FoamCardContext.Provider
+          value={{
+            inView,
+            layerLabelStyle: textStyle("layerLabel"),
+            layerValueStyle: textStyle("layerValue"),
+          }}
+        >
+          {children}
+        </FoamCardContext.Provider>
 
         {firmnessMax > 0 && (
           <div
-            className="mt-6 flex items-center gap-3 border-t border-dashed pt-5 text-sm"
+            className="mt-6 flex items-center gap-3 border-t border-dashed pt-5"
             style={{ borderColor: "var(--vc-line)" }}
           >
-            <span>{firmnessLabel}</span>
+            <span className={TEXT_SIZE_CLASS} style={textStyle("scaleLabel")}>
+              {firmnessLabel}
+            </span>
             <span className="vc-dots flex gap-[5px]">
               {Array.from({ length: firmnessMax }, (_, i) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: lista fija de puntos
@@ -71,7 +121,7 @@ function FoamCard(props: FoamCardProps) {
               ))}
             </span>
             {firmnessText && (
-              <em className="ml-auto not-italic" style={{ color: "var(--vc-muted)" }}>
+              <em className={cn("ml-auto not-italic", TEXT_SIZE_CLASS)} style={textStyle("scaleText")}>
                 {firmnessText}
               </em>
             )}
@@ -88,8 +138,8 @@ export const schema = createSchema({
   type: "version-comparator--foam-card",
   title: "Tarjeta de comparación",
   childTypes: ["version-comparator--layer"],
-  enabledOn:{
-    groups:['*'],
+  enabledOn: {
+    groups: ["*"],
   },
   settings: [
     {
@@ -149,6 +199,56 @@ export const schema = createSchema({
           defaultValue: 28,
         },
       ],
+    },
+    {
+      group: "Texto · Título",
+      inputs: textStyleInputs("title", {
+        Color: "",
+        MobileSize: "18px",
+        DesktopSize: "18px",
+        Weight: "600",
+      }),
+    },
+    {
+      group: "Texto · Valor (derecha)",
+      inputs: textStyleInputs("valueText", {
+        Color: "",
+        MobileSize: "13px",
+        DesktopSize: "13px",
+        Family: MONO_FONT,
+      }),
+    },
+    {
+      group: "Texto · Barras: nombre",
+      inputs: textStyleInputs("layerLabel", {
+        Color: "",
+        MobileSize: "13px",
+        DesktopSize: "13px",
+      }),
+    },
+    {
+      group: "Texto · Barras: valor",
+      inputs: textStyleInputs("layerValue", {
+        Color: "",
+        MobileSize: "13px",
+        DesktopSize: "13px",
+      }),
+    },
+    {
+      group: "Texto · Escala: etiqueta",
+      inputs: textStyleInputs("scaleLabel", {
+        Color: "",
+        MobileSize: "14px",
+        DesktopSize: "14px",
+      }),
+    },
+    {
+      group: "Texto · Escala: texto",
+      inputs: textStyleInputs("scaleText", {
+        Color: "",
+        MobileSize: "14px",
+        DesktopSize: "14px",
+      }),
     },
   ],
   presets: {

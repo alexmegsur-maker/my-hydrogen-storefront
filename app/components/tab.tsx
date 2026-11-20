@@ -1,5 +1,10 @@
-import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import {
+  createSchema,
+  type HydrogenComponentProps,
+  type WeaverseImage,
+} from "@weaverse/hydrogen";
 import { useId, useState } from "react";
+import { useImageSwap } from "~/stores/imageSwapStore";
 import { cn } from "~/utils/cn";
 import { selectorPaddingMargin } from "~/utils/general";
 
@@ -37,6 +42,10 @@ interface TabProps extends HydrogenComponentProps {
   marginText?: string;
   // Animación
   duration: number;
+  // Cambio de imagen (igual que image-swap-button)
+  swapTargetId?: string;
+  swapImage?: WeaverseImage | string;
+  swapRestoreOnClose?: boolean;
 }
 
 function Tab(props: TabProps) {
@@ -63,12 +72,37 @@ function Tab(props: TabProps) {
     marginSelect,
     marginText,
     duration,
+    swapTargetId,
+    swapImage,
+    swapRestoreOnClose = true,
     className,
     children,
     ...rest
   } = props;
 
   const [open, setOpen] = useState(Boolean(defaultOpen));
+  const swapTarget = swapTargetId?.trim();
+  const swapData: Partial<WeaverseImage> | null = swapImage
+    ? typeof swapImage === "string"
+      ? { url: swapImage, altText: title }
+      : swapImage
+    : null;
+  const setSwap = useImageSwap((state) => state.setSwap);
+  const clearSwap = useImageSwap((state) => state.clearSwap);
+
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (!(swapTarget && swapData?.url)) return;
+    if (next) {
+      setSwap(swapTarget, swapData);
+    } else if (swapRestoreOnClose) {
+      // Solo se restaura si la imagen visible sigue siendo la de este tab
+      // (otro tab o botón puede haberla cambiado después)
+      const current = useImageSwap.getState().swaps[swapTarget];
+      if (current?.url === swapData.url) clearSwap(swapTarget);
+    }
+  };
   const id = useId();
   const contentId = `tab-content-${id}`;
   const buttonId = `tab-button-${id}`;
@@ -85,7 +119,7 @@ function Tab(props: TabProps) {
         type="button"
         aria-expanded={open}
         aria-controls={contentId}
-        onClick={() => setOpen((state) => !state)}
+        onClick={toggle}
         className="flex w-full cursor-pointer items-center justify-between gap-4 border-none bg-transparent text-left"
         style={{
           borderBottom: showBorder ? `1px solid ${borderColor}` : "none",
@@ -267,6 +301,29 @@ export const schema = createSchema({
           name: "iconSize",
           label: "Icon size",
           defaultValue: "0.9rem",
+        },
+      ],
+    },
+    {
+      group: "Image swap",
+      inputs: [
+        {
+          type: "text",
+          name: "swapTargetId",
+          label: "Image id",
+          helpText:
+            'El "id" del componente Image de image-with-text que cambia al abrir este tab. Vacío = no cambia ninguna imagen.',
+        },
+        {
+          type: "image",
+          name: "swapImage",
+          label: "Image to show",
+        },
+        {
+          type: "switch",
+          name: "swapRestoreOnClose",
+          label: "Restore original image on close",
+          defaultValue: true,
         },
       ],
     },
