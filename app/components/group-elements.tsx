@@ -177,7 +177,8 @@ export const schema =createSchema({
     "simple-table",
     "tab",
     "tabs-menu",
-    "version-comparator--foam-card"
+    "version-comparator--foam-card",
+    "version-comparator--layer"
   ],
   settings:[
     ...sectionSettings,
