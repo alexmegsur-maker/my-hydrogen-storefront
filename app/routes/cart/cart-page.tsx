@@ -8,22 +8,17 @@ import type {
   CartLineInput,
   CartLineUpdateInput,
 } from "@shopify/hydrogen/storefront-api-types";
-import { Suspense } from "react";
 import {
   type ActionFunctionArgs,
-  Await,
   data,
   type LoaderFunctionArgs,
   redirect,
   useLoaderData,
 } from "react-router";
 import invariant from "tiny-invariant";
-import { CartMain } from "~/components/cart/cart-main";
-import { ProductCard } from "~/components/product/product-card";
-import { Section } from "~/components/section";
-import { Swimlane } from "~/components/swimlane";
+import { CartPageView } from "~/components/cart/page/cart-page-view";
 import { syncCartAttribution } from "~/utils/attribution.server";
-import { getFeaturedProducts } from "~/utils/featured-products";
+import { getCartUpsellProducts } from "~/utils/cart-upsell.server";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   const { cart } = context;
@@ -133,49 +128,41 @@ export async function action({ request, context }: ActionFunctionArgs) {
 }
 
 export async function loader({ context }: LoaderFunctionArgs) {
-  const { cart, storefront } = context;
+  const { cart, storefront, weaverse } = context;
+  const [cartData, themeSettings] = await Promise.all([
+    cart.get(),
+    weaverse.loadThemeSettings().catch(() => null),
+  ]);
+  const theme = (themeSettings?.theme ?? {}) as Record<string, unknown>;
+  const productIds = [
+    ...new Set(
+      (cartData?.lines?.nodes ?? [])
+        .map((line) => line.merchandise?.product?.id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
 
   return {
-    cart: await cart.get(),
-    featuredProducts: getFeaturedProducts(storefront),
+    cart: cartData,
+    // Sin await: "Añade a tu pedido" se carga en segundo plano (Suspense)
+    // (también con el carrito vacío: se muestra bajo "Tu carrito está vacío")
+    upsell: getCartUpsellProducts({
+      storefront,
+      productIds,
+      // Selector de colección de Weaverse: { id, handle }
+      collectionHandle: (theme.cartUpsellCollection as { handle?: string } | undefined)?.handle,
+      count: Number(theme.cartUpsellCount ?? 3),
+    }),
   };
 }
 
 export default function CartRoute() {
-  const { cart, featuredProducts } = useLoaderData<typeof loader>();
+  const { cart, upsell } = useLoaderData<typeof loader>();
 
   return (
     <>
-      <Section width="fixed" verticalPadding="medium">
-        <h1 className="h3 mb-8 text-center md:mb-16">
-          Cart ({cart?.totalQuantity || 0})
-        </h1>
-        <CartMain layout="page" cart={cart} />
-        <Analytics.CartView />
-      </Section>
-      <Suspense fallback={null}>
-        <Await resolve={featuredProducts}>
-          {({ featuredProducts: products }) => {
-            if (!products?.nodes?.length) {
-              return null;
-            }
-            return (
-              <Section width="fixed" verticalPadding="large" gap={32}>
-                <h2 className="h4 text-center">More from our best sellers</h2>
-                <Swimlane className="gap-4">
-                  {products.nodes.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      className="w-80 snap-start"
-                    />
-                  ))}
-                </Swimlane>
-              </Section>
-            );
-          }}
-        </Await>
-      </Suspense>
+      <CartPageView cart={cart} upsell={upsell} />
+      <Analytics.CartView />
     </>
   );
 }

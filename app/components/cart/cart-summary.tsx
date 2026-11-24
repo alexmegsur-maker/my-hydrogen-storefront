@@ -22,7 +22,7 @@ import { useLanguage } from "~/hooks/useLanguage";
 import { translations } from "~/utils/translations";
 import { pushBeginCheckout } from "~/utils/dataLayer";
 
-const ICON_MAP: Record<string, Icon> = {
+export const ICON_MAP: Record<string, Icon> = {
   truck: TruckIcon,
   "seal-check": SealCheckIcon,
   "shield-check": ShieldCheckIcon,
