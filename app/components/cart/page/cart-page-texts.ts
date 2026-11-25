@@ -6,7 +6,7 @@ type Texts = Record<
   | "deliveryBetween" | "deliveryAnd" | "deliveryFrom" | "upsellTitle" | "add" | "subtotal"
   | "savings" | "shippingTaxes" | "included" | "total" | "installments" | "checkout"
   | "haveCode" | "codePlaceholder" | "apply" | "removeCode" | "questions"
-  | "empty" | "viewProducts",
+  | "empty" | "viewProducts"|"deliverTotalText",
   string
 >;
 
@@ -23,6 +23,7 @@ const TEXTS: Record<string, Texts> = {
     deliveryBetween: "Llega entre el",
     deliveryAnd: "y el",
     deliveryFrom: "desde",
+    deliverTotalText:"Llegada entre 2-3 días laborables en España | 3-5 días laborables en el resto de Europa.",
     upsellTitle: "Añade a tu pedido",
     add: "Añadir",
     subtotal: "Subtotal",
@@ -53,6 +54,7 @@ const TEXTS: Record<string, Texts> = {
     deliveryAnd: "and",
     deliveryFrom: "from",
     upsellTitle: "Add to your order",
+    deliverTotalText:"Delivery within 2-3 business days in Spain | 3-5 business days across the rest of Europe.",
     add: "Add",
     subtotal: "Subtotal",
     savings: "Discount",
@@ -78,6 +80,7 @@ const TEXTS: Record<string, Texts> = {
     decrease: "Menge verringern",
     increase: "Menge erhöhen",
     quantity: "Menge",
+    deliverTotalText:"Lieferung in 2–3 Werktagen in Spanien | 3–5 Werktagen im übrigen Europa.",
     deliveryBetween: "Lieferung zwischen",
     deliveryAnd: "und",
     deliveryFrom: "aus",
@@ -108,6 +111,7 @@ const TEXTS: Record<string, Texts> = {
     increase: "Augmenter la quantité",
     quantity: "Quantité",
     deliveryBetween: "Livraison entre le",
+    deliverTotalText:"Livraison sous 2 à 3 jours ouvrés en Espagne | 3 à 5 jours ouvrés dans le reste de l'Europe.",    
     deliveryAnd: "et le",
     deliveryFrom: "depuis",
     upsellTitle: "Ajoutez à votre commande",
@@ -137,6 +141,7 @@ const TEXTS: Record<string, Texts> = {
     increase: "Aumenta quantità",
     quantity: "Quantità",
     deliveryBetween: "Arriva tra il",
+    deliverTotalText:"Consegna entro 2-3 giorni lavorativi in Spagna | 3-5 giorni lavorativi nel resto d'Europa.",
     deliveryAnd: "e il",
     deliveryFrom: "da",
     upsellTitle: "Aggiungi al tuo ordine",
@@ -166,6 +171,7 @@ const TEXTS: Record<string, Texts> = {
     increase: "Zwiększ ilość",
     quantity: "Ilość",
     deliveryBetween: "Dostawa między",
+    deliverTotalText:"Dostawa w ciągu 2–3 dni roboczych w Hiszpanii | 3–5 dni roboczych w pozostałych krajach Europy.",
     deliveryAnd: "a",
     deliveryFrom: "z",
     upsellTitle: "Dodaj do zamówienia",
@@ -195,6 +201,7 @@ const TEXTS: Record<string, Texts> = {
     increase: "Aantal verhogen",
     quantity: "Aantal",
     deliveryBetween: "Levering tussen",
+    deliverTotalText:"Levering binnen 2-3 werkdagen in Spanje | 3-5 werkdagen in de rest van Europa.",
     deliveryAnd: "en",
     deliveryFrom: "vanuit",
     upsellTitle: "Voeg toe aan je bestelling",

@@ -119,8 +119,7 @@ function DeliveryEstimate({ t }: { t: ReturnType<typeof useCartPageTexts> }) {
     <p className="mt-7 flex items-center gap-3 text-[0.88rem] text-zinc-400">
       <TruckIcon className="size-5 shrink-0" aria-hidden="true" />
       <span>
-        {t.deliveryBetween} <strong className="font-medium text-white">{dates[0]}</strong> {t.deliveryAnd}{" "}
-        <strong className="font-medium text-white">{dates[1]}</strong>
+        {t.deliverTotalText} 
         {origin && ` ${t.deliveryFrom} ${origin}`}
       </span>
     </p>
