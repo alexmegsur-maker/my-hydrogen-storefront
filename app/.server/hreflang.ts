@@ -8,7 +8,15 @@ import { SITE_ORIGIN, toCanonicalUrl } from "./seo";
 
 export type HreflangLink = { hreflang: string; href: string };
 
-type LocalizedResourceType = "products" | "collections";
+type LocalizedResourceType = "products" | "collections" | "articles";
+
+// Segmento de URL de cada tipo. Los artículos viven en /blogs/<blog>/<artículo>,
+// así que su "handle" localizado incluye ya el handle del blog.
+const URL_SEGMENT: Record<LocalizedResourceType, string> = {
+  products: "products",
+  collections: "collections",
+  articles: "blogs",
+};
 
 // Prefijos de idioma de COUNTRIES ("" = español, por defecto).
 export const LOCALE_PREFIXES: string[] = [
@@ -38,8 +46,23 @@ const COLLECTION_HANDLE_QUERY = `#graphql
   }
 ` as const;
 
+const ARTICLE_HANDLE_QUERY = `#graphql
+  query LocalizedArticleHandle($id: ID!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    node(id: $id) {
+      ... on Article {
+        handle
+        blog {
+          handle
+        }
+      }
+    }
+  }
+` as const;
+
 /**
- * Devuelve el handle de un producto o colección en cada idioma de COUNTRIES,
+ * Devuelve el handle de un producto, colección o artículo (este último como
+ * "<blog>/<artículo>") en cada idioma de COUNTRIES,
  * indexado por prefijo de locale. En Shopify los handles están traducidos, así
  * que reutilizar el handle español bajo /de, /fr... produce URLs que redirigen.
  * Se consulta por id (no por handle) con una petición por idioma en paralelo.
@@ -58,6 +81,19 @@ export async function getLocalizedHandles(
       // idiomas que no tiene activos (fr, it, pl, nl), devuelve el handle español
       const country = locale.country as CountryCode;
       try {
+        if (type === "articles") {
+          const data = await storefront.query(ARTICLE_HANDLE_QUERY, {
+            variables: { id, country, language },
+            cache: storefront.CacheLong(),
+          });
+          const node = data?.node as
+            | { handle?: string; blog?: { handle?: string } }
+            | null
+            | undefined;
+          const handle =
+            node?.handle && node.blog?.handle ? `${node.blog.handle}/${node.handle}` : undefined;
+          return [prefix, handle] as const;
+        }
         if (type === "products") {
           const data = await storefront.query(PRODUCT_HANDLE_QUERY, {
             variables: { id, country, language },
@@ -99,14 +135,14 @@ export function buildResourceHreflang(
     (prefix) => handles[prefix],
   ).map((prefix) => ({
     hreflang: localeForPrefix(prefix).language.toLowerCase(),
-    href: toCanonicalUrl(`${SITE_ORIGIN}${prefix}/${type}/${handles[prefix]}`),
+    href: toCanonicalUrl(`${SITE_ORIGIN}${prefix}/${URL_SEGMENT[type]}/${handles[prefix]}`),
   }));
 
   // x-default apunta a la versión en español (sin prefijo)
   if (handles[""]) {
     links.push({
       hreflang: "x-default",
-      href: toCanonicalUrl(`${SITE_ORIGIN}/${type}/${handles[""]}`),
+      href: toCanonicalUrl(`${SITE_ORIGIN}/${URL_SEGMENT[type]}/${handles[""]}`),
     });
   }
   return links;

@@ -23,6 +23,23 @@ export function LanguageSelector() {
     // Guardar preferencia para que el geo-redirect no sobreescriba la elección
     document.cookie = `locale_pref=${encodeURIComponent(newPrefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
 
+    // Productos, colecciones y artículos tienen el handle traducido por idioma.
+    // Su URL correcta en el idioma destino ya está en las etiquetas hreflang
+    // (root.tsx); si existe, se usa esa. Reutilizar el handle actual falla al
+    // cambiar entre dos idiomas que no son el español (Shopify no lo reconoce).
+    const targetLang = COUNTRIES[e === 'default' ? 'default' : e]?.language.toLowerCase();
+    const alternate = targetLang
+      ? document.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${targetLang}"]`)
+      : null;
+    if (alternate?.href) {
+      try {
+        window.location.href = `${new URL(alternate.href).pathname}${search}`;
+        return;
+      } catch {
+        // href no válido: se usa la lógica de abajo
+      }
+    }
+
     const currentPrefix = COUNTRIES[currentPathPart] ? currentPathPart : '';
     const pathWithoutLocale = currentPrefix
       ? pathname.replace(currentPrefix, '')

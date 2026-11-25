@@ -4,6 +4,7 @@ import type { RouteLoaderArgs } from "@weaverse/hydrogen";
 import type { MetaFunction } from "react-router";
 import type { ArticleQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { getResourceHreflang } from "~/.server/hreflang";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
 import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
@@ -52,6 +53,11 @@ export async function loader(args: RouteLoaderArgs) {
   );
 
   const article = blog.articleByHandle;
+  // Clúster hreflang con el handle traducido de cada idioma (ver root.tsx).
+  // El selector de idioma lo usa para saltar a la URL correcta: Shopify solo
+  // reconoce el handle en español o el del idioma activo, así que reutilizar
+  // el handle alemán bajo /fr daría 404.
+  const hreflang = await getResourceHreflang(storefront, "articles", article.id);
   const relatedArticles = blog.articles.nodes.filter(
     (art) => art?.handle !== articleHandle,
   );
@@ -72,6 +78,7 @@ export async function loader(args: RouteLoaderArgs) {
     relatedArticles,
     formattedDate,
     seo,
+    hreflang,
     weaverseData,
   };
 }
@@ -94,6 +101,7 @@ const ARTICLE_QUERY = `#graphql
       title
       handle
       articleByHandle(handle: $articleHandle) {
+        id
         title
         handle
         contentHtml
