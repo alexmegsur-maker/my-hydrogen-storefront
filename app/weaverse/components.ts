@@ -240,6 +240,10 @@ import * as CollectorLicense from "~/sections/collector-editions/license"
 import * as CollectorEditionsGrid from "~/sections/collector-editions/editions"
 import * as CollectorEditionCard from "~/sections/collector-editions/edition-card"
 import * as Medidas from "~/sections/medidas"
+import * as SliderMonarchV3 from "~/sections/slider-monarc-v3"
+import * as SlidesMonarchV3 from "~/sections/slider-monarc-v3/slides"
+import * as SlideMonarchV3 from "~/sections/slider-monarc-v3/slide"
+import * as FooterMonarchV3 from "~/sections/slider-monarc-v3/footer"
 
 export const components: HydrogenComponent[] = [
   HeroImage, 
@@ -482,4 +486,8 @@ export const components: HydrogenComponent[] = [
   CollectorEditionsGrid,
   CollectorEditionCard,
   Medidas,
+  SliderMonarchV3,
+  SlidesMonarchV3,
+  SlideMonarchV3,
+  FooterMonarchV3,
 ];
