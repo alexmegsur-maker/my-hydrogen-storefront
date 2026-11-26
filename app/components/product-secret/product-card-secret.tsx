@@ -212,12 +212,14 @@ function ProductCardSecret({product,className,cardStyles}:{product:ProductCardFr
               ...selectorPaddingMargin("margin",cardStyles.pMarginSelect,cardStyles.pMarginText),
             }}
           >
-            {firstVariant.compareAtPrice?.amount &&
+            {/* Sin variante disponible en este mercado (p. ej. /de) firstVariant es
+                null: antes rompía la colección entera con un error 500 */}
+            {firstVariant?.compareAtPrice?.amount &&
               <span className="me-2 font-thin text-stone-600 line-through">
-                {checkPrice(firstVariant.compareAtPrice.amount)}€ 
+                {checkPrice(firstVariant.compareAtPrice.amount)}€
               </span>
             }
-            {checkPrice(firstVariant.price.amount)}€
+            {checkPrice((firstVariant?.price ?? minVariantPrice).amount)}€
           </div>
         </div>
       </div>  

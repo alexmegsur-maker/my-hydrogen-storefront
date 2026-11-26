@@ -7,6 +7,7 @@ import {
 } from "@weaverse/hydrogen";
 import { type CSSProperties, useRef, useState } from "react";
 import { Image } from "~/components/image";
+import { useLocalizedHref } from "~/components/link";
 import { cn } from "~/utils/cn";
 import { TEXT_SIZE_CLASS } from "~/utils/text-style";
 import { type EditionTextKey, useCollectorEditions } from "./context";
@@ -55,6 +56,8 @@ function CollectorEditionCard(props: CollectorEditionCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHover, setIsHover] = useState(false);
   const videoUrl = video?.url;
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const localizedLink = useLocalizedHref(link);
 
   // Color de hover: el de la tarjeta si lo tiene; si no, el del grupo.
   const ownHoverColors: Record<EditionTextKey, string> = {
@@ -152,7 +155,7 @@ function CollectorEditionCard(props: CollectorEditionCardProps) {
         )}
         {linkText && link && (
           <a
-            href={link}
+            href={localizedLink}
             // after:inset-0 → toda la tarjeta es clicable con un solo enlace.
             className={cn(
               TEXT_SIZE_CLASS,

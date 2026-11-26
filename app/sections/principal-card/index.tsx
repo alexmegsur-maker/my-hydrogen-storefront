@@ -5,6 +5,7 @@ import {
   type HydrogenComponentProps,
 } from '@weaverse/hydrogen'
 import { useIsMobile } from '~/hooks/use-is-mobile'
+import { useLocalizedHref } from '~/components/link'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -143,7 +144,8 @@ function PrincipalCard(props: PrincipalCardProps) {
   const sub          = loaderData?.frase_principal    ?? ''
   const sinopsisSub  = loaderData?.descripcion        ?? ''
   const sinopsisText = loaderData?.descripcion2       ?? ''
-  const linkUrl      = loaderData?.url                ?? '#'
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const linkUrl      = useLocalizedHref(loaderData?.url ?? '#')
   const btnText      = loaderData?.boton_text         ?? 'Ver más'
 
   const w = isMobile ? cardWidthMobile : cardWidth

@@ -2,6 +2,7 @@ import { JudgemePreviewBadge } from "@judgeme/shopify-hydrogen"
 import { createSchema } from "@weaverse/hydrogen"
 import { useEffect } from "react"
 import { Link, useLocation } from "react-router"
+import { useLocalePrefix } from "~/components/link"
 import { Section } from "~/components/section"
 import { useCurrentProduct } from "~/stores/currentProduct"
 import { useInfoSecret } from "~/stores/infoSecretStore"
@@ -110,6 +111,8 @@ function  PrincipalInfo(props:PrincipalInfoProps){
   const product = useCurrentProduct((state)=>state.currentProduct)
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x)=>x)
+  // "Home" lleva a la home del idioma activo, no a la española
+  const localePrefix = useLocalePrefix()
   const idProduct=product?.id?.split('/').pop();
 
   if(info && product){
@@ -137,7 +140,7 @@ function  PrincipalInfo(props:PrincipalInfoProps){
                   fontSize:breadSize,
                 }}
               >
-                <Link to="/">Home</Link>
+                <Link to={localePrefix || "/"}>Home</Link>
                 {pathnames.map((name,index)=>{
                   const routeTo= `${pathnames.slice(0,index+1).join('/')}`;
                   return(

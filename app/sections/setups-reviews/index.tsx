@@ -7,6 +7,7 @@ import {
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useLocalizedHref } from "~/components/link";
 import type { JudgeMeReviewType } from "~/types/judgeme";
 import { cn } from "~/utils/cn";
 import { constructURL } from "~/utils/misc";
@@ -321,6 +322,8 @@ function SetupsReviews(props: SetupsReviewsProps) {
 
   const textStyle = (prefix: string) =>
     getTextStyle(props as unknown as Record<string, unknown>, prefix);
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const localizedLinkUrl = useLocalizedHref(linkUrl);
   const slides = Array.isArray(children) ? children : [children];
   const reviews = loaderData?.reviews ?? [];
   // Sin datos de Judge.me, {count} desaparece sin dejar un doble espacio.
@@ -481,7 +484,7 @@ function SetupsReviews(props: SetupsReviewsProps) {
 
       {linkText && linkUrl && (
         <a
-          href={linkUrl}
+          href={localizedLinkUrl}
           className={cn(
             TEXT_SIZE_CLASS,
             "mt-8 inline-block border-current border-b pb-1",

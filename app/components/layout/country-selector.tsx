@@ -8,13 +8,14 @@ import { useInView } from "react-intersection-observer";
 import {
   useFetcher,
   useLocation,
+  useMatches,
   useRouteLoaderData,
   useSubmit,
 } from "react-router";
 import type { RootLoader } from "~/root";
 import type { Localizations } from "~/types/others";
 import { DEFAULT_LOCALE } from "~/utils/const";
-import { localizePath, toBasePath } from "~/utils/localized-paths";
+import { getHreflangLinks, getLocaleSwitchPath } from "~/utils/hreflang-links";
 
 export function CountrySelector() {
   const fetcher = useFetcher();
@@ -22,11 +23,11 @@ export function CountrySelector() {
   const rootData = useRouteLoaderData<RootLoader>("root");
   const selectedLocale = rootData?.selectedLocale ?? DEFAULT_LOCALE;
   const { pathname, search } = useLocation();
-  // Ruta base (español): los slugs traducidos se resuelven al cambiar de locale
-  const basePath = toBasePath(
-    pathname.replace(selectedLocale.pathPrefix, ""),
-    selectedLocale.pathPrefix,
-  );
+  const matches = useMatches();
+  // Mismo clúster hreflang que el <head>: al cambiar de idioma en una ficha
+  // de producto se va al handle traducido (no al handle actual, que Shopify
+  // no reconoce entre dos idiomas que no son el español).
+  const hreflangLinks = getHreflangLinks({ pathname, matches, hasError: false });
 
   const countries = (fetcher.data ?? {}) as Localizations;
 
@@ -108,7 +109,12 @@ export function CountrySelector() {
                         // Guardar la elección manual en cookie para que el geo-redirect la respete
                         document.cookie = `locale_pref=${encodeURIComponent(localePrefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
                         handleLocaleChange({
-                          redirectTo: `${localePrefix}${localizePath(basePath, localePrefix)}${search}`,
+                          redirectTo: getLocaleSwitchPath({
+                            pathname,
+                            search,
+                            links: hreflangLinks,
+                            targetPrefix: localePrefix,
+                          }),
                           buyerIdentity: {
                             countryCode: countryLocale.country,
                           },

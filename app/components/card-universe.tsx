@@ -12,6 +12,7 @@ import type { ImageAspectRatio } from "~/types/others";
 import { selectorPaddingMargin } from "~/utils/general";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router";
+import { useLocalizedHref } from "~/components/link";
 import { cn } from "~/utils/cn";
 
 type UniverseTheme = "origin" | "lotr" | "clover" | "solo" | "madrid";
@@ -187,6 +188,8 @@ export default function CardUniverse(props: CardUniverseProps & HydrogenComponen
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHover, setIsHover] = useState(false);
   const linkElm = useRef<HTMLAnchorElement>(null);
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const localizedLink = useLocalizedHref(link);
   const imgWrapRef = useRef<HTMLDivElement>(null);
   const fxRef = useRef<HTMLDivElement>(null);
   const fringeRef = useRef<HTMLDivElement>(null);
@@ -472,7 +475,7 @@ export default function CardUniverse(props: CardUniverseProps & HydrogenComponen
         </p>
         <Link
           ref={linkElm}
-          to={link}
+          to={localizedLink}
           className="u-link"
           style={{
             color: lColor,

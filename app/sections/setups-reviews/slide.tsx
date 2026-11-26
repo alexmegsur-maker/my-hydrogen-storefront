@@ -6,6 +6,7 @@ import {
 } from "@weaverse/hydrogen";
 import type { CSSProperties } from "react";
 import { Image } from "~/components/image";
+import { useLocalizedHref } from "~/components/link";
 import { cn } from "~/utils/cn";
 import {
   getTextStyle,
@@ -58,6 +59,8 @@ function SetupsReviewsSlide(props: SetupsReviewsSlideProps) {
     ref,
     ...rest
   } = props;
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const localizedLink = useLocalizedHref(link);
   const textStyle = (prefix: string) =>
     getTextStyle(props as unknown as Record<string, unknown>, prefix);
   const data =
@@ -118,7 +121,7 @@ function SetupsReviewsSlide(props: SetupsReviewsSlideProps) {
       }
     >
       {link ? (
-        <a href={link} className="block h-full w-full">
+        <a href={localizedLink} className="block h-full w-full">
           {content}
         </a>
       ) : (

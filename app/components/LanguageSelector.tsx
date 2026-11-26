@@ -1,65 +1,38 @@
 import { useThemeSettings } from '@weaverse/hydrogen';
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useState } from 'react';
+import { useLocation, useMatches } from 'react-router';
 import {COUNTRIES} from '~/utils/const';
-import {localizePath, toBasePath} from '~/utils/localized-paths';
+import { getHreflangLinks, getLocaleSwitchPath } from '~/utils/hreflang-links';
+import { splitLocale } from '~/utils/localized-paths';
+
+function localeLabel(key: string) {
+  const locale = COUNTRIES[key] ?? COUNTRIES.default;
+  return `${locale.language} / ${locale.currency}`;
+}
 
 export function LanguageSelector() {
   const {pathname, search} = useLocation();
-  const navigate = useNavigate();
-  const [selectLang,setSelectLang] = useState("ES / EUR");
+  const matches = useMatches();
   const [show,setShow] = useState(false);
   const {headerTColor,headerTHColor,headerTSize}=useThemeSettings()
   const [isHover,setIsHover]=useState(false)
 
-  // Obtenemos el prefijo actual (ej: /en o vacío para default)
-  const currentPathPart = `/${pathname.substring(1).split('/')[0].toLowerCase()}`;
-  const currentLocale = COUNTRIES[currentPathPart] ? currentPathPart : 'default';
+  // Prefijo actual (ej: /en o vacío para default)
+  const {prefix: currentPrefix} = splitLocale(pathname);
+  // Mismo clúster hreflang que el <head> (root.tsx): productos, colecciones y
+  // artículos tienen el handle traducido por idioma, así que la URL correcta en
+  // el idioma destino sale de ahí. Reutilizar el handle actual falla al
+  // cambiar entre dos idiomas que no son el español (Shopify no lo reconoce).
+  const links = getHreflangLinks({ pathname, matches, hasError: false });
 
-  const handleChange = (e:string,c:string) => {
-    const newPrefix = e === 'default' ? '' : e;
-    setSelectLang(newPrefix === '' ? `ES / ${c.toUpperCase()}` : `${newPrefix.replace('/','').toUpperCase()} / ${c.toUpperCase()}`);
-
+  const rememberChoice = (prefix: string) => {
     // Guardar preferencia para que el geo-redirect no sobreescriba la elección
-    document.cookie = `locale_pref=${encodeURIComponent(newPrefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
-
-    // Productos, colecciones y artículos tienen el handle traducido por idioma.
-    // Su URL correcta en el idioma destino ya está en las etiquetas hreflang
-    // (root.tsx); si existe, se usa esa. Reutilizar el handle actual falla al
-    // cambiar entre dos idiomas que no son el español (Shopify no lo reconoce).
-    const targetLang = COUNTRIES[e === 'default' ? 'default' : e]?.language.toLowerCase();
-    const alternate = targetLang
-      ? document.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${targetLang}"]`)
-      : null;
-    if (alternate?.href) {
-      try {
-        window.location.href = `${new URL(alternate.href).pathname}${search}`;
-        return;
-      } catch {
-        // href no válido: se usa la lógica de abajo
-      }
-    }
-
-    const currentPrefix = COUNTRIES[currentPathPart] ? currentPathPart : '';
-    const pathWithoutLocale = currentPrefix
-      ? pathname.replace(currentPrefix, '')
-      : pathname;
-    // Las páginas con slug traducido (p. ej. /de/technologie) pasan por su ruta base
-    const basePath = toBasePath(pathWithoutLocale, currentPrefix);
-
-    window.location.href = `${newPrefix}${localizePath(basePath, newPrefix) || '/'}${search}`;
+    document.cookie = `locale_pref=${encodeURIComponent(prefix)}; Path=/; Max-Age=31536000; SameSite=Lax`;
   };
-
-  useEffect(()=>{
-    let elm = `/${pathname.split("/")[1]}`
-    if(COUNTRIES[elm]){
-      setSelectLang(`${COUNTRIES[elm].language} / ${COUNTRIES[elm].currency}`)
-    }
-  },[])
 
   return (
     <div  onClick={()=>setShow((state)=>!state)}  className="bg-transparent p-1 relative flex cursor-pointer">
-        <button 
+        <button
           onMouseEnter={()=>setIsHover(true)}
           onMouseLeave={()=>setIsHover(false)}
           style={{
@@ -67,51 +40,61 @@ export function LanguageSelector() {
             fontSize:headerTSize
           }}
         >
-          {selectLang}
+          {localeLabel(currentPrefix || 'default')}
         </button>
-        {show && 
-          <div 
-            className='absolute flex  flex-col w-[200px] right-0  text-white'
+        {/* Siempre en el HTML (oculto si está cerrado): así los enlaces entre
+            versiones de idioma son rastreables, no solo clics de JavaScript */}
+        <div
+          className='absolute flex  flex-col w-[200px] right-0  text-white'
+          style={{
+            display: show ? "flex" : "none",
+            marginTop:"26px",
+            borderRadius:"5px",
+            boxShadow:"0 20px 50px 0 rgba(151, 151, 151, 0.1)",
+            border:"1px solid #5757571c",
+            background:"#131313"
+          }}
+        >
+          <span
+            className='absolute top-0'
             style={{
-              marginTop:"26px",
-              borderRadius:"5px",
-              boxShadow:"0 20px 50px 0 rgba(151, 151, 151, 0.1)",
-              border:"1px solid #5757571c",
-              background:"#131313"
-            }}
-          >
-            <span
-              className='absolute top-0'
-              style={{
-              width:0,
-              height:0,
-              borderLeft:"5px solid transparent",
-              borderRight:"5px solid transparent",
-              borderBottom:"6px solid #131313",
-              display:show ? "block":"none",
-              transform:"translateY(-100%)",
-              right:"20px"
-            }}
-            ></span>
-            {Object.entries(COUNTRIES).map(([key, value]) => (
-              <div 
-                key={key} 
+            width:0,
+            height:0,
+            borderLeft:"5px solid transparent",
+            borderRight:"5px solid transparent",
+            borderBottom:"6px solid #131313",
+            display:show ? "block":"none",
+            transform:"translateY(-100%)",
+            right:"20px"
+          }}
+          ></span>
+          {Object.entries(COUNTRIES).map(([key, value]) => {
+            const prefix = key === 'default' ? '' : key;
+            const lang = value.language.toLowerCase();
+            return (
+              <a
+                key={key}
+                href={getLocaleSwitchPath({ pathname, search, links, targetPrefix: prefix })}
+                hrefLang={lang}
+                lang={lang}
                 className='flex py-[8px] px-[16px] hover:bg-stone-500'
-                onClick={()=>handleChange(key,value.currency)}>
-                    <img 
+                onClick={()=>rememberChoice(prefix)}>
+                    <img
                       className='me-1'
-                      src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/${value.country.toLowerCase()}.svg`} 
-                      alt={value.country}  
+                      // lazy: con el menú cerrado (display:none) no se descargan
+                      loading='lazy'
+                      src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/${value.country.toLowerCase()}.svg`}
+                      alt={value.country}
                       style={{
                         width:"30px",
                         height:"20px"
                       }}
                       />
                     {value.label}
-              </div>
-            ))}
-          </div>
-        }
+              </a>
+            );
+          })}
+        </div>
     </div>
   );
-} 
+}

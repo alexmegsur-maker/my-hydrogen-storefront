@@ -12,37 +12,27 @@ import type {
   ProductQuery,
   ShopFragment,
 } from "storefront-api.generated";
-import { COUNTRIES } from "~/utils/const";
+import { COUNTRIES, SITE_ORIGIN } from "~/utils/const";
+import { toCanonicalUrl } from "~/utils/hreflang-links";
+import { splitLocale } from "~/utils/localized-paths";
+import { translations } from "~/utils/translations";
 
-export const SITE_ORIGIN = "https://phoenixchairs.eu";
-
-/**
- * Normaliza una URL a su forma canónica: https, host phoenixchairs.eu, sin
- * query (?Color=Rojo...), sin hash, sin sufijo .data y sin barra final salvo
- * en la raíz. Conserva el prefijo de idioma: cada locale (/en, /de, /fr...)
- * se auto-referencia. Los href de hreflang pasan por aquí también, para que
- * el canonical de cada página coincida exactamente con su entrada hreflang.
- */
-export function toCanonicalUrl(url: string): string {
-  let pathname = "/";
-  try {
-    pathname = new URL(url, SITE_ORIGIN).pathname;
-  } catch (e) {
-    console.error("SEO: URL no válida para canonical:", url, e);
-  }
-  // Peticiones de datos de React Router: "/_root.data" (home) o "/ruta.data"
-  pathname = pathname.replace(/^\/_root\.data$/, "/").replace(/\.data$/, "");
-  if (pathname.length > 1) {
-    pathname = pathname.replace(/\/+$/, "") || "/";
-  }
-  return `${SITE_ORIGIN}${pathname}`;
-}
+// Compartidos con el cliente (root.tsx, selectores): viven en ~/utils
+export { SITE_ORIGIN, toCanonicalUrl };
 
 /** Prefijo de locale ("/de", "/fr"... o "" para español) de una URL canónica. */
 function localePrefixOf(canonicalUrl: string): string {
-  const firstSegment = new URL(canonicalUrl).pathname.split("/")[1];
-  const prefix = `/${firstSegment}`;
-  return firstSegment && prefix in COUNTRIES ? prefix : "";
+  return splitLocale(new URL(canonicalUrl).pathname).prefix;
+}
+
+/** Idioma de una URL según su prefijo ("ES", "DE"...). */
+function languageOf(url: string): string {
+  return COUNTRIES[localePrefixOf(url) || "default"].language;
+}
+
+/** Textos SEO de fallback en el idioma de la URL. */
+function seoTexts(url: string): Record<string, string> {
+  return translations[languageOf(url)] ?? translations.ES;
 }
 
 function root({
@@ -77,24 +67,26 @@ function root({
         "https://x.com/Phoenix_es",
         "https://www.youtube.com/@PhoenixChairsEU",
       ],
-      url: canonicalUrl,
-      potentialAction: {
-        "@type": "SearchAction",
-        target: `https://phoenixchairs.eu/search?q={search_term}`,
-        query: "required name='search_term'",
-      },
+      // La organización es siempre el sitio, no la página que se está viendo.
+      // (SearchAction retirado: Google dejó de usar el cuadro de búsqueda de
+      // sitelinks en noviembre de 2024.)
+      url: SITE_ORIGIN,
     },
   };
 }
 
-function home({ url }: { url?: Request["url"] } = {}): SeoConfig {
-  const canonicalUrl = url ? toCanonicalUrl(url) : undefined;
+/**
+ * Home de cada idioma. Los textos son el fallback de app/utils/translations
+ * en el idioma de la URL; el SEO de Weaverse (applyWeaverseSeo) los sustituye.
+ */
+function home({ url }: { url: Request["url"] }): SeoConfig {
+  const canonicalUrl = toCanonicalUrl(url);
+  const t = seoTexts(url);
   return {
-    title: "Sillas Gaming Premium — Monarch Remaster",
+    title: t.seo_homeTitle,
     titleTemplate: "%s | PhoenixChairs",
-    description:
-      "Sillas gaming de alto rendimiento con biomecánica patentada. Monarch Remaster en ediciones limitadas con licencias oficiales. Envío premium a toda Europa, impuestos incluidos.",
-    ...(canonicalUrl ? { url: canonicalUrl } : {}),
+    description: t.seo_homeDescription,
+    url: canonicalUrl,
     robots: {
       noIndex: false,
       noFollow: false,
@@ -104,28 +96,23 @@ function home({ url }: { url?: Request["url"] } = {}): SeoConfig {
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: "PhoenixChairs",
-        url: "https://phoenixchairs.eu",
-        potentialAction: {
-          "@type": "SearchAction",
-          target: "https://phoenixchairs.eu/search?q={search_term_string}",
-          "query-input": "required name=search_term_string", 
-        } as any,
+        url: SITE_ORIGIN,
       },
       {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        name: "PhoenixChairs — Sillas Gaming Premium",
-        description:
-          "Sillas gaming de alto rendimiento con biomecánica patentada. Ediciones limitadas con licencias oficiales. Envío a Europa con impuestos incluidos.",
-        url: canonicalUrl ?? "https://phoenixchairs.eu",
+        name: `PhoenixChairs — ${t.seo_homeTitle}`,
+        description: t.seo_homeDescription,
+        url: canonicalUrl,
+        inLanguage: languageOf(url).toLowerCase(),
         isPartOf: {
           "@type": "WebSite",
-          url: "https://phoenixchairs.eu",
+          url: SITE_ORIGIN,
         },
         about: {
           "@type": "Organization",
           name: "PhoenixChairs",
-          url: "https://phoenixchairs.eu",
+          url: SITE_ORIGIN,
         },
         breadcrumb: {
           "@type": "BreadcrumbList",
@@ -133,13 +120,39 @@ function home({ url }: { url?: Request["url"] } = {}): SeoConfig {
             {
               "@type": "ListItem",
               position: 1,
-              name: "Inicio",
-              item: "https://phoenixchairs.eu",
+              name: t.home,
+              item: canonicalUrl,
             },
           ],
         },
       },
     ],
+  };
+}
+
+/**
+ * Página Weaverse personalizada (/tecnologia, /de/technologie...). El título y
+ * la descripción vienen del SEO de cada página en Weaverse (applyWeaverseSeo);
+ * si faltan, getSeoMeta usa los de la raíz. Nunca hereda los textos de la home.
+ */
+function customPage({ url }: { url: Request["url"] }): SeoConfig {
+  const canonicalUrl = toCanonicalUrl(url);
+  return {
+    title: "",
+    description: "",
+    titleTemplate: "%s | PhoenixChairs",
+    url: canonicalUrl,
+    robots: { noIndex: false, noFollow: false },
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      url: canonicalUrl,
+      inLanguage: languageOf(url).toLowerCase(),
+      isPartOf: {
+        "@type": "WebSite",
+        url: SITE_ORIGIN,
+      },
+    },
   };
 }
 function productJsonLd({
@@ -213,7 +226,7 @@ function productJsonLd({
         {
           "@type": "ListItem",
           position: 1,
-          name: "Products",
+          name: seoTexts(url).seo_products,
           item: `${origin}${prefix}/products`,
         },
         {
@@ -266,7 +279,9 @@ function product({
   const selectedVariant = productData?.selectedOrFirstAvailableVariant;
   const canonicalUrl = toCanonicalUrl(url);
   return {
-    title: truncate(productData?.seo?.title ?? productData?.title ?? "", 48),
+    // 70 = límite de Hydrogen. Con 48 se cortaba el color/edición y varias
+    // fichas (p. ej. tela gris oscuro y gris-negro) acababan con el mismo título
+    title: truncate(productData?.seo?.title || productData?.title || "", 70),
     description,
     titleTemplate: "%s — PhoenixChairs",
     handle: "@phoenixchairs",
@@ -321,7 +336,7 @@ function collectionJsonLd({
         {
           "@type": "ListItem",
           position: 1,
-          name: "Collections",
+          name: seoTexts(url).seo_collections,
           item: `${siteUrl.origin}${prefix}/collections`,
         },
         {
@@ -359,7 +374,7 @@ function collection({
   const imageUrl = collectionData?.image?.url;
   const canonicalUrl = toCanonicalUrl(url);
   return {
-    title: truncate(rawTitle, 48),
+    title: truncate(rawTitle, 70),
     description: truncate(
       collectionData?.seo?.description ?? collectionData?.description ?? "",
     ),
@@ -400,11 +415,12 @@ function collectionsJsonLd({
     },
   );
 
+  const t = seoTexts(url);
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Collections",
-    description: "All collections",
+    name: t.seo_collections,
+    description: t.seo_collectionsDescription,
     url,
     mainEntity: {
       "@type": "ItemList",
@@ -421,10 +437,11 @@ function listCollections({
   url: Request["url"];
 }): SeoConfig {
   const canonicalUrl = toCanonicalUrl(url);
+  const t = seoTexts(url);
   return {
-    title: "Collections",
+    title: t.seo_collections,
     titleTemplate: "%s — PhoenixChairs",
-    description: "All hydrogen collections",
+    description: t.seo_collectionsDescription,
     url: canonicalUrl,
     jsonLd: collectionsJsonLd({ collections, url: canonicalUrl }),
   };
@@ -442,12 +459,14 @@ function article({
       NonNullable<Article["image"]>,
       "url" | "height" | "width" | "altText"
     >;
+    author?: null | { name?: string | null };
   };
   url: Request["url"];
 }): SeoConfig {
   const canonicalUrl = toCanonicalUrl(url);
+  const authorName = articleData?.author?.name;
   return {
-    title: articleData?.seo?.title ?? articleData?.title,
+    title: articleData?.seo?.title || articleData?.title,
     description: truncate(articleData?.seo?.description ?? ""),
     titleTemplate: "%s — PhoenixChairs",
     url: canonicalUrl,
@@ -467,9 +486,18 @@ function article({
       description: truncate(
         articleData?.seo?.description || articleData?.excerpt || "",
       ),
-      headline: articleData?.seo?.title || "",
+      // headline es obligatorio para Google: si no hay título SEO, el del artículo
+      headline: articleData?.seo?.title || articleData.title,
       image: articleData?.image?.url,
       url: canonicalUrl,
+      mainEntityOfPage: canonicalUrl,
+      inLanguage: languageOf(url).toLowerCase(),
+      ...(authorName ? { author: { "@type": "Person", name: authorName } } : {}),
+      publisher: {
+        "@type": "Organization",
+        name: "PhoenixChairs",
+        url: SITE_ORIGIN,
+      },
     },
   };
 }
@@ -483,7 +511,8 @@ function blog({
 }): SeoConfig {
   const canonicalUrl = toCanonicalUrl(url);
   return {
-    title: blogData?.seo?.title,
+    // Sin título SEO en Shopify la página quedaba sin <title>
+    title: blogData?.seo?.title || blogData?.title,
     description: truncate(blogData?.seo?.description || ""),
     titleTemplate: "%s — PhoenixChairs",
     url: canonicalUrl,
@@ -507,7 +536,7 @@ function page({
   const canonicalUrl = toCanonicalUrl(url);
   return {
     description: truncate(pageData?.seo?.description || ""),
-    title: pageData?.seo?.title ?? pageData?.title,
+    title: pageData?.seo?.title || pageData?.title,
     titleTemplate: "%s — PhoenixChairs",
     url: canonicalUrl,
     jsonLd: {
@@ -515,6 +544,7 @@ function page({
       "@type": "WebPage",
       name: pageData.title,
       url: canonicalUrl,
+      inLanguage: languageOf(url).toLowerCase(),
     },
   };
 }
@@ -599,6 +629,7 @@ export const seoPayload = {
   article,
   blog,
   collection,
+  customPage,
   home,
   listCollections,
   page,

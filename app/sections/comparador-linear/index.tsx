@@ -4,6 +4,7 @@ import {
   useChildInstances,
 } from "@weaverse/hydrogen";
 import type { CSSProperties } from "react";
+import { useLocalizedHref } from "~/components/link";
 import { cn } from "~/utils/cn";
 import {
   getTextStyle,
@@ -77,6 +78,8 @@ function ComparadorLinear(props: ComparadorLinearProps) {
   );
   const textStyle = (prefix: string) =>
     getTextStyle(props as unknown as Record<string, unknown>, prefix);
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const localizedLinkUrl = useLocalizedHref(linkUrl);
 
   return (
     <section
@@ -112,7 +115,7 @@ function ComparadorLinear(props: ComparadorLinearProps) {
         </div>
         {linkText && linkUrl && (
           <a
-            href={linkUrl}
+            href={localizedLinkUrl}
             className={cn(
               TEXT_SIZE_CLASS,
               "self-start border-current border-b pb-1 md:self-auto",

@@ -4,6 +4,7 @@ import type { RouteLoaderArgs } from "@weaverse/hydrogen";
 import type { MetaFunction } from "react-router";
 import type { PageDetailsQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { getResourceHreflang } from "~/.server/hreflang";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
 import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
@@ -38,7 +39,9 @@ export async function loader({ request, params, context }: RouteLoaderArgs) {
   });
 
   const seo = applyWeaverseSeo(seoPayload.page({ page, url: request.url }), weaverseData);
-  return { page, seo, weaverseData };
+  // Clúster hreflang con el handle traducido de la page en cada idioma (root.tsx)
+  const hreflang = await getResourceHreflang(storefront, "pages", page.id);
+  return { page, seo, hreflang, weaverseData };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -49,9 +52,10 @@ export default function Page() {
   return <WeaverseContent />;
 }
 
+// country: ver LAYOUT_QUERY (app/.server/root.ts). Hydrogen lo inyecta.
 const PAGE_QUERY = `#graphql
-  query PageDetails($language: LanguageCode, $handle: String!)
-  @inContext(language: $language) {
+  query PageDetails($country: CountryCode, $language: LanguageCode, $handle: String!)
+  @inContext(country: $country, language: $language) {
     page(handle: $handle) {
       id
       title

@@ -12,8 +12,10 @@ import {
 } from "react-share";
 import type { ArticleQuery } from "storefront-api.generated";
 import { Image } from "~/components/image";
+import { useLocalePrefix } from "~/components/link";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import type { RootLoader } from "~/root";
+import { localizeHtmlLinks } from "~/utils/localized-paths";
 
 interface BlogPostProps extends SectionProps {
   ref: React.Ref<HTMLElement>;
@@ -29,6 +31,8 @@ export default function BlogPost(props: BlogPostProps) {
     blog: ArticleQuery["blog"];
     formattedDate: string;
   }>();
+  // Idioma activo: los enlaces del cuerpo y de compartir no deben llevar a la versión española
+  const localePrefix = useLocalePrefix();
   const { title, handle, image, contentHtml, author, tags } = article;
   if (article) {
     let domain = layout.shop.primaryDomain.url;
@@ -39,7 +43,7 @@ export default function BlogPost(props: BlogPostProps) {
       }
     }
     const { handle: blogHandle } = blog;
-    const articleUrl = `${domain}/blogs/${blogHandle}/${handle}`;
+    const articleUrl = `${domain}${localePrefix}/blogs/${blogHandle}/${handle}`;
     return (
       <Section ref={ref} {...rest}>
         {image && (
@@ -61,7 +65,9 @@ export default function BlogPost(props: BlogPostProps) {
           <div className="mx-auto space-y-8 md:space-y-16">
             <div
               suppressHydrationWarning
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
+              dangerouslySetInnerHTML={{
+                __html: localizeHtmlLinks(contentHtml, localePrefix),
+              }}
             />
             <div className="mx-auto w-1/3 border-line-subtle border-t" />
             <div className="flex flex-col items-center justify-between gap-2 md:flex-row">

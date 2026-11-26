@@ -1,6 +1,7 @@
 import { createSchema, useChildInstances } from "@weaverse/hydrogen";
 import { Children, useEffect, useRef, useState } from "react";
 import { Link, useLoaderData } from "react-router";
+import { useLocalizedHref } from "~/components/link";
 import type { ProductMediaProps } from "~/components/product/product-media";
 import { Section, type SectionProps } from "~/components/section";
 import { Skeleton } from "~/components/skeleton";
@@ -109,6 +110,8 @@ export default function ProductInformationD(
 
   const { product, language } = useLoaderData<typeof productRouteLoader>();
   const t = translations[language] ?? translations["ES"];
+  // "← Inicio" lleva a la home del idioma activo, no a la española
+  const homeHref = useLocalizedHref("/");
 
   const [currentProduct, setCurrentProduct] = useState<CurrentProduct | null>(null);
 
@@ -256,7 +259,7 @@ export default function ProductInformationD(
               zIndex: 2,
             }}
           >
-            <Link to={"/"} onClick={restoreHeaderFooter}>
+            <Link to={homeHref} onClick={restoreHeaderFooter}>
               ← {backLabel || t.home} 
             </Link>
           </div>

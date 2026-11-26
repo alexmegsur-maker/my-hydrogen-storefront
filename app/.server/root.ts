@@ -281,9 +281,10 @@ function resolveToFromType(
       return "/";
     case "ARTICLE": {
       const blogHandle = pathParts.pop();
+      // Sin barra final: la URL canónica del artículo no la lleva
       return routePrefix.BLOG
-        ? `/${routePrefix.BLOG}/${blogHandle}/${handle}/`
-        : `/${blogHandle}/${handle}/`;
+        ? `/${routePrefix.BLOG}/${blogHandle}/${handle}`
+        : `/${blogHandle}/${handle}`;
     }
     case "COLLECTIONS":
       return `/${routePrefix.COLLECTIONS}`;
@@ -382,12 +383,16 @@ async function getGlobalStats(context: AppLoadContext, signal?: AbortSignal) {
   }
 }
 
+// country es necesario: sin él Shopify usa el mercado principal y, en los
+// idiomas que no tiene activos (fr, it, pl, nl), puede devolver menús y
+// handles en español. Hydrogen lo inyecta desde i18n al declarar $country.
 const LAYOUT_QUERY = `#graphql
   query layout(
+    $country: CountryCode
     $language: LanguageCode
     $headerMenuHandle: String!
     $footerMenuHandle: String!
-  ) @inContext(language: $language) {
+  ) @inContext(country: $country, language: $language) {
     shop {
       ...Shop
     }

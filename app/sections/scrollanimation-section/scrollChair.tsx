@@ -11,6 +11,7 @@ import {
 } from "@weaverse/hydrogen";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useIsMobile } from "~/hooks/use-is-mobile";
+import { useLocalizedHref } from "~/components/link";
 import { useLenis } from "lenis/react";
 
 // ---------------------------------------------------------------------------
@@ -439,7 +440,8 @@ export default function ChairSection(props: ChairSectionProps) {
   const subtitle     = loaderData?.subtitle     ?? "";
   const description  = loaderData?.description  ?? "";
   const button_text  = loaderData?.button_text  ?? "Comprar ahora";
-  const link         = loaderData?.link         ?? "#";
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const link         = useLocalizedHref(loaderData?.link ?? "#");
   const imagenes     = loaderData?.imagenes     ?? [];
   const imagenes_360 = loaderData?.imagenes_360 ?? [];
 

@@ -13,6 +13,7 @@ import { selectorPaddingMargin } from "~/utils/general";
 import { useRef, useState } from "react";
 import { useIsMobile } from "~/hooks/use-is-mobile";
 import { Link } from "react-router";
+import { useLocalizedHref } from "~/components/link";
 
 interface CardSimpleProps {
   image: WeaverseImage;
@@ -134,6 +135,8 @@ export default function CardSimple(
   const [imageLoaded,setImageLoaded] = useState(false)
   const isMobile =useIsMobile(600)
   const linkElm = useRef(null)
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const localizedLink = useLocalizedHref(link)
 
   const linkAllCard=()=>{
     if(linkCard){
@@ -242,7 +245,7 @@ export default function CardSimple(
         </p>
         <Link
           ref={linkElm}
-          to={link}
+          to={localizedLink}
           className="u-link"
           style={{
             color: lColor,

@@ -167,6 +167,13 @@ export const translations: Record<string, Record<string, string>> = {
     search_noResultsMatching: "No pudimos encontrar {type} que coincidan con \"{term}\"",
     search_tryDifferentKeywords: "Revisa la ortografía o prueba con otras palabras clave",
     search_viewPage: "Ver página →",
+    // ── SEO (fallback si la página no tiene SEO en Weaverse) ──
+    seo_homeTitle: "Sillas Ergonómicas y Setups Premium",
+    seo_homeDescription: "Eleva tu setup con Phoenix Chairs: sillas ergonómicas de alto rendimiento, escritorios profesionales y licencias oficiales. Envío a toda Europa.",
+    seo_products: "Productos",
+    seo_productsDescription: "Todas las sillas gaming, escritorios y accesorios de Phoenix Chairs, con licencias oficiales y envío a toda Europa.",
+    seo_collections: "Colecciones",
+    seo_collectionsDescription: "Explora las colecciones de Phoenix Chairs: sillas gaming premium, ediciones con licencia oficial y accesorios para tu setup.",
   },
 
   EN: {
@@ -333,6 +340,13 @@ export const translations: Record<string, Record<string, string>> = {
     search_noResultsMatching: "We couldn't find any {type} matching \"{term}\"",
     search_tryDifferentKeywords: "Try checking your spelling or using different keywords",
     search_viewPage: "View page →",
+    // ── SEO (fallback si la página no tiene SEO en Weaverse) ──
+    seo_homeTitle: "Premium Ergonomic Chairs & Setups",
+    seo_homeDescription: "Elevate your setup with Phoenix Chairs: high-performance ergonomic chairs, pro-level desks and official licensed editions. Shipping across Europe.",
+    seo_products: "Products",
+    seo_productsDescription: "All Phoenix Chairs gaming chairs, desks and accessories, with official licences and shipping across Europe.",
+    seo_collections: "Collections",
+    seo_collectionsDescription: "Explore the Phoenix Chairs collections: premium gaming chairs, official licensed editions and accessories for your setup.",
   },
   DE: {
     loadPrev: "↑ Vorherige laden",
@@ -498,6 +512,13 @@ export const translations: Record<string, Record<string, string>> = {
     search_noResultsMatching: "Wir konnten keine {type} finden, die zu \"{term}\" passen",
     search_tryDifferentKeywords: "Überprüfe die Schreibweise oder verwende andere Suchbegriffe",
     search_viewPage: "Seite ansehen →",
+    // ── SEO (fallback si la página no tiene SEO en Weaverse) ──
+    seo_homeTitle: "Ergonomische Premium-Gaming-Stühle",
+    seo_homeDescription: "Bring dein Setup aufs nächste Level: ergonomische Hochleistungsstühle, Profi-Schreibtische und offiziell lizenzierte Editionen. Versand in ganz Europa.",
+    seo_products: "Produkte",
+    seo_productsDescription: "Alle Gaming-Stühle, Schreibtische und Zubehör von Phoenix Chairs – mit offiziellen Lizenzen und Versand in ganz Europa.",
+    seo_collections: "Kollektionen",
+    seo_collectionsDescription: "Entdecke die Kollektionen von Phoenix Chairs: Premium-Gaming-Stühle, offiziell lizenzierte Editionen und Zubehör für dein Setup.",
   },
 
   FR: {
@@ -664,6 +685,13 @@ export const translations: Record<string, Record<string, string>> = {
     search_noResultsMatching: "Nous n'avons trouvé aucun {type} correspondant à \"{term}\"",
     search_tryDifferentKeywords: "Vérifiez l'orthographe ou essayez d'autres mots-clés",
     search_viewPage: "Voir la page →",
+    // ── SEO (fallback si la página no tiene SEO en Weaverse) ──
+    seo_homeTitle: "Chaises Gaming et Ergonomiques Premium",
+    seo_homeDescription: "Sublimez votre setup : chaises ergonomiques haute performance, bureaux pro et éditions sous licence officielle. Livraison dans toute l'Europe.",
+    seo_products: "Produits",
+    seo_productsDescription: "Toutes les chaises gaming, bureaux et accessoires Phoenix Chairs, sous licence officielle et livrés dans toute l'Europe.",
+    seo_collections: "Collections",
+    seo_collectionsDescription: "Découvrez les collections Phoenix Chairs : chaises gaming premium, éditions sous licence officielle et accessoires pour votre setup.",
   },
 
   IT: {
@@ -830,6 +858,13 @@ export const translations: Record<string, Record<string, string>> = {
     search_noResultsMatching: "Non abbiamo trovato {type} corrispondenti a \"{term}\"",
     search_tryDifferentKeywords: "Controlla l'ortografia o prova con altre parole chiave",
     search_viewPage: "Vedi pagina →",
+    // ── SEO (fallback si la página no tiene SEO en Weaverse) ──
+    seo_homeTitle: "Sedie Gaming ed Ergonomiche Premium",
+    seo_homeDescription: "Porta il tuo setup al top: sedie ergonomiche ad alte prestazioni, scrivanie pro ed edizioni su licenza ufficiale. Spedizione in tutta Europa.",
+    seo_products: "Prodotti",
+    seo_productsDescription: "Tutte le sedie gaming, scrivanie e accessori Phoenix Chairs, con licenze ufficiali e spedizione in tutta Europa.",
+    seo_collections: "Collezioni",
+    seo_collectionsDescription: "Scopri le collezioni Phoenix Chairs: sedie gaming premium, edizioni su licenza ufficiale e accessori per il tuo setup.",
   },
   PL: {
     loadPrev: "↑ Wczytaj poprzednie",
@@ -995,6 +1030,13 @@ export const translations: Record<string, Record<string, string>> = {
     search_noResultsMatching: "Nie znaleźliśmy {type} pasujących do \"{term}\"",
     search_tryDifferentKeywords: "Sprawdź pisownię lub użyj innych słów kluczowych",
     search_viewPage: "Zobacz stronę →",
+    // ── SEO (fallback si la página no tiene SEO en Weaverse) ──
+    seo_homeTitle: "Fotele Gamingowe i Ergonomiczne Premium",
+    seo_homeDescription: "Podnieś poziom swojego setupu: ergonomiczne fotele o wysokiej wydajności, profesjonalne biurka i edycje na oficjalnej licencji. Wysyłka w całej Europie.",
+    seo_products: "Produkty",
+    seo_productsDescription: "Wszystkie fotele gamingowe, biurka i akcesoria Phoenix Chairs – oficjalne licencje i wysyłka w całej Europie.",
+    seo_collections: "Kolekcje",
+    seo_collectionsDescription: "Poznaj kolekcje Phoenix Chairs: fotele gamingowe premium, edycje na oficjalnej licencji i akcesoria do Twojego setupu.",
   },
   NL: {
     loadPrev: "↑ Vorige laden",
@@ -1160,5 +1202,12 @@ export const translations: Record<string, Record<string, string>> = {
     search_noResultsMatching: "We hebben geen {type} gevonden die overeenkomen met \"{term}\"",
     search_tryDifferentKeywords: "Controleer je spelling of probeer andere zoekwoorden",
     search_viewPage: "Pagina bekijken →",
+    // ── SEO (fallback si la página no tiene SEO en Weaverse) ──
+    seo_homeTitle: "Premium Gaming- en Ergonomische Stoelen",
+    seo_homeDescription: "Til je setup naar een hoger niveau: ergonomische high-performance stoelen, pro-bureaus en officieel gelicentieerde edities. Verzending door heel Europa.",
+    seo_products: "Producten",
+    seo_productsDescription: "Alle gamestoelen, bureaus en accessoires van Phoenix Chairs, met officiële licenties en verzending door heel Europa.",
+    seo_collections: "Collecties",
+    seo_collectionsDescription: "Ontdek de collecties van Phoenix Chairs: premium gamestoelen, officieel gelicentieerde edities en accessoires voor je setup.",
   },
 };

@@ -30,7 +30,15 @@ export async function loader(args: LoaderFunctionArgs) {
   // Check weaverseData after parallel loading
   validateWeaverseData(weaverseData);
 
-  const seo = applyWeaverseSeo(seoPayload.home({ url: request.url }), weaverseData);
+  // Las páginas Weaverse de un solo segmento (/tecnologia, /comparativa...)
+  // también pasan por esta ruta: no deben heredar el título, la descripción ni
+  // el JSON-LD de la home.
+  const seo = applyWeaverseSeo(
+    isCustomPage
+      ? seoPayload.customPage({ url: request.url })
+      : seoPayload.home({ url: request.url }),
+    weaverseData,
+  );
 
   return {
     shop,

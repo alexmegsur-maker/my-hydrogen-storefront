@@ -5,6 +5,7 @@ import {
   type WeaverseImage,
 } from "@weaverse/hydrogen";
 import { Image } from "~/components/image";
+import { useLocalizedHref } from "~/components/link";
 
 interface CollectorLicenseProps extends HydrogenComponentProps {
   backgroundImage: WeaverseImage | string;
@@ -35,6 +36,8 @@ function CollectorLicense(props: CollectorLicenseProps) {
   } = props;
 
   const logoData = logo ? toData(logo, "Logo") : null;
+  // Enlace en el idioma activo (no saltar a la versión española)
+  const localizedLink = useLocalizedHref(link);
 
   const content = (
     <>
@@ -77,7 +80,7 @@ function CollectorLicense(props: CollectorLicenseProps) {
       style={{ borderColor: borderColor || "#24262b" }}
     >
       {link ? (
-        <a href={link} className="block h-full w-full">
+        <a href={localizedLink} className="block h-full w-full">
           {content}
         </a>
       ) : (

@@ -91,12 +91,14 @@ export default function Article() {
   return <WeaverseContent />;
 }
 
+// country: ver LAYOUT_QUERY (app/.server/root.ts). Hydrogen lo inyecta.
 const ARTICLE_QUERY = `#graphql
   query article(
+    $country: CountryCode
     $language: LanguageCode
     $blogHandle: String!
     $articleHandle: String!
-  ) @inContext(language: $language) {
+  ) @inContext(country: $country, language: $language) {
     blog(handle: $blogHandle) {
       title
       handle

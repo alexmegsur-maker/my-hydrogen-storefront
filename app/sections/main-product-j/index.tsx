@@ -4,6 +4,7 @@ import { Link, useLoaderData } from "react-router";
 import ProductMedia from "~/components/product-j/product-media";
 import ProductMediaSecret from "~/components/product-secret/product-media-secret";
 import type { ProductMediaProps } from "~/components/product/product-media";
+import { useLocalizedHref } from "~/components/link";
 import { GlobalLoading } from "~/components/root/global-loading";
 import { Section, type SectionProps } from "~/components/section";
 import { useIsMobile } from "~/hooks/use-is-mobile";
@@ -38,6 +39,8 @@ export default function ProductInformationJ(props:ProductInformationData &Sectio
 
   const {product,language} = useLoaderData<typeof productRouteLoader>()
   const t = translations[language]??translations["ES"]
+  // "← Inicio" lleva a la home del idioma activo, no a la española
+  const homeHref = useLocalizedHref("/")
   
   const [currentProduct,setCurrentProduct] = useState(null)
 
@@ -130,7 +133,7 @@ if(isCurrentProductReady){
               zIndex:10
             }}
           >
-            <Link to={"/"} onClick={ restoreHeaderFooter}>← {t.home}</Link>
+            <Link to={homeHref} onClick={ restoreHeaderFooter}>← {t.home}</Link>
           </div>
           <div data-lenis-prevent
             style={{ 
@@ -164,7 +167,7 @@ if(isCurrentProductReady){
               zIndex: 10,
             }}
           >
-            <Link to={"/"} onClick={restoreHeaderFooter}>← {t.home}</Link>
+            <Link to={homeHref} onClick={restoreHeaderFooter}>← {t.home}</Link>
           </div>
           <div
             style={{

@@ -37,8 +37,8 @@ import {
 } from "./components/root/newsletter-popup";
 import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
-import { COUNTRIES, DEFAULT_LOCALE } from "./utils/const";
-import { localizePath, toBasePath } from "./utils/localized-paths";
+import { DEFAULT_LOCALE } from "./utils/const";
+import { getHreflangLinks } from "./utils/hreflang-links";
 import { GlobalStyle } from "./weaverse/style";
 import { useJudgemeWithNonce } from "./hooks/use-judgeme-with-nonce";
 import { GoogleTagManager } from "./components/google-tag-manager";
@@ -48,83 +48,6 @@ import CookieConsentBanner from "./components/CookieConsent";
 import { IsMobileContext } from "./hooks/is-mobile-context";
 
 const MOBILE_UA_REGEX = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i;
-const SITE_ORIGIN = "https://phoenixchairs.eu";
-
-type HreflangLink = { hreflang: string; href: string };
-
-// Secciones no indexables: no emiten hreflang (ruta sin prefijo de locale)
-const NON_INDEXABLE_PREFIXES = ["/cart", "/account", "/search"];
-
-/**
- * Construye el clúster hreflang (todas las versiones de idioma de la página
- * actual, más x-default) a partir del pathname y el prefijo de locale activo.
- * El sitio no tenía ninguna etiqueta hreflang (auditoría SEO, punto 2).
- */
-function buildHreflangLinks(pathname: string, currentPrefix: string): HreflangLink[] {
-  const pathWithoutLocale =
-    currentPrefix && pathname.startsWith(currentPrefix)
-      ? pathname.slice(currentPrefix.length) || "/"
-      : pathname;
-  // Las páginas con slug traducido (p. ej. /de/technologie) comparten clúster
-  // con su ruta base en español.
-  const basePath = toBasePath(pathWithoutLocale, currentPrefix);
-
-  const prefixes = ["", ...Object.keys(COUNTRIES).filter((key) => key !== "default")];
-
-  const links = prefixes.map((prefix) => {
-    const locale = COUNTRIES[prefix || "default"];
-    const href = `${SITE_ORIGIN}${prefix}${basePath === "/" ? (prefix ? "" : "/") : localizePath(basePath, prefix)}`;
-    return { hreflang: locale.language.toLowerCase(), href };
-  });
-
-  links.push({
-    hreflang: "x-default",
-    href: `${SITE_ORIGIN}${basePath === "/" ? "/" : basePath}`,
-  });
-
-  return links;
-}
-
-/**
- * Decide qué clúster hreflang emitir. Productos y colecciones aportan el suyo
- * desde el loader (`hreflang`, con el handle traducido de cada idioma); el
- * resto de páginas usa buildHreflangLinks. En 404/errores, carrito, cuenta y
- * búsqueda no se emite nada: no son indexables.
- */
-function getHreflangLinks({
-  pathname,
-  currentPrefix,
-  matches,
-  hasError,
-}: {
-  pathname: string;
-  currentPrefix: string;
-  matches: ReturnType<typeof useMatches>;
-  hasError: boolean;
-}): HreflangLink[] {
-  if (hasError) {
-    return [];
-  }
-  const pathWithoutLocale =
-    currentPrefix && pathname.startsWith(currentPrefix)
-      ? pathname.slice(currentPrefix.length) || "/"
-      : pathname;
-  const isNonIndexable = NON_INDEXABLE_PREFIXES.some(
-    (prefix) =>
-      pathWithoutLocale === prefix || pathWithoutLocale.startsWith(`${prefix}/`),
-  );
-  if (isNonIndexable) {
-    return [];
-  }
-  for (const match of matches) {
-    const routeHreflang = (match.data as { hreflang?: HreflangLink[] } | undefined)
-      ?.hreflang;
-    if (Array.isArray(routeHreflang)) {
-      return routeHreflang;
-    }
-  }
-  return buildHreflangLinks(pathname, currentPrefix);
-}
 
 export type RootLoader = typeof loader;
 
@@ -238,9 +161,9 @@ export const Layout = withWeaverse(function Layout({ children }: { children: Rea
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const matches = useMatches();
   const routeError = useRouteError();
+  // hreflang solo de las versiones que existen (app/utils/hreflang-links.ts)
   const hreflangLinks = getHreflangLinks({
     pathname: location.pathname,
-    currentPrefix: locale.pathPrefix ?? "",
     matches,
     hasError: Boolean(routeError),
   });
@@ -286,7 +209,7 @@ export const Layout = withWeaverse(function Layout({ children }: { children: Rea
 
   return (
     <IsMobileContext.Provider value={data?.isMobileUA ?? false}>
-    <html lang={locale.language}>
+    <html lang={locale.language.toLowerCase()}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />

@@ -1,5 +1,21 @@
 import { parseGid } from "@shopify/hydrogen";
 import type { LoaderFunctionArgs } from "react-router";
+import { LOCALE_PREFIXES } from "~/utils/const";
+
+/** Rutas no indexables que también existen bajo cada prefijo de idioma. */
+const LOCALIZED_DISALLOW_PATHS = ["/cart", "/account", "/search", "/policies/"];
+
+/**
+ * Disallow de esas rutas para cada idioma (/en/cart, /de/search...), derivado
+ * de COUNTRIES: las reglas generales solo cubren la versión española (raíz).
+ */
+function localizedDisallowRules() {
+  return LOCALE_PREFIXES.filter(Boolean)
+    .flatMap((prefix) =>
+      LOCALIZED_DISALLOW_PATHS.map((path) => `Disallow: ${prefix}${path}`),
+    )
+    .join("\n");
+}
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -102,6 +118,7 @@ Allow: /search/
 Disallow: /search/?*
 Disallow: /apple-app-site-association
 Disallow: /.well-known/shopify/monorail
+${localizedDisallowRules()}
 ${sitemapUrl ? `Sitemap: ${sitemapUrl}` : ""}`;
 }
 

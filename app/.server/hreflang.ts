@@ -3,12 +3,20 @@ import type {
   CountryCode,
   LanguageCode,
 } from "@shopify/hydrogen/storefront-api-types";
-import { COUNTRIES } from "~/utils/const";
-import { SITE_ORIGIN, toCanonicalUrl } from "./seo";
+import { COUNTRIES, LOCALE_PREFIXES } from "~/utils/const";
+import {
+  buildHreflangCluster,
+  type HreflangLink,
+} from "~/utils/hreflang-links";
 
-export type HreflangLink = { hreflang: string; href: string };
+export type { HreflangLink };
 
-type LocalizedResourceType = "products" | "collections" | "articles";
+type LocalizedResourceType =
+  | "products"
+  | "collections"
+  | "articles"
+  | "blogs"
+  | "pages";
 
 // Segmento de URL de cada tipo. Los artículos viven en /blogs/<blog>/<artículo>,
 // así que su "handle" localizado incluye ya el handle del blog.
@@ -16,15 +24,11 @@ const URL_SEGMENT: Record<LocalizedResourceType, string> = {
   products: "products",
   collections: "collections",
   articles: "blogs",
+  blogs: "blogs",
+  pages: "pages",
 };
 
-// Prefijos de idioma de COUNTRIES ("" = español, por defecto).
-export const LOCALE_PREFIXES: string[] = [
-  "",
-  ...Object.keys(COUNTRIES).filter((key) => key !== "default"),
-];
-
-export function localeForPrefix(prefix: string) {
+function localeForPrefix(prefix: string) {
   return COUNTRIES[prefix || "default"];
 }
 
@@ -60,11 +64,72 @@ const ARTICLE_HANDLE_QUERY = `#graphql
   }
 ` as const;
 
+const BLOG_HANDLE_QUERY = `#graphql
+  query LocalizedBlogHandle($id: ID!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    node(id: $id) {
+      ... on Blog {
+        handle
+      }
+    }
+  }
+` as const;
+
+const PAGE_HANDLE_QUERY = `#graphql
+  query LocalizedPageHandle($id: ID!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    node(id: $id) {
+      ... on Page {
+        handle
+      }
+    }
+  }
+` as const;
+
+/** Handle de un recurso en un idioma (artículos: "<blog>/<artículo>"). */
+async function queryLocalizedHandle(
+  storefront: Storefront,
+  type: LocalizedResourceType,
+  variables: { id: string; country: CountryCode; language: LanguageCode },
+): Promise<string | undefined> {
+  const cache = storefront.CacheLong();
+  switch (type) {
+    case "products": {
+      const data = await storefront.query(PRODUCT_HANDLE_QUERY, { variables, cache });
+      return data?.product?.handle;
+    }
+    case "collections": {
+      const data = await storefront.query(COLLECTION_HANDLE_QUERY, { variables, cache });
+      return data?.collection?.handle;
+    }
+    case "articles": {
+      const data = await storefront.query(ARTICLE_HANDLE_QUERY, { variables, cache });
+      const node = data?.node as
+        | { handle?: string; blog?: { handle?: string } }
+        | null
+        | undefined;
+      return node?.handle && node.blog?.handle
+        ? `${node.blog.handle}/${node.handle}`
+        : undefined;
+    }
+    case "blogs": {
+      const data = await storefront.query(BLOG_HANDLE_QUERY, { variables, cache });
+      return (data?.node as { handle?: string } | null | undefined)?.handle;
+    }
+    case "pages": {
+      const data = await storefront.query(PAGE_HANDLE_QUERY, { variables, cache });
+      return (data?.node as { handle?: string } | null | undefined)?.handle;
+    }
+    default:
+      return undefined;
+  }
+}
+
 /**
- * Devuelve el handle de un producto, colección o artículo (este último como
- * "<blog>/<artículo>") en cada idioma de COUNTRIES,
- * indexado por prefijo de locale. En Shopify los handles están traducidos, así
- * que reutilizar el handle español bajo /de, /fr... produce URLs que redirigen.
+ * Devuelve el handle de un producto, colección, blog, page o artículo (este
+ * último como "<blog>/<artículo>") en cada idioma de COUNTRIES, indexado por
+ * prefijo de locale. En Shopify los handles están traducidos, así que
+ * reutilizar el handle español bajo /de, /fr... produce URLs que redirigen.
  * Se consulta por id (no por handle) con una petición por idioma en paralelo.
  * Si un idioma falla o no devuelve el recurso, ese prefijo se omite.
  */
@@ -81,31 +146,12 @@ export async function getLocalizedHandles(
       // idiomas que no tiene activos (fr, it, pl, nl), devuelve el handle español
       const country = locale.country as CountryCode;
       try {
-        if (type === "articles") {
-          const data = await storefront.query(ARTICLE_HANDLE_QUERY, {
-            variables: { id, country, language },
-            cache: storefront.CacheLong(),
-          });
-          const node = data?.node as
-            | { handle?: string; blog?: { handle?: string } }
-            | null
-            | undefined;
-          const handle =
-            node?.handle && node.blog?.handle ? `${node.blog.handle}/${node.handle}` : undefined;
-          return [prefix, handle] as const;
-        }
-        if (type === "products") {
-          const data = await storefront.query(PRODUCT_HANDLE_QUERY, {
-            variables: { id, country, language },
-            cache: storefront.CacheLong(),
-          });
-          return [prefix, data?.product?.handle] as const;
-        }
-        const data = await storefront.query(COLLECTION_HANDLE_QUERY, {
-          variables: { id, country, language },
-          cache: storefront.CacheLong(),
+        const handle = await queryLocalizedHandle(storefront, type, {
+          id,
+          country,
+          language,
         });
-        return [prefix, data?.collection?.handle] as const;
+        return [prefix, handle] as const;
       } catch (error) {
         console.error(`Handle localizado no disponible (${type}, ${language}):`, error);
         return [prefix, undefined] as const;
@@ -124,28 +170,21 @@ export async function getLocalizedHandles(
 
 /**
  * Construye el clúster hreflang de un recurso a partir de sus handles por
- * idioma. Los href pasan por toCanonicalUrl para que coincidan exactamente con
- * el canonical que emite cada versión (mismo host, sin query, mismo encoding).
+ * idioma. Los href pasan por toCanonicalUrl (vía buildHreflangCluster) para
+ * que coincidan exactamente con el canonical que emite cada versión.
+ * x-default apunta a la versión inglesa (o a la española si no existe).
  */
 export function buildResourceHreflang(
   type: LocalizedResourceType,
   handles: Record<string, string>,
 ): HreflangLink[] {
-  const links: HreflangLink[] = LOCALE_PREFIXES.filter(
-    (prefix) => handles[prefix],
-  ).map((prefix) => ({
-    hreflang: localeForPrefix(prefix).language.toLowerCase(),
-    href: toCanonicalUrl(`${SITE_ORIGIN}${prefix}/${URL_SEGMENT[type]}/${handles[prefix]}`),
-  }));
-
-  // x-default apunta a la versión en español (sin prefijo)
-  if (handles[""]) {
-    links.push({
-      hreflang: "x-default",
-      href: toCanonicalUrl(`${SITE_ORIGIN}/${URL_SEGMENT[type]}/${handles[""]}`),
-    });
-  }
-  return links;
+  const versions = Object.fromEntries(
+    Object.entries(handles).map(([prefix, handle]) => [
+      prefix,
+      `/${URL_SEGMENT[type]}/${handle}`,
+    ]),
+  );
+  return buildHreflangCluster(versions);
 }
 
 /** Atajo para los loaders: handles por idioma + clúster hreflang. */

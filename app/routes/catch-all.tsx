@@ -2,15 +2,17 @@ import type { SeoConfig } from "@shopify/hydrogen";
 import { getSeoMeta } from "@shopify/hydrogen";
 import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { redirect } from "react-router";
-import { applyWeaverseSeo, toCanonicalUrl } from "~/.server/seo";
-import { COUNTRIES } from "~/utils/const";
+import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
-import { localizePath } from "~/utils/localized-paths";
+import {
+  localizeHref,
+  pageExistsIn,
+  splitLocale,
+  toBasePath,
+} from "~/utils/localized-paths";
 import { validateWeaverseData, WeaverseContent } from "~/weaverse";
 
 export let headers = routeHeaders;
-
-const LOCALE_PREFIXES = Object.keys(COUNTRIES).filter((k) => k !== "default");
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const weaverseData = await context.weaverse.loadPage({
@@ -21,33 +23,30 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     validateWeaverseData(weaverseData);
   } catch (e) {
     if (e instanceof Response && e.status === 404) {
-      const { pathname } = new URL(request.url);
-      const segments = pathname.split("/").filter(Boolean);
-      const locale = `/${segments[0]}`;
+      const { pathname, search } = new URL(request.url);
+      const { prefix, path } = splitLocale(pathname);
 
-      if (segments.length >= 2 && LOCALE_PREFIXES.includes(locale)) {
-        const handle = `/${segments.slice(1).join("/")}`;
-        // Si la página tiene slug traducido en este locale, va a su copia
-        // localizada (/de/tecnologia → /de/technologie) en vez de al español.
-        const localized = localizePath(handle, locale);
-        if (localized !== handle) {
-          throw redirect(`${locale}${localized}`, 301);
+      if (prefix && path !== "/") {
+        // La página no existe con este slug en este idioma. Si es una página
+        // registrada, se busca su URL correcta: el slug traducido (301,
+        // /de/tecnologia → /de/technologie) o, si esa traducción aún no existe,
+        // la versión española (302, temporal hasta que se cree en Weaverse).
+        const basePath = toBasePath(path, prefix);
+        const target = localizeHref(basePath, prefix);
+        if (target !== `${prefix}${path}`) {
+          const isPermanent = pageExistsIn(basePath, prefix);
+          throw redirect(`${target}${search}`, isPermanent ? 301 : 302);
         }
-        throw redirect(handle, 301);
+        // Página no registrada: se prueba la versión española (temporal)
+        throw redirect(`${basePath}${search}`, 302);
       }
     }
     throw e;
   }
 
   const seo = applyWeaverseSeo(
-    {
-      title: "",
-      description: "",
-      titleTemplate: "%s | PhoenixChairs",
-      // Canonical normalizado: debe coincidir con su entrada hreflang
-      url: toCanonicalUrl(request.url),
-      robots: { noIndex: false, noFollow: false },
-    },
+    // Canonical normalizado: debe coincidir con su entrada hreflang
+    seoPayload.customPage({ url: request.url }),
     weaverseData,
   );
 

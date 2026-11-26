@@ -14,7 +14,7 @@ import {
 import { ScrollReveal } from "~/components/scroll-reveal";
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
-import { localizePath } from "~/utils/localized-paths";
+import { localizeHref } from "~/utils/localized-paths";
 import { selectorPaddingMargin } from "~/utils/general";
 
 export const variants = cva(["inline-flex transition-colors"], {
@@ -111,28 +111,31 @@ function checkExternal(to: LinkProps["to"]) {
   return false;
 }
 
-const LOCALE_PREFIXES = ["/en", "/de", "/fr", "/it", "/pl", "/nl"];
+/** Prefijo de idioma activo ("" = español, "/de", "/fr"...). */
+export function useLocalePrefix(): string {
+  const rootData = useRouteLoaderData<RootLoader>("root");
+  return rootData?.selectedLocale?.pathPrefix ?? "";
+}
+
+/**
+ * Href interno en el idioma activo, con el slug traducido (ver localizeHref).
+ * Para enlaces que no usan este Link (<a> o el Link de react-router) y así
+ * no saltar a la versión española ni pasar por redirecciones.
+ */
+export function useLocalizedHref<T extends string | undefined>(href: T): T {
+  const prefix = useLocalePrefix();
+  return (href ? localizeHref(href, prefix) : href) as T;
+}
 
 function useHrefWithLocale(href: LinkProps["to"]) {
-  const rootData = useRouteLoaderData<RootLoader>("root");
-  const selectedLocale = rootData?.selectedLocale;
-
-  const isExternal = checkExternal(href);
-  if (isExternal) {
+  const prefix = useLocalePrefix();
+  if (typeof href !== "string" || checkExternal(href)) {
     return href;
   }
-
-  let toWithLocale = href;
-  if (
-    typeof toWithLocale === "string" &&
-    selectedLocale?.pathPrefix &&
-    // href (no toWithLocale): TS no conserva el tipo string de un `let` dentro del callback
-    !LOCALE_PREFIXES.some((p) => (href as string).toLowerCase().startsWith(p))
-  ) {
-    toWithLocale = `${selectedLocale.pathPrefix}${localizePath(toWithLocale, selectedLocale.pathPrefix)}`;
-  }
-
-  return toWithLocale;
+  // Idempotente y por segmentos: traduce también los enlaces que ya traen el
+  // prefijo (menús de Shopify: "/fr/legado" → "/fr/heritage") y no confunde
+  // "/devolucion" con el prefijo "/de".
+  return localizeHref(href, prefix);
 }
 
 /**

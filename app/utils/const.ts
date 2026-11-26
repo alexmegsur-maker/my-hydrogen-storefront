@@ -93,4 +93,24 @@ export const DEFAULT_LOCALE: I18nLocale = Object.freeze({
   pathPrefix: "",
 });
 
+/** Dominio público de producción (canonical, hreflang, sitemap). */
+export const SITE_ORIGIN = "https://phoenixchairs.eu";
+
+/**
+ * Prefijos de idioma servidos, derivados de COUNTRIES ("" = español, raíz).
+ * Única fuente para hreflang, sitemap, robots y enlaces: un idioma nuevo en
+ * COUNTRIES aparece en todos ellos sin tocar nada más.
+ */
+export const LOCALE_PREFIXES: string[] = [
+  "",
+  ...Object.keys(COUNTRIES).filter((key) => key !== "default"),
+];
+
+/**
+ * Versión a la que apunta hreflang="x-default" (quien busca en un idioma que
+ * no tenemos: portugués, sueco, checo...). Si un recurso no existe en ese
+ * idioma, se usa la versión española.
+ */
+export const X_DEFAULT_PREFIX = "/en";
+
 export const FILTER_URL_PREFIX = "filter.";

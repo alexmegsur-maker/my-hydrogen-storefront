@@ -4,6 +4,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { data } from "react-router";
 import type { BlogQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { getResourceHreflang } from "~/.server/hreflang";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
 import { applyWeaverseSeo, seoPayload } from "~/.server/seo";
 import { routeHeaders } from "~/utils/cache";
@@ -48,8 +49,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const seo = applyWeaverseSeo(seoPayload.blog({ blog, url: request.url }), weaverseData);
+  // Clúster hreflang con el handle traducido del blog en cada idioma (root.tsx)
+  const hreflang = await getResourceHreflang(storefront, "blogs", blog.id);
 
-  return data({ blog, articles, seo, weaverseData });
+  return data({ blog, articles, seo, hreflang, weaverseData });
 };
 
 export const meta: MetaFunction<typeof loader> = ({ data: loaderData }) => {
@@ -60,14 +63,17 @@ export default function Blogs() {
   return <WeaverseContent />;
 }
 
+// country: ver LAYOUT_QUERY (app/.server/root.ts). Hydrogen lo inyecta.
 const BLOGS_QUERY = `#graphql
   query blog(
+    $country: CountryCode
     $language: LanguageCode
     $blogHandle: String!
     $pageBy: Int!
     $cursor: String
-  ) @inContext(language: $language) {
+  ) @inContext(country: $country, language: $language) {
     blog(handle: $blogHandle) {
+      id
       title
       handle
       seo {

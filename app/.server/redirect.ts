@@ -1,5 +1,11 @@
 import { redirect } from "react-router";
 
+/**
+ * Si la URL usa un handle que no es el del idioma activo (p. ej. el español
+ * bajo /fr), redirige al handle traducido. Es una redirección permanente
+ * (301): la URL correcta de ese recurso en ese idioma es siempre la otra, y
+ * así Google consolida las señales en ella.
+ */
 export function redirectIfHandleIsLocalized(
   request: Request,
   ...localizedResources: Array<{
@@ -18,6 +24,6 @@ export function redirectIfHandleIsLocalized(
   }
 
   if (shouldRedirect) {
-    throw redirect(url.toString());
+    throw redirect(url.toString(), 301);
   }
 }
